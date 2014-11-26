@@ -2,50 +2,86 @@ orderedLexemes = require './orderedLexemes'
 
 lexemes = orderedLexemes()!
 
+clone(o) =
+  JSON.parse(JSON.stringify(o))
+
+actions = {
+  none (context) = nil
+  email (context) = nil
+
+  addBlocks (context, blocks, ...) =
+    for each @(block) in (blocks)
+      context.blocks.(block) = true
+
+  setBlocks (context, blocks, ...) =
+    context.blocks = {}
+    for each @(block) in (blocks)
+      context.blocks.(block) = true
+
+  setVariable (context, variable, value) = nil
+
+  repeatLexeme (context) =
+    --context.coherenceIndex
+
+  loopBack (context) = nil
+}
+
 buildGraph(lexemes) =
-  findNextQuery(coherenceIndex, context) =
-    findNextItem @(item) in (lexemes) startingFrom (coherenceIndex) matching
-      item.level >= context.level @and context.blocks.(item.block)
+  exploredQueries = {}
 
-  selectResponse (response) forQuery (query, coherenceIndex, context) =
-    newContext = context
-      0 () = context
-      1 () =
-        clone(context)
+  findNextQuery(context) =
+    findNextItem @(item) in (lexemes) startingFrom (context.coherenceIndex) matching
+      item.level >= context.level
 
-      2 () =
-        clone(context)
+  selectResponse (response) forQuery (query, context) =
+    console.log "query_#(query.id) -> response_#(response.id)"
+    console.log "response_#(response.id) [label=#(JSON.stringify(response.response))]"
 
-      3 () =
-        clone(context)
+    newContext = clone(context)
+    newContext.level = response.setLevel
+    ++newContext.coherenceIndex
 
-      4 () =
-        clone(context)
+    action = actions.(response.action.name)
+    action(newContext, response.action.arguments, ...)
 
-      5 () =
-        clone(context)
+    console.log "/* coherenceIndex = #(newContext.coherenceIndex) */"
 
-      8 () =
-        clone(context)
-    }
+    nextQuery = findNextQuery(newContext)
 
-    nextQuery = findNextQuery(coherenceIndex + 1, newContext)
-    buildGraphForQuery(nextQuery, coherenceIndex + 1, newContext)
+    if (nextQuery)
+      newContext.coherenceIndex = nextQuery.index
+      console.log "response_#(response.id) -> query_#(nextQuery.id)"
+      buildGraphForQuery(nextQuery, newContext)
 
   query = lexemes.(0)
 
-  buildGraphForQuery(query, coherenceIndex, context) =
-    [
-      response <- query.responses
-      selectResponse (response) forQuery (query, coherenceIndex, context)
-    ]
+  buildGraphForQuery(query, context) =
+    if (@not exploredQueries.(query.id))
+      exploredQueries.(query.id) = true
 
-  buildGraphForQuery(query, 0, {}, 1, {})
+      console.log "query_#(query.id) [label=#(JSON.stringify(query.name))]"
+
+      [
+        response <- query.responses
+        selectResponse (response) forQuery (query, context)
+      ]
+    else
+      nil
+
+  buildGraphForQuery(query) {
+    coherenceIndex = 0
+    blocks = {}
+    level = 1
+    predicants = {}
+  }
 
 findNextItemIn (array) startingFrom (index) matching (predicate) =
   for (n = index, n < array.length, ++n)
     item = array.(n)
     if (predicate(item))
+      item.index = n
       return (item)
 
-console.log(lexemes)
+console.log "digraph g {"
+buildGraph(lexemes)
+console.log "}"
