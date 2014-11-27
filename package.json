@@ -1,0 +1,26 @@
+{
+  "name": "lexeme",
+  "version": "0.0.0",
+  "description": "lexeme",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/featurist/lexeme.git"
+  },
+  "author": "",
+  "license": "private",
+  "bugs": {
+    "url": "https://github.com/featurist/lexeme/issues"
+  },
+  "homepage": "https://github.com/featurist/lexeme",
+  "dependencies": {
+    "chai": "^1.10.0",
+    "mocha": "^2.0.1"
+  }
+}
