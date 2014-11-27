@@ -1,0 +1,33 @@
+{
+	"blocks": {
+		"100": {
+			"name": "Haematology",
+			"queries": {
+				"101": {
+					"text": "What hurts?",
+					"responses": ["1001", "1002"]
+				}
+			}
+		},
+		"200": {
+			"name": "Gynaecology",
+			"queries": {
+				"201": {
+					"text": "What hurts?",
+					"responses": ["2001"]
+				}
+			}
+		}
+	},
+	"responses": {
+		"1001": {
+			"text": "right arm"
+		},
+		"1002": {
+			"text": "left leg"
+		},
+		"2001": {
+			"text": "lady garden"
+		}
+	}
+}
