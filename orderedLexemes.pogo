@@ -1,6 +1,7 @@
 sworm = require 'sworm'
 _ = require 'underscore'
 enumerateRange = require './enumerateRange'
+debug = require './debug'
 
 group (items) by (fn) map (map) =
   groups = _.groupBy (items, fn)
@@ -23,7 +24,6 @@ module.exports() =
                          join tblModifier modifier
                            on main.MainID = modifier.MainID'
 
-    responsesById = _.groupBy (mains, 'ModID')
     queriesById = group (mains) by @(m) @{
       m.MainID.0
     } map @(ms) @{
@@ -72,6 +72,12 @@ module.exports() =
         ]
       }
     }
+
+    responsesById = _.object [
+      q <- _.values(queriesById)
+      r <- q.responses
+      [r.id, r]
+    ]
 
     queryPredicants = db.query! 'select MainID,[Set]
                                    from tblSetBy sb
