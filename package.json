@@ -20,7 +20,16 @@
   },
   "homepage": "https://github.com/featurist/lexeme",
   "devDependencies": {
+    "bluebird": "^2.3.11",
+    "browserify": "^6.3.3",
     "chai": "^1.10.0",
-    "mocha": "^2.0.1"
+    "gulp": "^3.8.10",
+    "gulp-util": "^3.0.1",
+    "gulp-webserver": "^0.8.7",
+    "mocha": "^2.0.1",
+    "pogo": "^0.9.6",
+    "pogoify": "^0.1.1",
+    "vinyl-source-stream": "^1.0.0",
+    "watchify": "^2.1.1"
   }
 }
