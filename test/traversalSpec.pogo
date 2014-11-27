@@ -1,18 +1,14 @@
 lexiconJSON = require './lexicon.json'
 expect = require 'chai'.expect
 
-createTraversal (graph, block) =
+startTraversal (graph, block) =
   {
-    nextQuery() =
-      {
-        text = 'What hurts?'
-      }
+    text = 'What hurts?'
   }
 
 describe 'traversal'
   it 'asks questions in order'
-    traversal = createTraversal(lexiconJSON, '100')
-    q1 = traversal.nextQuery()
+    q1 = startTraversal(lexiconJSON, '100')
     expect(q1.text).to.equal('What hurts?')
     q2 = traversal.respond('right arm')
     expect(q2.text).to.equal('Is it bleeding?')
