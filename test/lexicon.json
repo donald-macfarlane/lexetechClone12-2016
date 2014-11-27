@@ -46,6 +46,18 @@
               "text": "no"
             }
           ]
+        },
+        "104": {
+          "text": "Prescribe dressing",
+          "requires_predicants": ["901"],
+          "responses": [
+            {
+              "text": "Prescribed"
+            },
+            {
+              "text": "No prescription necessary"
+            }
+          ]
         }
       }
     },
