@@ -1,46 +1,66 @@
 {
-	"blocks": {
-		"100": {
-			"name": "Haematology",
-			"queries": {
-				"101": {
-					"text": "What hurts?",
-					"responses": [
-						{
-							"text": "right arm",
-							"next_query": "102"
-						}, 
-						{
-							"text": "left leg",
-							"next_query": "102"
-						}
-					]
-				},
-				"102": {
-					"text": "Is it bleeding?",
-					"responses": [
-						{
-							"text": "yes"
-						}, 
-						{
-							"text": "no"
-						}
-					]
-				}
-			}
-		},
-		"200": {
-			"name": "Gynaecology",
-			"queries": {
-				"201": {
-					"text": "What hurts?",
-					"responses": [
-						{
-							"text": "lady garden"
-						}
-					]
-				}
-			}
-		}
-	}
+  "blocks": {
+    "100": {
+      "name": "Haematology",
+      "predicants": [
+        {
+          "id": "901",
+          "name": "requires dressing"
+        }
+      ],
+      "queries": {
+        "101": {
+          "text": "What hurts?",
+          "responses": [
+            {
+              "text": "right arm",
+              "next_query": "102"
+            },
+            {
+              "text": "left leg",
+              "next_query": "102"
+            }
+          ]
+        },
+        "102": {
+          "text": "Is it bleeding?",
+          "responses": [
+            {
+              "text": "yes",
+              "next_query": "103",
+              "sets_predicants": ["901"]
+            },
+            {
+              "text": "no",
+              "next_query": "103"
+            }
+          ]
+        },
+        "103": {
+          "text": "Is it aching?",
+          "responses": [
+            {
+              "text": "yes"
+            },
+            {
+              "text": "no"
+            }
+          ]
+        }
+      }
+    },
+    "200": {
+      "name": "Gynaecology",
+      "queries": {
+        "201": {
+          "text": "What hurts?",
+          "responses": [
+            {
+              "text": "lady garden"
+            }
+          ]
+        }
+      }
+    }
+  }
 }
