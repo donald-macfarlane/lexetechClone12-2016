@@ -5,6 +5,8 @@ var source = require('vinyl-source-stream');
 var watchify = require('watchify');
 var browserify = require('browserify');
 
+gulp.task('default', ['watch', 'server'])
+
 gulp.task('watch', function() {
   var bundler = watchify(browserify('./app/app.pogo', watchify.args));
   bundler.transform('pogoify');
