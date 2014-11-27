@@ -19,7 +19,7 @@
     "url": "https://github.com/featurist/lexeme/issues"
   },
   "homepage": "https://github.com/featurist/lexeme",
-  "dependencies": {
+  "devDependencies": {
     "chai": "^1.10.0",
     "mocha": "^2.0.1"
   }
