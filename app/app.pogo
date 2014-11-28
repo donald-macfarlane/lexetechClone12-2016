@@ -5,7 +5,7 @@ App = React.createClass {
     displayName = 'Lexeme'
 
     render () =
-        r "div" (nil) "React rendered this..."
+        r "div" (nil) "Welcome to the hospital..."
 }
 
 React.render(React.createElement(App, null), window.document.body)

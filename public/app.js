@@ -8,7 +8,7 @@
         displayName: "Lexeme",
         render: function() {
             var self = this;
-            return r("div", void 0, "React rendered this...");
+            return r("div", void 0, "Welcome to the hospital...");
         }
     });
     React.render(React.createElement(App, null), window.document.body);
