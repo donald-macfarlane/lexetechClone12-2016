@@ -48,6 +48,7 @@
   },
   "dependencies": {
     "express": "^4.10.4",
-    "react": "^0.12.1"
+    "react": "^0.12.1",
+    "trytryagain": "^0.1.0"
   }
 }

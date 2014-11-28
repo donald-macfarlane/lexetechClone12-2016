@@ -1,12 +1,21 @@
-module.exports (element) =
+module.exports (element, graphApi) =
   React = require 'react'
   r = React.createElement
 
   App = React.createClass {
-      displayName = 'Lexeme'
+    displayName = 'Lexeme'
 
-      render () =
-          r "div" (nil) "Welcome to the hospital..."
+    getInitialState () =
+      { query = { text = '' } }
+
+    render () =
+      r "div" { className = 'query' } (
+        r "div" { className =  'text' } (self.state.query.text)
+      )
+
+    componentDidMount () =
+      graph = graphApi.graphForQuery(nil)!
+      self.setState(query: graph.queries.(graph.firstQuery))
   }
 
   React.render(React.createElement(App, null), element)
