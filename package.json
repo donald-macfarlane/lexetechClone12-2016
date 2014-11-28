@@ -26,6 +26,7 @@
     "gulp": "^3.8.10",
     "gulp-util": "^3.0.1",
     "gulp-webserver": "^0.8.7",
+    "handlebars": "^2.0.0",
     "mocha": "^2.0.1",
     "pogo": "^0.9.6",
     "pogoify": "^0.1.1",

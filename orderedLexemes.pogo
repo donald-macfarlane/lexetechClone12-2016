@@ -112,11 +112,15 @@ module.exports() =
     unsortedQueries = _.values(queriesById)
 
     unsortedQueries.sort @(left, right)
-      major = compare(left.navMajor, right.navMajor)
-      if (major == 0)
-        compare(left.navMinor, right.navMinor)
+      block = compare(left.block, right.block)
+      if (block != 0)
+        block
       else
-        major
+        major = compare(left.navMajor, right.navMajor)
+        if (major != 0)
+          major
+        else
+          compare(left.navMinor, right.navMinor)
   finally
     db.close()!
 

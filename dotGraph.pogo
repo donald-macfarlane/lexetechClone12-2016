@@ -1,24 +1,42 @@
-module.exports() =
+uniqueGraph = require './uniqueGraph'
+
+module.exports(stdout = false) =
   statements = []
 
-  {
+  generate =
+    if (stdout)
+      @(s)
+        console.log(s)
+    else
+      @(s)
+        statements.push(s)
+
+  graph = uniqueGraph {
     response (response) toQuery (query) =
-      statements.push "  response_#(response.id) -> query_#(query.id)"
+      queryId =
+        if (query)
+          query.id
+        else
+          'end'
+
+      generate "  response_#(response.id) -> query_#(queryId)"
 
     query (query) toResponse (response) =
-      statements.push "  query_#(query.id) -> response_#(response.id)"
+      generate "  query_#(query.id) -> response_#(response.id)"
 
     response (response) =
-      statements.push "  response_#(response.id) [label=#(JSON.stringify(response.response))]"
+      generate "  response_#(response.id) [label=#(JSON.stringify(response.response))]"
 
     query (query) =
-      statements.push "  query_#(query.id) [label=#(JSON.stringify(query.name))]"
+      generate "  query_#(query.id) [label=#(JSON.stringify(query.name))]"
 
     debug (comment) =
-      statements.push "  /* #(comment) */"
-
-    toString() =
-      "digraph {
-       #(statements.join "\n")
-       }"
+      generate "  /* #(comment) */"
   }
+
+  graph.toString() =
+    "digraph {
+     #(statements.join "\n")
+     }"
+
+  graph

@@ -1,8 +1,23 @@
 _ = require 'underscore'
 debug = require './debug'
+createContext = require './context'
 
-clone(o) =
-  JSON.parse(JSON.stringify(o))
+cloneContext(c) =
+  blocks = {}
+  for @(bk) in (c.blocks)
+    blocks.(bk) = true
+
+  predicants = {}
+  for @(pk) in (c.predicants)
+    predicants.(pk) = true
+
+  createContext {
+    coherenceIndex = c.coherenceIndex
+    blocks = blocks
+    level = c.level
+    depth = c.depth
+    predicants = predicants
+  }
 
 actions = {
   none (context) = nil
@@ -26,8 +41,9 @@ actions = {
 }
 
 newContextFromResponse (response) context (context) =
-  newContext = clone(context)
+  newContext = cloneContext(context)
   newContext.level = response.setLevel
+  ++newContext.depth
   ++newContext.coherenceIndex
 
   action = actions.(response.action.name)
@@ -48,12 +64,42 @@ anyPredicantIn (predicants) foundIn (currentPredicants) =
 block (block) inActiveBlocks (blocks) =
   blocks.(block)
 
-module.exports(lexemes, graph) =
-  exploredQueries = {}
+createVisitedQueries() =
+  queries = {}
+  hits = 0
+  skips = 0
+
+  {
+    hasVisitedQuery (query) context (context) =
+      q = queries.(query.id)
+
+      if (q)
+        if (q.(context.key()))
+          ++skips
+          true
+        else
+          ++hits
+          false
+      else
+        ++hits
+        false
+
+    visitedQuery (query) context (context) =
+      q = queries.(query.id)
+
+      if (@not q)
+        q := queries.(query.id) = {}
+
+      q.(context.key()) = true
+  }
+
+module.exports(lexemes, graph, maxDepth = 0) =
+  unexploredQueries = []
+  visitedQueries = createVisitedQueries()
 
   findNextQuery(context) =
     findNextItem @(query) in (lexemes) startingFrom (context.coherenceIndex) matching
-      query.level >= context.level \
+      query.level <= context.level \
         @and anyPredicantIn (query.predicants) foundIn (context.predicants) \
         @and block (query.block) inActiveBlocks (context.blocks)
 
@@ -63,36 +109,59 @@ module.exports(lexemes, graph) =
 
     newContext = newContextFromResponse (response) context (context)
 
-    graph.debug "coherenceIndex = #(newContext.coherenceIndex)"
-
-    nextQuery = findNextQuery(newContext)
-
-    if (nextQuery)
-      newContext.coherenceIndex = nextQuery.index
+    if (maxDepth == 0 @or newContext.depth < maxDepth)
+      nextQuery = findNextQuery(newContext)
       graph.response (response) toQuery (nextQuery)
-      buildGraphForQuery(nextQuery, newContext)
+
+      if (nextQuery)
+        newContext.coherenceIndex = nextQuery.index
+        if (@not visitedQueries.hasVisitedQuery (nextQuery) context (newContext))
+          visitedQueries.visitedQuery (nextQuery) context (newContext)
+          unexploredQueries.push {
+            query = nextQuery
+            context = newContext
+          }
 
   query = lexemes.(0)
 
   buildGraphForQuery(query, context) =
-    if (@not exploredQueries.(query.id))
-      exploredQueries.(query.id) = true
+    graph.query (query)
 
-      graph.query (query)
+    [
+      response <- query.responses
+      selectResponse (response) forQuery (query, context)
+    ]
 
-      [
-        response <- query.responses
-        selectResponse (response) forQuery (query, context)
-      ]
-    else
-      nil
-
-  buildGraphForQuery(query) {
-    coherenceIndex = 0
-    blocks = {"1" = true}
-    level = 1
-    predicants = {context = true}
+  unexploredQueries.push {
+    query = query
+    context = createContext {
+      coherenceIndex = 0
+      blocks = {"1" = true}
+      level = 1
+      predicants = {context = true}
+      depth = 0
+    }
   }
+
+  every(n) =
+    i = -1
+
+    @(block)
+      ++i
+      if (i >= n)
+        block()
+        i := 0
+
+  everySoOften = every 1000
+
+  numberOfQueries = 0
+  while(unexploredQueries.length > 0)
+    task = unexploredQueries.shift()
+    everySoOften
+      graph.debug "exploring #(unexploredQueries.length):#(numberOfQueries)"
+
+    buildGraphForQuery(task.query, task.context)
+    ++numberOfQueries
 
 findNextItemIn (array) startingFrom (index) matching (predicate) =
   for (n = index, n < array.length, ++n)

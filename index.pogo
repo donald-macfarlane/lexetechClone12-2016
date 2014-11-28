@@ -9,6 +9,13 @@ printLexemes() =
 
 // printLexemes()
 
-console.log "digraph g {"
-buildGraph(lexemes, dotGraph())
-console.log "}"
+time(block) =
+  startTime = new (Date ()).getTime()
+  block()
+  endTime = new (Date ()).getTime()
+  console.log "/* took #(endTime - startTime) */"
+
+time
+  console.log "digraph g {"
+  buildGraph(lexemes, dotGraph(stdout = true), maxDepth = 15)
+  console.log "}"
