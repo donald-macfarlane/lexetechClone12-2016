@@ -8,7 +8,13 @@ describe 'lexeme'
   beforeEach
     removeTestElement()
 
-  it 'renders something'
+  singleElement(css) =
+    retry!
+      e = $(css)
+      expect(e.length).to.eql 1
+      e
+
+  it 'can answer a query and ask the next query'
     div = document.createElement('div')
     div.className = 'test'
     document.body.appendChild(div)
@@ -22,14 +28,26 @@ describe 'lexeme'
 
             responses = [
               {
+                id = 1
                 text = 'left leg'
-                next_query = [2]
+                nextQueries = [2]
               }
             ]
           }
           "2" = {
-            text 'next query'
-            responses = []
+            text = "Is it bleeding?"
+            responses = [
+              {
+                id = 1
+                text = 'yes'
+                nextQueries = [3]
+              }
+              {
+                id = 2
+                text = 'no'
+                nextQueries = [3]
+              }
+            ]
           }
         }
       }
@@ -37,4 +55,10 @@ describe 'lexeme'
 
     lexeme(div, graphApi)
     retry!
-      expect($('.query .text').text()).to.eql 'where does it hurt?'
+      expect($('.query .text').text()).to.eql 'Where does it hurt?'
+
+    leftLeg = singleElement! '.query .response:contains("left leg")'
+    leftLeg.click()
+
+    retry!
+      expect($('.query .text').text()).to.eql 'Is it bleeding?'
