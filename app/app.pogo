@@ -1,2 +1,4 @@
 lexeme = require './lexeme'
-lexeme(window.document.body)
+graphApi = require './graphApi'
+
+lexeme(window.document.body, graphApi)
