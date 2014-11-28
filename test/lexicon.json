@@ -1,78 +1,60 @@
 {
-  "blocks": {
-    "100": {
-      "name": "Haematology",
-      "predicants": [
+  "predicants": {
+    "901": "requires dressing"
+  },
+  "firstQuery": "101",
+  "queries": {
+    "101": {
+      "text": "What hurts?",
+      "responses": [
         {
-          "id": "901",
-          "name": "requires dressing"
+          "text": "right arm",
+          "next_query": "102"
+        },
+        {
+          "text": "left leg",
+          "next_query": "102"
         }
-      ],
-      "queries": {
-        "101": {
-          "text": "What hurts?",
-          "responses": [
-            {
-              "text": "right arm",
-              "next_query": "102"
-            },
-            {
-              "text": "left leg",
-              "next_query": "102"
-            }
-          ]
-        },
-        "102": {
-          "text": "Is it bleeding?",
-          "responses": [
-            {
-              "text": "yes",
-              "next_query": "103",
-              "sets_predicants": ["901"]
-            },
-            {
-              "text": "no",
-              "next_query": "103"
-            }
-          ]
-        },
-        "103": {
-          "text": "Is it aching?",
-          "responses": [
-            {
-              "text": "yes"
-            },
-            {
-              "text": "no"
-            }
-          ]
-        },
-        "104": {
-          "text": "Prescribe dressing",
-          "requires_predicants": ["901"],
-          "responses": [
-            {
-              "text": "Prescribed"
-            },
-            {
-              "text": "No prescription necessary"
-            }
-          ]
-        }
-      }
+      ]
     },
-    "200": {
-      "name": "Gynaecology",
-      "queries": {
-        "201": {
-          "text": "What hurts?",
-          "responses": [
-            {
-              "text": "lady garden"
-            }
-          ]
+    "102": {
+      "text": "Is it bleeding?",
+      "responses": [
+        {
+          "text": "yes",
+          "next_query": "103",
+          "sets_predicants": ["901"]
+        },
+        {
+          "text": "no",
+          "next_query": "103"
         }
-      }
+      ]
+    },
+    "103": {
+      "text": "Is it aching?",
+      "responses": [
+        {
+          "text": "yes",
+          "next_query": "104"
+        },
+        {
+          "text": "no",
+          "next_query": "104"
+        }
+      ]
+    },
+    "104": {
+      "text": "Prescribe dressing",
+      "requires_predicants": ["901"],
+      "responses": [
+        {
+          "text": "Prescribed"
+        },
+        {
+          "text": "No prescription necessary"
+        }
+      ]
     }
   }
 }
