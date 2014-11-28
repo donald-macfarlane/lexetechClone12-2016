@@ -8,7 +8,7 @@ var browserify = require('browserify');
 gulp.task('default', ['watch', 'server'])
 
 gulp.task('watch', function() {
-  var bundler = watchify(browserify('./app/app.pogo', watchify.args));
+  var bundler = watchify(browserify('./app/app.pogo', {cache: {}, packageCache: {}, fullPaths: true, extensions: ['.pogo']}));
   bundler.transform('pogoify');
   bundler.on('update', rebundle);
 
