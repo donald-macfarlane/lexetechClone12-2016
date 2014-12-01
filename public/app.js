@@ -1,4 +1,4 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"./app/app.pogo":[function(require,module,exports){
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"./browser/app.pogo":[function(require,module,exports){
 (function() {
     var self = this;
     var lexeme, graphApi;
@@ -6,7 +6,7 @@
     graphApi = require("./graphApi");
     lexeme(window.document.body, graphApi);
 }).call(this);
-},{"./graphApi":"/Users/tim/dev/lexeme/app/graphApi.pogo","./lexeme":"/Users/tim/dev/lexeme/app/lexeme.pogo"}],"/Users/tim/dev/lexeme/app/graphApi.pogo":[function(require,module,exports){
+},{"./graphApi":"/Users/tim/dev/lexeme/browser/graphApi.pogo","./lexeme":"/Users/tim/dev/lexeme/browser/lexeme.pogo"}],"/Users/tim/dev/lexeme/browser/graphApi.pogo":[function(require,module,exports){
 (function() {
     var Promise = require("bluebird");
     var self = this;
@@ -17,7 +17,7 @@
         });
     };
 }).call(this);
-},{"./lexicon.json":"/Users/tim/dev/lexeme/app/lexicon.json","bluebird":"/Users/tim/dev/lexeme/node_modules/bluebird/js/main/bluebird.js"}],"/Users/tim/dev/lexeme/app/lexeme.pogo":[function(require,module,exports){
+},{"./lexicon.json":"/Users/tim/dev/lexeme/browser/lexicon.json","bluebird":"/Users/tim/dev/lexeme/node_modules/bluebird/js/main/bluebird.js"}],"/Users/tim/dev/lexeme/browser/lexeme.pogo":[function(require,module,exports){
 (function() {
     var Promise = require("bluebird");
     var self = this;
@@ -34,51 +34,82 @@
                     query: {
                         text: "",
                         responses: []
-                    }
+                    },
+                    responses: []
                 };
             },
             selectResponse: function(response) {
                 var self = this;
-                var queryId;
-                queryId = response.nextQueries[0];
+                var queryId, query;
+                queryId = response.nextQuery;
+                query = function() {
+                    if (queryId !== void 0) {
+                        return self.state.graph.queries[queryId];
+                    }
+                }();
+                self.state.responses.push(response);
                 return self.setState({
-                    query: self.state.graph.queries[queryId]
+                    query: query,
+                    responses: self.state.responses
                 });
             },
             render: function() {
                 var self = this;
-                return r("div", {
-                    className: "query"
-                }, r("div", {
-                    className: "text"
-                }, self.state.query.text), r("ul", {}, function() {
-                    var gen1_results, gen2_items, gen3_i, response;
-                    gen1_results = [];
-                    gen2_items = self.state.query.responses;
-                    for (gen3_i = 0; gen3_i < gen2_items.length; ++gen3_i) {
-                        response = gen2_items[gen3_i];
-                        (function(response) {
-                            var responseSelected;
-                            responseSelected = function() {
-                                return self.selectResponse(response);
-                            };
-                            return gen1_results.push(r("li", {
-                                key: response.id
-                            }, r("button", {
-                                onClick: responseSelected,
-                                className: "response"
-                            }, response.text)));
-                        })(response);
+                return r("div", void 0, function() {
+                    if (self.state.query) {
+                        return r("div", {
+                            className: "query"
+                        }, r("div", {
+                            className: "text"
+                        }, self.state.query.text), r("ul", {}, function() {
+                            var gen1_results, gen2_items, gen3_i, response;
+                            gen1_results = [];
+                            gen2_items = self.state.query.responses;
+                            for (gen3_i = 0; gen3_i < gen2_items.length; ++gen3_i) {
+                                response = gen2_items[gen3_i];
+                                (function(response) {
+                                    var responseSelected;
+                                    responseSelected = function() {
+                                        return self.selectResponse(response);
+                                    };
+                                    return gen1_results.push(r("li", {
+                                        key: response.id
+                                    }, r("button", {
+                                        onClick: responseSelected,
+                                        className: "response"
+                                    }, response.text)));
+                                })(response);
+                            }
+                            return gen1_results;
+                        }()));
+                    } else {
+                        return r("div", {
+                            className: "finished"
+                        }, "finished");
                     }
-                    return gen1_results;
-                }()));
+                }(), r("div", {
+                    className: "notes"
+                }, function() {
+                    var gen4_results, gen5_items, gen6_i, n;
+                    gen4_results = [];
+                    gen5_items = self.state.responses;
+                    for (gen6_i = 0; gen6_i < gen5_items.length; ++gen6_i) {
+                        n = gen5_items[gen6_i];
+                        (function(n) {
+                            if (n.notes) {
+                                return gen4_results.push(n.notes);
+                            }
+                        })(n);
+                    }
+                    return gen4_results;
+                }().join(" ")));
             },
             componentDidMount: function() {
                 var self = this;
-                var gen4_asyncResult, graph;
-                return new Promise(function(gen5_onFulfilled) {
-                    gen5_onFulfilled(Promise.resolve(graphApi.graphForQuery(void 0)).then(function(gen4_asyncResult) {
-                        graph = gen4_asyncResult;
+                var gen7_asyncResult, graph;
+                return new Promise(function(gen8_onFulfilled) {
+                    gen8_onFulfilled(Promise.resolve(graphApi.graphForQuery(void 0)).then(function(gen7_asyncResult) {
+                        graph = gen7_asyncResult;
                         return self.setState({
                             query: graph.queries[graph.firstQuery],
                             graph: graph
@@ -90,7 +121,7 @@
         return React.render(React.createElement(App, null), element);
     };
 }).call(this);
-},{"bluebird":"/Users/tim/dev/lexeme/node_modules/bluebird/js/main/bluebird.js","react":"/Users/tim/dev/lexeme/node_modules/react/react.js"}],"/Users/tim/dev/lexeme/app/lexicon.json":[function(require,module,exports){
+},{"bluebird":"/Users/tim/dev/lexeme/node_modules/bluebird/js/main/bluebird.js","react":"/Users/tim/dev/lexeme/node_modules/react/react.js"}],"/Users/tim/dev/lexeme/browser/lexicon.json":[function(require,module,exports){
 module.exports={
   "predicants": {
     "901": "requires dressing"
@@ -102,11 +133,12 @@ module.exports={
       "responses": [
         {
           "text": "right arm",
-          "nextQueries": ["102"]
+          "nextQuery": "102"
         },
         {
           "text": "left leg",
-          "nextQueries": ["102"]
+          "nextQuery": "102",
+          "notes": "Complaint\n---------\nleft leg"
         }
       ]
     },
@@ -115,12 +147,13 @@ module.exports={
       "responses": [
         {
           "text": "yes",
-          "nextQueries": ["103"],
-          "sets_predicants": ["901"]
+          "nextQuery": "103",
+          "sets_predicants": ["901"],
+          "notes": "bleeding"
         },
         {
           "text": "no",
-          "nextQueries": ["103"]
+          "nextQuery": "103"
         }
       ]
     },
@@ -129,11 +162,11 @@ module.exports={
       "responses": [
         {
           "text": "yes",
-          "nextQueries": ["104"]
+          "nextQuery": "104"
         },
         {
           "text": "no",
-          "nextQueries": ["104"]
+          "nextQuery": "104"
         }
       ]
     },
@@ -23767,4 +23800,4 @@ module.exports = warning;
 },{"./emptyFunction":"/Users/tim/dev/lexeme/node_modules/react/lib/emptyFunction.js","_process":"/Users/tim/dev/lexeme/node_modules/browserify/node_modules/process/browser.js"}],"/Users/tim/dev/lexeme/node_modules/react/react.js":[function(require,module,exports){
 module.exports = require('./lib/React');
 
-},{"./lib/React":"/Users/tim/dev/lexeme/node_modules/react/lib/React.js"}]},{},["./app/app.pogo"]);
+},{"./lib/React":"/Users/tim/dev/lexeme/node_modules/react/lib/React.js"}]},{},["./browser/app.pogo"]);

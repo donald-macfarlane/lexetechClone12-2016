@@ -11,5 +11,5 @@ Feature: Composing Notes
       """
       Complaint
       ---------
-      Bleeding left leg
+      left leg bleeding
       """

@@ -9,11 +9,12 @@
       "responses": [
         {
           "text": "right arm",
-          "nextQueries": "102"
+          "nextQuery": "102"
         },
         {
           "text": "left leg",
-          "nextQueries": "102"
+          "nextQuery": "102",
+          "notes": "Complaint\n---------\nleft leg"
         }
       ]
     },
@@ -22,12 +23,13 @@
       "responses": [
         {
           "text": "yes",
-          "nextQueries": "103",
-          "sets_predicants": ["901"]
+          "nextQuery": "103",
+          "sets_predicants": ["901"],
+          "notes": "bleeding"
         },
         {
           "text": "no",
-          "nextQueries": "103"
+          "nextQuery": "103"
         }
       ]
     },
@@ -36,11 +38,11 @@
       "responses": [
         {
           "text": "yes",
-          "nextQueries": "104"
+          "nextQuery": "104"
         },
         {
           "text": "no",
-          "nextQueries": "104"
+          "nextQuery": "104"
         }
       ]
     },

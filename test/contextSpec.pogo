@@ -1,4 +1,4 @@
-context = require '../context'
+context = require '../server/context'
 expect = require 'chai'.expect
 
 describe 'context'

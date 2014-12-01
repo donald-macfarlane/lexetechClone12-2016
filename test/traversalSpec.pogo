@@ -1,4 +1,4 @@
-lexiconJSON = require '../app/lexicon.json'
+lexiconJSON = require '../browser/lexicon.json'
 expect = require 'chai'.expect
 
 traversalState (graph, query) =
@@ -14,7 +14,7 @@ traversalState (graph, query) =
         ].0
         traversalState (
           graph
-          graph.queries.(response.next_query)
+          graph.queries.(response.nextQuery)
         )
     }
   else

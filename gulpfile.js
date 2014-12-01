@@ -5,7 +5,7 @@ var source = require('vinyl-source-stream');
 var watchify = require('watchify');
 var browserify = require('browserify');
 
-var bundler = watchify(browserify('./app/app.pogo', {
+var bundler = watchify(browserify('./browser/app.pogo', {
   cache: {},
   packageCache: {},
   fullPaths: true,
