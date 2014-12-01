@@ -1,13 +1,18 @@
 express = require 'express'
-openDb = require './db'
-
-db = openDb()
 app = express()
+buildGraph = require './buildGraph'
+internalGraph = require './internalGraph'
 
 app.get '/' @(req, res)
   res.send {}
 
 app.get '/query/:id/graph' @(req, res)
-  res.send {}
+  db = app.get 'db'
+  graph = internalGraph()
+
+  maxDepth = Math.min(10, req.param 'depth') @or 3
+
+  buildGraph(db.queries(), graph, maxDepth = maxDepth)
+  res.send (graph.toJSON())
 
 module.exports = app

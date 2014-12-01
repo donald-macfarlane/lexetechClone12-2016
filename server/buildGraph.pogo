@@ -1,6 +1,7 @@
 _ = require 'underscore'
 debug = require './debug'
 createContext = require './context'
+createVisitedQueries = require './visitedQueries'
 
 cloneContext(c) =
   blocks = {}
@@ -64,35 +65,6 @@ anyPredicantIn (predicants) foundIn (currentPredicants) =
 block (block) inActiveBlocks (blocks) =
   blocks.(block)
 
-createVisitedQueries() =
-  queries = {}
-  hits = 0
-  skips = 0
-
-  {
-    hasVisitedQuery (query) context (context) =
-      q = queries.(query.id)
-
-      if (q)
-        if (q.(context.key()))
-          ++skips
-          true
-        else
-          ++hits
-          false
-      else
-        ++hits
-        false
-
-    visitedQuery (query) context (context) =
-      q = queries.(query.id)
-
-      if (@not q)
-        q := queries.(query.id) = {}
-
-      q.(context.key()) = true
-  }
-
 createCachedQueryLookups() =
   cache = []
 
@@ -126,14 +98,14 @@ module.exports(lexemes, graph, maxDepth = 0) =
           @and block (query.block) inActiveBlocks (context.blocks)
 
   selectResponse (response) forQuery (query, context) =
-    graph.query (query) toResponse (response)
-    graph.response (response)
+    graph.response (response, context = context)
 
     newContext = newContextFromResponse (response) context (context)
+    graph.query (query) toResponse (response, parentQueryContext = context, responseContext = newContext)
 
     if (maxDepth == 0 @or newContext.depth < maxDepth)
       nextQuery = findNextQuery(newContext)
-      graph.response (response) toQuery (nextQuery)
+      graph.response (response) toQuery (nextQuery, responseContext = newContext)
 
       if (nextQuery)
         newContext.coherenceIndex = nextQuery.index
@@ -147,7 +119,7 @@ module.exports(lexemes, graph, maxDepth = 0) =
   query = lexemes.(0)
 
   buildGraphForQuery(query, context) =
-    graph.query (query)
+    graph.query (query, context = context)
 
     [
       response <- query.responses

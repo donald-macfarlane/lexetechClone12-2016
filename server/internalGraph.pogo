@@ -1,47 +1,52 @@
 uniqueGraph = require './uniqueGraph'
 _ = require 'underscore'
+cache = require './cache'
 
 module.exports () =
   queries = []
-  responses = {}
+  queryCache = cache()
+  responseCache = cache()
 
-  findOrCreateResponse (response) =
-    r = responses.(response.id)
-
-    if (r)
-      r
-    else
-      responses.(response.id) = {
+  findOrCreateResponse (response, context) =
+    responseCache.cacheBy "#(response.id):#(context.key())"
+      {
         id = response.id
         predicants = response.predicants
-        response = response.response
-        queries = []
+        text = response.response
+        nextQuery = nil
       }
 
-  graph = uniqueGraph {
-    response (response) toQuery (query) =
-      r = findOrCreateResponse (response)
-      r.queries.push((query @and query.id) @or 'end')
-
-    query (query) toResponse (response) = nil
-
-    response (response) = nil
-
-    query (query) =
-      queries.push {
-        id = query.id
-        name = query.name
+  findOrCreateQuery (query, context) =
+    queryCache.cacheBy "#(query.id):#(context.key())"
+      q = {
+        id = queries.length + 1
+        text = query.name
         predicants = query.predicants
-        responses = [
-          r <- query.responses
-          findOrCreateResponse (r)
-        ]
+        responses = []
       }
+
+      queries.push (q)
+      q
+
+  {
+    response (response) toQuery (query, responseContext = nil) =
+      r = findOrCreateResponse (response, responseContext)
+      nextQuery = query @and findOrCreateQuery(query, responseContext)
+      r.nextQuery = nextQuery @and nextQuery.id
+
+    query (query) toResponse (response, parentQueryContext = nil, responseContext = nil) =
+      q = findOrCreateQuery (query, parentQueryContext)
+      r = findOrCreateResponse (response, responseContext)
+      q.responses.push(r)
+
+    response (response, context = nil) = nil
+    query (query, context = nil) = nil
 
     debug (comment) =
       console.log (comment)
+
+    toJSON () = {
+      firstQuery = queries.0.id
+      queries = _.indexBy(queries, 'id')
+    }
   }
-
-  graph.toJSON () = queries
-
-  graph
