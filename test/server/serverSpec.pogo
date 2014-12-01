@@ -1,7 +1,7 @@
 httpism = require 'httpism'
-app = require '../server/app'
+app = require '../../server/app'
 expect = require 'chai'.expect
-openDb = require '../server/db'
+openDb = require '../../server/db'
 
 describe 'server'
   port = 12345

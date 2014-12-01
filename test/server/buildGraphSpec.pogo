@@ -1,10 +1,10 @@
-buildGraph = require '../server/buildGraph'
-dotGraph = require '../server/dotGraph'
+buildGraph = require '../../server/buildGraph'
+dotGraph = require '../../server/dotGraph'
 fs = require 'fs-promise'
 childProcess = require 'child_process'
 handlebars = require 'handlebars'
-internalGraph = require '../server/internalGraph'
-multiGraph = require '../server/multiGraph'
+internalGraph = require '../../server/internalGraph'
+multiGraph = require '../../server/multiGraph'
 expect = require 'chai'.expect
 lexiconBuilder = require './lexiconBuilder'
 
