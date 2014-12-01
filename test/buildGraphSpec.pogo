@@ -1,15 +1,16 @@
-buildGraph = require '../buildGraph'
-dotGraph = require '../dotGraph'
+buildGraph = require '../server/buildGraph'
+dotGraph = require '../server/dotGraph'
 fs = require 'fs-promise'
 childProcess = require 'child_process'
 handlebars = require 'handlebars'
-_ = require 'underscore'
-internalGraph = require '../internalGraph'
-multiGraph = require '../multiGraph'
+internalGraph = require '../server/internalGraph'
+multiGraph = require '../server/multiGraph'
 expect = require 'chai'.expect
+lexiconBuilder = require './lexiconBuilder'
 
 describe 'buildGraph'
   graphs = []
+  lexicon = nil
 
   renderLexemes(lexemes) =
     dot = dotGraph()
@@ -47,93 +48,67 @@ describe 'buildGraph'
 
     fs.writeFile('graphs.html', html(graphs = graphs))!
 
-  queryId = 0
-
-  query(q) =
-    ++queryId
-    _.extend {
-      id = queryId
-      level = 1
-      block = 1
-
-      predicants = []
-    } (q)
-
-  responseId = 0
-
-  response(r) =
-    ++responseId
-
-    _.extend {
-      id = responseId
-      setLevel = 1
-
-      predicants = []
-
-      action = {
-        name = 'none'
-        arguments = []
-      }
-    } (r)
+  beforeEach
+    lexicon := lexiconBuilder()
 
   it 'builds a graph'
     queries = renderLexemes! [
-      query {
+      lexicon.query {
         name = 'q1'
 
         responses = [
-          response {
+          lexicon.response {
             response = 'q1 r1'
             predicants = ['x']
           }
-          response {
+          lexicon.response {
             response = 'q1 r2'
             predicants = ['y']
           }
         ]
       }
-      query {
+      lexicon.query {
         name = 'q2'
 
         responses = [
-          response {
+          lexicon.response {
             response = 'q2 r1'
           }
         ]
       }
-      query {
+      lexicon.query {
         name = 'q3'
 
         responses = [
-          response {
+          lexicon.response {
             response = 'q3 r1'
           }
         ]
       }
-      query {
+      lexicon.query {
         name = 'q4'
         predicants = ['x']
 
         responses = [
-          response {
+          lexicon.response {
             response = 'q4 r1'
           }
         ]
       }
-      query {
+      lexicon.query {
         name = 'q5'
 
         responses = [
-          response {
+          lexicon.response {
             response = 'q5 r1'
           }
         ]
       }
-      query {
+      lexicon.query {
         name = 'q6'
 
         responses = [
-          response {
+          lexicon.response {
             response = 'q6 r1'
           }
         ]

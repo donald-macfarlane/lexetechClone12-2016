@@ -1,5 +1,5 @@
 retry = require 'trytryagain'
-lexeme = require '../../app/lexeme'
+lexeme = require '../../browser/lexeme'
 removeTestElement = require './removeTestElement'
 $ = require 'jquery'
 expect = require 'chai'.expect
@@ -13,6 +13,22 @@ describe 'lexeme'
       e = $(css)
       expect(e.length).to.eql 1
       e
+
+  shouldHaveQuery(query) =
+    retry!
+      expect($('.query .text').text()).to.eql (query)
+
+  shouldBeFinished() =
+    retry!
+      expect($('.finished').length).to.eql 1
+
+  selectResponse(response) =
+    responseElement = singleElement! ".query .response:contains(#(JSON.stringify(response)))"
+    responseElement.click()
+
+  notesShouldBe(notes) =
+    retry!
+      expect($'.notes'.text()).to.eql (notes)
 
   it 'can answer a query and ask the next query'
     div = document.createElement('div')
@@ -30,7 +46,10 @@ describe 'lexeme'
               {
                 id = 1
                 text = 'left leg'
-                nextQueries = [2]
+                nextQuery = 2
+                notes = 'Complaint
+                         ---------
+                         left leg'
               }
             ]
           }
@@ -40,12 +59,26 @@ describe 'lexeme'
               {
                 id = 1
                 text = 'yes'
-                nextQueries = [3]
+                nextQuery = 3
+                notes = 'bleeding'
               }
               {
                 id = 2
                 text = 'no'
-                nextQueries = [3]
+                nextQuery = 3
+              }
+            ]
+          }
+          "3" = {
+            text = "Is it aching?"
+            responses = [
+              {
+                id = 1
+                text = 'yes'
+              }
+              {
+                id = 2
+                text = 'no'
               }
             ]
           }
@@ -54,11 +87,15 @@ describe 'lexeme'
     }
 
     lexeme(div, graphApi)
-    retry!
-      expect($('.query .text').text()).to.eql 'Where does it hurt?'
 
-    leftLeg = singleElement! '.query .response:contains("left leg")'
-    leftLeg.click()
+    shouldHaveQuery 'Where does it hurt?'!
+    selectResponse 'left leg'!
+    shouldHaveQuery 'Is it bleeding?'!
+    selectResponse 'yes'!
+    shouldHaveQuery 'Is it aching?'!
+    selectResponse 'no'!
+    shouldBeFinished()!
 
-    retry!
-      expect($('.query .text').text()).to.eql 'Is it bleeding?'
+    notesShouldBe! "Complaint
+                    ---------
+                    left leg bleeding"

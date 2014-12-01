@@ -44,11 +44,12 @@
     "sworm": "^0.4.0",
     "underscore": "^1.7.0",
     "vinyl-source-stream": "^1.0.0",
-    "watchify": "^2.1.1"
+    "watchify": "^2.1.1",
+    "trytryagain": "^0.1.0",
+    "httpism": "^0.2.4"
   },
   "dependencies": {
     "express": "^4.10.4",
-    "react": "^0.12.1",
-    "trytryagain": "^0.1.0"
+    "react": "^0.12.1"
   }
 }

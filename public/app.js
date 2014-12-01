@@ -91,7 +91,7 @@
     };
 }).call(this);
 },{"bluebird":"/Users/tim/dev/lexeme/node_modules/bluebird/js/main/bluebird.js","react":"/Users/tim/dev/lexeme/node_modules/react/react.js"}],"/Users/tim/dev/lexeme/app/lexicon.json":[function(require,module,exports){
-module.exports=module.exports=module.exports=module.exports={
+module.exports={
   "predicants": {
     "901": "requires dressing"
   },

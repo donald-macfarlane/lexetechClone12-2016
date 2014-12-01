@@ -93,15 +93,37 @@ createVisitedQueries() =
       q.(context.key()) = true
   }
 
+createCachedQueryLookups() =
+  cache = []
+
+  {
+    findQueryByContext (context) or (block) =
+      c = cache.(context.coherenceIndex)
+      key = context.key()
+
+      if (@not c)
+        c := {}
+        cache.(context.coherenceIndex) = c
+        c.(key) = block()
+      else
+        q = c.(key)
+        if (q)
+          q
+        else
+          c.(key) = block()
+  }
+
 module.exports(lexemes, graph, maxDepth = 0) =
   unexploredQueries = []
   visitedQueries = createVisitedQueries()
+  cachedQueryLookups = createCachedQueryLookups()
 
   findNextQuery(context) =
-    findNextItem @(query) in (lexemes) startingFrom (context.coherenceIndex) matching
-      query.level <= context.level \
-        @and anyPredicantIn (query.predicants) foundIn (context.predicants) \
-        @and block (query.block) inActiveBlocks (context.blocks)
+    cachedQueryLookups.findQueryByContext (context) or
+      findNextItem @(query) in (lexemes) startingFrom (context.coherenceIndex) matching
+        query.level <= context.level \
+          @and anyPredicantIn (query.predicants) foundIn (context.predicants) \
+          @and block (query.block) inActiveBlocks (context.blocks)
 
   selectResponse (response) forQuery (query, context) =
     graph.query (query) toResponse (response)

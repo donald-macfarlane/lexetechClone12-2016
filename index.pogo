@@ -17,5 +17,5 @@ time(block) =
 
 time
   console.log "digraph g {"
-  buildGraph(lexemes, dotGraph(stdout = true), maxDepth = 15)
+  buildGraph(lexemes, dotGraph(stdout = true), maxDepth = 18)
   console.log "}"
