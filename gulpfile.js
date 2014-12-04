@@ -5,28 +5,35 @@ var source = require('vinyl-source-stream');
 var watchify = require('watchify');
 var browserify = require('browserify');
 
-var bundler = watchify(browserify('./browser/app.pogo', {
+var browserifyBundle = browserify('./browser/app.pogo', {
   cache: {},
   packageCache: {},
   fullPaths: true,
-  extensions: ['.pogo']
-}));
-bundler.transform('pogoify');
-bundler.on('update', rebundle);
+  extensions: ['.pogo'],
+  transform: ['pogoify']
+});
 
-function rebundle() {
-  return bundler.bundle()
-    .on('error', gutil.log.bind(gutil, 'Browserify Error'))
-    .pipe(source('app.js'))
-    .pipe(gulp.dest('./public'));
+function rebundle(bundle) {
+  return function () {
+    return bundle.bundle()
+      .on('error', gutil.log.bind(gutil, 'Browserify Error'))
+      .pipe(source('app.js'))
+      .pipe(gulp.dest('./public'));
+  }
 }
 
 gulp.task('default', ['watch', 'server'])
 
-gulp.task('watch', rebundle);
+gulp.task('watch', function () {
+  var watchifyBundle = watchify(browserifyBundle);
+  watchifyBundle.on('update', rebundle(watchifyBundle));
 
-gulp.task('server', function() {
-  rebundle();
+  rebundle(watchifyBundle);
+});
+
+gulp.task('bundle', rebundle(browserifyBundle));
+
+gulp.task('server', ['bundle'], function() {
   gulp.src('public')
     .pipe(webserver({
       livereload: true,

@@ -1,4 +1,3 @@
-lexiconJSON = require '../browser/lexicon.json'
 expect = require 'chai'.expect
 traversal = require '../browser/traversal'
 
