@@ -30,7 +30,7 @@ describe 'lexeme'
     retry!
       expect($'.notes'.text()).to.eql (notes)
 
-  it 'can answer a query and ask the next query'
+  it 'can generate notes by answering queries'
     div = document.createElement('div')
     div.className = 'test'
     document.body.appendChild(div)

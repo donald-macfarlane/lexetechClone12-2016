@@ -116,7 +116,7 @@
     };
 }).call(this);
 },{"./traversal":"/Users/tim/dev/lexeme/browser/traversal.pogo","bluebird":"/Users/tim/dev/lexeme/node_modules/bluebird/js/main/bluebird.js","react":"/Users/tim/dev/lexeme/node_modules/react/react.js"}],"/Users/tim/dev/lexeme/browser/lexicon.json":[function(require,module,exports){
-module.exports={
+module.exports=module.exports=module.exports=module.exports=module.exports=module.exports={
   "query": {
     "text": "What hurts?",
     "responses": [
@@ -170,7 +170,7 @@ module.exports={
               "notes": "bleeding"
             },
             {
-              "text": "no",
+              "text": "no"
             }
           ]
         },

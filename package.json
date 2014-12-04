@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "mocha test/server"
+    "test": "mocha test/*Spec.* test/server/*Spec.*; karma start --single-run"
   },
   "repository": {
     "type": "git",
