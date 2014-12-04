@@ -34,7 +34,7 @@ describeServer(name, createDb) =
 
     context 'when there are 4 queries'
       beforeEach
-        db.setQueries [
+        db.setQueries! [
           lexicon.query {
             name = 'query 1'
 
@@ -94,10 +94,8 @@ describeServer(name, createDb) =
         expect(q4.text).to.equal 'query 4'
 
     context 'when a query is dependent on previous response'
-      graph = nil
-
       beforeEach
-        db.setQueries [
+        db.setQueries! [
           lexicon.query {
             name = 'query 1'
 
@@ -145,15 +143,15 @@ describeServer(name, createDb) =
           }
         ]
 
-        graph := api.get! '/query/1/graph?depth=4'.body
-
       it 'can explore the left hand side'
+        graph = api.get! '/query/1/graph?depth=4'.body
         c = conversation(graph)
         c.asks 'query 1' respondWith 'response 1'
         c.asks 'query 2' respondWith 'response 1'
         c.asks 'query 3' respondWith 'response 1'
 
       it 'can explore the right hand side'
+        graph = api.get! '/query/1/graph?depth=4'.body
         c = conversation(graph)
         c.asks 'query 1' respondWith 'response 2'
         c.asks 'query 2' respondWith 'response 1'

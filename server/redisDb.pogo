@@ -10,8 +10,6 @@ module.exports () =
       qs
     else
       qs := client.lrange 'queries' (0, -1) ^!
-      console.log "loaded queries" (qs)
-      qs
 
   {
     setQueries(queries) =

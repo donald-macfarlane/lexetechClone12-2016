@@ -76,13 +76,13 @@ createCachedQueryLookups() =
       if (@not c)
         c := {}
         cache.(context.coherenceIndex) = c
-        c.(key) = block()
+        c.(key) = block()!
       else
         q = c.(key)
         if (q)
           q
         else
-          c.(key) = block()
+          c.(key) = block()!
   }
 
 module.exports(db, graph, maxDepth = 0) =
@@ -91,22 +91,20 @@ module.exports(db, graph, maxDepth = 0) =
   cachedQueryLookups = createCachedQueryLookups()
 
   findNextQuery(context) =
-    cachedQueryLookups.findQueryByContext (context) or
-      findNextItem @(query) in (db) startingFrom (context.coherenceIndex) matching
+    cachedQueryLookups.findQueryByContext! (context) or
+      findNextItem! @(query) in (db) startingFrom (context.coherenceIndex) matching
         query.level <= context.level \
           @and anyPredicantIn (query.predicants) foundIn (context.predicants) \
           @and block (query.block) inActiveBlocks (context.blocks)
 
   selectResponse (response) forQuery (query, context) =
-    console.log('selectReponse', response, 'forQuery', query)
     graph.response (response, context = context)
 
     newContext = newContextFromResponse (response) context (context)
     graph.query (query) toResponse (response, parentQueryContext = context, responseContext = newContext)
 
     if (maxDepth == 0 @or newContext.depth < maxDepth)
-      nextQuery = findNextQuery(newContext)
-      console.log 'nextQuery' (nextQuery)
+      nextQuery = findNextQuery!(newContext)
       graph.response (response) toQuery (nextQuery, responseContext = newContext)
 
       if (nextQuery)
@@ -118,16 +116,14 @@ module.exports(db, graph, maxDepth = 0) =
             context = newContext
           }
 
-  query = db.query(0)
-  console.log('query', query)
+  query = db.query(0)!
 
   buildGraphForQuery(query, context) =
-    console.log('buildGraphForQuery', query)
     graph.query (query, context = context)
 
     [
       response <- query.responses
-      selectResponse (response) forQuery (query, context)
+      selectResponse! (response) forQuery (query, context)
     ]
 
   unexploredQueries.push {
@@ -157,23 +153,21 @@ module.exports(db, graph, maxDepth = 0) =
   graphNextQuery() =
     if(unexploredQueries.length > 0)
       task = unexploredQueries.shift()
-      console.log 'task' (task)
       everySoOften
         graph.debug "exploring #(unexploredQueries.length):#(numberOfQueries)"
 
-      buildGraphForQuery(task.query, task.context)
-      console.log "finished, there are #(unexploredQueries.length) left"
+      buildGraphForQuery!(task.query, task.context)
       ++numberOfQueries
-      graphNextQuery()
+      graphNextQuery!()
 
-  graphNextQuery()
+  graphNextQuery!()
 
 findNextItemIn (array) startingFrom (index) matching (predicate) =
-  length = array.length()
+  if (index < array.length()!)
+    item = array.query(index)!
 
-  for (n = index, n < length, ++n)
-    item = array.query(n)
-    console.log('item', item)
     if (predicate(item))
-      item.index = n
-      return (item)
+      item.index = index
+      item
+    else
+      findNextItemIn (array) startingFrom (index + 1) matching (predicate)!
