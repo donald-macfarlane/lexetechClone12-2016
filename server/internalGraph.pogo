@@ -45,8 +45,12 @@ module.exports () =
     debug (comment) =
       console.log (comment)
 
-    toJSON () = {
-      firstQuery = queries.0.id
-      queries = _.indexBy(queries, 'id')
-    }
+    toJSON () =
+      console.log('toJSON, queries', queries)
+      console.log('toJSON, queries', queries)
+
+      {
+        firstQuery = queries.0.id
+        queries = _.indexBy(queries, 'id')
+      }
   }

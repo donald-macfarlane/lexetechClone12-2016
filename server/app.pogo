@@ -12,7 +12,7 @@ app.get '/query/:id/graph' @(req, res)
 
   maxDepth = Math.min(10, req.param 'depth') @or 3
 
-  buildGraph(db.queries(), graph, maxDepth = maxDepth)
+  buildGraph(db, graph, maxDepth = maxDepth)
   res.send (graph.toJSON())
 
 module.exports = app

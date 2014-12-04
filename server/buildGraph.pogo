@@ -85,19 +85,20 @@ createCachedQueryLookups() =
           c.(key) = block()
   }
 
-module.exports(lexemes, graph, maxDepth = 0) =
+module.exports(db, graph, maxDepth = 0) =
   unexploredQueries = []
   visitedQueries = createVisitedQueries()
   cachedQueryLookups = createCachedQueryLookups()
 
   findNextQuery(context) =
     cachedQueryLookups.findQueryByContext (context) or
-      findNextItem @(query) in (lexemes) startingFrom (context.coherenceIndex) matching
+      findNextItem @(query) in (db) startingFrom (context.coherenceIndex) matching
         query.level <= context.level \
           @and anyPredicantIn (query.predicants) foundIn (context.predicants) \
           @and block (query.block) inActiveBlocks (context.blocks)
 
   selectResponse (response) forQuery (query, context) =
+    console.log('selectReponse', response, 'forQuery', query)
     graph.response (response, context = context)
 
     newContext = newContextFromResponse (response) context (context)
@@ -105,6 +106,7 @@ module.exports(lexemes, graph, maxDepth = 0) =
 
     if (maxDepth == 0 @or newContext.depth < maxDepth)
       nextQuery = findNextQuery(newContext)
+      console.log 'nextQuery' (nextQuery)
       graph.response (response) toQuery (nextQuery, responseContext = newContext)
 
       if (nextQuery)
@@ -116,9 +118,11 @@ module.exports(lexemes, graph, maxDepth = 0) =
             context = newContext
           }
 
-  query = lexemes.(0)
+  query = db.query(0)
+  console.log('query', query)
 
   buildGraphForQuery(query, context) =
+    console.log('buildGraphForQuery', query)
     graph.query (query, context = context)
 
     [
@@ -149,17 +153,27 @@ module.exports(lexemes, graph, maxDepth = 0) =
   everySoOften = every 1000
 
   numberOfQueries = 0
-  while(unexploredQueries.length > 0)
-    task = unexploredQueries.shift()
-    everySoOften
-      graph.debug "exploring #(unexploredQueries.length):#(numberOfQueries)"
+  
+  graphNextQuery() =
+    if(unexploredQueries.length > 0)
+      task = unexploredQueries.shift()
+      console.log 'task' (task)
+      everySoOften
+        graph.debug "exploring #(unexploredQueries.length):#(numberOfQueries)"
 
-    buildGraphForQuery(task.query, task.context)
-    ++numberOfQueries
+      buildGraphForQuery(task.query, task.context)
+      console.log "finished, there are #(unexploredQueries.length) left"
+      ++numberOfQueries
+      graphNextQuery()
+
+  graphNextQuery()
 
 findNextItemIn (array) startingFrom (index) matching (predicate) =
-  for (n = index, n < array.length, ++n)
-    item = array.(n)
+  length = array.length()
+
+  for (n = index, n < length, ++n)
+    item = array.query(n)
+    console.log('item', item)
     if (predicate(item))
       item.index = n
       return (item)

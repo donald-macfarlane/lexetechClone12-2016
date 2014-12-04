@@ -50,6 +50,7 @@
   },
   "dependencies": {
     "express": "^4.10.4",
-    "react": "^0.12.1"
+    "react": "^0.12.1",
+    "redis": "^0.12.1"
   }
 }
