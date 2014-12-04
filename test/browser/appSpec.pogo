@@ -37,51 +37,58 @@ describe 'lexeme'
 
     graphApi = {
       graphForQuery(query)! = {
-        firstQuery = "1"
-        queries = {
-          "1" = {
-            text = 'Where does it hurt?'
+        query = {
+          text = 'Where does it hurt?'
 
-            responses = [
-              {
-                id = 1
-                text = 'left leg'
-                nextQuery = 2
-                notes = 'Complaint
-                         ---------
-                         left leg'
+          responses = [
+            {
+              id = 1
+              text = 'left leg'
+              query = {
+                text = "Is it bleeding?"
+                responses = [
+                  {
+                    id = 1
+                    text = 'yes'
+                    query = {
+                      text = "Is it aching?"
+                      responses = [
+                        {
+                          id = 1
+                          text = 'yes'
+                        }
+                        {
+                          id = 2
+                          text = 'no'
+                        }
+                      ]
+                    }
+                    notes = 'bleeding'
+                  }
+                  {
+                    id = 2
+                    text = 'no'
+                    query = {
+                      text = "Is it aching?"
+                      responses = [
+                        {
+                          id = 1
+                          text = 'yes'
+                        }
+                        {
+                          id = 2
+                          text = 'no'
+                        }
+                      ]
+                    }
+                  }
+                ]
               }
-            ]
-          }
-          "2" = {
-            text = "Is it bleeding?"
-            responses = [
-              {
-                id = 1
-                text = 'yes'
-                nextQuery = 3
-                notes = 'bleeding'
-              }
-              {
-                id = 2
-                text = 'no'
-                nextQuery = 3
-              }
-            ]
-          }
-          "3" = {
-            text = "Is it aching?"
-            responses = [
-              {
-                id = 1
-                text = 'yes'
-              }
-              {
-                id = 2
-                text = 'no'
-              }
-            ]
-          }
+              notes = 'Complaint
+                       ---------
+                       left leg'
+            }
+          ]
         }
       }
     }

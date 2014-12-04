@@ -30,7 +30,13 @@ module.exports () =
         ]
         
     query(n) =
-      JSON.parse(client.get(queries()!.(n), ^)!)
+      self.queryById(queries()!.(n))!
+
+    queryById(id) =
+      JSON.parse(client.get(id, ^)!)
+
+    coherenceIndexForQueryId(id) =
+      queries()!.indexOf(id)
 
     length() = queries()!.length
   }

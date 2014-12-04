@@ -85,7 +85,7 @@ createCachedQueryLookups() =
           c.(key) = block()!
   }
 
-module.exports(db, graph, maxDepth = 0) =
+module.exports(db, graph, queryId, startContext = { blocks = {"1" = true}, level = 1, predicants = {context = true} }, maxDepth = 0) =
   unexploredQueries = []
   visitedQueries = createVisitedQueries()
   cachedQueryLookups = createCachedQueryLookups()
@@ -116,8 +116,6 @@ module.exports(db, graph, maxDepth = 0) =
             context = newContext
           }
 
-  query = db.query(0)!
-
   buildGraphForQuery(query, context) =
     graph.query (query, context = context)
 
@@ -127,12 +125,12 @@ module.exports(db, graph, maxDepth = 0) =
     ]
 
   unexploredQueries.push {
-    query = query
+    query = db.queryById(queryId)!
     context = createContext {
-      coherenceIndex = 0
-      blocks = {"1" = true}
-      level = 1
-      predicants = {context = true}
+      coherenceIndex = db.coherenceIndexForQueryId(queryId)!
+      blocks = startContext.blocks
+      level = startContext.level
+      predicants = startContext.predicants
       depth = 0
     }
   }

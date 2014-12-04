@@ -1,62 +1,63 @@
 {
-  "predicants": {
-    "901": "requires dressing"
-  },
-  "firstQuery": "101",
-  "queries": {
-    "101": {
-      "text": "What hurts?",
-      "responses": [
-        {
-          "text": "right arm",
-          "nextQuery": "102"
+  "query": {
+    "text": "What hurts?",
+    "responses": [
+      {
+        "text": "right arm",
+        "nextQuery": "102"
+      },
+      {
+        "text": "left leg",
+        "query": {
+          "text": "Is it bleeding?",
+          "responses": [
+            {
+              "text": "yes",
+              "query": {
+                "text": "Is it aching?",
+                "responses": [
+                  {
+                    "text": "yes",
+                    "query": {
+                      "text": "Prescribe dressing",
+                      "requires_predicants": ["901"],
+                      "responses": [
+                        {
+                          "text": "Prescribed"
+                        },
+                        {
+                          "text": "No prescription necessary"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "text": "no",
+                    "query": {
+                      "text": "Prescribe dressing",
+                      "requires_predicants": ["901"],
+                      "responses": [
+                        {
+                          "text": "Prescribed"
+                        },
+                        {
+                          "text": "No prescription necessary"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              "sets_predicants": ["901"],
+              "notes": "bleeding"
+            },
+            {
+              "text": "no",
+            }
+          ]
         },
-        {
-          "text": "left leg",
-          "nextQuery": "102",
-          "notes": "Complaint\n---------\nleft leg"
-        }
-      ]
-    },
-    "102": {
-      "text": "Is it bleeding?",
-      "responses": [
-        {
-          "text": "yes",
-          "nextQuery": "103",
-          "sets_predicants": ["901"],
-          "notes": "bleeding"
-        },
-        {
-          "text": "no",
-          "nextQuery": "103"
-        }
-      ]
-    },
-    "103": {
-      "text": "Is it aching?",
-      "responses": [
-        {
-          "text": "yes",
-          "nextQuery": "104"
-        },
-        {
-          "text": "no",
-          "nextQuery": "104"
-        }
-      ]
-    },
-    "104": {
-      "text": "Prescribe dressing",
-      "requires_predicants": ["901"],
-      "responses": [
-        {
-          "text": "Prescribed"
-        },
-        {
-          "text": "No prescription necessary"
-        }
-      ]
-    }
+        "notes": "Complaint\n---------\nleft leg"
+      }
+    ]
   }
 }

@@ -21,6 +21,8 @@
 (function() {
     var Promise = require("bluebird");
     var self = this;
+    var traversal;
+    traversal = require("./traversal");
     module.exports = function(element, graphApi) {
         var self = this;
         var React, r, App;
@@ -40,16 +42,9 @@
             },
             selectResponse: function(response) {
                 var self = this;
-                var queryId, query;
-                queryId = response.nextQuery;
-                query = function() {
-                    if (queryId !== void 0) {
-                        return self.state.graph.queries[queryId];
-                    }
-                }();
                 self.state.responses.push(response);
                 return self.setState({
-                    query: query,
+                    query: response.query,
                     responses: self.state.responses
                 });
             },
@@ -111,8 +106,7 @@
                     gen8_onFulfilled(Promise.resolve(graphApi.graphForQuery(void 0)).then(function(gen7_asyncResult) {
                         graph = gen7_asyncResult;
                         return self.setState({
-                            query: graph.queries[graph.firstQuery],
-                            graph: graph
+                            query: graph.query
                         });
                     }));
                 });
@@ -121,70 +115,118 @@
         return React.render(React.createElement(App, null), element);
     };
 }).call(this);
-},{"bluebird":"/Users/tim/dev/lexeme/node_modules/bluebird/js/main/bluebird.js","react":"/Users/tim/dev/lexeme/node_modules/react/react.js"}],"/Users/tim/dev/lexeme/browser/lexicon.json":[function(require,module,exports){
+},{"./traversal":"/Users/tim/dev/lexeme/browser/traversal.pogo","bluebird":"/Users/tim/dev/lexeme/node_modules/bluebird/js/main/bluebird.js","react":"/Users/tim/dev/lexeme/node_modules/react/react.js"}],"/Users/tim/dev/lexeme/browser/lexicon.json":[function(require,module,exports){
 module.exports={
-  "predicants": {
-    "901": "requires dressing"
-  },
-  "firstQuery": "101",
-  "queries": {
-    "101": {
-      "text": "What hurts?",
-      "responses": [
-        {
-          "text": "right arm",
-          "nextQuery": "102"
+  "query": {
+    "text": "What hurts?",
+    "responses": [
+      {
+        "text": "right arm",
+        "nextQuery": "102"
+      },
+      {
+        "text": "left leg",
+        "query": {
+          "text": "Is it bleeding?",
+          "responses": [
+            {
+              "text": "yes",
+              "query": {
+                "text": "Is it aching?",
+                "responses": [
+                  {
+                    "text": "yes",
+                    "query": {
+                      "text": "Prescribe dressing",
+                      "requires_predicants": ["901"],
+                      "responses": [
+                        {
+                          "text": "Prescribed"
+                        },
+                        {
+                          "text": "No prescription necessary"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "text": "no",
+                    "query": {
+                      "text": "Prescribe dressing",
+                      "requires_predicants": ["901"],
+                      "responses": [
+                        {
+                          "text": "Prescribed"
+                        },
+                        {
+                          "text": "No prescription necessary"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              "sets_predicants": ["901"],
+              "notes": "bleeding"
+            },
+            {
+              "text": "no",
+            }
+          ]
         },
-        {
-          "text": "left leg",
-          "nextQuery": "102",
-          "notes": "Complaint\n---------\nleft leg"
-        }
-      ]
-    },
-    "102": {
-      "text": "Is it bleeding?",
-      "responses": [
-        {
-          "text": "yes",
-          "nextQuery": "103",
-          "sets_predicants": ["901"],
-          "notes": "bleeding"
-        },
-        {
-          "text": "no",
-          "nextQuery": "103"
-        }
-      ]
-    },
-    "103": {
-      "text": "Is it aching?",
-      "responses": [
-        {
-          "text": "yes",
-          "nextQuery": "104"
-        },
-        {
-          "text": "no",
-          "nextQuery": "104"
-        }
-      ]
-    },
-    "104": {
-      "text": "Prescribe dressing",
-      "requires_predicants": ["901"],
-      "responses": [
-        {
-          "text": "Prescribed"
-        },
-        {
-          "text": "No prescription necessary"
-        }
-      ]
-    }
+        "notes": "Complaint\n---------\nleft leg"
+      }
+    ]
   }
 }
 
+},{}],"/Users/tim/dev/lexeme/browser/traversal.pogo":[function(require,module,exports){
+(function() {
+    var self = this;
+    var traversal;
+    traversal = function(query) {
+        if (query) {
+            return {
+                text: query.text,
+                query: query,
+                respond: function(text) {
+                    var self = this;
+                    var response;
+                    response = function() {
+                        var gen1_results, gen2_items, gen3_i, r;
+                        gen1_results = [];
+                        gen2_items = query.responses;
+                        for (gen3_i = 0; gen3_i < gen2_items.length; ++gen3_i) {
+                            r = gen2_items[gen3_i];
+                            (function(r) {
+                                if (r.text === text) {
+                                    return gen1_results.push(r);
+                                }
+                            })(r);
+                        }
+                        return gen1_results;
+                    }()[0];
+                    if (!response) {
+                        throw new Error("no such response " + text + ", try one of " + function() {
+                            var gen4_results, gen5_items, gen6_i, r;
+                            gen4_results = [];
+                            gen5_items = query.responses;
+                            for (gen6_i = 0; gen6_i < gen5_items.length; ++gen6_i) {
+                                r = gen5_items[gen6_i];
+                                (function(r) {
+                                    return gen4_results.push(r.text);
+                                })(r);
+                            }
+                            return gen4_results;
+                        }().join(", "));
+                    }
+                    return traversal(response.query);
+                }
+            };
+        }
+    };
+    module.exports = traversal;
+}).call(this);
 },{}],"/Users/tim/dev/lexeme/node_modules/bluebird/js/main/any.js":[function(require,module,exports){
 /**
  * The MIT License (MIT)

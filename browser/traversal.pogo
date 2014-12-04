@@ -1,7 +1,8 @@
-traversal (graph, query) =
+traversal (query) =
   if (query)
     {
       text = query.text
+      query = query
 
       respond (text) =
         response = [
@@ -12,17 +13,8 @@ traversal (graph, query) =
 
         if (@not response)
           throw (new (Error "no such response #(text), try one of #([r <- query.responses, r.text].join ', ')"))
-
-        traversal (
-          graph
-          graph.queries.(response.nextQuery)
-        )
+        
+        traversal (response.query)
     }
-  else
-    firstQuery = graph.firstQuery @and graph.queries.(graph.firstQuery)
-    if (firstQuery)
-      traversal (graph, firstQuery)
-    else
-      throw (new (Error "graph with no first query"))
 
 module.exports = traversal

@@ -1,3 +1,5 @@
+traversal = require './traversal'
+
 module.exports (element, graphApi) =
   React = require 'react'
   r = React.createElement
@@ -12,16 +14,10 @@ module.exports (element, graphApi) =
       }
 
     selectResponse (response) =
-      queryId = response.nextQuery
-
-      query =
-        if (queryId != nil)
-          self.state.graph.queries.(queryId)
-
       self.state.responses.push(response)
 
       self.setState {
-        query = query
+        query = response.query
         responses = self.state.responses
       }
 
@@ -54,8 +50,7 @@ module.exports (element, graphApi) =
     componentDidMount () =
       graph = graphApi.graphForQuery(nil)!
       self.setState {
-        query = graph.queries.(graph.firstQuery)
-        graph = graph
+        query = graph.query
       }
   }
 
