@@ -29,6 +29,7 @@ createQuery = prototype {
     r = {
       id = response.id
       text = response.text
+      notes = response.notes
     }
 
     self.query.responses.push (r)

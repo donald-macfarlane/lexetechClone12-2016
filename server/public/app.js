@@ -124,19 +124,23 @@
         return items;
     };
     var self = this;
-    var $, _, forEachQueryInQueryGraph;
+    var $, _, cache, forEachQueryInQueryGraph;
     $ = require("jquery");
     _ = require("underscore");
+    cache = require("../server/cache");
     exports.firstQuery = function() {
         var self = this;
-        var gen2_asyncResult, body;
+        var gen2_asyncResult, body, queryAjaxCache;
         return new Promise(function(gen3_onFulfilled) {
             gen3_onFulfilled(Promise.resolve($.get("/queries/first/graph")).then(function(gen2_asyncResult) {
                 body = gen2_asyncResult;
+                queryAjaxCache = cache();
                 forEachQueryInQueryGraph(body.query, function(query) {
                     var queryPromise, gen4_items, gen5_i, response;
                     if (query.partial) {
-                        queryPromise = $.get(query.href);
+                        queryPromise = queryAjaxCache.cacheBy(query.href, function() {
+                            return $.get(query.href);
+                        });
                         return function() {
                             var gen6_results, gen7_items, gen8_i, responsePair;
                             gen6_results = [];
@@ -210,7 +214,7 @@
         }();
     };
 }).call(this);
-},{"bluebird":6,"jquery":40,"underscore":187}],4:[function(require,module,exports){
+},{"../server/cache":188,"bluebird":6,"jquery":40,"underscore":187}],4:[function(require,module,exports){
 /**
  * The MIT License (MIT)
  * 
@@ -34434,4 +34438,34 @@ module.exports = require('./lib/React');
   }
 }.call(this));
 
+},{}],188:[function(require,module,exports){
+(function() {
+    var self = this;
+    module.exports = function() {
+        var self = this;
+        var cache;
+        cache = {};
+        return {
+            cacheBy: function(key, block) {
+                var self = this;
+                var value;
+                value = cache[key];
+                if (!value) {
+                    return cache[key] = block();
+                } else {
+                    return value;
+                }
+            },
+            onceBy: function(key, block) {
+                var self = this;
+                var value;
+                value = cache[key];
+                if (!value) {
+                    cache[key] = true;
+                    return block();
+                }
+            }
+        };
+    };
+}).call(this);
 },{}]},{},[1]);

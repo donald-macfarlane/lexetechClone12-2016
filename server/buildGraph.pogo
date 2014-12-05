@@ -71,9 +71,6 @@ startingContext = {
 }
 
 module.exports(db, graph, queryId, startContext = startingContext, maxDepth = 0) =
-  if (queryId == nil)
-    queryId := db.query(0)!.id
-
   unexploredQueries = []
   queryCache = cache()
 
@@ -112,10 +109,19 @@ module.exports(db, graph, queryId, startContext = startingContext, maxDepth = 0)
     ]
 
   firstTask () =
-    query = db.queryById(queryId)!
+    query =
+      if (queryId)
+        db.queryById(queryId)!
+      else
+        db.query(0)!
 
     context = createContext {
-      coherenceIndex = db.coherenceIndexForQueryId(queryId)!
+      coherenceIndex =
+        if (queryId)
+          db.coherenceIndexForQueryId(queryId)!
+        else
+          0
+
       blocks = startContext.blocks
       level = startContext.level
       predicants = startContext.predicants

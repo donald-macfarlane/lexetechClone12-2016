@@ -39,7 +39,12 @@ module.exports () =
       JSON.parse(client.get(id, ^)!)
 
     coherenceIndexForQueryId(id) =
-      queries()!.indexOf(id)
+      index = queries()!.indexOf(id)
+
+      if (index < 0)
+        throw (new (Error "no such query id: #(JSON.stringify(id))"))
+
+      index
 
     length() = queries()!.length
   }
