@@ -1,7 +1,6 @@
 _ = require 'underscore'
-debug = require './debug'
 createContext = require './context'
-createVisitedQueries = require './visitedQueries'
+cache = require './cache'
 
 cloneContext(c) =
   blocks = {}
@@ -65,67 +64,53 @@ anyPredicantIn (predicants) foundIn (currentPredicants) =
 block (block) inActiveBlocks (blocks) =
   blocks.(block)
 
-createCachedQueryLookups() =
-  cache = []
+startingContext = {
+  blocks = {"1" = true}
+  level = 1
+  predicants = {context = true}
+}
 
-  {
-    findQueryByContext (context) or (block) =
-      c = cache.(context.coherenceIndex)
-      key = context.key()
-
-      if (@not c)
-        c := {}
-        cache.(context.coherenceIndex) = c
-        c.(key) = block()!
-      else
-        q = c.(key)
-        if (q)
-          q
-        else
-          c.(key) = block()!
-  }
-
-module.exports(db, graph, queryId, startContext = { blocks = {"1" = true}, level = 1, predicants = {context = true} }, maxDepth = 0) =
+module.exports(db, graph, queryId, startContext = startingContext, maxDepth = 0) =
   unexploredQueries = []
-  visitedQueries = createVisitedQueries()
-  cachedQueryLookups = createCachedQueryLookups()
+  queryCache = cache()
 
   findNextQuery(context) =
-    cachedQueryLookups.findQueryByContext! (context) or
-      findNextItem! @(query) in (db) startingFrom (context.coherenceIndex) matching
-        query.level <= context.level \
-          @and anyPredicantIn (query.predicants) foundIn (context.predicants) \
-          @and block (query.block) inActiveBlocks (context.blocks)
+    findNextItem! @(query) in (db) startingFrom (context.coherenceIndex) matching
+      query.level <= context.level \
+        @and anyPredicantIn (query.predicants) foundIn (context.predicants) \
+        @and block (query.block) inActiveBlocks (context.blocks)
 
-  selectResponse (response) forQuery (query, context) =
-    graph.response (response, context = context)
-
+  selectResponse (response) forQuery (query, context, generatedQuery = nil) =
     newContext = newContextFromResponse (response) context (context)
-    graph.query (query) toResponse (response, parentQueryContext = context, responseContext = newContext)
+    generatedResponse = generatedQuery.addResponse (response)
 
     if (maxDepth == 0 @or newContext.depth < maxDepth)
-      nextQuery = findNextQuery!(newContext)
-      graph.response (response) toQuery (nextQuery, responseContext = newContext)
+      generatedSubQuery = queryCache.cacheBy "#(newContext.coherenceIndex):#(newContext.key())"!
+        nextQuery = findNextQuery!(newContext)
+        subQuery = graph.query (nextQuery, context = newContext)
 
-      if (nextQuery)
-        newContext.coherenceIndex = nextQuery.index
-        if (@not visitedQueries.hasVisitedQuery (nextQuery) context (newContext))
-          visitedQueries.visitedQuery (nextQuery) context (newContext)
+        if (nextQuery)
+          newContext.coherenceIndex = nextQuery.index
+
           unexploredQueries.push {
             query = nextQuery
             context = newContext
+            generatedQuery = subQuery
           }
 
-  buildGraphForQuery(query, context) =
-    graph.query (query, context = context)
+        subQuery
 
+      generatedResponse.setQuery (generatedSubQuery)
+
+  buildGraphForQuery(query, context, generatedQuery) =
     [
       response <- query.responses
-      selectResponse! (response) forQuery (query, context)
+      selectResponse! (response) forQuery (query, context, generatedQuery = generatedQuery)
     ]
 
-  unexploredQueries.push {
+  firstTask () =
     query = db.queryById(queryId)!
+
     context = createContext {
       coherenceIndex = db.coherenceIndexForQueryId(queryId)!
       blocks = startContext.blocks
@@ -133,29 +118,19 @@ module.exports(db, graph, queryId, startContext = { blocks = {"1" = true}, level
       predicants = startContext.predicants
       depth = 0
     }
-  }
 
-  every(n) =
-    i = -1
+    {
+      query = query
+      context = context
+      generatedQuery = graph.query (query, context = context)
+    }
 
-    @(block)
-      ++i
-      if (i >= n)
-        block()
-        i := 0
+  unexploredQueries.push(firstTask()!)
 
-  everySoOften = every 1000
-
-  numberOfQueries = 0
-  
   graphNextQuery() =
     if(unexploredQueries.length > 0)
       task = unexploredQueries.shift()
-      everySoOften
-        graph.debug "exploring #(unexploredQueries.length):#(numberOfQueries)"
-
-      buildGraphForQuery!(task.query, task.context)
-      ++numberOfQueries
+      buildGraphForQuery!(task.query, task.context, task.generatedQuery)
       graphNextQuery!()
 
   graphNextQuery!()

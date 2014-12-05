@@ -104,6 +104,57 @@ describe "server"
       c.asks 'query 3' respondWith 'response 1'
       c.asks 'query 4' respondWith 'response 1'
 
+  context 'when two responses have the same query'
+    beforeEach
+      db.setQueries! [
+        lexicon.query {
+          name = 'query 1'
+
+          responses = [
+            lexicon.response {
+              response = 'response 1'
+            }
+            lexicon.response {
+              response = 'response 2'
+            }
+          ]
+        }
+        lexicon.query {
+          name = 'query 2'
+
+          responses = [
+            lexicon.response {
+              response = 'response 1'
+            }
+          ]
+        }
+        lexicon.query {
+          name = 'query 3'
+
+          responses = [
+            lexicon.response {
+              response = 'response 1'
+            }
+          ]
+        }
+      ]
+
+    it 'can choose the first response, and get to the same query'
+      body = api.get! '/queries/1/graph?depth=4'.body
+
+      c = conversation(body)
+      c.asks 'query 1' respondWith 'response 1'
+      c.asks 'query 2' respondWith 'response 1'
+      c.asks 'query 3' respondWith 'response 1'
+
+    it 'can choose the second response, and get to the same query'
+      body = api.get! '/queries/1/graph?depth=4'.body
+
+      c = conversation(body)
+      c.asks 'query 1' respondWith 'response 2'
+      c.asks 'query 2' respondWith 'response 1'
+      c.asks 'query 3' respondWith 'response 1'
+
   context 'when a query is dependent on previous response'
     beforeEach
       db.setQueries! [
