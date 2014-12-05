@@ -1,21 +1,16 @@
 sworm = require 'sworm'
 _ = require 'underscore'
 enumerateRange = require './enumerateRange'
-debug = require './debug'
+debug = require '../server/debug'
 
 group (items) by (fn) map (map) =
   groups = _.groupBy (items, fn)
   _.object [k <- Object.keys(groups), [k, map(groups.(k))]]
 
-module.exports() =
+module.exports(connectionInfo) =
   db = sworm.db! {
     driver = 'mssql'
-    config = {
-      user = 'lexeme'
-      password = 'password'
-      server = 'windows'
-      database = 'dbLexeme'
-    }
+    config = connectionInfo
   }
 
   try
@@ -35,7 +30,7 @@ module.exports() =
         navMinor = main.NavMinor
         level = main.Level
         block = main.BlockID
-        query = main.QText
+        text = main.QText
 
         responses = [
           m <- ms
@@ -64,9 +59,9 @@ module.exports() =
 
           {
             id = m.ModID
-            response = m.Mod
+            text = m.Mod
             setLevel = m.LevelSet
-            text = {one = m.StyleOne}
+            notes = m.StyleOne
             action = action
           }
         ]
@@ -111,7 +106,7 @@ module.exports() =
 
     unsortedQueries = _.values(queriesById)
 
-    unsortedQueries.sort @(left, right)
+    sortedQueries = unsortedQueries.sort @(left, right)
       block = compare(left.block, right.block)
       if (block != 0)
         block
@@ -121,6 +116,12 @@ module.exports() =
           major
         else
           compare(left.navMinor, right.navMinor)
+
+    sortedQueries.forEach @(q)
+      delete(q.navMajor)
+      delete(q.navMinor)
+
+    sortedQueries
   finally
     db.close()!
 

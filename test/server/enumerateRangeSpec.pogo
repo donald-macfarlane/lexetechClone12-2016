@@ -1,5 +1,5 @@
 expect = require 'chai'.expect
-enumerateRange = require '../../server/enumerateRange'
+enumerateRange = require '../../tools/enumerateRange'
 
 describe 'enumerateRange'
   it 'enumerates numbers separated by commas'
