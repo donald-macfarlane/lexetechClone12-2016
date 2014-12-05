@@ -1,0 +1,20 @@
+{
+  "name": "lexeme",
+  "version": "1.0.0",
+  "homepage": "https://github.com/featurist/lexeme",
+  "authors": [
+    "Tim Macfarlane <timmacfarlane@gmail.com>"
+  ],
+  "license": "private",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery-mockjax": "~1.6.1"
+  }
+}
