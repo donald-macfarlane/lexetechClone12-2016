@@ -7,7 +7,8 @@
     "test": "test"
   },
   "scripts": {
-    "test": "mocha test/*Spec.* test/server/*Spec.*; karma start --single-run"
+    "test": "mocha test/*Spec.* test/server/*Spec.*; karma start --single-run",
+    "postinstall": "./node_modules/bower/bin/bower install"
   },
   "repository": {
     "type": "git",
