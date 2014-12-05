@@ -1,12 +1,15 @@
 $ = require 'jquery'
 _ = require 'underscore'
+cache = require '../server/cache'
 
 exports.firstQuery()! =
   body = $.get '/queries/first/graph'!
+  queryAjaxCache = cache()
 
   forEachQuery @(query) inQueryGraph (body.query)
     if (query.partial)
-      queryPromise = $.get(query.href)
+      queryPromise = queryAjaxCache.cacheBy (query.href)
+        $.get(query.href)
 
       [
         responsePair <- _.zip(query.responses, [0..(query.responses.length - 1)])

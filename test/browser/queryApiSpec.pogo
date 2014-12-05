@@ -66,23 +66,12 @@ describe 'query api'
                 ]
               }
             }
-          ]
-        }
-      }
-    }
-
-    $.mockjax {
-      url = '/queries/2'
-
-      responseText = {
-        query = {
-          text = 'query 2'
-
-          responses = [
             {
-              text = 'response 1'
+              text = 'response 2'
               query = {
-                text = 'query 3'
+                text = 'query 2'
+                partial = true
+                href = '/queries/2'
 
                 responses = [
                   {
@@ -94,6 +83,35 @@ describe 'query api'
           ]
         }
       }
+    }
+
+    calls = 0
+    $.mockjax {
+      url = '/queries/2'
+
+      response() =
+        ++calls
+
+        self.responseText = {
+          query = {
+            text = 'query 2'
+
+            responses = [
+              {
+                text = 'response 1'
+                query = {
+                  text = 'query 3'
+
+                  responses = [
+                    {
+                      text = 'response 1'
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
     }
 
     graph = queryApi.firstQuery()!
@@ -109,3 +127,10 @@ describe 'query api'
     query := query.responses.0.query()!
     expect(query.text).to.equal 'query 3'
     expect(query.responses.0.text).to.equal 'response 1'
+
+    query := graph.query
+    query := query.responses.1.query()!
+    expect(query.text).to.equal 'query 2'
+    expect(query.responses.0.text).to.equal 'response 1'
+
+    expect(calls).to.eql 1
