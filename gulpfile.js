@@ -34,11 +34,5 @@ gulp.task('watch', function () {
 gulp.task('bundle', rebundle(browserifyBundle));
 
 gulp.task('server', ['bundle'], function() {
-  gulp.src('public')
-    .pipe(webserver({
-      livereload: true,
-      directoryListing: false,
-      open: false,
-      fallback: 'index.html'
-    }));
+  require('./server/app').listen(8000);
 });

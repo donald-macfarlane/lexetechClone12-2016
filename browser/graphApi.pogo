@@ -1,2 +1,4 @@
+$ = require 'jquery'
+
 exports.graphForQuery () ! =
-  require './lexicon.json'
+  false
