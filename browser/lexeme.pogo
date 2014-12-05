@@ -1,4 +1,4 @@
-module.exports (element, graphApi) =
+module.exports (element, queryApi) =
   React = require 'react'
   r = React.createElement
 
@@ -50,7 +50,7 @@ module.exports (element, graphApi) =
 
     componentDidMount () =
       self.setState {
-        query = graphApi.firstQuery () !
+        query = queryApi.firstQuery()!.query
       }
   }
 

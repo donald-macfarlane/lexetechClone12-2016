@@ -1,4 +1,4 @@
 lexeme = require './lexeme'
-graphApi = require './graphApi'
+queryApi = require './queryApi'
 
-lexeme(window.document.body, graphApi)
+lexeme(window.document.body, queryApi)

@@ -37,57 +37,59 @@ describe 'lexeme'
 
     graphApi = {
       firstQuery()! = {
-        text = 'Where does it hurt?'
+        query = {
+          text = 'Where does it hurt?'
 
-        responses = [
-          {
-            id = 1
-            text = 'left leg'
-            query()! = {
-              text = "Is it bleeding?"
-              responses = [
-                {
-                  id = 1
-                  text = 'yes'
-                  query()! = {
-                    text = "Is it aching?"
-                    responses = [
-                      {
-                        id = 1
-                        text = 'yes'
-                      }
-                      {
-                        id = 2
-                        text = 'no'
-                      }
-                    ]
+          responses = [
+            {
+              id = 1
+              text = 'left leg'
+              query()! = {
+                text = "Is it bleeding?"
+                responses = [
+                  {
+                    id = 1
+                    text = 'yes'
+                    query()! = {
+                      text = "Is it aching?"
+                      responses = [
+                        {
+                          id = 1
+                          text = 'yes'
+                        }
+                        {
+                          id = 2
+                          text = 'no'
+                        }
+                      ]
+                    }
+                    notes = 'bleeding'
                   }
-                  notes = 'bleeding'
-                }
-                {
-                  id = 2
-                  text = 'no'
-                  query()! = {
-                    text = "Is it aching?"
-                    responses = [
-                      {
-                        id = 1
-                        text = 'yes'
-                      }
-                      {
-                        id = 2
-                        text = 'no'
-                      }
-                    ]
+                  {
+                    id = 2
+                    text = 'no'
+                    query()! = {
+                      text = "Is it aching?"
+                      responses = [
+                        {
+                          id = 1
+                          text = 'yes'
+                        }
+                        {
+                          id = 2
+                          text = 'no'
+                        }
+                      ]
+                    }
                   }
-                }
-              ]
+                ]
+              }
+              notes = 'Complaint
+                       ---------
+                       left leg'
             }
-            notes = 'Complaint
-                     ---------
-                     left leg'
-          }
-        ]
+          ]
+        }
       }
     }
 
