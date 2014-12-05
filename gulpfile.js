@@ -18,7 +18,7 @@ function rebundle(bundle) {
     return bundle.bundle()
       .on('error', gutil.log.bind(gutil, 'Browserify Error'))
       .pipe(source('app.js'))
-      .pipe(gulp.dest('./public'));
+      .pipe(gulp.dest('./server/public'));
   }
 }
 
