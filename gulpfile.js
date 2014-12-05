@@ -8,7 +8,7 @@ var browserify = require('browserify');
 var browserifyBundle = browserify('./browser/app.pogo', {
   cache: {},
   packageCache: {},
-  fullPaths: true,
+  fullPaths: false,
   extensions: ['.pogo'],
   transform: ['pogoify']
 });
