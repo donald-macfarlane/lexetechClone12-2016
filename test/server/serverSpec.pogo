@@ -104,6 +104,26 @@ describe "server"
       c.asks 'query 3' respondWith 'response 1'
       c.asks 'query 4' respondWith 'response 1'
 
+  describe 'max depth'
+    beforeEach
+      db.setQueries! [
+        n <- [1..20]
+
+        lexicon.query {
+          name = "query #(n)"
+
+          responses = [
+            lexicon.response {
+              response = 'response 1'
+            }
+          ]
+        }
+      ]
+
+    it 'returns a maximum of 10 queries'
+      body = api.get! '/queries/1/graph?depth=20'.body
+      expect(depthOf(body.query)).to.equal 10
+
   context 'when two responses have the same query'
     beforeEach
       db.setQueries! [
