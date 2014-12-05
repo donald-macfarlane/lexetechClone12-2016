@@ -4,7 +4,7 @@ bodyParser = require 'body-parser'
 
 app = express()
 app.use(morgan('combined'))
-app.use(bodyParser.json())
+app.use(bodyParser.json {limit = '1mb'})
 
 buildGraph = require './buildGraph'
 queryGraph = require './queryGraph'

@@ -7,6 +7,7 @@ lexiconBuilder = require './lexiconBuilder'
 conversation = require '../conversation'
 debug = require '../../server/debug'
 _ = require 'underscore'
+uritemplate = require 'uritemplate'
 
 describe "server"
   port = 12345
@@ -238,6 +239,10 @@ describe "server"
       c.asks 'query 4' respondWith 'response 1'
 
     describe 'asking for the next part of the graph'
+      expand (href, obj) =
+        t = uritemplate.parse(href)
+        t.expand(obj)
+
       it 'can explore the left hand side'
         graph = api.get! '/queries/1/graph?depth=2'.body
         c = conversation(graph)
@@ -246,7 +251,7 @@ describe "server"
         q2 = c.query()
         expect(q2.partial).to.be.true
 
-        q2 := api.get (q2.href)!.body
+        q2 := api.get (expand(q2.hrefTemplate, depth = 2))!.body
         c := conversation(q2)
         c.asks 'query 2' respondWith 'response 1'
         c.asks 'query 3' respondWith 'response 1'
@@ -259,7 +264,7 @@ describe "server"
         q2 = c.query()
         expect(q2.partial).to.be.true
 
-        q2 := api.get (q2.href)!.body
+        q2 := api.get (expand(q2.hrefTemplate, depth = 2))!.body
         c := conversation(q2)
         c.asks 'query 2' respondWith 'response 1'
         c.asks 'query 4' respondWith 'response 1'

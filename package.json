@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "mocha test/*Spec.* test/server/*Spec.*; karma start --single-run",
+    "test": "mocha test/*Spec.* test/server/*Spec.*",
     "postinstall": "./node_modules/bower/bin/bower install"
   },
   "repository": {
@@ -55,6 +55,7 @@
     "express": "^4.10.4",
     "morgan": "^1.5.0",
     "react": "^0.12.1",
-    "redis": "^0.12.1"
+    "redis": "^0.12.1",
+    "uritemplate": "^0.3.4"
   }
 }

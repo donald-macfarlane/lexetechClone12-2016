@@ -9,7 +9,7 @@ module.exports () =
         query = query @and {
           text = query.text
           responses = []
-          href = "/queries/#(query.id)/graph?context=#(encodeURIComponent(JSON.stringify(_.pick(context, 'blocks', 'predicants', 'level'))))&depth=2"
+          hrefTemplate = "/queries/#(query.id)/graph?context=#(encodeURIComponent(JSON.stringify(_.pick(context, 'blocks', 'predicants', 'level')))){&depth}"
           partial = true
         }
       }
