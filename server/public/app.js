@@ -9,13 +9,27 @@
 },{"./graphApi":2,"./lexeme":3}],2:[function(require,module,exports){
 (function() {
     var Promise = require("bluebird");
+    var gen1_promisify = function(fn) {
+        return new Promise(function(onFulfilled, onRejected) {
+            fn(function(error, result) {
+                if (error) {
+                    onRejected(error);
+                } else {
+                    onFulfilled(result);
+                }
+            });
+        });
+    };
     var self = this;
     var $;
     $ = require("jquery");
-    exports.graphForQuery = function() {
+    exports.firstQuery = function() {
         var self = this;
-        return new Promise(function(gen1_onFulfilled) {
-            gen1_onFulfilled(false);
+        var gen2_asyncResult;
+        return new Promise(function(gen3_onFulfilled) {
+            gen3_onFulfilled(gen1_promisify(function(gen4_callback) {
+                return $.get("/queries/first/graph", gen4_callback);
+            }));
         });
     };
 }).call(this);
@@ -103,12 +117,11 @@
             },
             componentDidMount: function() {
                 var self = this;
-                var gen7_asyncResult, graph;
+                var gen7_asyncResult;
                 return new Promise(function(gen8_onFulfilled) {
-                    gen8_onFulfilled(Promise.resolve(graphApi.graphForQuery(void 0)).then(function(gen7_asyncResult) {
-                        graph = gen7_asyncResult;
+                    gen8_onFulfilled(Promise.resolve(graphApi.firstQuery()).then(function(gen7_asyncResult) {
                         return self.setState({
-                            query: graph.query
+                            query: gen7_asyncResult
                         });
                     }));
                 });

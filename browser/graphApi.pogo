@@ -1,4 +1,4 @@
 $ = require 'jquery'
 
-exports.graphForQuery () ! =
-  false
+exports.firstQuery () ! =
+  $.get('/queries/first/graph') ^!

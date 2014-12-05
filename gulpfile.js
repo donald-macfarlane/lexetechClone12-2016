@@ -15,6 +15,7 @@ var browserifyBundle = browserify('./browser/app.pogo', {
 
 function rebundle(bundle) {
   return function () {
+    console.log("bundling...");
     return bundle.bundle()
       .on('error', gutil.log.bind(gutil, 'Browserify Error'))
       .pipe(source('app.js'))
@@ -34,5 +35,5 @@ gulp.task('watch', function () {
 gulp.task('bundle', rebundle(browserifyBundle));
 
 gulp.task('server', ['bundle'], function() {
-  require('./server/app').listen(8000);
+  require('./server/server').listen(8000);
 });

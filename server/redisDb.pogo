@@ -28,7 +28,7 @@ module.exports () =
             else
               result(re)
         ]
-        
+
     query(n) =
       self.queryById(queries()!.(n))!
 

@@ -48,9 +48,8 @@ module.exports (element, graphApi) =
       )
 
     componentDidMount () =
-      graph = graphApi.graphForQuery(nil)!
       self.setState {
-        query = graph.query
+        query = graphApi.firstQuery () !
       }
   }
 

@@ -71,6 +71,9 @@ startingContext = {
 }
 
 module.exports(db, graph, queryId, startContext = startingContext, maxDepth = 0) =
+  if (queryId == nil)
+    queryId := db.query(0)!.id
+
   unexploredQueries = []
   queryCache = cache()
 
