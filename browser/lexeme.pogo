@@ -1,5 +1,3 @@
-traversal = require './traversal'
-
 module.exports (element, graphApi) =
   React = require 'react'
   r = React.createElement
@@ -16,8 +14,11 @@ module.exports (element, graphApi) =
     selectResponse (response) =
       self.state.responses.push(response)
 
+      query = if (response.query)
+        response.query()!
+
       self.setState {
-        query = response.query
+        query = query
         responses = self.state.responses
       }
 

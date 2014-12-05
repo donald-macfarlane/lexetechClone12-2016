@@ -43,13 +43,13 @@ describe 'lexeme'
           {
             id = 1
             text = 'left leg'
-            query = {
+            query()! = {
               text = "Is it bleeding?"
               responses = [
                 {
                   id = 1
                   text = 'yes'
-                  query = {
+                  query()! = {
                     text = "Is it aching?"
                     responses = [
                       {
@@ -67,7 +67,7 @@ describe 'lexeme'
                 {
                   id = 2
                   text = 'no'
-                  query = {
+                  query()! = {
                     text = "Is it aching?"
                     responses = [
                       {
