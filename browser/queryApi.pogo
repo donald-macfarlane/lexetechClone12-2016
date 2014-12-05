@@ -1,18 +1,26 @@
 $ = require 'jquery'
 
-exports.firstQuery () ! =
-  body = $.get('/queries/first/graph') ^!
+exports.firstQuery()! =
+  body = $.get '/queries/first/graph'!
 
   forEachQuery @(query) inQueryGraph (body.query)
-    console.log(query)
+    for each @(response) in (query.responses)
+      response._query = response.query
+      response.query()! =
+        self._query
 
   body
 
 forEachQuery inQueryGraph (query, block) =
+  queries = [
+     r <- query.responses
+     r.query
+     r.query
+  ]
+
   block(query)
 
   [
-    r <- query.responses
-    r.query
-    forEachQuery inQueryGraph (r.query, block)
+    q <- queries
+    forEachQuery inQueryGraph (q, block)
   ]
