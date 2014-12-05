@@ -36,7 +36,7 @@ describe 'lexeme'
     document.body.appendChild(div)
 
     graphApi = {
-      firstQuery! = {
+      firstQuery()! = {
         text = 'Where does it hurt?'
 
         responses = [
