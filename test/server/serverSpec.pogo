@@ -36,42 +36,50 @@ describe "server"
     else
       1
 
+  it 'can insert queries'
+    db.clear()!
+    fixture = require '../../features/support/lexicon.json'
+    response = api.post('/queries', fixture)!
+    expect(response.statusCode).to.eql 201
+    expect(response.body.status).to.equal 'success'
+    expect(db.query(0)!.responses.0.text).to.eql 'right arm'
+
   context 'when there are 4 queries'
     beforeEach
       db.setQueries! [
         lexicon.query {
-          name = 'query 1'
+          text = 'query 1'
 
           responses = [
             lexicon.response {
-              response = 'response 1'
+              text = 'response 1'
             }
           ]
         }
         lexicon.query {
-          name = 'query 2'
+          text = 'query 2'
 
           responses = [
             lexicon.response {
-              response = 'response 1'
+              text = 'response 1'
             }
           ]
         }
         lexicon.query {
-          name = 'query 3'
+          text = 'query 3'
 
           responses = [
             lexicon.response {
-              response = 'response 1'
+              text = 'response 1'
             }
           ]
         }
         lexicon.query {
-          name = 'query 4'
+          text = 'query 4'
 
           responses = [
             lexicon.response {
-              response = 'response 1'
+              text = 'response 1'
             }
           ]
         }
@@ -100,11 +108,11 @@ describe "server"
         n <- [1..20]
 
         lexicon.query {
-          name = "query #(n)"
+          text = "query #(n)"
 
           responses = [
             lexicon.response {
-              response = 'response 1'
+              text = 'response 1'
             }
           ]
         }
@@ -118,32 +126,32 @@ describe "server"
     beforeEach
       db.setQueries! [
         lexicon.query {
-          name = 'query 1'
+          text = 'query 1'
 
           responses = [
             lexicon.response {
-              response = 'response 1'
+              text = 'response 1'
             }
             lexicon.response {
-              response = 'response 2'
-            }
-          ]
-        }
-        lexicon.query {
-          name = 'query 2'
-
-          responses = [
-            lexicon.response {
-              response = 'response 1'
+              text = 'response 2'
             }
           ]
         }
         lexicon.query {
-          name = 'query 3'
+          text = 'query 2'
 
           responses = [
             lexicon.response {
-              response = 'response 1'
+              text = 'response 1'
+            }
+          ]
+        }
+        lexicon.query {
+          text = 'query 3'
+
+          responses = [
+            lexicon.response {
+              text = 'response 1'
             }
           ]
         }
@@ -169,47 +177,47 @@ describe "server"
     beforeEach
       db.setQueries! [
         lexicon.query {
-          name = 'query 1'
+          text = 'query 1'
 
           responses = [
             lexicon.response {
-              response = 'response 1'
+              text = 'response 1'
               predicants = ['a']
             }
             lexicon.response {
-              response = 'response 2'
+              text = 'response 2'
               predicants = ['b']
             }
           ]
         }
         lexicon.query {
-          name = 'query 2'
+          text = 'query 2'
 
           responses = [
             lexicon.response {
-              response = 'response 1'
+              text = 'response 1'
             }
           ]
         }
         lexicon.query {
-          name = 'query 3'
+          text = 'query 3'
 
           predicants = ['a']
 
           responses = [
             lexicon.response {
-              response = 'response 1'
+              text = 'response 1'
             }
           ]
         }
         lexicon.query {
-          name = 'query 4'
+          text = 'query 4'
 
           predicants = ['b']
 
           responses = [
             lexicon.response {
-              response = 'response 1'
+              text = 'response 1'
             }
           ]
         }

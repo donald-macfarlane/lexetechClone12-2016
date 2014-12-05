@@ -1,63 +1,71 @@
-{
-  "query": {
+[
+  {
+    "id": 1,
+    "level": 1,
+    "block": 1,
+    "predicants": [],
     "text": "What hurts?",
     "responses": [
       {
-        "text": "right arm",
-        "nextQuery": "102"
+        "id": 1,
+        "setLevel": 1,
+        "predicants": [],
+        "action": { "name":"none", "arguments":[] },
+        "text": "right arm"
       },
       {
-        "text": "left leg",
-        "query": {
-          "text": "Is it bleeding?",
-          "responses": [
-            {
-              "text": "yes",
-              "query": {
-                "text": "Is it aching?",
-                "responses": [
-                  {
-                    "text": "yes",
-                    "query": {
-                      "text": "Prescribe dressing",
-                      "requires_predicants": ["901"],
-                      "responses": [
-                        {
-                          "text": "Prescribed"
-                        },
-                        {
-                          "text": "No prescription necessary"
-                        }
-                      ]
-                    }
-                  },
-                  {
-                    "text": "no",
-                    "query": {
-                      "text": "Prescribe dressing",
-                      "requires_predicants": ["901"],
-                      "responses": [
-                        {
-                          "text": "Prescribed"
-                        },
-                        {
-                          "text": "No prescription necessary"
-                        }
-                      ]
-                    }
-                  }
-                ]
-              },
-              "sets_predicants": ["901"],
-              "notes": "bleeding"
-            },
-            {
-              "text": "no"
-            }
-          ]
-        },
-        "notes": "Complaint\n---------\nleft leg"
+        "id": 2,
+        "setLevel": 1,
+        "predicants": [],
+        "action": { "name":"none", "arguments":[] },
+        "text": "left leg"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "level": 1,
+    "block": 1,
+    "predicants": [],
+    "text": "Is it bleeding?",
+    "responses": [
+      {
+        "id": 3,
+        "setLevel": 1,
+        "predicants": [],
+        "action": { "name":"none", "arguments":[] },
+        "text": "right arm"
+      },
+      {
+        "id": 4,
+        "setLevel": 1,
+        "predicants": [],
+        "action": { "name":"none", "arguments":[] },
+        "text": "left leg"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "level": 1,
+    "block": 1,
+    "predicants": [],
+    "text": "Is it aching?",
+    "responses": [
+      {
+        "id": 5,
+        "setLevel": 1,
+        "predicants": [],
+        "action": { "name":"none", "arguments":[] },
+        "text": "yes"
+      },
+      {
+        "id": 6,
+        "setLevel": 1,
+        "predicants": [],
+        "action": { "name":"none", "arguments":[] },
+        "text": "no"
       }
     ]
   }
-}
+]

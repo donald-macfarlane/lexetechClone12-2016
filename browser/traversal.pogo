@@ -13,7 +13,7 @@ traversal (query) =
 
         if (@not response)
           throw (new (Error "no such response #(text), try one of #([r <- query.responses, r.text].join ', ')"))
-        
+
         traversal (response.query)
     }
 

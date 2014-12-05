@@ -1,7 +1,18 @@
 express = require 'express'
+morgan = require 'morgan'
+bodyParser = require 'body-parser'
+
 app = express()
+app.use(morgan('combined'))
+app.use(bodyParser.json())
+
 buildGraph = require './buildGraph'
 queryGraph = require './queryGraph'
+
+app.post '/queries' @(req, res)
+  db = app.get 'db'
+  db.setQueries(req.body)!
+  res.status(201).send({ status = 'success' })
 
 app.get '/queries/first/graph' @(req, res)
   loadGraph(nil, req, res)

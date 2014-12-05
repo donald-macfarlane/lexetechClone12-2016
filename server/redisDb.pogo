@@ -12,8 +12,11 @@ module.exports () =
       qs := client.lrange 'queries' (0, -1) ^!
 
   {
-    setQueries(queries) =
+    clear() =
       client.flushdb(^)!
+
+    setQueries(queries) =
+      self.clear()!
 
       for each @(q) in (queries)
         client.set(q.id, JSON.stringify(q), ^)!

@@ -7,7 +7,7 @@ module.exports () =
     query (query, context = nil) =
       q = createQuery {
         query = query @and {
-          text = query.name
+          text = query.text
           responses = []
           href = "/queries/#(query.id)/graph?context=#(encodeURIComponent(JSON.stringify(_.pick(context, 'blocks', 'predicants', 'level'))))&depth=2"
           partial = true
@@ -28,7 +28,7 @@ createQuery = prototype {
   addResponse (response) =
     r = {
       id = response.id
-      text = response.response
+      text = response.text
     }
 
     self.query.responses.push (r)
