@@ -4,7 +4,7 @@ expect = require 'chai'.expect
 memoryDb = require '../../server/memoryDb'
 redisDb = require '../../server/redisDb'
 lexiconBuilder = require './lexiconBuilder'
-traversal = require '../../browser/traversal'
+conversation = require '../conversation'
 debug = require '../../server/debug'
 _ = require 'underscore'
 
@@ -23,16 +23,6 @@ describe "server"
 
   afterEach
     server.close()
-
-  conversation(graph) =
-    currentQuery = traversal(graph.query)
-    {
-      asks (query) respondWith (response) =
-        expect(currentQuery.text).to.equal (query)
-        currentQuery := currentQuery.respond (response)
-
-      query() = currentQuery.query
-    }
 
   depthOf (query) =
     if (query.responses.length > 0)
