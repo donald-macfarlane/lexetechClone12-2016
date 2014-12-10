@@ -11,7 +11,7 @@ uritemplate = require 'uritemplate'
 
 describe "server"
   port = 12345
-  api = httpism.api "http://localhost:#(port)"
+  api = httpism.api "http://api:squidandeels@localhost:#(port)"
   server = nil
   db = nil
   lexicon = nil

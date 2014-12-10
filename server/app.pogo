@@ -70,6 +70,8 @@ app.post '/login' (passport.authenticate 'local' {
 
 app.post '/signup' @(req, res)
   promise! @(success, failure)
+    users."#(req.param 'email'):#(req.param 'password')" = true
+
     req.login { id = 4, email = req.param 'email' } @(err)
       if (err)
         failure(err)
