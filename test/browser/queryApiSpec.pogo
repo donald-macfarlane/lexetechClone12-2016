@@ -198,6 +198,15 @@ describe 'query api'
                   responses = [
                     {
                       text = 'response 1'
+                      query = {
+                        text = 'query 4'
+
+                        responses = [
+                          {
+                            text = 'response 1'
+                          }
+                        ]
+                      }
                     }
                   ]
                 }
@@ -211,20 +220,29 @@ describe 'query api'
 
     query = graph.query
     expect(query.text).to.equal 'query 1'
-    expect(query.responses.0.text).to.equal 'response 1'
+    response = query.responses.0
+    expect(response.text).to.equal 'response 1'
 
     query := query.responses.0.query()!
     expect(query.text).to.equal 'query 2'
-    expect(query.responses.0.text).to.equal 'response 1'
+    response := query.responses.0
+    expect(response.text).to.equal 'response 1'
 
     query := query.responses.0.query()!
     expect(query.text).to.equal 'query 3'
-    expect(query.responses.0.text).to.equal 'response 1'
+    response := query.responses.0
+    expect(response.text).to.equal 'response 1'
+
+    query := query.responses.0.query()!
+    expect(query.text).to.equal 'query 4'
+    response := query.responses.0
+    expect(response.text).to.equal 'response 1'
 
     query := graph.query
     query := query.responses.1.query()!
     expect(query.text).to.equal 'query 2'
-    expect(query.responses.0.text).to.equal 'response 1'
+    response := query.responses.0
+    expect(response.text).to.equal 'response 1'
 
     expect(calls).to.eql 1
 

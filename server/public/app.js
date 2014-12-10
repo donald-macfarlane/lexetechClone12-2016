@@ -133,7 +133,7 @@
         var self = this;
         var depth;
         depth = gen2_options !== void 0 && Object.prototype.hasOwnProperty.call(gen2_options, "depth") && gen2_options.depth !== void 0 ? gen2_options.depth : 4;
-        var firstTemplate, gen3_asyncResult, body, queryAjaxCache, getQuery;
+        var firstTemplate, gen3_asyncResult, body, queryAjaxCache, getQuery, prepareQuery;
         return new Promise(function(gen4_onFulfilled) {
             firstTemplate = uritemplate.parse("/queries/first/graph{?depth}");
             gen4_onFulfilled(Promise.resolve($.get(firstTemplate.expand({
@@ -153,58 +153,68 @@
                         }));
                     });
                 };
-                forEachQueryInQueryGraph(body.query, function(query) {
-                    var queryPromise, gen5_items, gen6_i, response;
-                    if (query.partial) {
-                        queryPromise = getQuery(query.hrefTemplate);
-                        return function() {
-                            var gen7_results, gen8_items, gen9_i, responsePair;
-                            gen7_results = [];
-                            gen8_items = _.zip(query.responses, gen1_range(0, query.responses.length - 1));
-                            for (gen9_i = 0; gen9_i < gen8_items.length; ++gen9_i) {
-                                responsePair = gen8_items[gen9_i];
-                                (function(responsePair) {
-                                    return gen7_results.push(function() {
-                                        return responsePair[0].query = function() {
-                                            var self = this;
-                                            var gen10_asyncResult, q;
-                                            return new Promise(function(gen4_onFulfilled) {
-                                                gen4_onFulfilled(Promise.resolve(queryPromise).then(function(gen10_asyncResult) {
-                                                    q = gen10_asyncResult;
-                                                    return q.query.responses[responsePair[1]].query;
-                                                }));
-                                            });
-                                        };
-                                    }());
-                                })(responsePair);
+                prepareQuery = function(topLevelQuery) {
+                    forEachQueryInQueryGraph(topLevelQuery, function(query) {
+                        var gen5_items, gen6_i, response;
+                        if (query.partial) {
+                            return function() {
+                                var gen7_results, gen8_items, gen9_i, responsePair;
+                                gen7_results = [];
+                                gen8_items = _.zip(query.responses, gen1_range(0, query.responses.length - 1));
+                                for (gen9_i = 0; gen9_i < gen8_items.length; ++gen9_i) {
+                                    responsePair = gen8_items[gen9_i];
+                                    (function(responsePair) {
+                                        return gen7_results.push(function() {
+                                            return responsePair[0].query = function() {
+                                                var self = this;
+                                                var gen10_asyncResult, q;
+                                                return new Promise(function(gen4_onFulfilled) {
+                                                    gen4_onFulfilled(Promise.resolve(getQuery(query.hrefTemplate)).then(function(gen10_asyncResult) {
+                                                        q = gen10_asyncResult;
+                                                        return prepareQuery(q.query.responses[responsePair[1]].query);
+                                                    }));
+                                                });
+                                            };
+                                        }());
+                                    })(responsePair);
+                                }
+                                return gen7_results;
+                            }();
+                        } else {
+                            gen5_items = query.responses;
+                            for (gen6_i = 0; gen6_i < gen5_items.length; ++gen6_i) {
+                                response = gen5_items[gen6_i];
+                                if (response.query) {
+                                    response._query = response.query;
+                                    response.query = function() {
+                                        var self = this;
+                                        return new Promise(function(gen4_onFulfilled) {
+                                            gen4_onFulfilled(self._query);
+                                        });
+                                    };
+                                } else if (response.queryHrefTemplate) {
+                                    response.query = function() {
+                                        var self = this;
+                                        var gen11_asyncResult;
+                                        return new Promise(function(gen4_onFulfilled) {
+                                            gen4_onFulfilled(Promise.resolve(getQuery(self.queryHrefTemplate)));
+                                        });
+                                    };
+                                } else {
+                                    response.query = function() {
+                                        var self = this;
+                                        return new Promise(function(gen4_onFulfilled) {
+                                            gen4_onFulfilled(void 0);
+                                        });
+                                    };
+                                }
                             }
-                            return gen7_results;
-                        }();
-                    } else {
-                        gen5_items = query.responses;
-                        for (gen6_i = 0; gen6_i < gen5_items.length; ++gen6_i) {
-                            response = gen5_items[gen6_i];
-                            if (response.query) {
-                                response._query = response.query;
-                                response.query = function() {
-                                    var self = this;
-                                    return new Promise(function(gen4_onFulfilled) {
-                                        gen4_onFulfilled(self._query);
-                                    });
-                                };
-                            } else {
-                                response.query = function() {
-                                    var self = this;
-                                    var gen11_asyncResult;
-                                    return new Promise(function(gen4_onFulfilled) {
-                                        gen4_onFulfilled(Promise.resolve(getQuery(self.queryHrefTemplate)));
-                                    });
-                                };
-                            }
+                            return void 0;
                         }
-                        return void 0;
-                    }
-                });
+                    });
+                    return topLevelQuery;
+                };
+                prepareQuery(body.query);
                 return body;
             }));
         });

@@ -17,28 +17,33 @@ exports.firstQuery(depth = 4)! =
       template = uritemplate.parse(hrefTemplate)
       $.get(template.expand {depth = depth})
 
-  forEachQuery @(query) inQueryGraph (body.query)
-    if (query.partial)
-      queryPromise = getQuery(query.hrefTemplate)
+  prepareQuery(topLevelQuery) =
+    forEachQuery @(query) inQueryGraph (topLevelQuery)
+      if (query.partial)
 
-      [
-        responsePair <- _.zip(query.responses, [0..(query.responses.length - 1)])
+        [
+          responsePair <- _.zip(query.responses, [0..(query.responses.length - 1)])
 
-        @{
-          responsePair.0.query()! =
-            q = queryPromise!
-            q.query.responses.(responsePair.1).query
-        }()
-      ]
-    else
-      for each @(response) in (query.responses)
-        if (response.query)
-          response._query = response.query
-          response.query()! =
-            self._query
-        else
-          response.query()! = getQuery(self.queryHrefTemplate)!
+          @{
+            responsePair.0.query()! =
+              q = getQuery(query.hrefTemplate)!
+              prepareQuery(q.query.responses.(responsePair.1).query)
+          }()
+        ]
+      else
+        for each @(response) in (query.responses)
+          if (response.query)
+            response._query = response.query
+            response.query()! =
+              self._query
+          else if (response.queryHrefTemplate)
+            response.query()! = getQuery(self.queryHrefTemplate)!
+          else
+            response.query()! = nil
+
+    topLevelQuery
             
+  prepareQuery(body.query)
 
   body
 
