@@ -9,11 +9,17 @@ exports.firstQuery(depth = 4)! =
 
   queryAjaxCache = cache()
 
+  queryAjaxCache.cacheBy (body.query.hrefTemplate)
+    body.query
+
+  getQuery(hrefTemplate) =
+    queryAjaxCache.cacheBy (hrefTemplate)
+      template = uritemplate.parse(hrefTemplate)
+      $.get(template.expand {depth = depth})
+
   forEachQuery @(query) inQueryGraph (body.query)
     if (query.partial)
-      queryPromise = queryAjaxCache.cacheBy (query.hrefTemplate)
-        template = uritemplate.parse(query.hrefTemplate)
-        $.get(template.expand {depth = depth})
+      queryPromise = getQuery(query.hrefTemplate)
 
       [
         responsePair <- _.zip(query.responses, [0..(query.responses.length - 1)])
@@ -26,9 +32,13 @@ exports.firstQuery(depth = 4)! =
       ]
     else
       for each @(response) in (query.responses)
-        response._query = response.query
-        response.query()! =
-          self._query
+        if (response.query)
+          response._query = response.query
+          response.query()! =
+            self._query
+        else
+          response.query()! = getQuery(self.queryHrefTemplate)!
+            
 
   body
 

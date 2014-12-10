@@ -133,7 +133,7 @@
         var self = this;
         var depth;
         depth = gen2_options !== void 0 && Object.prototype.hasOwnProperty.call(gen2_options, "depth") && gen2_options.depth !== void 0 ? gen2_options.depth : 4;
-        var firstTemplate, gen3_asyncResult, body, queryAjaxCache;
+        var firstTemplate, gen3_asyncResult, body, queryAjaxCache, getQuery;
         return new Promise(function(gen4_onFulfilled) {
             firstTemplate = uritemplate.parse("/queries/first/graph{?depth}");
             gen4_onFulfilled(Promise.resolve($.get(firstTemplate.expand({
@@ -141,16 +141,22 @@
             }))).then(function(gen3_asyncResult) {
                 body = gen3_asyncResult;
                 queryAjaxCache = cache();
+                queryAjaxCache.cacheBy(body.query.hrefTemplate, function() {
+                    return body.query;
+                });
+                getQuery = function(hrefTemplate) {
+                    return queryAjaxCache.cacheBy(hrefTemplate, function() {
+                        var template;
+                        template = uritemplate.parse(hrefTemplate);
+                        return $.get(template.expand({
+                            depth: depth
+                        }));
+                    });
+                };
                 forEachQueryInQueryGraph(body.query, function(query) {
                     var queryPromise, gen5_items, gen6_i, response;
                     if (query.partial) {
-                        queryPromise = queryAjaxCache.cacheBy(query.hrefTemplate, function() {
-                            var template;
-                            template = uritemplate.parse(query.hrefTemplate);
-                            return $.get(template.expand({
-                                depth: depth
-                            }));
-                        });
+                        queryPromise = getQuery(query.hrefTemplate);
                         return function() {
                             var gen7_results, gen8_items, gen9_i, responsePair;
                             gen7_results = [];
@@ -178,13 +184,23 @@
                         gen5_items = query.responses;
                         for (gen6_i = 0; gen6_i < gen5_items.length; ++gen6_i) {
                             response = gen5_items[gen6_i];
-                            response._query = response.query;
-                            response.query = function() {
-                                var self = this;
-                                return new Promise(function(gen4_onFulfilled) {
-                                    gen4_onFulfilled(self._query);
-                                });
-                            };
+                            if (response.query) {
+                                response._query = response.query;
+                                response.query = function() {
+                                    var self = this;
+                                    return new Promise(function(gen4_onFulfilled) {
+                                        gen4_onFulfilled(self._query);
+                                    });
+                                };
+                            } else {
+                                response.query = function() {
+                                    var self = this;
+                                    var gen11_asyncResult;
+                                    return new Promise(function(gen4_onFulfilled) {
+                                        gen4_onFulfilled(Promise.resolve(getQuery(self.queryHrefTemplate)));
+                                    });
+                                };
+                            }
                         }
                         return void 0;
                     }
@@ -196,31 +212,31 @@
     forEachQueryInQueryGraph = function(query, block) {
         var queries;
         queries = function() {
-            var gen11_results, gen12_items, gen13_i, r;
-            gen11_results = [];
-            gen12_items = query.responses;
-            for (gen13_i = 0; gen13_i < gen12_items.length; ++gen13_i) {
-                r = gen12_items[gen13_i];
+            var gen12_results, gen13_items, gen14_i, r;
+            gen12_results = [];
+            gen13_items = query.responses;
+            for (gen14_i = 0; gen14_i < gen13_items.length; ++gen14_i) {
+                r = gen13_items[gen14_i];
                 (function(r) {
                     if (r.query) {
-                        return gen11_results.push(r.query);
+                        return gen12_results.push(r.query);
                     }
                 })(r);
             }
-            return gen11_results;
+            return gen12_results;
         }();
         block(query);
         return function() {
-            var gen14_results, gen15_items, gen16_i, q;
-            gen14_results = [];
-            gen15_items = queries;
-            for (gen16_i = 0; gen16_i < gen15_items.length; ++gen16_i) {
-                q = gen15_items[gen16_i];
+            var gen15_results, gen16_items, gen17_i, q;
+            gen15_results = [];
+            gen16_items = queries;
+            for (gen17_i = 0; gen17_i < gen16_items.length; ++gen17_i) {
+                q = gen16_items[gen17_i];
                 (function(q) {
-                    return gen14_results.push(forEachQueryInQueryGraph(q, block));
+                    return gen15_results.push(forEachQueryInQueryGraph(q, block));
                 })(q);
             }
-            return gen14_results;
+            return gen15_results;
         }();
     };
 }).call(this);

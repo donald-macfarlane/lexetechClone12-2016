@@ -20,24 +20,25 @@ cloneContext(c) =
   }
 
 actions = {
-  none (context) = nil
-  email (context) = nil
+  none (response, context) = nil
+  email (response, context) = nil
 
-  addBlocks (context, blocks, ...) =
+  addBlocks (response, context, blocks, ...) =
     for each @(block) in (blocks)
       context.blocks.(block) = true
 
-  setBlocks (context, blocks, ...) =
+  setBlocks (response, context, blocks, ...) =
     context.blocks = {}
     for each @(block) in (blocks)
       context.blocks.(block) = true
 
-  setVariable (context, variable, value) = nil
+  setVariable (response, context, variable, value) = nil
 
-  repeatLexeme (context) =
+  repeatLexeme (response, context) =
     --context.coherenceIndex
+    response.repeating = true
 
-  loopBack (context) = nil
+  loopBack (response, context) = nil
 }
 
 newContextFromResponse (response) context (context) =
@@ -47,7 +48,7 @@ newContextFromResponse (response) context (context) =
   ++newContext.coherenceIndex
 
   action = actions.(response.action.name)
-  action(newContext, response.action.arguments, ...)
+  action(response, newContext, response.action.arguments, ...)
 
   for each @(p) in (response.predicants)
     newContext.predicants.(p) = true

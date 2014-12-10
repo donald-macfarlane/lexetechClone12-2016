@@ -9,7 +9,7 @@ module.exports () =
         query = query @and {
           text = query.text
           responses = []
-          hrefTemplate = "/queries/#(query.id)/graph?context=#(encodeURIComponent(JSON.stringify(_.pick(context, 'blocks', 'predicants', 'level')))){&depth}"
+          hrefTemplate = queryHrefTemplate(query, context)
           partial = true
         }
       }
@@ -24,12 +24,19 @@ module.exports () =
     }
   }
 
+queryHrefTemplate(query, context) =
+  "/queries/#(query.id)/graph?context=#(encodeURIComponent(JSON.stringify(_.pick(context, 'blocks', 'predicants', 'level')))){&depth}"
+
 createQuery = prototype {
   addResponse (response) =
     r = {
       id = response.id
       text = response.text
       notes = response.notes
+
+      queryHrefTemplate =
+        if (response.repeating)
+          self.query.hrefTemplate
     }
 
     self.query.responses.push (r)
@@ -42,7 +49,10 @@ createQuery = prototype {
 
 createResponse = prototype {
   setQuery (query) =
-    self.response.query = query.query
+    if (@not self.response.queryHrefTemplate)
+      self.response.query = query.query
+
     delete (self.parentQuery.partial)
+
     query
 }

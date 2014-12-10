@@ -268,3 +268,48 @@ describe "server"
         c := conversation(q2)
         c.asks 'query 2' respondWith 'response 1'
         c.asks 'query 4' respondWith 'response 1'
+
+  context 'when there is a response that repeats the same query'
+    beforeEach
+      db.setQueries! [
+        lexicon.query {
+          text = 'query 1'
+
+          responses = [
+            lexicon.response {
+              text = 'response 1'
+              action = { name = 'repeatLexeme', arguments = [] }
+            }
+            lexicon.response {
+              text = 'response 2'
+            }
+          ]
+        }
+        lexicon.query {
+          text = 'query 2'
+
+          responses = [
+            lexicon.response {
+              text = 'response 1'
+            }
+          ]
+        }
+      ]
+
+    it 'can navigate back to the same query'
+      graph = api.get! '/queries/first/graph'.body
+
+      query = graph.query
+      expect(query.text).to.eql 'query 1'
+      response = query.responses.0
+      expect(response.text).to.eql 'response 1'
+      expect(response.queryHrefTemplate).to.eql (query.hrefTemplate)
+
+      response := query.responses.1
+      expect(response.text).to.eql 'response 2'
+
+      query := response.query
+      expect(query.text).to.eql 'query 2'
+      response := query.responses.0
+      expect(response.text).to.eql 'response 1'
+      expect(response.queryHrefTemplate).to.be.undefined
