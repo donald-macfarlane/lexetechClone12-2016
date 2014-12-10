@@ -25,7 +25,7 @@ module.exports () =
   }
 
 queryHrefTemplate(query, context) =
-  "/queries/#(query.id)/graph?context=#(encodeURIComponent(JSON.stringify(_.pick(context, 'blocks', 'predicants', 'level')))){&depth}"
+  "/api/queries/#(query.id)/graph?context=#(encodeURIComponent(JSON.stringify(_.pick(context, 'blocks', 'predicants', 'level')))){&depth}"
 
 createQuery = prototype {
   addResponse (response) =

@@ -15,3 +15,11 @@ Then(/^the doctor makes the following notes:$/) do |string|
     expect(page).to have_content(string)
   end
 end
+
+When(/^I create a new user with email address "(.*?)" and password "(.*?)"$/) do |email, password|
+  visit '/'
+  click_on "Sign up"
+  fill_in "Email", with: email
+  fill_in "Password", with: password
+  click_on "Create"
+end

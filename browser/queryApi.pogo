@@ -4,7 +4,7 @@ cache = require '../server/cache'
 uritemplate = require 'uritemplate'
 
 exports.firstQuery(depth = 4)! =
-  firstTemplate = uritemplate.parse "/queries/first/graph{?depth}"
+  firstTemplate = uritemplate.parse "/api/queries/first/graph{?depth}"
   body = $.get (firstTemplate.expand {depth = depth})!
 
   queryAjaxCache = cache()

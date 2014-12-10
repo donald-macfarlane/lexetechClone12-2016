@@ -40,7 +40,7 @@ describe "server"
   it 'can insert queries'
     db.clear()!
     fixture = require '../../features/support/lexicon.json'
-    response = api.post('/queries', fixture)!
+    response = api.post('/api/queries', fixture)!
     expect(response.statusCode).to.eql 201
     expect(response.body.status).to.equal 'success'
     expect(db.query(0)!.responses.0.text).to.eql 'right arm'
@@ -87,15 +87,15 @@ describe "server"
       ]
 
     it 'should return graph at most 3 deep by default'
-      body = api.get! '/queries/1/graph'.body
+      body = api.get! '/api/queries/1/graph'.body
       expect(depthOf(body.query)).to.equal 3
 
     it 'should return graph at most 2 when specified'
-      body = api.get! '/queries/1/graph?depth=2'.body
+      body = api.get! '/api/queries/1/graph?depth=2'.body
       expect(depthOf(body.query)).to.equal 2
 
     it 'returns enough information to traverse query / response'
-      body = api.get! '/queries/1/graph?depth=4'.body
+      body = api.get! '/api/queries/1/graph?depth=4'.body
 
       c = conversation(body)
       c.asks 'query 1' respondWith 'response 1'
@@ -120,7 +120,7 @@ describe "server"
       ]
 
     it 'returns a maximum of 10 queries'
-      body = api.get! '/queries/1/graph?depth=20'.body
+      body = api.get! '/api/queries/1/graph?depth=20'.body
       expect(depthOf(body.query)).to.equal 10
 
   context 'when two responses have the same query'
@@ -159,7 +159,7 @@ describe "server"
       ]
 
     it 'can choose the first response, and get to the same query'
-      body = api.get! '/queries/1/graph?depth=4'.body
+      body = api.get! '/api/queries/1/graph?depth=4'.body
 
       c = conversation(body)
       c.asks 'query 1' respondWith 'response 1'
@@ -167,7 +167,7 @@ describe "server"
       c.asks 'query 3' respondWith 'response 1'
 
     it 'can choose the second response, and get to the same query'
-      body = api.get! '/queries/1/graph?depth=4'.body
+      body = api.get! '/api/queries/1/graph?depth=4'.body
 
       c = conversation(body)
       c.asks 'query 1' respondWith 'response 2'
@@ -225,14 +225,14 @@ describe "server"
       ]
 
     it 'can explore the left hand side'
-      graph = api.get! '/queries/1/graph?depth=4'.body
+      graph = api.get! '/api/queries/1/graph?depth=4'.body
       c = conversation(graph)
       c.asks 'query 1' respondWith 'response 1'
       c.asks 'query 2' respondWith 'response 1'
       c.asks 'query 3' respondWith 'response 1'
 
     it 'can explore the right hand side'
-      graph = api.get! '/queries/1/graph?depth=4'.body
+      graph = api.get! '/api/queries/1/graph?depth=4'.body
       c = conversation(graph)
       c.asks 'query 1' respondWith 'response 2'
       c.asks 'query 2' respondWith 'response 1'
@@ -244,7 +244,7 @@ describe "server"
         t.expand(obj)
 
       it 'can explore the left hand side'
-        graph = api.get! '/queries/1/graph?depth=2'.body
+        graph = api.get! '/api/queries/1/graph?depth=2'.body
         c = conversation(graph)
         c.asks 'query 1' respondWith 'response 1'
 
@@ -257,7 +257,7 @@ describe "server"
         c.asks 'query 3' respondWith 'response 1'
 
       it 'can explore the right hand side'
-        graph = api.get! '/queries/1/graph?depth=2'.body
+        graph = api.get! '/api/queries/1/graph?depth=2'.body
         c = conversation(graph)
         c.asks 'query 1' respondWith 'response 2'
 
@@ -297,7 +297,7 @@ describe "server"
       ]
 
     it 'can navigate back to the same query'
-      graph = api.get! '/queries/first/graph'.body
+      graph = api.get! '/api/queries/first/graph'.body
 
       query = graph.query
       expect(query.text).to.eql 'query 1'

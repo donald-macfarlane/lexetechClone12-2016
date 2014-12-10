@@ -4,14 +4,17 @@ var webserver = require('gulp-webserver');
 var source = require('vinyl-source-stream');
 var watchify = require('watchify');
 var browserify = require('browserify');
+require('pogo');
 
-var browserifyBundle = browserify('./browser/app.pogo', {
-  cache: {},
-  packageCache: {},
-  fullPaths: false,
-  extensions: ['.pogo'],
-  transform: ['pogoify']
-});
+function browserifyBundle(watch) {
+  return browserify('./browser/app.pogo', {
+    cache: watch && {},
+    packageCache: watch && {},
+    fullPaths: watch,
+    extensions: ['.pogo'],
+    transform: ['pogoify']
+  });
+}
 
 function rebundle(bundle) {
   return function () {
@@ -26,15 +29,15 @@ function rebundle(bundle) {
 gulp.task('default', ['watch', 'server'])
 
 gulp.task('watch', function () {
-  var watchifyBundle = watchify(browserifyBundle);
-  watchifyBundle.on('update', rebundle(watchifyBundle));
-
-  rebundle(watchifyBundle);
+  var bundle = browserifyBundle(true);
+  var watch = watchify(bundle);
+  watch.on('update', rebundle(watch));
+  rebundle(watch)();
 });
 
-gulp.task('bundle', rebundle(browserifyBundle));
+gulp.task('bundle', rebundle(browserifyBundle(false)));
 
-gulp.task('server', ['bundle'], function() {
+gulp.task('server', ['watch'], function() {
   var port = process.env.PORT || 8000;
   require('./server/server').listen(port);
   console.log("Listening on http://localhost:" + port);
