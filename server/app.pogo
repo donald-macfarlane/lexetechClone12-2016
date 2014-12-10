@@ -4,6 +4,10 @@ bodyParser = require 'body-parser'
 passport = require 'passport'
 session = require 'express-session'
 LocalStrategy = require 'passport-local'.Strategy
+BasicStrategy = require 'passport-http'.BasicStrategy
+
+apiUsers = require './apiUsers.json'
+users = require './users.json'
 
 app = express()
 app.use(morgan('combined'))
@@ -25,11 +29,20 @@ passport.deserializeUser @(email, done)
 buildGraph = require './buildGraph'
 queryGraph = require './queryGraph'
 
+passport.use (new (BasicStrategy @(username, password, done)
+  if (apiUsers."#(username):#(password)")
+    done(nil, { username = username })
+  else
+    done()
+))
+
+basicAuth = passport.authenticate('basic', { session = false })
+
 app.use '/api' @(req, res, next)
   if (req.user)
     next()
   else
-    res.status 401.send { error = 'not authenticated' }
+    basicAuth(req, res, next)
 
 app.post '/api/queries' @(req, res)
   db = app.get 'db'
@@ -43,7 +56,10 @@ app.get '/api/queries/:id/graph' @(req, res)
   loadGraph(req.param 'id', req, res)
 
 passport.use (new (LocalStrategy { usernameField = 'email' } @(email, password, done)
-  done(nil, { email = email })
+  if (users."#(email):#(password)")
+    done(nil, { email = email })
+  else
+    done()
 ))
 
 app.post '/login' (passport.authenticate 'local' {
