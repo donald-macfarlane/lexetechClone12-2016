@@ -7,7 +7,7 @@ LocalStrategy = require 'passport-local'.Strategy
 BasicStrategy = require 'passport-http'.BasicStrategy
 
 apiUsers = require './apiUsers.json'
-users = require './users.json'
+users = require './users.pogo'
 
 app = express()
 app.use(morgan('combined'))
@@ -56,10 +56,11 @@ app.get '/api/queries/:id/graph' @(req, res)
   loadGraph(req.param 'id', req, res)
 
 passport.use (new (LocalStrategy { usernameField = 'email' } @(email, password, done)
-  if (users."#(email):#(password)")
-    done(nil, { email = email })
-  else
-    done()
+  users.authenticate (email, password) @(err)
+    if (err)
+      done(err)
+    else
+      done(nil, { email = email })
 ))
 
 app.post '/login' (passport.authenticate 'local' {
@@ -70,13 +71,15 @@ app.post '/login' (passport.authenticate 'local' {
 
 app.post '/signup' @(req, res)
   promise! @(success, failure)
-    users."#(req.param 'email'):#(req.param 'password')" = true
-
-    req.login { id = 4, email = req.param 'email' } @(err)
+    users.signUp(req.param 'email', req.param 'password') @(err)
       if (err)
-        failure(err)
+        failure (err)
       else
-        success()
+        req.login { id = 4, email = req.param 'email' } @(err)
+          if (err)
+            failure(err)
+          else
+            success()
 
   res.redirect '/'
 
