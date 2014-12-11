@@ -9,6 +9,7 @@ var run = require('gulp-run');
 var watch = require('gulp-watch');
 var less = require('gulp-less');
 var sourcemaps = require('gulp-sourcemaps');
+var shell = require('./tools/ps.pogo');
 
 function browserifyBundle(watch) {
   return browserify('./browser/app.pogo', {
@@ -51,5 +52,5 @@ gulp.task('less', function () {
 });
 
 gulp.task('server', ['watch', 'less'], function(done) {
-  run('./node_modules/.bin/pogo server/server.pogo').exec(done);
+  shell('./node_modules/.bin/pogo server/server.pogo').then(done);
 });
