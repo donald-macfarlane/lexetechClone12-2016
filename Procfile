@@ -1,1 +1,1 @@
-web: node_modules/.bin/gulp prod-server
+web: pogo server/server.pogo

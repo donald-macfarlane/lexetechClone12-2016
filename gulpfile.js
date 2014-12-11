@@ -50,12 +50,6 @@ gulp.task('less', function () {
     .pipe(gulp.dest('server/public'));
 });
 
-gulp.task('server', ['watch', 'less'], function() {
-  var port = process.env.PORT || 8000;
-  require('./server/server').listen(port);
-});
-
-gulp.task('prod-server', function() {
-  var port = process.env.PORT || 8000;
-  require('./server/server').listen(port);
+gulp.task('server', ['watch', 'less'], function(done) {
+  run('./node_modules/.bin/pogo server/server.pogo').exec(done);
 });
