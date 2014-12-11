@@ -1,0 +1,46 @@
+body {
+  font-family: helvetica;
+}
+.top-menu .user.logged-in {
+  float: right;
+}
+.top-menu .user.logged-in form.logout {
+  display: inline;
+}
+.top-menu .user.logged-in form.logout input[type=submit] {
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+}
+.top-menu .user.logged-in form.logout input[type=submit]:hover {
+  background-color: rgba(102, 159, 236, 0.2);
+}
+.top-menu .user.logged-out {
+  margin-top: 40%;
+  text-align: center;
+}
+.query ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+.query ul li {
+  border-top: 1px solid #f0f0f0;
+}
+.query ul li:last-child {
+  border-bottom: 1px solid #f0f0f0;
+}
+.query ul li button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-size: 16px;
+  background-color: white;
+  border: none;
+  border-left: 2px solid white;
+}
+.query ul li button:hover {
+  background-color: #f8f8f8;
+  border-left: 2px solid #669FEC;
+}
+
+/*# sourceMappingURL=app.css.map */
