@@ -51,7 +51,6 @@
     "shell-quote": "^1.4.2",
     "sworm": "^0.4.0",
     "trytryagain": "^0.1.0",
-    "underscore": "^1.7.0",
     "vinyl-source-stream": "^1.0.0",
     "watchify": "^2.1.1"
   },
@@ -67,6 +66,7 @@
     "pogo": "^0.9.6",
     "react": "^0.12.1",
     "redis": "^0.12.1",
+    "underscore": "^1.7.0",
     "uritemplate": "^0.3.4"
   }
 }
