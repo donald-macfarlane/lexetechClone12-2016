@@ -1,6 +1,5 @@
 var gulp = require('gulp');
 var gutil = require('gulp-util');
-var webserver = require('gulp-webserver');
 var source = require('vinyl-source-stream');
 var watchify = require('watchify');
 var browserify = require('browserify');
@@ -9,6 +8,7 @@ var run = require('gulp-run');
 var watch = require('gulp-watch');
 var less = require('gulp-less');
 var sourcemaps = require('gulp-sourcemaps');
+var shell = require('./tools/ps.pogo');
 
 function browserifyBundle(watch) {
   return browserify('./browser/app.pogo', {
@@ -50,8 +50,6 @@ gulp.task('less', function () {
     .pipe(gulp.dest('server/public'));
 });
 
-gulp.task('server', ['watch', 'less'], function() {
-  var port = process.env.PORT || 8000;
-  require('./server/server').listen(port);
-  console.log("Listening on http://localhost:" + port);
+gulp.task('server', ['watch', 'less'], function(done) {
+  shell('./node_modules/.bin/pogo server/server.pogo').then(done);
 });

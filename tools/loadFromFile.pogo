@@ -11,5 +11,5 @@ connectionInfoLive = {
 fs = require 'fs-promise'
 queries = JSON.parse(fs.readFile (process.argv.2, 'utf-8')!)
 
-body = httpism.post 'http://localhost:8000/api/queries' (queries)!.body
+body = httpism.post 'http://api:squidandeels@lexetech.herokuapp.com/api/queries' (queries)!.body
 console.log(body)
