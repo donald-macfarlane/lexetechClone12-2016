@@ -1,7 +1,7 @@
 require 'cappie'
 
 Cappie.start(
-  command: 'gulp server',
+  command: 'pogo server/server.pogo',
   await: %r{http://localhost:8001/},
   host: 'http://localhost:8001',
   driver: :selenium,
