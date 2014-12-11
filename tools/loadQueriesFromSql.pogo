@@ -74,12 +74,10 @@ module.exports(connectionInfo) =
       [r.id, r]
     ]
 
-    queryPredicants = db.query! 'select MainID,[Set]
-                                   from tblSetBy sb
-                                     join tblSets s
-                                       on sb.IsSetBy = s.SetsID
-                                     join tlkSets
-                                       on s.Sets = tlkSets.SetID'
+    queryPredicants = db.query!  'select MainID,[Set]
+                                  from tblSetBy sb
+                                    join tlkSets
+                                      on sb.IsSetBy = tlkSets.SetID'
 
     queryPredicantsById = _.groupBy(queryPredicants, 'MainID')
 
