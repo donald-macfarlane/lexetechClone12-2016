@@ -93,7 +93,7 @@ describe 'lexeme'
       }
     }
 
-    lexeme(div, graphApi)
+    lexeme(div, graphApi, {user = { email = 'blah@example.com'}})
 
     shouldHaveQuery 'Where does it hurt?'!
     selectResponse 'left leg'!

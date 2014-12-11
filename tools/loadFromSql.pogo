@@ -8,5 +8,5 @@ connectionInfoLive = {
   database = 'dbLexemeLive'
 }
 
-body = httpism.post 'http://localhost:8000/queries' (loadQueriesFromSql(connectionInfoLive)!)!.body
+body = httpism.post 'http://localhost:8000/api/queries' (loadQueriesFromSql(connectionInfoLive)!)!.body
 console.log(body)

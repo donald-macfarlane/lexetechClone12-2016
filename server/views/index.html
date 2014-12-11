@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+    <script>
+      window.lexemeData = <%- JSON.stringify({user: user && user.email}) %>;
+    </script>
+    <div><%= (user && user.email) || 'no user' %></div>
+    <script type="text/javascript" src="app.js"></script>
+</body>
+</html>

@@ -13,7 +13,7 @@ describe 'query api'
 
   it 'inserts query()s for each response'
     $.mockjax {
-      url = '/queries/first/graph?depth=4'
+      url = '/api/queries/first/graph?depth=4'
 
       responseText = {
         query = {
@@ -46,7 +46,7 @@ describe 'query api'
 
   it 'loads next query when it reaches a partial'
     $.mockjax {
-      url = '/queries/first/graph?depth=4'
+      url = '/api/queries/first/graph?depth=4'
 
       responseText = {
         query = {
@@ -58,7 +58,7 @@ describe 'query api'
               query = {
                 text = 'query 2'
                 partial = true
-                hrefTemplate = '/queries/2'
+                hrefTemplate = '/api/queries/2'
 
                 responses = [
                   {
@@ -72,7 +72,7 @@ describe 'query api'
               query = {
                 text = 'query 2'
                 partial = true
-                hrefTemplate = '/queries/2'
+                hrefTemplate = '/api/queries/2'
 
                 responses = [
                   {
@@ -88,7 +88,7 @@ describe 'query api'
 
     calls = 0
     $.mockjax {
-      url = '/queries/2'
+      url = '/api/queries/2'
 
       response() =
         ++calls
@@ -138,7 +138,7 @@ describe 'query api'
 
   it 'sets the depth in the href template'
     $.mockjax {
-      url = '/queries/first/graph?depth=5'
+      url = '/api/queries/first/graph?depth=5'
 
       responseText = {
         query = {
@@ -150,7 +150,7 @@ describe 'query api'
               query = {
                 text = 'query 2'
                 partial = true
-                hrefTemplate = '/queries/2{?depth}'
+                hrefTemplate = '/api/queries/2{?depth}'
 
                 responses = [
                   {
@@ -164,7 +164,7 @@ describe 'query api'
               query = {
                 text = 'query 2'
                 partial = true
-                hrefTemplate = '/queries/2{?depth}'
+                hrefTemplate = '/api/queries/2{?depth}'
 
                 responses = [
                   {
@@ -180,7 +180,7 @@ describe 'query api'
 
     calls = 0
     $.mockjax {
-      url = '/queries/2?depth=5'
+      url = '/api/queries/2?depth=5'
 
       response() =
         ++calls
@@ -248,23 +248,23 @@ describe 'query api'
 
   it 'can render circular graphs'
     $.mockjax {
-      url = '/queries/first/graph?depth=5'
+      url = '/api/queries/first/graph?depth=5'
 
       responseText = {
         query = {
           text = 'query 1'
-          hrefTemplate = '/queries/1/graph?depth=5'
+          hrefTemplate = '/api/queries/1/graph?depth=5'
 
           responses = [
             {
               text = 'response 1'
-              queryHrefTemplate = '/queries/1/graph?depth=5'
+              queryHrefTemplate = '/api/queries/1/graph?depth=5'
             }
             {
               text = 'response 2'
               query = {
                 text = 'query 2'
-                hrefTemplate = '/queries/2{?depth}'
+                hrefTemplate = '/api/queries/2{?depth}'
 
                 responses = [
                   {

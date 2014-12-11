@@ -1,4 +1,9 @@
 Feature: Composing Notes
+  Background:
+    Given there is a comprehensive lexicon
+    And the doctor has an account
+    And the doctor has signed in
+
   Scenario: Answering questions creates notes
     Given I am at the doctors
     When the doctor asks me "What hurts?"

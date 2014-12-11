@@ -1,4 +1,6 @@
 lexeme = require './lexeme'
 queryApi = require './queryApi'
 
-lexeme(window.document.body, queryApi)
+element = document.createElement 'div'
+document.body.appendChild(element)
+lexeme(element, queryApi, window.lexemeData)

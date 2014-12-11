@@ -1,4 +1,7 @@
+/.sw?
 .*.sw?
 /node_modules/
 /.floo
 /bower_components/
+/server/public/app.css.map
+/server/public/app.css
