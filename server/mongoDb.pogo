@@ -2,7 +2,8 @@ mongoose = require 'mongoose'
 mongoose.set('debug', true)
 
 exports.connect()! =
-  mongoose.connect 'mongodb://localhost/lexeme' ^!
+  url = process.env.MONGOLAB_URI @or 'mongodb://localhost/lexeme'
+  mongoose.connect (url) ^!
 
 exports.disconnect()! =
   mongoose.disconnect() ^!
