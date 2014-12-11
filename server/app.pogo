@@ -100,5 +100,6 @@ loadGraph (queryId, req, res) =
   res.send (graph.toJSON())
 
 app.use(express.static(__dirname + '/public'))
+app.use('/source', express.static(__dirname + '/../browser/style'))
 
 module.exports = app

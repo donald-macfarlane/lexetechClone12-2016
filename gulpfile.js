@@ -6,6 +6,9 @@ var watchify = require('watchify');
 var browserify = require('browserify');
 require('pogo');
 var run = require('gulp-run');
+var watch = require('gulp-watch');
+var less = require('gulp-less');
+var sourcemaps = require('gulp-sourcemaps');
 
 function browserifyBundle(watch) {
   return browserify('./browser/app.pogo', {
@@ -38,7 +41,16 @@ gulp.task('watch', function () {
 
 gulp.task('bundle', rebundle(browserifyBundle(false)));
 
-gulp.task('server', ['watch'], function() {
+gulp.task('less', function () {
+  gulp.src('browser/style/app.less')
+    .pipe(watch('browser/style/*.less'))
+    .pipe(sourcemaps.init())
+    .pipe(less({lineNumbers: 'all'}))
+    .pipe(sourcemaps.write('.'))
+    .pipe(gulp.dest('server/public'));
+});
+
+gulp.task('server', ['watch', 'less'], function() {
   var port = process.env.PORT || 8000;
   require('./server/server').listen(port);
   console.log("Listening on http://localhost:" + port);
