@@ -1,3 +1,6 @@
+require 'mongo'
+include Mongo
+
 class LexemeApi
   def load_lexicon(filename)
     json = File.read(File.expand_path("../#{filename}", __FILE__))
@@ -12,6 +15,13 @@ class LexemeApi
       email: email,
       password: password
   rescue RestClient::Found
+  end
+
+  def clear_db
+    client = MongoClient.new
+    db = client['lexeme']
+    users = db['users']
+    users.remove
   end
 end
 
