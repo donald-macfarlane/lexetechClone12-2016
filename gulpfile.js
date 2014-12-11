@@ -4,7 +4,6 @@ var source = require('vinyl-source-stream');
 var watchify = require('watchify');
 var browserify = require('browserify');
 require('pogo');
-var run = require('gulp-run');
 var watch = require('gulp-watch');
 var less = require('gulp-less');
 var sourcemaps = require('gulp-sourcemaps');
