@@ -58,18 +58,20 @@ When(/^I log in with email address "(.*?)" and password "(.*?)"$/) do |email, pa
   login(email, password)
 end
 
-def load_lexicon(filename)
-  json = File.read(filename)
-  RestClient.post "http://api:squidandeels@localhost:8001/api/queries",
-     json,
-     :content_type => :json,
-     :accept => :json
+Given(/^the doctor has an account$/) do
+  @doctors_email = "doctor@surgery.com"
+  @doctors_password = "Wowz3rs"
+  api.sign_up(@doctors_email, @doctors_password)
+end
+
+Given(/^the doctor has signed in$/) do
+  login(@doctors_email, @doctors_password)
 end
 
 Given(/^there are some queries$/) do
-  load_lexicon(File.expand_path('../../support/smallLexicon.json', __FILE__))
+  api.load_lexicon("smallLexicon.json")
 end
 
 Given(/^there is a comprehensive lexicon$/) do
-  load_lexicon(File.expand_path('../../support/lexicon.json', __FILE__))
+  api.load_lexicon("lexicon.json")
 end

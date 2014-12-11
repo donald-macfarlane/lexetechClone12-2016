@@ -1,4 +1,4 @@
-users = require './users.json'
+users = {}
 
 exports.authenticate! (email, password) =
   if (users."#(email):#(password)")
