@@ -1,9 +1,16 @@
+mongoDb = require '../../server/mongoDb'
 users = require '../../server/users.pogo'
 expect = require '../expect'
 
 describe 'users'
 
   before
+    mongoDb.connect()!
+
+  after
+    mongoDb.disconnect()!
+
+  beforeEach
     users.deleteAll()!
 
   authenticate () = users.authenticate 'dave@home.com' 'pa55word'
@@ -11,7 +18,7 @@ describe 'users'
 
   context 'when the user does not exist'
     it 'fails to authenticate the user'
-      expect(authenticate()).to.be.rejectedWith 'Invalid email/password'
+      expect(authenticate()).to.be.rejectedWith 'Incorrect email'
 
   context 'when the user exists'
     beforeEach

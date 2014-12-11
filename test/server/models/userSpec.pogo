@@ -9,6 +9,9 @@ describe 'User'
     mongoDb.connect()!
     User.remove {} ^!
 
+  after
+    mongoDb.disconnect()!
+
   context 'before registering'
     it 'cannot be authenticated' @(done)
       auth('josh@work.com', 'whatever') @(err, result, otherStuff)

@@ -1,5 +1,8 @@
 mongoose = require 'mongoose'
 mongoose.set('debug', true)
 
-exports.connect ()! =
+exports.connect()! =
   mongoose.connect 'mongodb://localhost/lexeme' ^!
+
+exports.disconnect()! =
+  mongoose.disconnect() ^!
