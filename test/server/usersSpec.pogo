@@ -12,7 +12,7 @@ describe 'users'
 
   context 'when the user exists'
     beforeEach
-      signUp 'dave@home.com' 'pa55word'
+      signUp()
 
     it 'authenticates the user'
       expect(authenticate()).to.be.fulfilled
