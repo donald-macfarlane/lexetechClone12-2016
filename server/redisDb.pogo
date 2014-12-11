@@ -3,13 +3,13 @@ redis = require 'redis'
 module.exports () =
   client = redis.createClient()
 
-  qs = nil
+  queriesInCoherenceOrder = nil
 
   queries() =
-    if (qs)
-      qs
+    if (queriesInCoherenceOrder)
+      queriesInCoherenceOrder
     else
-      qs := client.lrange 'queries' (0, -1) ^!
+      queriesInCoherenceOrder := client.lrange 'queries' (0, -1) ^!
 
   {
     clear() =
@@ -31,6 +31,8 @@ module.exports () =
             else
               result(re)
         ]
+
+      queriesInCoherenceOrder := nil
 
     query(n) =
       self.queryById(queries()!.(n))!

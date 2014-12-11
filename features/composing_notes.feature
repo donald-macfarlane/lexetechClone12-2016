@@ -1,4 +1,7 @@
 Feature: Composing Notes
+  Background:
+    Given there is a comprehensive lexicon
+
   Scenario: Answering questions creates notes
     Given I am at the doctors
     And the doctor has signed in with email "tim@featurist.co.uk" and password "timsecret"
