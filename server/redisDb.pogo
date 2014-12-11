@@ -1,7 +1,17 @@
 redis = require 'redis'
+urlUtils = require 'url'
+
+createClient(url) =
+  if (url)
+    redisURL = urlUtils.parse(url)
+    client = redis.createClient(redisURL.port, redisURL.hostname, {no_ready_check = true})
+    client.auth(redisURL.auth.split(':').(1))
+    client
+  else
+    redis.createClient()
 
 module.exports () =
-  client = redis.createClient()
+  client = createClient(process.env.REDISCLOUD_URL)
 
   queriesInCoherenceOrder = nil
 
