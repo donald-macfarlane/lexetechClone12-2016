@@ -1,10 +1,10 @@
-users = {}
+User = require './models/user'
+
+exports.deleteAll! () =
+  User.remove {} ^!
 
 exports.authenticate! (email, password) =
-  if (users."#(email):#(password)")
-    true
-  else
-    @throw @new Error("Invalid email/password")
+  User.authenticate (email, password) ^!
 
 exports.signUp! (email, password) =
-  users."#(email):#(password)" = true
+  User.register (@new User({ email = email }), password) ^!

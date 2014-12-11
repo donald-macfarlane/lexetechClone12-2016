@@ -3,11 +3,11 @@ morgan = require 'morgan'
 bodyParser = require 'body-parser'
 passport = require 'passport'
 session = require 'express-session'
-LocalStrategy = require 'passport-local'.Strategy
 BasicStrategy = require 'passport-http'.BasicStrategy
 
 apiUsers = require './apiUsers.json'
 users = require './users.pogo'
+User = require './models/user'
 
 app = express()
 app.use(morgan('combined'))
@@ -20,11 +20,8 @@ app.set 'views' (__dirname + '/views')
 app.use(passport.initialize())
 app.use(passport.session())
 
-passport.serializeUser @(user, done)
-  done(nil, user.email)
-
-passport.deserializeUser @(email, done)
-  done(nil, { email = email })
+passport.serializeUser(User.serializeUser())
+passport.deserializeUser(User.deserializeUser())
 
 buildGraph = require './buildGraph'
 queryGraph = require './queryGraph'
@@ -35,6 +32,8 @@ passport.use (new (BasicStrategy @(username, password, done)
   else
     done()
 ))
+
+passport.use(User.createStrategy())
 
 basicAuth = passport.authenticate('basic', { session = false })
 
@@ -54,12 +53,6 @@ app.get '/api/queries/first/graph' @(req, res)
 
 app.get '/api/queries/:id/graph' @(req, res)
   loadGraph(req.param 'id', req, res)
-
-passport.use (new (LocalStrategy { usernameField = 'email' } @(email, password, done)
-  users.authenticate(email, password).then @{
-    done(nil, { email = email })
-  } (@(err) @{ done(err) })
-))
 
 app.post '/login' (passport.authenticate 'local' {
   successRedirect = '/'

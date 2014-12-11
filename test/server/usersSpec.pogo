@@ -3,6 +3,9 @@ expect = require '../expect'
 
 describe 'users'
 
+  before
+    users.deleteAll()!
+
   authenticate () = users.authenticate 'dave@home.com' 'pa55word'
   signUp () = users.signUp 'dave@home.com' 'pa55word'
 
