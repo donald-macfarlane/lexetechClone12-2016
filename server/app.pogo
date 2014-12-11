@@ -56,11 +56,9 @@ app.get '/api/queries/:id/graph' @(req, res)
   loadGraph(req.param 'id', req, res)
 
 passport.use (new (LocalStrategy { usernameField = 'email' } @(email, password, done)
-  users.authenticate (email, password) @(err)
-    if (err)
-      done(err)
-    else
-      done(nil, { email = email })
+  users.authenticate(email, password).then @{
+    done(nil, { email = email })
+  } (@(err) @{ done(err) })
 ))
 
 app.post '/login' (passport.authenticate 'local' {
@@ -71,15 +69,13 @@ app.post '/login' (passport.authenticate 'local' {
 
 app.post '/signup' @(req, res)
   promise! @(success, failure)
-    users.signUp(req.param 'email', req.param 'password') @(err)
-      if (err)
-        failure (err)
-      else
-        req.login { id = 4, email = req.param 'email' } @(err)
-          if (err)
-            failure(err)
-          else
-            success()
+    users.signUp(req.param 'email', req.param 'password').then
+      req.login { id = 4, email = req.param 'email' } @(err)
+        if (err)
+          failure(err)
+        else
+          success()
+    (failure)
 
   res.redirect '/'
 

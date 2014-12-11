@@ -1,11 +1,10 @@
 users = require './users.json'
 
-exports.authenticate (email, password, done) =
+exports.authenticate! (email, password) =
   if (users."#(email):#(password)")
-    done()
+    true
   else
-    done(@new Error("Invalid email/password"))
+    @throw @new Error("Invalid email/password")
 
-exports.signUp (email, password, done) =
+exports.signUp! (email, password) =
   users."#(email):#(password)" = true
-  done()
