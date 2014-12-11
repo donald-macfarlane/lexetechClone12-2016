@@ -8,7 +8,9 @@ module.exports (element, queryApi, pageData) =
   app = React.createFactory(React.createClass {
     render() =
       r 'div' {} (
-        login(user = self.props.user)
+        r 'div' { className = 'top-menu' } (
+          login(user = self.props.user)
+        )
         if (self.props.user)
           report(queryApi = self.props.queryApi)
       )

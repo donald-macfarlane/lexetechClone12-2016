@@ -2,22 +2,56 @@ body {
   font-family: helvetica;
 }
 
+.top-menu {
+  .user.logged-in {
+    float: right;
+    
+    form.logout {
+      display: inline;
+
+      input[type=submit] {
+        border: none;
+        background-color: transparent;
+        cursor: pointer;
+
+        &:hover {
+          background-color: fade(#669FEC, 20%);
+        }
+      }
+    }
+  }
+
+  .user.logged-out {
+    margin-top: 40%;
+    text-align: center;
+  }
+}
+
 .query {
   ul {
     list-style-type: none;
     padding-left: 0;
 
     li {
-      border-top: 1px solid lightgray;
+      border-top: 1px solid #f0f0f0;
+
+      &:last-child {
+        border-bottom: 1px solid #f0f0f0;
+      }
 
       button {
         display: block;
+        width: 100%;
+        text-align: left;
+        font-size: 16px;
 
         background-color: white;
         border: none;
+        border-left: 2px solid white;
 
         &:hover {
-          background-color: #f0f0f0;
+          background-color: #f8f8f8;
+          border-left: 2px solid #669FEC;
         }
       }
     }

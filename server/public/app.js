@@ -21,9 +21,11 @@
         app = React.createFactory(React.createClass({
             render: function() {
                 var self = this;
-                return r("div", {}, login({
+                return r("div", {}, r("div", {
+                    className: "top-menu"
+                }, login({
                     user: self.props.user
-                }), function() {
+                })), function() {
                     if (self.props.user) {
                         return report({
                             queryApi: self.props.queryApi
@@ -41,9 +43,25 @@
 },{"./login":"/Users/tim/dev/lexeme/browser/login.pogo","./reportGenerator":"/Users/tim/dev/lexeme/browser/reportGenerator.pogo","react":"/Users/tim/dev/lexeme/node_modules/react/react.js"}],"/Users/tim/dev/lexeme/browser/login.pogo":[function(require,module,exports){
 (function() {
     var self = this;
-    var React, r, signupForm, loginForm;
+    var React, r, classes, signupForm, loginForm;
     React = require("react");
     r = React.createElement;
+    classes = function(obj) {
+        return function() {
+            var gen1_results, gen2_items, gen3_i, k;
+            gen1_results = [];
+            gen2_items = Object.keys(obj);
+            for (gen3_i = 0; gen3_i < gen2_items.length; ++gen3_i) {
+                k = gen2_items[gen3_i];
+                (function(k) {
+                    if (obj[k]) {
+                        return gen1_results.push(k);
+                    }
+                })(k);
+            }
+            return gen1_results;
+        }().join(" ");
+    };
     module.exports = React.createFactory(React.createClass({
         getInitialState: function() {
             var self = this;
@@ -66,9 +84,16 @@
         },
         render: function() {
             var self = this;
-            return r.apply(null, [ "div", {} ].concat(function() {
+            return r.apply(null, [ "div", {
+                className: classes({
+                    user: true,
+                    "logged-out": !self.props.user,
+                    "logged-in": self.props.user
+                })
+            } ].concat(function() {
                 if (self.props.user) {
-                    return [ r("form", {
+                    return [ r("span", {}, "welcome: ", self.props.user.email), r("form", {
+                        className: "logout",
                         method: "POST",
                         action: "/logout"
                     }, r("input", {

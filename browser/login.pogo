@@ -1,6 +1,9 @@
 React = require 'react'
 r = React.createElement
 
+classes(obj) =
+  [k <- Object.keys(obj), obj.(k), k].join ' '
+
 module.exports = React.createFactory(React.createClass {
   getInitialState() = { signingUp = false, loggingIn = false }
 
@@ -11,10 +14,11 @@ module.exports = React.createFactory(React.createClass {
     self.setState { loggingIn = true }
 
   render() =
-    r 'div' {} (
+    r 'div' { className = classes { user = true, 'logged-out' = @not self.props.user, 'logged-in' = self.props.user } } (
       if (self.props.user)
         [
-          r 'form' { method = 'POST', action = '/logout' } (
+          r 'span' {} ('welcome: ', self.props.user.email)
+          r 'form' { className = 'logout', method = 'POST', action = '/logout' } (
             r 'input' { type = 'submit', value = 'Logout' }
           )
         ]

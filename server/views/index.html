@@ -7,9 +7,8 @@
 </head>
 <body>
     <script>
-      window.lexemeData = <%- JSON.stringify({user: user && user.email}) %>;
+      window.lexemeData = <%- JSON.stringify({user: user}) %>;
     </script>
-    <div><%= (user && user.email) || 'no user' %></div>
     <script type="text/javascript" src="app.js"></script>
 </body>
 </html>
