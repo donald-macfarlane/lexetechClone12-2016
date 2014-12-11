@@ -29,18 +29,20 @@ function rebundle(bundle) {
   }
 }
 
-gulp.task('default', ['watch', 'server'])
+gulp.task('default', ['server'])
 
-gulp.task('watch', function () {
+gulp.task('build', ['js', 'css'])
+
+gulp.task('watch-js', function () {
   var bundle = browserifyBundle(true);
   var watch = watchify(bundle);
   watch.on('update', rebundle(watch));
   rebundle(watch)();
 });
 
-gulp.task('bundle', rebundle(browserifyBundle(false)));
+gulp.task('js', rebundle(browserifyBundle(false)));
 
-gulp.task('less', function () {
+gulp.task('watch-css', function () {
   gulp.src('browser/style/app.less')
     .pipe(watch('browser/style/*.less'))
     .pipe(sourcemaps.init())
@@ -49,6 +51,12 @@ gulp.task('less', function () {
     .pipe(gulp.dest('server/public'));
 });
 
-gulp.task('server', ['watch', 'less'], function(done) {
+gulp.task('css', function () {
+  gulp.src('browser/style/app.less')
+    .pipe(less())
+    .pipe(gulp.dest('server/public'));
+});
+
+gulp.task('server', ['watch-js', 'watch-css'], function(done) {
   shell('./node_modules/.bin/pogo server/server.pogo').then(done);
 });
