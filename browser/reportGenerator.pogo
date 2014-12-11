@@ -44,7 +44,7 @@ module.exports = React.createFactory(React.createClass {
       else
         r "div" { className = 'finished' } "finished"
 
-      r "div" { className = 'notes' } ([ n <- self.state.responses, n.notes, n.notes ].join ' ')
+      r "div" { className = 'notes', dangerouslySetInnerHTML = { __html = [ n <- self.state.responses, n.notes, n.notes ].join ' '} }
     )
 
   componentDidMount () =
