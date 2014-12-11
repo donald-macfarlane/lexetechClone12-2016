@@ -1,1 +1,1 @@
-web: gulp prod-server
+web: node_modules/.bin/gulp prod-server
