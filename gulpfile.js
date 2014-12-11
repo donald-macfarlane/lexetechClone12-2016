@@ -53,5 +53,9 @@ gulp.task('less', function () {
 gulp.task('server', ['watch', 'less'], function() {
   var port = process.env.PORT || 8000;
   require('./server/server').listen(port);
-  console.log("Listening on http://localhost:" + port);
+});
+
+gulp.task('prod-server', function() {
+  var port = process.env.PORT || 8000;
+  require('./server/server').listen(port);
 });
