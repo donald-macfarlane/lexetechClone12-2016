@@ -299,54 +299,182 @@ describe "lexicon"
         c.shouldBeFinished()!
 
   describe 'blocks'
-    context 'when there are 4 blocks, with a response in block 1 setting blocks 3 and 4'
-      beforeEach
-        db.setQueries! [
-          lexicon.query {
-            text = 'query 1'
+    describe 'set blocks'
+      context "when we set blocks that we aren't in"
+        beforeEach
+          db.setQueries! [
+            lexicon.query {
+              text = 'block 1, query 1'
 
-            responses = [
-              lexicon.response {
-                text = 'response 1'
-                action = { name = 'setBlocks', arguments = [3, 4] }
-              }
-            ]
-          }
-          lexicon.query {
-            text = 'query 2'
-            block = 2
+              responses = [
+                lexicon.response {
+                  text = 'response 1'
+                  action = { name = 'setBlocks', arguments = [3, 4] }
+                }
+              ]
+            }
+            lexicon.query {
+              text = 'block 1, query 2'
 
-            responses = [
-              lexicon.response {
-                text = 'response 1'
-              }
-            ]
-          }
-          lexicon.query {
-            text = 'query 3'
-            block = 3
+              responses = [
+                lexicon.response {
+                  text = 'response 1'
+                  action = { name = 'setBlocks', arguments = [3, 4] }
+                }
+              ]
+            }
+            lexicon.query {
+              text = 'block 2, query 1'
+              block = 2
 
-            responses = [
-              lexicon.response {
-                text = 'response 1'
-              }
-            ]
-          }
-          lexicon.query {
-            text = 'query 4'
-            block = 4
+              responses = [
+                lexicon.response {
+                  text = 'response 1'
+                }
+              ]
+            }
+            lexicon.query {
+              text = 'block 3, query 1'
+              block = 3
 
-            responses = [
-              lexicon.response {
-                text = 'response 1'
-              }
-            ]
-          }
-        ]
+              responses = [
+                lexicon.response {
+                  text = 'response 1'
+                }
+              ]
+            }
+            lexicon.query {
+              text = 'block 4, query 1'
+              block = 4
 
-      it 'skips block 2'
-        c = conversation()
-        c.shouldAsk 'query 1' thenRespondWith 'response 1'!
-        c.shouldAsk 'query 3' thenRespondWith 'response 1'!
-        c.shouldAsk 'query 4' thenRespondWith 'response 1'!
-        c.shouldBeFinished()!
+              responses = [
+                lexicon.response {
+                  text = 'response 1'
+                }
+              ]
+            }
+          ]
+
+        it 'we skip the current and other blocks'
+          c = conversation()
+          c.shouldAsk 'block 1, query 1' thenRespondWith 'response 1'!
+          c.shouldAsk 'block 3, query 1' thenRespondWith 'response 1'!
+          c.shouldAsk 'block 4, query 1' thenRespondWith 'response 1'!
+          c.shouldBeFinished()!
+
+      context 'when we set blocks that we are already in'
+        beforeEach
+          db.setQueries! [
+            lexicon.query {
+              text = 'block 1, query 1'
+
+              responses = [
+                lexicon.response {
+                  text = 'response 1'
+                  action = { name = 'setBlocks', arguments = [1, 3] }
+                }
+              ]
+            }
+            lexicon.query {
+              text = 'block 1, query 2'
+
+              responses = [
+                lexicon.response {
+                  text = 'response 1'
+                }
+              ]
+            }
+            lexicon.query {
+              text = 'block 2, query 1'
+              block 2
+
+              responses = [
+                lexicon.response {
+                  text = 'response 1'
+                }
+              ]
+            }
+            lexicon.query {
+              text = 'block 3, query 1'
+              block = 3
+
+              responses = [
+                lexicon.response {
+                  text = 'response 1'
+                }
+              ]
+            }
+          ]
+
+        it "we continue with the block we're in, but skip to the remaining blocks"
+          c = conversation()
+          c.shouldAsk 'block 1, query 1' thenRespondWith 'response 1'!
+          c.shouldAsk 'block 1, query 2' thenRespondWith 'response 1'!
+          c.shouldAsk 'block 3, query 1' thenRespondWith 'response 1'!
+          c.shouldBeFinished()!
+
+    describe 'add blocks'
+      context 'when we add blocks within a block'
+        beforeEach
+          db.setQueries! [
+            lexicon.query {
+              text = 'block 1, query 1'
+
+              responses = [
+                lexicon.response {
+                  text = 'response 1'
+                  action = { name = 'addBlocks', arguments = [4, 3] }
+                }
+              ]
+            }
+            lexicon.query {
+              text = 'block 1, query 2'
+
+              responses = [
+                lexicon.response {
+                  text = 'response 1'
+                }
+              ]
+            }
+            lexicon.query {
+              text = 'block 2, query 1'
+              block 2
+
+              responses = [
+                lexicon.response {
+                  text = 'response 1'
+                }
+              ]
+            }
+            lexicon.query {
+              text = 'block 3, query 1'
+              block = 3
+
+              responses = [
+                lexicon.response {
+                  text = 'response 1'
+                }
+              ]
+            }
+            lexicon.query {
+              text = 'block 4, query 1'
+              block = 3
+
+              responses = [
+                lexicon.response {
+                  text = 'response 1'
+                }
+              ]
+            }
+          ]
+        
+        it 'goes to those new blocks, then comes back to where we were before'
+          c = conversation()
+          c.shouldAsk 'block 1, query 1' thenRespondWith 'response 1'!
+          c.shouldAsk 'block 4, query 1' thenRespondWith 'response 1'!
+          c.shouldAsk 'block 3, query 1' thenRespondWith 'response 1'!
+          c.shouldAsk 'block 1, query 2' thenRespondWith 'response 1'!
+          c.shouldAsk 'block 2, query 1' thenRespondWith 'response 1'!
+          c.shouldAsk 'block 3, query 1' thenRespondWith 'response 1'!
+          c.shouldAsk 'block 4, query 1' thenRespondWith 'response 1'!
+          c.shouldBeFinished()!
