@@ -1,5 +1,6 @@
 redis = require 'redis'
 urlUtils = require 'url'
+cache = require './cache'
 
 createClient(url) =
   if (url)
@@ -12,51 +13,62 @@ createClient(url) =
 
 module.exports () =
   client = createClient(process.env.REDISCLOUD_URL)
+  blockCache = cache()
 
-  queriesInCoherenceOrder = nil
+  queryById(id) =
+    JSON.parse(client.get("query_#(id)", ^)!)
 
-  queries() =
-    if (queriesInCoherenceOrder)
-      queriesInCoherenceOrder
-    else
-      queriesInCoherenceOrder := client.lrange 'queries' (0, -1) ^!
+  block(n) =
+    blockCache.cacheBy (n)
+      client.lrange ("block_#(n)", 0, -1, ^)!
 
   {
     clear() =
       client.flushdb(^)!
 
-    setQueries(queries) =
+    setLexicon(lexicon) =
       self.clear()!
 
-      for each @(q) in (queries)
-        client.set(q.id, JSON.stringify(q), ^)!
-
-      promise! @(result, error)
-        client.rpush.apply (client) [
-          "queries"
-          [q <- queries, q.id], ...
-          @(er, re)
+      writeBlock(block) =
+        promise! @(result, error)
+          client.mset.apply (client) [[q <- block.queries, i <- ["query_#(q.id)", JSON.stringify(q)], i], ..., @(er, re)
             if (er)
               error(er)
             else
               result(re)
-        ]
+          ]
 
-      queriesInCoherenceOrder := nil
+        promise! @(result, error)
+          client.rpush.apply (client) ["block_#(block.id)", [q <- block.queries, q.id], ...,  @(er, re)
+            if (er)
+              error(er)
+            else
+              result(re)
+          ]
 
-    query(n) =
-      self.queryById(queries()!.(n))!
+      [
+        block <- lexicon.blocks
+        writeBlock(block)!
+      ]
 
-    queryById(id) =
-      JSON.parse(client.get(id, ^)!)
+      blockCache.clear()
 
-    coherenceIndexForQueryId(id) =
-      index = queries()!.indexOf(id)
+    queryById(id) = queryById(id)
 
-      if (index < 0)
-        throw (new (Error "no such query id: #(JSON.stringify(id))"))
+    block(blockId) = {
+      query(n) =
+        queryId = block(blockId)!.(n)
+        queryById(queryId)!
 
-      index
+      length() =
+        block(blockId)!.length
 
-    length() = queries()!.length
+      coherenceIndexForQueryId(id) =
+        index = block(blockId)!.indexOf(id)
+
+        if (index < 0)
+          throw (new (Error "no such query id #(JSON.stringify(id)) in block #(blockId)"))
+
+        index
+    }
   }

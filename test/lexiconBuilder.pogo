@@ -4,29 +4,45 @@ module.exports () =
   queryId = 0
   responseId = 0
 
-  {
-    query(q) =
-      ++queryId
-      _.extend {
-        id = queryId
-        level = 1
-        block = 1
+  buildQuery(q, blockId) =
+    ++queryId
+    query = _.extend {
+      id = queryId
+      level = 1
+      block = blockId
 
-        predicants = []
-      } (q)
+      predicants = []
+    } (q)
 
-    response(r) =
-      ++responseId
+    query.responses = [r <- q.responses, buildResponse(r)]
+    query
 
-      _.extend {
-        id = responseId
-        setLevel = 1
+  buildResponse(r) =
+    ++responseId
 
-        predicants = []
+    _.extend {
+      id = responseId
+      setLevel = 1
 
-        action = {
-          name = 'none'
-          arguments = []
-        }
-      } (r)
+      predicants = []
+
+      action = {
+        name = 'none'
+        arguments = []
+      }
+    } (r)
+
+  lexicon(l) = {
+    blocks = [
+      block <- l.blocks
+      {
+        name = block.name
+        id = block.id
+
+        queries = [
+          query <- block.queries
+          buildQuery(query, block.id)
+        ]
+      }
+    ]
   }

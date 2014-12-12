@@ -3,20 +3,20 @@ createContext = require './context'
 cache = require './cache'
 
 cloneContext(c) =
-  blocks = {}
-  for @(bk) in (c.blocks)
-    blocks.(bk) = true
-
   predicants = {}
   for @(pk) in (c.predicants)
     predicants.(pk) = true
 
+  blockStack = JSON.parse(JSON.stringify(c.blockStack))
+
   createContext {
     coherenceIndex = c.coherenceIndex
-    blocks = blocks
+    block = c.block
+    blocks = c.blocks.slice 0
     level = c.level
     depth = c.depth
     predicants = predicants
+    blockStack = blockStack
   }
 
 actions = {
@@ -24,13 +24,21 @@ actions = {
   email (response, context) = nil
 
   addBlocks (response, context, blocks, ...) =
-    for each @(block) in (blocks)
-      context.blocks.(block) = true
+    context.pushBlockStack()
+
+    context.coherenceIndex = 0
+    context.block = blocks.shift()
+    context.blocks = blocks
 
   setBlocks (response, context, blocks, ...) =
-    context.blocks = {}
-    for each @(block) in (blocks)
-      context.blocks.(block) = true
+    context.blocks = blocks.slice 0
+
+    nextBlock = context.blocks.shift()
+
+    if (nextBlock != context.block)
+      context.block = nextBlock
+      context.coherenceIndex = 0
+
 
   setVariable (response, context, variable, value) = nil
 
@@ -76,10 +84,22 @@ module.exports(db, graph, queryId, startContext = startingContext, maxDepth = 0)
   queryCache = cache()
 
   findNextQuery(context) =
-    findNextItem! @(query) in (db) startingFrom (context.coherenceIndex) matching
+    query = findNextQueryInCurrentBlock(context)!
+    if (@not query)
+      if (context.blocks.length > 0)
+        context.block = context.blocks.shift()
+        context.coherenceIndex = 0
+        findNextQuery(context)!
+      else if (context.blockStack.length > 0)
+        context.popBlockStack()
+        findNextQuery(context)!
+    else
+      query
+
+  findNextQueryInCurrentBlock(context) =
+    findNextItem! @(query) in (db.block(context.block)) startingFrom (context.coherenceIndex) matching
       query.level <= context.level \
-        @and anyPredicantIn (query.predicants) foundIn (context.predicants) \
-        @and block (query.block) inActiveBlocks (context.blocks)
+        @and anyPredicantIn (query.predicants) foundIn (context.predicants)
 
   selectResponse (response) forQuery (query, context, generatedQuery = nil) =
     newContext = newContextFromResponse (response) context (context)
@@ -114,19 +134,21 @@ module.exports(db, graph, queryId, startContext = startingContext, maxDepth = 0)
       if (queryId)
         db.queryById(queryId)!
       else
-        db.query(0)!
+        db.block(1).query(0)!
 
     context = createContext {
       coherenceIndex =
         if (queryId)
-          db.coherenceIndexForQueryId(queryId)!
+          db.block(query.block)!.coherenceIndexForQueryId(queryId)!
         else
           0
 
-      blocks = startContext.blocks
+      block = query.block
+      blocks = []
       level = startContext.level
       predicants = startContext.predicants
       depth = 0
+      blockStack = []
     }
 
     {
@@ -145,12 +167,12 @@ module.exports(db, graph, queryId, startContext = startingContext, maxDepth = 0)
 
   graphNextQuery!()
 
-findNextItemIn (array) startingFrom (index) matching (predicate) =
-  if (index < array.length()!)
-    item = array.query(index)!
+findNextItemIn (block) startingFrom (index) matching (predicate) =
+  if (index < block.length()!)
+    item = block.query(index)!
 
     if (predicate(item))
       item.index = index
       item
     else
-      findNextItemIn (array) startingFrom (index + 1) matching (predicate)!
+      findNextItemIn (block) startingFrom (index + 1) matching (predicate)!

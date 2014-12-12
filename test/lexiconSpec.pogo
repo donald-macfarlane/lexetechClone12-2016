@@ -4,7 +4,6 @@ expect = require 'chai'.expect
 memoryDb = require '../server/memoryDb'
 redisDb = require '../server/redisDb'
 lexiconBuilder = require './lexiconBuilder'
-debug = require '../server/debug'
 _ = require 'underscore'
 uritemplate = require 'uritemplate'
 queryApi = require '../browser/queryApi'
@@ -24,8 +23,24 @@ describe "lexicon"
   afterEach
     server.close()
 
+  withLexicon(l) =
+    db.setLexicon(lexicon (l))!
+
+  withBlocks(blocks) =
+    withLexicon({blocks = blocks})!
+
   withQueries(queries) =
-    db.setQueries(queries)!
+    withBlocks [{id = 1, queries = queries}]
+
+  debug(args, ...) =
+    console.log [
+      a <- args
+      if (a :: Object)
+        JSON.stringify(a, nil, 2)
+      else
+        a
+    ] ...
+    args.(args.length - 1)
 
   conversation() =
     query = nil
@@ -54,38 +69,38 @@ describe "lexicon"
 
   it 'queries are asked in coherence order'
     withQueries! [
-      lexicon.query {
+      {
         text = 'query 1'
 
         responses = [
-          lexicon.response {
+          {
             text = 'response 1'
           }
         ]
       }
-      lexicon.query {
+      {
         text = 'query 2'
 
         responses = [
-          lexicon.response {
+          {
             text = 'response 1'
           }
         ]
       }
-      lexicon.query {
+      {
         text = 'query 3'
 
         responses = [
-          lexicon.response {
+          {
             text = 'response 1'
           }
         ]
       }
-      lexicon.query {
+      {
         text = 'query 4'
 
         responses = [
-          lexicon.response {
+          {
             text = 'response 1'
           }
         ]
@@ -102,34 +117,34 @@ describe "lexicon"
   context 'with queries of different levels'
     beforeEach
       withQueries! [
-        lexicon.query {
+        {
           text = 'query 1'
 
           responses = [
-            lexicon.response {
+            {
               text = 'keep level 1'
             }
-            lexicon.response {
+            {
               text = 'set level 2'
               setLevel = 2
             }
           ]
         }
-        lexicon.query {
+        {
           text = 'level 2 query'
           level = 2
 
           responses = [
-            lexicon.response {
+            {
               text = 'response 1'
             }
           ]
         }
-        lexicon.query {
+        {
           text = 'query 3'
 
           responses = [
-            lexicon.response {
+            {
               text = 'response 1'
             }
           ]
@@ -152,32 +167,32 @@ describe "lexicon"
   context 'when two responses have the same query'
     beforeEach
       withQueries! [
-        lexicon.query {
+        {
           text = 'query 1'
 
           responses = [
-            lexicon.response {
+            {
               text = 'response 1'
             }
-            lexicon.response {
+            {
               text = 'response 2'
             }
           ]
         }
-        lexicon.query {
+        {
           text = 'query 2'
 
           responses = [
-            lexicon.response {
+            {
               text = 'response 1'
             }
           ]
         }
-        lexicon.query {
+        {
           text = 'query 3'
 
           responses = [
-            lexicon.response {
+            {
               text = 'response 1'
             }
           ]
@@ -200,48 +215,48 @@ describe "lexicon"
 
   context 'when a query requires a predicate set by a previous response'
     beforeEach
-      db.setQueries! [
-        lexicon.query {
+      withQueries! [
+        {
           text = 'query 1'
 
           responses = [
-            lexicon.response {
+            {
               text = 'response 1'
               predicants = ['a']
             }
-            lexicon.response {
+            {
               text = 'response 2'
               predicants = ['b']
             }
           ]
         }
-        lexicon.query {
+        {
           text = 'query 2'
 
           responses = [
-            lexicon.response {
+            {
               text = 'response 1'
             }
           ]
         }
-        lexicon.query {
+        {
           text = 'query 3'
 
           predicants = ['a']
 
           responses = [
-            lexicon.response {
+            {
               text = 'response 1'
             }
           ]
         }
-        lexicon.query {
+        {
           text = 'query 4'
 
           predicants = ['b']
 
           responses = [
-            lexicon.response {
+            {
               text = 'response 1'
             }
           ]
@@ -265,25 +280,25 @@ describe "lexicon"
   describe 'repeats'
     context 'when there is a response that repeats the same query'
       beforeEach
-        db.setQueries! [
-          lexicon.query {
+        withQueries! [
+          {
             text = 'query 1'
 
             responses = [
-              lexicon.response {
+              {
                 text = 'response 1'
                 action = { name = 'repeatLexeme', arguments = [] }
               }
-              lexicon.response {
+              {
                 text = 'response 2'
               }
             ]
           }
-          lexicon.query {
+          {
             text = 'query 2'
 
             responses = [
-              lexicon.response {
+              {
                 text = 'response 1'
               }
             ]
@@ -302,54 +317,71 @@ describe "lexicon"
     describe 'set blocks'
       context "when we set blocks that we aren't in"
         beforeEach
-          db.setQueries! [
-            lexicon.query {
-              text = 'block 1, query 1'
+          withBlocks! [
+            {
+              id = 1
+              queries = [
+                {
+                  text = 'block 1, query 1'
 
-              responses = [
-                lexicon.response {
-                  text = 'response 1'
-                  action = { name = 'setBlocks', arguments = [3, 4] }
+                  responses = [
+                    {
+                      text = 'response 1'
+                      action = { name = 'setBlocks', arguments = [3, 4] }
+                    }
+                  ]
+                }
+                {
+                  text = 'block 1, query 2'
+
+                  responses = [
+                    {
+                      text = 'response 1'
+                      action = { name = 'setBlocks', arguments = [3, 4] }
+                    }
+                  ]
                 }
               ]
             }
-            lexicon.query {
-              text = 'block 1, query 2'
+            {
+              id = 2
+              queries = [
+                {
+                  text = 'block 2, query 1'
 
-              responses = [
-                lexicon.response {
-                  text = 'response 1'
-                  action = { name = 'setBlocks', arguments = [3, 4] }
+                  responses = [
+                    {
+                      text = 'response 1'
+                    }
+                  ]
                 }
               ]
             }
-            lexicon.query {
-              text = 'block 2, query 1'
-              block = 2
+            {
+              id = 3
+              queries = [
+                {
+                  text = 'block 3, query 1'
 
-              responses = [
-                lexicon.response {
-                  text = 'response 1'
+                  responses = [
+                    {
+                      text = 'response 1'
+                    }
+                  ]
                 }
               ]
             }
-            lexicon.query {
-              text = 'block 3, query 1'
-              block = 3
+            {
+              id = 4
+              queries = [
+                {
+                  text = 'block 4, query 1'
 
-              responses = [
-                lexicon.response {
-                  text = 'response 1'
-                }
-              ]
-            }
-            lexicon.query {
-              text = 'block 4, query 1'
-              block = 4
-
-              responses = [
-                lexicon.response {
-                  text = 'response 1'
+                  responses = [
+                    {
+                      text = 'response 1'
+                    }
+                  ]
                 }
               ]
             }
@@ -364,43 +396,58 @@ describe "lexicon"
 
       context 'when we set blocks that we are already in'
         beforeEach
-          db.setQueries! [
-            lexicon.query {
-              text = 'block 1, query 1'
+          withBlocks! [
+            {
+              id = 1
+              queries = [
+                {
+                  text = 'block 1, query 1'
 
-              responses = [
-                lexicon.response {
-                  text = 'response 1'
-                  action = { name = 'setBlocks', arguments = [1, 3] }
+                  responses = [
+                    {
+                      text = 'response 1'
+                      action = { name = 'setBlocks', arguments = [1, 3] }
+                    }
+                  ]
+                }
+                {
+                  text = 'block 1, query 2'
+
+                  responses = [
+                    {
+                      text = 'response 1'
+                    }
+                  ]
                 }
               ]
             }
-            lexicon.query {
-              text = 'block 1, query 2'
+            {
+              id = 2
+              queries = [
+                {
+                  text = 'block 2, query 1'
+                  block 2
 
-              responses = [
-                lexicon.response {
-                  text = 'response 1'
+                  responses = [
+                    {
+                      text = 'response 1'
+                    }
+                  ]
                 }
               ]
             }
-            lexicon.query {
-              text = 'block 2, query 1'
-              block 2
+            {
+              id = 3
+              queries = [
+                {
+                  text = 'block 3, query 1'
+                  block = 3
 
-              responses = [
-                lexicon.response {
-                  text = 'response 1'
-                }
-              ]
-            }
-            lexicon.query {
-              text = 'block 3, query 1'
-              block = 3
-
-              responses = [
-                lexicon.response {
-                  text = 'response 1'
+                  responses = [
+                    {
+                      text = 'response 1'
+                    }
+                  ]
                 }
               ]
             }
@@ -416,53 +463,73 @@ describe "lexicon"
     describe 'add blocks'
       context 'when we add blocks within a block'
         beforeEach
-          db.setQueries! [
-            lexicon.query {
-              text = 'block 1, query 1'
+          withBlocks! [
+            {
+              id = 1
+              queries = [
+                {
+                  text = 'block 1, query 1'
 
-              responses = [
-                lexicon.response {
-                  text = 'response 1'
-                  action = { name = 'addBlocks', arguments = [4, 3] }
+                  responses = [
+                    {
+                      text = 'response 1'
+                      action = { name = 'addBlocks', arguments = [4, 3] }
+                    }
+                  ]
+                }
+                {
+                  text = 'block 1, query 2'
+
+                  responses = [
+                    {
+                      text = 'response 1'
+                    }
+                  ]
                 }
               ]
             }
-            lexicon.query {
-              text = 'block 1, query 2'
+            {
+              id = 2
+              queries = [
+                {
+                  text = 'block 2, query 1'
+                  block 2
 
-              responses = [
-                lexicon.response {
-                  text = 'response 1'
+                  responses = [
+                    {
+                      text = 'response 1'
+                    }
+                  ]
                 }
               ]
             }
-            lexicon.query {
-              text = 'block 2, query 1'
-              block 2
+            {
+              id = 3
+              queries = [
+                {
+                  text = 'block 3, query 1'
+                  block = 3
 
-              responses = [
-                lexicon.response {
-                  text = 'response 1'
+                  responses = [
+                    {
+                      text = 'response 1'
+                    }
+                  ]
                 }
               ]
             }
-            lexicon.query {
-              text = 'block 3, query 1'
-              block = 3
+            {
+              id = 4
+              queries = [
+                {
+                  text = 'block 4, query 1'
+                  block = 3
 
-              responses = [
-                lexicon.response {
-                  text = 'response 1'
-                }
-              ]
-            }
-            lexicon.query {
-              text = 'block 4, query 1'
-              block = 3
-
-              responses = [
-                lexicon.response {
-                  text = 'response 1'
+                  responses = [
+                    {
+                      text = 'response 1'
+                    }
+                  ]
                 }
               ]
             }
@@ -474,7 +541,4 @@ describe "lexicon"
           c.shouldAsk 'block 4, query 1' thenRespondWith 'response 1'!
           c.shouldAsk 'block 3, query 1' thenRespondWith 'response 1'!
           c.shouldAsk 'block 1, query 2' thenRespondWith 'response 1'!
-          c.shouldAsk 'block 2, query 1' thenRespondWith 'response 1'!
-          c.shouldAsk 'block 3, query 1' thenRespondWith 'response 1'!
-          c.shouldAsk 'block 4, query 1' thenRespondWith 'response 1'!
           c.shouldBeFinished()!

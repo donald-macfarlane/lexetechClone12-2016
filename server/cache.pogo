@@ -16,4 +16,7 @@ module.exports () =
       if (@not value)
         cache.(key) = true
         block()
+    
+    clear() =
+      cache := {}
   }
