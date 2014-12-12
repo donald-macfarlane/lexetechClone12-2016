@@ -3,13 +3,13 @@ app = require '../../server/app'
 expect = require 'chai'.expect
 memoryDb = require '../../server/memoryDb'
 redisDb = require '../../server/redisDb'
-lexiconBuilder = require './lexiconBuilder'
+lexiconBuilder = require '../lexiconBuilder'
 conversation = require '../conversation'
 debug = require '../../server/debug'
 _ = require 'underscore'
 uritemplate = require 'uritemplate'
 
-describe "server"
+describe "query api"
   port = 12345
   api = httpism.api "http://api:squidandeels@localhost:#(port)"
   server = nil
@@ -17,8 +17,7 @@ describe "server"
   lexicon = nil
 
   beforeEach
-    db := redisDb()
-    app.set 'db' (db)
+    db := app.get 'db'
     server := app.listen (port)
     lexicon := lexiconBuilder()
 
@@ -313,3 +312,4 @@ describe "server"
       response := query.responses.0
       expect(response.text).to.eql 'response 1'
       expect(response.queryHrefTemplate).to.be.undefined
+  

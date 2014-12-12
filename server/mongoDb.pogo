@@ -1,9 +1,10 @@
 mongoose = require 'mongoose'
 mongoose.set('debug', true)
 
-exports.connect()! =
-  url = process.env.MONGOLAB_URI @or 'mongodb://localhost/lexeme'
-  mongoose.connect (url) ^!
+connected = false
 
-exports.disconnect()! =
-  mongoose.disconnect() ^!
+module.exports.connect() =
+  if (@not connected)
+    url = process.env.MONGOLAB_URI @or 'mongodb://localhost/lexeme'
+    mongoose.connect (url)
+    connected := true

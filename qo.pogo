@@ -19,6 +19,9 @@ task 'test'
     @{ shell 'cucumber' }
   )
 
+task 'mocha'
+  shell 'mocha test/*Spec.* test/server/*Spec.*'
+
 task 'load-from-file' @(args, env = 'dev')
   file = args.0
 

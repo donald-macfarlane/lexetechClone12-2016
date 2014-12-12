@@ -37,12 +37,12 @@ describe 'query api'
       }
     }
 
-    graph = queryApi.firstQuery()!
+    query = queryApi().firstQuery()!
 
-    expect(graph.query.text).to.equal 'query 1'
-    expect(graph.query.responses.0.text).to.equal 'response 1'
-    expect(graph.query.responses.0.query()!.text).to.equal 'query 2'
-    expect(graph.query.responses.0.query()!.responses.0.text).to.equal 'response 1'
+    expect(query.text).to.equal 'query 1'
+    expect(query.responses.0.text).to.equal 'response 1'
+    expect(query.responses.0.query()!.text).to.equal 'query 2'
+    expect(query.responses.0.query()!.responses.0.text).to.equal 'response 1'
 
   it 'loads next query when it reaches a partial'
     $.mockjax {
@@ -115,9 +115,9 @@ describe 'query api'
         }
     }
 
-    graph = queryApi.firstQuery()!
+    originalQuery = queryApi().firstQuery()!
+    query = originalQuery
 
-    query = graph.query
     expect(query.text).to.equal 'query 1'
     expect(query.responses.0.text).to.equal 'response 1'
 
@@ -129,7 +129,7 @@ describe 'query api'
     expect(query.text).to.equal 'query 3'
     expect(query.responses.0.text).to.equal 'response 1'
 
-    query := graph.query
+    query := originalQuery
     query := query.responses.1.query()!
     expect(query.text).to.equal 'query 2'
     expect(query.responses.0.text).to.equal 'response 1'
@@ -216,9 +216,9 @@ describe 'query api'
         }
     }
 
-    graph = queryApi.firstQuery(depth = 5)!
+    originalQuery = queryApi().firstQuery(depth = 5)!
 
-    query = graph.query
+    query = originalQuery
     expect(query.text).to.equal 'query 1'
     response = query.responses.0
     expect(response.text).to.equal 'response 1'
@@ -238,7 +238,7 @@ describe 'query api'
     response := query.responses.0
     expect(response.text).to.equal 'response 1'
 
-    query := graph.query
+    query := originalQuery
     query := query.responses.1.query()!
     expect(query.text).to.equal 'query 2'
     response := query.responses.0
@@ -278,9 +278,8 @@ describe 'query api'
       }
     }
 
-    graph = queryApi.firstQuery(depth = 5)!
+    query = queryApi().firstQuery(depth = 5)!
 
-    query = graph.query
     expect(query.text).to.equal 'query 1'
     response = query.responses.0
     expect(response.text).to.equal 'response 1'

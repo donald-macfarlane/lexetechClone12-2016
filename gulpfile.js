@@ -25,7 +25,7 @@ function rebundle(bundle) {
     return bundle.bundle()
       .on('error', gutil.log.bind(gutil, 'Browserify Error'))
       .pipe(source('app.js'))
-      .pipe(gulp.dest('./server/public'));
+      .pipe(gulp.dest('./server/generated'));
   }
 }
 
@@ -48,13 +48,13 @@ gulp.task('watch-css', function () {
     .pipe(sourcemaps.init())
     .pipe(less({lineNumbers: 'all'}))
     .pipe(sourcemaps.write('.'))
-    .pipe(gulp.dest('server/public'));
+    .pipe(gulp.dest('server/generated'));
 });
 
 gulp.task('css', function () {
   gulp.src('browser/style/app.less')
     .pipe(less())
-    .pipe(gulp.dest('server/public'));
+    .pipe(gulp.dest('server/generated'));
 });
 
 gulp.task('server', ['watch-js', 'watch-css'], function(done) {

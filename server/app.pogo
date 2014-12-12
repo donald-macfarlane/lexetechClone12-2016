@@ -9,6 +9,9 @@ apiUsers = require './apiUsers.json'
 users = require './users.pogo'
 User = require './models/user'
 
+redisDb = require './redisDb'
+require './mongoDb'.connect()
+
 app = express()
 app.use(morgan('combined'))
 app.use(bodyParser.json {limit = '1mb'})
@@ -19,6 +22,8 @@ app.set 'views' (__dirname + '/views')
 
 app.use(passport.initialize())
 app.use(passport.session())
+
+app.set 'db' (redisDb())
 
 passport.serializeUser(User.serializeUser())
 passport.deserializeUser(User.deserializeUser())
@@ -86,7 +91,7 @@ loadGraph (queryId, req, res) =
   buildGraph!(db, graph, queryId, startContext = startContext, maxDepth = maxDepth)
   res.send (graph.toJSON())
 
-app.use(express.static(__dirname + '/public'))
+app.use(express.static(__dirname + '/generated'))
 app.use('/source', express.static(__dirname + '/../browser/style'))
 
 module.exports = app

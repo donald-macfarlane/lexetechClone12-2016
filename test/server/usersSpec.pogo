@@ -3,12 +3,8 @@ users = require '../../server/users.pogo'
 expect = require '../expect'
 
 describe 'users'
-
   before
-    mongoDb.connect()!
-
-  after
-    mongoDb.disconnect()!
+    mongoDb.connect()
 
   beforeEach
     users.deleteAll()!

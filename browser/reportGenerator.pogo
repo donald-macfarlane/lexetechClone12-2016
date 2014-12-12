@@ -49,6 +49,6 @@ module.exports = React.createFactory(React.createClass {
 
   componentDidMount () =
     self.setState {
-      query = self.props.queryApi.firstQuery()!.query
+      query = self.props.queryApi.firstQuery()!
     }
 })

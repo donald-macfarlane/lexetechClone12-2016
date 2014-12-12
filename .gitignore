@@ -3,6 +3,4 @@
 /node_modules/
 /.floo
 /bower_components/
-/server/public/app.css.map
-/server/public/app.css
-/server/public/app.js
+/server/generated
