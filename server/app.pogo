@@ -1,5 +1,4 @@
 express = require 'express'
-morgan = require 'morgan'
 bodyParser = require 'body-parser'
 passport = require 'passport'
 session = require 'express-session'
@@ -13,7 +12,6 @@ redisDb = require './redisDb'
 require './mongoDb'.connect()
 
 app = express()
-app.use(morgan('combined'))
 app.use(bodyParser.json {limit = '1mb'})
 app.use(session { name = 'session', secret = 'haha bolshevik', resave = false, saveUninitialized = false })
 app.use(bodyParser.urlencoded { extended = true })
