@@ -27,6 +27,8 @@ module.exports () =
 
     setQueries(queries) =
       self.clear()!
+      if (queries.length == 0)
+        return
 
       for each @(q) in (queries)
         client.set(q.id, JSON.stringify(q), ^)!
