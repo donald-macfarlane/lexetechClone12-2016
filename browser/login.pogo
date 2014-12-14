@@ -5,13 +5,13 @@ classes(obj) =
   [k <- Object.keys(obj), obj.(k), k].join ' '
 
 module.exports = React.createFactory(React.createClass {
-  getInitialState() = { signingUp = false, loggingIn = false }
+  getInitialState() = { activity = 'none' }
 
   signup() =
-    self.setState { signingUp = true }
+    self.setState { activity = 'signing-up' }
 
   login() =
-    self.setState { loggingIn = true }
+    self.setState { activity = 'logging-in' }
 
   render() =
     r 'div' { className = classes { user = true, 'logged-out' = @not self.props.user, 'logged-in' = self.props.user } } (
@@ -30,9 +30,9 @@ module.exports = React.createFactory(React.createClass {
 
       ...
 
-      if (self.state.signingUp)
+      if (self.state.activity == 'signing-up')
         signupForm()
-      else if (self.state.loggingIn)
+      else if (self.state.activity == 'logging-in')
         loginForm()
     )
 })
