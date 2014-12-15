@@ -28,5 +28,5 @@ module.exports (element, queryApi, pageData) =
   )
 
   ReactRouter.run(routes, ReactRouter.HistoryLocation) @(Handler)
-    router = React.createElement(Handler)
+    router = React.createElement(Handler, {queryApi = queryApi, user = pageData.user})
     React.render(router, element)

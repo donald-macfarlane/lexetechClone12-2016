@@ -12,10 +12,10 @@ module.exports = React.createFactory(React.createClass {
         r 'input' { id = 'login_email', type = 'text', name = 'email' }
         r 'label' { htmlFor = 'login_password' } 'Password'
         r 'input' { id = "login_password", type = 'password', name = 'password' }
-        r 'button' {} 'Login'
+        r 'button' {} 'Log in'
       )
       r 'div' { className = 'links' } [
-        Link { to = 'signup'} 'Sign up'
+        Link { to = 'signup' } 'Sign up'
       ]
     )
 })
