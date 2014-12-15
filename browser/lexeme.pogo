@@ -1,19 +1,32 @@
 module.exports (element, queryApi, pageData) =
+
   React = require 'react'
+  ReactRouter = require 'react-router'
+  Route = React.createFactory(ReactRouter.Route)
+  DefaultRoute = React.createFactory(ReactRouter.DefaultRoute)
+  NotFoundRoute = React.createFactory(ReactRouter.NotFoundRoute)
+  RouteHandler = React.createFactory(ReactRouter.RouteHandler)
   r = React.createElement
 
-  report = require './reportGenerator'
-  login = require './login'
+  routes = Route { handler = require './routes/layout' } (
+    DefaultRoute {
+      handler = require './routes/home'
+    }
+    NotFoundRoute {
+      handler = require './routes/notFound'
+    }
+    Route {
+      name = 'login'
+      path = '/login'
+      handler = require './routes/login'
+    }
+    Route {
+      name = 'signup'
+      path = '/signup'
+      handler = require './routes/signup'
+    }
+  )
 
-  app = React.createFactory(React.createClass {
-    render() =
-      r 'div' {} (
-        r 'div' { className = 'top-menu' } (
-          login(user = self.props.user)
-        )
-        if (self.props.user)
-          report(queryApi = self.props.queryApi)
-      )
-  })
-
-  React.render(React.createElement(app, {queryApi = queryApi, user = pageData.user}), element)
+  ReactRouter.run(routes, ReactRouter.HistoryLocation) @(Handler)
+    router = React.createElement(Handler)
+    React.render(router, element)

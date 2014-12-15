@@ -2,6 +2,7 @@ express = require 'express'
 morgan = require 'morgan'
 bodyParser = require 'body-parser'
 passport = require 'passport'
+flash = require 'connect-flash'
 session = require 'express-session'
 BasicStrategy = require 'passport-http'.BasicStrategy
 
@@ -22,6 +23,7 @@ app.set 'views' (__dirname + '/views')
 
 app.use(passport.initialize())
 app.use(passport.session())
+app.use(flash())
 
 app.set 'db' (redisDb())
 
@@ -66,17 +68,16 @@ app.post '/login' (passport.authenticate 'local' {
 })
 
 app.post '/signup' @(req, res)
-  user = users.signUp(req.param 'email', req.param 'password')!
-  req.login (user, ^)!
-
-  res.redirect '/'
+  try
+    user = users.signUp(req.param 'email', req.param 'password')!
+    req.login (user, ^)!
+    res.redirect '/'
+  catch (e)
+    res.redirect '/signup'
 
 app.post '/logout' @(req, res)
   req.logout()
   res.redirect '/'
-
-app.get '/' @(req, res)
-  res.render 'index.html' { user = req.user }
 
 loadGraph (queryId, req, res) =
   db = app.get 'db'
@@ -93,5 +94,8 @@ loadGraph (queryId, req, res) =
 
 app.use(express.static(__dirname + '/generated'))
 app.use('/source', express.static(__dirname + '/../browser/style'))
+
+app.get '*' @(req, res)
+  res.render 'index.html' { user = req.user }
 
 module.exports = app
