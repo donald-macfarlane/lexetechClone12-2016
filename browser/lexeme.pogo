@@ -1,4 +1,4 @@
-module.exports (element, queryApi, pageData) =
+module.exports (element, queryApi, pageData, options) =
 
   React = require 'react'
   ReactRouter = require 'react-router'
@@ -27,6 +27,12 @@ module.exports (element, queryApi, pageData) =
     }
   )
 
-  ReactRouter.run(routes, ReactRouter.HistoryLocation) @(Handler)
+  locationApi =
+    if (options @and options.historyApi == false)
+      ReactRouter.HashLocation
+    else
+      ReactRouter.HistoryLocation
+
+  ReactRouter.run(routes, locationApi) @(Handler)
     router = React.createElement(Handler, {queryApi = queryApi, user = pageData.user})
     React.render(router, element)
