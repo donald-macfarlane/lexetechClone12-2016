@@ -1,27 +1,34 @@
-[
-  {
-    "id": 1,
-    "level": 1,
-    "block": 1,
-    "predicants": [],
-    "text": "What hurts?",
-    "responses": [
-      {
-        "id": 1,
-        "setLevel": 1,
-        "predicants": [],
-        "action": { "name":"none", "arguments":[] },
-        "text": "right arm",
-        "notes": "Complaint\n---------\nright arm"
-      },
-      {
-        "id": 2,
-        "setLevel": 1,
-        "predicants": [],
-        "action": { "name":"none", "arguments":[] },
-        "text": "left leg",
-        "notes": "Complaint\n---------\nleft leg"
-      }
-    ]
-  }
-]
+{
+  "blocks": [
+    {
+      "id": 1,
+      "queries": [
+        {
+          "id": 1,
+          "level": 1,
+          "block": 1,
+          "predicants": [],
+          "text": "What hurts?",
+          "responses": [
+            {
+              "id": 1,
+              "setLevel": 1,
+              "predicants": [],
+              "action": { "name":"none", "arguments":[] },
+              "text": "right arm",
+              "notes": "Complaint\n---------\nright arm"
+            },
+            {
+              "id": 2,
+              "setLevel": 1,
+              "predicants": [],
+              "action": { "name":"none", "arguments":[] },
+              "text": "left leg",
+              "notes": "Complaint\n---------\nleft leg"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

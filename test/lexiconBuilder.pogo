@@ -32,17 +32,22 @@ module.exports () =
       }
     } (r)
 
-  lexicon(l) = {
-    blocks = [
-      block <- l.blocks
-      {
-        name = block.name
-        id = block.id
+  {
+    lexicon(lexicon) = {
+      blocks = [
+        block <- lexicon.blocks
+        {
+          name = block.name
+          id = block.id
 
-        queries = [
-          query <- block.queries
-          buildQuery(query, block.id)
-        ]
-      }
-    ]
+          queries = [
+            query <- block.queries
+            buildQuery(query, block.id)
+          ]
+        }
+      ]
+    }
+
+    blocks(blocks) = self.lexicon {blocks = blocks}
+    queries(queries) = self.blocks [{id = 1, queries = queries}]
   }

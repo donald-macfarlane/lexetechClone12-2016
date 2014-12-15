@@ -24,13 +24,13 @@ describe "lexicon"
     server.close()
 
   withLexicon(l) =
-    db.setLexicon(lexicon (l))!
+    db.setLexicon(lexicon.lexicon (l))!
 
   withBlocks(blocks) =
-    withLexicon({blocks = blocks})!
+    db.setLexicon(lexicon.blocks(blocks))!
 
   withQueries(queries) =
-    withBlocks [{id = 1, queries = queries}]
+    db.setLexicon(lexicon.queries(queries))!
 
   debug(args, ...) =
     console.log [

@@ -4,7 +4,7 @@ include Mongo
 class LexemeApi
   def load_lexicon(filename)
     json = File.read(File.expand_path("../#{filename}", __FILE__))
-    RestClient.post "http://api:squidandeels@localhost:8001/api/queries",
+    RestClient.post "http://api:squidandeels@localhost:8001/api/lexicon",
       json,
       :content_type => :json,
       :accept => :json

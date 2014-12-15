@@ -12,15 +12,25 @@ runAllThenThrow(args, ...) =
   if (firstError)
     throw(firstError)
 
+mocha() = shell 'mocha test/*Spec.* test/server/*Spec.*'
+karma() = shell 'karma start --single-run'
+cucumber() = shell 'cucumber'
+
 task 'test'
   runAllThenThrow! (
-    @{ shell 'mocha test/*Spec.* test/server/*Spec.*' }
-    @{ shell 'karma start --single-run' }
-    @{ shell 'cucumber' }
+    @{ mocha() }
+    @{ karma() }
+    @{ cucumber() }
   )
 
 task 'mocha'
-  shell 'mocha test/*Spec.* test/server/*Spec.*'
+  mocha()!
+
+task 'cucumber'
+  cucumber()!
+
+task 'karma'
+  karma()!
 
 task 'load-from-file' @(args, env = 'dev')
   file = args.0

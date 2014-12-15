@@ -46,9 +46,9 @@ app.use '/api' @(req, res, next)
   else
     basicAuth(req, res, next)
 
-app.post '/api/queries' @(req, res)
+app.post '/api/lexicon' @(req, res)
   db = app.get 'db'
-  db.setQueries(req.body)!
+  db.setLexicon(req.body)!
   res.status(201).send({ status = 'success' })
 
 app.get '/api/queries/first/graph' @(req, res)

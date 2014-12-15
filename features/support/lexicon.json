@@ -1,75 +1,82 @@
-[
-  {
-    "id": 1,
-    "level": 1,
-    "block": 1,
-    "predicants": [],
-    "text": "What hurts?",
-    "responses": [
-      {
-        "id": 1,
-        "setLevel": 1,
-        "predicants": [],
-        "action": { "name":"none", "arguments":[] },
-        "text": "right arm",
-        "notes": "Complaint\n---------\nright arm"
-      },
-      {
-        "id": 2,
-        "setLevel": 1,
-        "predicants": [],
-        "action": { "name":"none", "arguments":[] },
-        "text": "left leg",
-        "notes": "Complaint\n---------\nleft leg"
-      }
-    ]
-  },
-  {
-    "id": 2,
-    "level": 1,
-    "block": 1,
-    "predicants": [],
-    "text": "Is it bleeding?",
-    "responses": [
-      {
-        "id": 3,
-        "setLevel": 1,
-        "predicants": [],
-        "action": { "name":"none", "arguments":[] },
-        "text": "yes",
-        "notes": "bleeding"
-      },
-      {
-        "id": 4,
-        "setLevel": 1,
-        "predicants": [],
-        "action": { "name":"none", "arguments":[] },
-        "text": "no"
-      }
-    ]
-  },
-  {
-    "id": 3,
-    "level": 1,
-    "block": 1,
-    "predicants": [],
-    "text": "Is it aching?",
-    "responses": [
-      {
-        "id": 5,
-        "setLevel": 1,
-        "predicants": [],
-        "action": { "name":"none", "arguments":[] },
-        "text": "yes",
-        "notes": "and aching"
-      },
-      {
-        "id": 6,
-        "setLevel": 1,
-        "predicants": [],
-        "action": { "name":"none", "arguments":[] },
-        "text": "no"
-      }
-    ]
-  }
-]
+{
+  "blocks": [
+    {
+      "id": 1,
+      "queries": [
+        {
+          "id": 1,
+          "level": 1,
+          "block": 1,
+          "predicants": [],
+          "text": "What hurts?",
+          "responses": [
+            {
+              "id": 1,
+              "setLevel": 1,
+              "predicants": [],
+              "action": { "name":"none", "arguments":[] },
+              "text": "right arm",
+              "notes": "Complaint\n---------\nright arm"
+            },
+            {
+              "id": 2,
+              "setLevel": 1,
+              "predicants": [],
+              "action": { "name":"none", "arguments":[] },
+              "text": "left leg",
+              "notes": "Complaint\n---------\nleft leg"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "level": 1,
+          "block": 1,
+          "predicants": [],
+          "text": "Is it bleeding?",
+          "responses": [
+            {
+              "id": 3,
+              "setLevel": 1,
+              "predicants": [],
+              "action": { "name":"none", "arguments":[] },
+              "text": "yes",
+              "notes": "bleeding"
+            },
+            {
+              "id": 4,
+              "setLevel": 1,
+              "predicants": [],
+              "action": { "name":"none", "arguments":[] },
+              "text": "no"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "level": 1,
+          "block": 1,
+          "predicants": [],
+          "text": "Is it aching?",
+          "responses": [
+            {
+              "id": 5,
+              "setLevel": 1,
+              "predicants": [],
+              "action": { "name":"none", "arguments":[] },
+              "text": "yes",
+              "notes": "and aching"
+            },
+            {
+              "id": 6,
+              "setLevel": 1,
+              "predicants": [],
+              "action": { "name":"none", "arguments":[] },
+              "text": "no"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
