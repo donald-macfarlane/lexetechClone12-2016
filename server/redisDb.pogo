@@ -64,12 +64,16 @@ module.exports () =
         block(blockId)!.length
 
       queries() =
-        promise! @(result, error)
-          client.mget.apply (client) [[q <- block(blockId)!, "query_#(q)"], ...,  @(er, queries)
-            if (er)
-              error(er)
-            else
-              result [q <- queries, JSON.parse(q)]
-          ]
+        queryIds = block(blockId)!
+        if (queryIds.length > 0)
+          promise! @(result, error)
+            client.mget.apply (client) [[q <- queryIds, "query_#(q)"], ...,  @(er, queries)
+              if (er)
+                error(er)
+              else
+                result [q <- queries, JSON.parse(q)]
+            ]
+        else
+          []
     }
   }

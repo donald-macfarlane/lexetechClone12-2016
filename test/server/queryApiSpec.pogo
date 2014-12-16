@@ -40,3 +40,44 @@ describe "query api"
 
     expect(query.text).to.eql 'query 1'
     expect(query.responses.0.text).to.eql 'response 1'
+
+  it 'can get queries for block'
+    db.clear()!
+    db.setLexicon(
+      lexicon.blocks [
+        {
+          id = 1
+          queries = [
+            {
+              text 'query 1'
+
+              responses = [
+                {
+                  text = 'response 1'
+                }
+              ]
+            }
+            {
+              text 'query 2'
+
+              responses = [
+                {
+                  text = 'response 1'
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    )
+    queries = api.get('/api/blocks/1')!.body
+    expect(queries.length).to.eql 2
+    expect [q <- queries, q.text].to.eql ['query 1', 'query 2']
+
+  it 'returns empty list for non-extant block'
+    db.clear()!
+    db.setLexicon(
+      lexicon.blocks []
+    )
+    queries = api.get('/api/blocks/2')!.body
+    expect(queries.length).to.eql 0
