@@ -21,6 +21,8 @@ module.exports = React.createFactory(React.createClass {
         r 'div' { className = 'top-menu' } (
           AuthStatus(user = self.props.user)
         )
-        RouteHandler.call(self, self.props)
+        r 'div' { className = 'content' } (
+          RouteHandler.call(self, self.props)
+        )
       )
 })
