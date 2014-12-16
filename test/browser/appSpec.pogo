@@ -37,78 +37,51 @@ describe 'lexeme'
 
     queryGraph = {
       firstQueryGraph()! = {
-        query = {
-          text = 'Where does it hurt?'
-        }
+        text = 'Where does it hurt?'
 
         responses = [
           {
-            response = {
-              id = 1
-              text = 'left leg'
-              notes = 'Complaint
-                       ---------
-                       left leg'
-            }
+            text = 'left leg'
+            notes = 'Complaint
+                     ---------
+                     left leg'
 
             query()! = {
-              query = {
-                text = "Is it bleeding?"
-              }
+              text = "Is it bleeding?"
 
               responses = [
                 {
-                  response = {
-                    id = 1
-                    text = 'yes'
-                    notes = 'bleeding'
-                  }
+                  text = 'yes'
+                  notes = 'bleeding'
 
                   query()! = {
-                    query = {
-                      text = "Is it aching?"
-                    }
+                    text = "Is it aching?"
+
                     responses = [
                       {
-                        response = {
-                          id = 1
-                          text = 'yes'
-                        }
+                        text = 'yes'
                         query() = nil
                       }
                       {
-                        response = {
-                          id = 2
-                          text = 'no'
-                        }
+                        text = 'no'
                         query() = nil
                       }
                     ]
                   }
                 }
                 {
-                  response = {
-                    id = 2
-                    text = 'no'
-                  }
+                  text = 'no'
 
                   query()! = {
-                    query = {
-                      text = "Is it aching?"
-                    }
+                    text = "Is it aching?"
+
                     responses = [
                       {
-                        response = {
-                          id = 1
-                          text = 'yes'
-                        }
+                        text = 'yes'
                         query() = nil
                       }
                       {
-                        response = {
-                          id = 2
-                          text = 'no'
-                        }
+                        text = 'no'
                         query() = nil
                       }
                     ]

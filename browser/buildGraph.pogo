@@ -1,7 +1,6 @@
 _ = require 'underscore'
 createContext = require './context'
 cache = require '../common/cache'
-queryGraph = require './queryGraph'
 lexemeApi = require '../browser/lexemeApi'
 
 cloneContext(c) =
@@ -16,7 +15,6 @@ cloneContext(c) =
     block = c.block
     blocks = c.blocks.slice 0
     level = c.level
-    depth = c.depth
     predicants = predicants
     blockStack = blockStack
   }
@@ -54,7 +52,6 @@ actions = {
 newContextFromResponse (response) context (context) =
   newContext = cloneContext(context)
   newContext.level = response.setLevel
-  ++newContext.depth
   ++newContext.coherenceIndex
 
   action = actions.(response.action.name)
@@ -75,9 +72,65 @@ anyPredicantIn (predicants) foundIn (currentPredicants) =
 block (block) inActiveBlocks (blocks) =
   blocks.(block)
 
+findNextQuery(api, context) =
+  query = findNextQueryInCurrentBlock(api, context)!
+  if (@not query)
+    if (context.blocks.length > 0)
+      context.block = context.blocks.shift()
+      context.coherenceIndex = 0
+      findNextQuery(api, context)!
+    else if (context.blockStack.length > 0)
+      context.popBlockStack()
+      findNextQuery(api, context)!
+  else
+    query
+
+findNextQueryInCurrentBlock(api, context) =
+  findNextItem! @(query) in (api.block(context.block)) startingFrom (context.coherenceIndex) matching
+    query.level <= context.level \
+      @and anyPredicantIn (query.predicants) foundIn (context.predicants)
+
+preloadQueryGraph(query, depth) =
+  if (depth > 0 @and query)
+    [
+      r <- query.responses
+      preloadQueryGraph(r.query()!, depth - 1)!
+    ]
+
 module.exports(api = lexemeApi()) =
+  queryCache = cache()
+
+  queryGraph (query, context) =
+    {
+      text = query.text
+
+      responses = [
+        r <- query.responses
+        {
+          text = r.text
+          notes = r.notes
+
+          query() =
+            if (@not self._query)
+              self._query = nextQueryForResponse(r, context)
+
+            self._query
+        }
+      ]
+    }
+
+  nextQueryForResponse (response, context) =
+    newContext = newContextFromResponse (response) context (context)
+
+    queryCache.cacheBy "#(newContext.coherenceIndex):#(newContext.key())"!
+      nextQuery = findNextQuery!(api, newContext)
+
+      if (nextQuery)
+        newContext.coherenceIndex = nextQuery.index
+        queryGraph (nextQuery, newContext)
+
   {
-    firstQueryGraph(maxDepth = 1) =
+    firstQueryGraph() =
       query = api.block(1).query(0)!
 
       context = createContext {
@@ -89,76 +142,9 @@ module.exports(api = lexemeApi()) =
         blockStack = []
       }
 
-      self.nextQueryGraph(query, context, maxDepth)!
-
-    nextQueryGraph(startingQuery, startingContext, maxDepth) =
-      unexploredQueries = []
-      queryCache = cache()
-      graph = queryGraph(self)
-      startingContext.depth = 0
-
-      findNextQuery(context) =
-        query = findNextQueryInCurrentBlock(context)!
-        if (@not query)
-          if (context.blocks.length > 0)
-            context.block = context.blocks.shift()
-            context.coherenceIndex = 0
-            findNextQuery(context)!
-          else if (context.blockStack.length > 0)
-            context.popBlockStack()
-            findNextQuery(context)!
-        else
-          query
-
-      findNextQueryInCurrentBlock(context) =
-        findNextItem! @(query) in (api.block(context.block)) startingFrom (context.coherenceIndex) matching
-          query.level <= context.level \
-            @and anyPredicantIn (query.predicants) foundIn (context.predicants)
-
-      selectResponse (response) forQuery (query, context, generatedQuery = nil) =
-        newContext = newContextFromResponse (response) context (context)
-        generatedResponse = generatedQuery.addResponse (response)
-
-        if (maxDepth == 0 @or newContext.depth < maxDepth)
-          generatedSubQuery = queryCache.cacheBy "#(newContext.coherenceIndex):#(newContext.key())"!
-            nextQuery = findNextQuery!(newContext)
-            subQuery = graph.query (nextQuery, context = newContext)
-
-            if (nextQuery)
-              newContext.coherenceIndex = nextQuery.index
-
-              unexploredQueries.push {
-                query = nextQuery
-                context = newContext
-                generatedQuery = subQuery
-              }
-
-            subQuery
-
-          generatedResponse.setQuery (generatedSubQuery)
-
-      buildGraphForQuery(query, context, generatedQuery) =
-        [
-          response <- query.responses
-          selectResponse! (response) forQuery (query, context, generatedQuery = generatedQuery)
-        ]
-
-      firstQuery = graph.query (startingQuery, context = startingContext)
-      unexploredQueries.push {
-        query = startingQuery
-        context = startingContext
-        generatedQuery = firstQuery
-      }
-
-      graphNextQuery() =
-        if(unexploredQueries.length > 0)
-          task = unexploredQueries.shift()
-          buildGraphForQuery!(task.query, task.context, task.generatedQuery)
-          graphNextQuery!()
-
-      graphNextQuery!()
-
-      firstQuery
+      graph = queryGraph (query, context)
+      preloadQueryGraph(graph, 4)
+      graph
   }
 
 findNextItemIn (block) startingFrom (index) matching (predicate) =
