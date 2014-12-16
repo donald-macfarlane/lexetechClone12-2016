@@ -114,10 +114,11 @@ module.exports(api = lexemeApi()) =
             if (@not self._query)
               self._query = nextQueryForResponse(r, context)
 
-              if (preload)
-                @{
-                  preloadQueryGraph(self._query!, 4)!
-                }()
+            if (preload @and @not self.preloaded)
+              @{
+                self.preloaded = true
+                preloadQueryGraph(self._query!, 4)!
+              }()
 
             self._query
         }
