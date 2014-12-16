@@ -1,6 +1,7 @@
 _ = require 'underscore'
 createContext = require './context'
 cache = require './cache'
+queryGraph = require './queryGraph'
 
 cloneContext(c) =
   predicants = {}
@@ -79,9 +80,34 @@ startingContext = {
   predicants = {context = true}
 }
 
-module.exports(db, graph, queryId, startContext = startingContext, maxDepth = 0) =
+exports.buildGraph(db, queryId, startContext = startingContext, maxDepth = 0) =
+  query =
+    if (queryId)
+      db.queryById(queryId)!
+    else
+      db.block(1).query(0)!
+
+  context = createContext {
+    coherenceIndex =
+      if (queryId)
+        db.block(query.block)!.coherenceIndexForQueryId(queryId)!
+      else
+        0
+
+    block = query.block
+    blocks = []
+    level = startContext.level
+    predicants = startContext.predicants
+    blockStack = []
+  }
+
+  exports.buildQueryGraph(db, query, context, maxDepth)!
+
+exports.buildQueryGraph(db, startingQuery, startingContext, maxDepth) =
   unexploredQueries = []
   queryCache = cache()
+  graph = queryGraph()
+  startingContext.depth = 0
 
   findNextQuery(context) =
     query = findNextQueryInCurrentBlock(context)!
@@ -108,7 +134,7 @@ module.exports(db, graph, queryId, startContext = startingContext, maxDepth = 0)
     if (maxDepth == 0 @or newContext.depth < maxDepth)
       generatedSubQuery = queryCache.cacheBy "#(newContext.coherenceIndex):#(newContext.key())"!
         nextQuery = findNextQuery!(newContext)
-        subQuery = graph.query (nextQuery, context = newContext)
+        subQuery = graph.query (nextQuery, context = newContext, db = db)
 
         if (nextQuery)
           newContext.coherenceIndex = nextQuery.index
@@ -129,35 +155,12 @@ module.exports(db, graph, queryId, startContext = startingContext, maxDepth = 0)
       selectResponse! (response) forQuery (query, context, generatedQuery = generatedQuery)
     ]
 
-  firstTask () =
-    query =
-      if (queryId)
-        db.queryById(queryId)!
-      else
-        db.block(1).query(0)!
-
-    context = createContext {
-      coherenceIndex =
-        if (queryId)
-          db.block(query.block)!.coherenceIndexForQueryId(queryId)!
-        else
-          0
-
-      block = query.block
-      blocks = []
-      level = startContext.level
-      predicants = startContext.predicants
-      depth = 0
-      blockStack = []
-    }
-
-    {
-      query = query
-      context = context
-      generatedQuery = graph.query (query, context = context)
-    }
-
-  unexploredQueries.push(firstTask()!)
+  firstQuery = graph.query (startingQuery, context = startingContext, db = db)
+  unexploredQueries.push {
+    query = startingQuery
+    context = startingContext
+    generatedQuery = firstQuery
+  }
 
   graphNextQuery() =
     if(unexploredQueries.length > 0)
@@ -166,6 +169,8 @@ module.exports(db, graph, queryId, startContext = startingContext, maxDepth = 0)
       graphNextQuery!()
 
   graphNextQuery!()
+
+  firstQuery
 
 findNextItemIn (block) startingFrom (index) matching (predicate) =
   if (index < block.length()!)

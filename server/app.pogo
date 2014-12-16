@@ -78,16 +78,14 @@ app.get '/' @(req, res)
 
 loadGraph (queryId, req, res) =
   db = app.get 'db'
-  graph = queryGraph()
-
   maxDepth = Math.min(10, req.param 'depth') @or 3
 
   startContext =
     if (req.param 'context')
       JSON.parse(req.param 'context')
 
-  buildGraph!(db, graph, queryId, startContext = startContext, maxDepth = maxDepth)
-  res.send (graph.toJSON())
+  graph = buildGraph.buildGraph!(db, queryId, startContext = startContext, maxDepth = maxDepth)
+  res.send (graph)
 
 app.use(express.static(__dirname + '/generated'))
 app.use('/source', express.static(__dirname + '/../browser/style'))

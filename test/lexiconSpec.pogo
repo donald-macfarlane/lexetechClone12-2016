@@ -49,6 +49,7 @@ describe "lexicon"
       http = {
         get(url) = api.get (url)!.body
       }
+      db = db
     }
     
     {
@@ -58,9 +59,9 @@ describe "lexicon"
         else
           query := response.query()!
 
-        expect(query.text).to.equal (queryText)
+        expect(query.query.text).to.equal (queryText)
 
-        response := [r <- query.responses, r.text == responseText, r].0
+        response := [r <- query.responses, r.response.text == responseText, r].0
         expect(response, "response '#(responseText)' not one of #([r <- query.responses, "'#(r.text)'"].join ', ')").to.exist
 
       shouldBeFinished() =
