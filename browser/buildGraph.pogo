@@ -94,7 +94,7 @@ preloadQueryGraph(query, depth) =
   if (depth > 0 @and query)
     [
       r <- query.responses
-      preloadQueryGraph(r.query()!, depth - 1)!
+      preloadQueryGraph(r.query(preload = false)!, depth - 1)!
     ]
 
 module.exports(api = lexemeApi()) =
@@ -110,9 +110,14 @@ module.exports(api = lexemeApi()) =
           text = r.text
           notes = r.notes
 
-          query() =
+          query(preload = true) =
             if (@not self._query)
               self._query = nextQueryForResponse(r, context)
+
+              if (preload)
+                @{
+                  preloadQueryGraph(self._query!, 4)!
+                }()
 
             self._query
         }
