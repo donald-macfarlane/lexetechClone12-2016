@@ -63,15 +63,13 @@ module.exports () =
       length() =
         block(blockId)!.length
 
-      coherenceIndexForQueryId(id) =
-        index = block(blockId)!.indexOf(id)
-
-        if (index < 0)
-          throw (new (Error "no such query id #(JSON.stringify(id)) in block #(blockId)"))
-
-        index
-
-      queryIds() =
-        block(blockId)!
+      queries() =
+        promise! @(result, error)
+          client.mget.apply (client) [[q <- block(blockId)!, "query_#(q)"], ...,  @(er, queries)
+            if (er)
+              error(er)
+            else
+              result [q <- queries, JSON.parse(q)]
+          ]
     }
   }

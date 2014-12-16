@@ -5,12 +5,7 @@ app = express()
 app.get '/blocks/:id' @(req, res)
   db = app.get 'db'
 
-  res.send (db.block(req.param 'id').queryIds()!)
-
-app.get '/queries/:id' @(req, res)
-  db = app.get 'db'
-
-  res.send (db.queryById(req.param 'id')!)
+  res.send (db.block(req.param 'id').queries()!)
 
 app.post '/lexicon' @(req, res)
   db = app.get 'db'
