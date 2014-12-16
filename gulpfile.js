@@ -48,12 +48,14 @@ gulp.task('watch-css', function () {
     .pipe(sourcemaps.init())
     .pipe(less({lineNumbers: 'all'}))
     .pipe(sourcemaps.write('.'))
+    .on('error', gutil.log.bind(gutil, 'Less Error'))
     .pipe(gulp.dest('server/generated'));
 });
 
 gulp.task('css', function () {
   gulp.src('browser/style/app.less')
     .pipe(less())
+    .on('error', gutil.log.bind(gutil, 'Less Error'))
     .pipe(gulp.dest('server/generated'));
 });
 
