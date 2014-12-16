@@ -22,22 +22,6 @@ Then(/^the doctor makes the following notes:$/) do |string|
   end
 end
 
-def create_user(email, password)
-  visit '/'
-  click_on "Sign up"
-  fill_in "Email", with: email
-  fill_in "Password", with: password
-  click_on "Create"
-end
-
-def login(email, password)
-  visit '/'
-  click_on "Log in"
-  fill_in "Email", with: email
-  fill_in "Password", with: password
-  click_on "Login"
-end
-
 When(/^I create a new user with email address "(.*?)" and password "(.*?)"$/) do |email, password|
   create_user(email, password)
 end
