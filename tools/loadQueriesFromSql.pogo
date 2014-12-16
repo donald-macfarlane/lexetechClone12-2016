@@ -102,26 +102,33 @@ module.exports(connectionInfo) =
         else
           []
 
-    unsortedQueries = _.values(queriesById)
-
-    sortedQueries = unsortedQueries.sort @(left, right)
-      block = compare(left.block, right.block)
-      if (block != 0)
-        block
-      else
-        major = compare(left.navMajor, right.navMajor)
-        if (major != 0)
-          major
-        else
-          compare(left.navMinor, right.navMinor)
-
-    sortedQueries.forEach @(q)
-      delete(q.navMajor)
-      delete(q.navMinor)
-
-    sortedQueries
+    blocks = _.groupBy(_.values(queriesById), 'block')
+    {
+      blocks = [
+        bkey <- Object.keys(blocks)
+        {
+          id = bkey
+          queries = sortQueriesByCoherenceOrder(blocks.(bkey))
+        }
+      ]
+    }
   finally
     db.close()!
+
+sortQueriesByCoherenceOrder(queries) =
+  sortedQueries = queries.sort @(left, right)
+    major = compare(left.navMajor, right.navMajor)
+    if (major != 0)
+      major
+    else
+      compare(left.navMinor, right.navMinor)
+
+  sortedQueries.forEach @(q)
+    delete(q.navMajor)
+    delete(q.navMinor)
+
+  sortedQueries
+
 
 compare(a, b) =
   if (a > b)

@@ -77,7 +77,7 @@ block (block) inActiveBlocks (blocks) =
 
 module.exports(api = lexemeApi()) =
   {
-    firstQueryGraph(maxDepth = 4) =
+    firstQueryGraph(maxDepth = 1) =
       query = api.block(1).query(0)!
 
       context = createContext {

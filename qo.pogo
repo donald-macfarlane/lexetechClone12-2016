@@ -50,8 +50,8 @@ task 'load-from-file' @(args, env = 'dev')
   queries = JSON.parse(fs.readFile (file, 'utf-8')!)
 
   envs = {
-    prod = 'http://api:squidandeels@lexetech.herokuapp.com/api/queries' 
-    dev = 'http://api:squidandeels@localhost:8000/api/queries' 
+    prod = 'http://api:squidandeels@lexetech.herokuapp.com/api/lexicon' 
+    dev = 'http://api:squidandeels@localhost:8000/api/lexicon' 
   }
 
   body = httpism.post (envs.(env)) (queries)!.body

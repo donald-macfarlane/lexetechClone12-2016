@@ -22,7 +22,6 @@ module.exports (buildGraph) =
   createResponse = prototype {
     setQuery (query) =
       self._query = query
-      delete (self.parentQuery.partial)
       query
 
     query() =
@@ -40,7 +39,6 @@ module.exports (buildGraph) =
       createQuery {
         query = query
         context = context
-        partial = true
         responses = []
       }
   }
