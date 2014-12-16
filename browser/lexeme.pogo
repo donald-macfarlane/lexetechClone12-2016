@@ -16,6 +16,11 @@ module.exports (element, queryApi, pageData, options) =
       handler = require './routes/notFound'
     }
     Route {
+      name = 'authoring'
+      path = '/authoring'
+      handler = require './routes/authoring'
+    }
+    Route {
       name = 'login'
       path = '/login'
       handler = require './routes/login'
