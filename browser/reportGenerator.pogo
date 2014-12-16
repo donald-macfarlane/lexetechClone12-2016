@@ -6,7 +6,7 @@ module.exports = React.createFactory(React.createClass {
 
   getInitialState () =
     {
-      query = { text = '', responses = [] }
+      query = { query = { text = '' }, responses = [] }
       responses = []
     }
 
@@ -25,30 +25,30 @@ module.exports = React.createFactory(React.createClass {
     r "div" (nil) (
       if (self.state.query)
         r "div" { className = 'query' } (
-          r "div" { className =  'text' } (self.state.query.text)
+          r "div" { className =  'text' } (self.state.query.query.text)
           r "ul" {} [
             response <- self.state.query.responses
             responseSelected () =
               self.selectResponse(response)
 
             r "li" {
-              key = response.id
+              key = response.response.id
             } (
               r 'button' {
                 onClick = responseSelected
                 className = 'response'
-              } (response.text)
+              } (response.response.text)
             )
           ]
         )
       else
         r "div" { className = 'finished' } "finished"
 
-      r "div" { className = 'notes', dangerouslySetInnerHTML = { __html = [ n <- self.state.responses, n.notes, n.notes ].join ' '} }
+      r "div" { className = 'notes', dangerouslySetInnerHTML = { __html = [ n <- self.state.responses, n.response.notes, n.response.notes ].join ' '} }
     )
 
   componentDidMount () =
     self.setState {
-      query = self.props.queryApi.firstQuery()!
+      query = self.props.queryApi.firstQueryGraph()!
     }
 })

@@ -1,6 +1,6 @@
 lexeme = require './lexeme'
-queryApi = require './queryApi'
+buildGraph = require './buildGraph'
 
 element = document.createElement 'div'
 document.body.appendChild(element)
-lexeme(element, queryApi(), window.lexemeData)
+lexeme(element, buildGraph(), window.lexemeData)

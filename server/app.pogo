@@ -3,6 +3,7 @@ bodyParser = require 'body-parser'
 passport = require 'passport'
 session = require 'express-session'
 BasicStrategy = require 'passport-http'.BasicStrategy
+api = require './api'
 
 apiUsers = require './apiUsers.json'
 users = require './users.pogo'
@@ -26,9 +27,6 @@ app.set 'db' (redisDb())
 passport.serializeUser(User.serializeUser())
 passport.deserializeUser(User.deserializeUser())
 
-buildGraph = require './buildGraph'
-queryGraph = require './queryGraph'
-
 passport.use (new (BasicStrategy @(username, password, done)
   if (apiUsers."#(username):#(password)")
     done(nil, { username = username })
@@ -46,16 +44,7 @@ app.use '/api' @(req, res, next)
   else
     basicAuth(req, res, next)
 
-app.post '/api/lexicon' @(req, res)
-  db = app.get 'db'
-  db.setLexicon(req.body)!
-  res.status(201).send({ status = 'success' })
-
-app.get '/api/queries/first/graph' @(req, res)
-  loadGraph(nil, req, res)
-
-app.get '/api/queries/:id/graph' @(req, res)
-  loadGraph(req.param 'id', req, res)
+app.use('/api', api)
 
 app.post '/login' (passport.authenticate 'local' {
   successRedirect = '/'
@@ -75,17 +64,6 @@ app.post '/logout' @(req, res)
 
 app.get '/' @(req, res)
   res.render 'index.html' { user = req.user }
-
-loadGraph (queryId, req, res) =
-  db = app.get 'db'
-  maxDepth = Math.min(10, req.param 'depth') @or 3
-
-  startContext =
-    if (req.param 'context')
-      JSON.parse(req.param 'context')
-
-  graph = buildGraph.buildGraph!(db, queryId, startContext = startContext, maxDepth = maxDepth)
-  res.send (graph)
 
 app.use(express.static(__dirname + '/generated'))
 app.use('/source', express.static(__dirname + '/../browser/style'))

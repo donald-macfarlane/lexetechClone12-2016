@@ -1,4 +1,4 @@
-context = require '../../server/context'
+context = require '../browser/context'
 expect = require 'chai'.expect
 
 describe 'context'

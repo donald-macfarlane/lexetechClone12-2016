@@ -1,6 +1,6 @@
 redis = require 'redis'
 urlUtils = require 'url'
-cache = require './cache'
+cache = require '../common/cache'
 
 createClient(url) =
   if (url)
@@ -70,5 +70,8 @@ module.exports () =
           throw (new (Error "no such query id #(JSON.stringify(id)) in block #(blockId)"))
 
         index
+
+      queryIds() =
+        block(blockId)!
     }
   }

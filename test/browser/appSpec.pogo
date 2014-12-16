@@ -35,63 +35,93 @@ describe 'lexeme'
     div.className = 'test'
     document.body.appendChild(div)
 
-    graphApi = {
-      firstQuery()! = {
-        text = 'Where does it hurt?'
+    queryGraph = {
+      firstQueryGraph()! = {
+        query = {
+          text = 'Where does it hurt?'
+        }
 
         responses = [
           {
-            id = 1
-            text = 'left leg'
+            response = {
+              id = 1
+              text = 'left leg'
+              notes = 'Complaint
+                       ---------
+                       left leg'
+            }
+
             query()! = {
-              text = "Is it bleeding?"
+              query = {
+                text = "Is it bleeding?"
+              }
+
               responses = [
                 {
-                  id = 1
-                  text = 'yes'
+                  response = {
+                    id = 1
+                    text = 'yes'
+                    notes = 'bleeding'
+                  }
+
                   query()! = {
-                    text = "Is it aching?"
+                    query = {
+                      text = "Is it aching?"
+                    }
                     responses = [
                       {
-                        id = 1
-                        text = 'yes'
+                        response = {
+                          id = 1
+                          text = 'yes'
+                        }
+                        query() = nil
                       }
                       {
-                        id = 2
-                        text = 'no'
+                        response = {
+                          id = 2
+                          text = 'no'
+                        }
+                        query() = nil
                       }
                     ]
                   }
-                  notes = 'bleeding'
                 }
                 {
-                  id = 2
-                  text = 'no'
+                  response = {
+                    id = 2
+                    text = 'no'
+                  }
+
                   query()! = {
-                    text = "Is it aching?"
+                    query = {
+                      text = "Is it aching?"
+                    }
                     responses = [
                       {
-                        id = 1
-                        text = 'yes'
+                        response = {
+                          id = 1
+                          text = 'yes'
+                        }
+                        query() = nil
                       }
                       {
-                        id = 2
-                        text = 'no'
+                        response = {
+                          id = 2
+                          text = 'no'
+                        }
+                        query() = nil
                       }
                     ]
                   }
                 }
               ]
             }
-            notes = 'Complaint
-                     ---------
-                     left leg'
           }
         ]
       }
     }
 
-    lexeme(div, graphApi, {user = { email = 'blah@example.com'}})
+    lexeme(div, queryGraph, {user = { email = 'blah@example.com'}})
 
     shouldHaveQuery 'Where does it hurt?'!
     selectResponse 'left leg'!

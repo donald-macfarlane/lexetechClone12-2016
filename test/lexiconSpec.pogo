@@ -1,12 +1,9 @@
 httpism = require 'httpism'
 app = require '../server/app'
 expect = require 'chai'.expect
-memoryDb = require '../server/memoryDb'
-redisDb = require '../server/redisDb'
 lexiconBuilder = require './lexiconBuilder'
-_ = require 'underscore'
-uritemplate = require 'uritemplate'
-queryApi = require '../browser/queryApi'
+buildGraph = require '../browser/buildGraph'
+lexemeApi = require '../browser/lexemeApi'
 
 describe "lexicon"
   port = 12345
@@ -45,17 +42,19 @@ describe "lexicon"
   conversation() =
     query = nil
     response = nil
-    qapi = queryApi {
-      http = {
-        get(url) = api.get (url)!.body
-      }
-      db = db
-    }
+    qapi = buildGraph (
+      api = lexemeApi (
+        http = {
+          get(url) =
+            api.get(url)!.body
+        }
+      )
+    )
     
     {
       shouldAsk (queryText) thenRespondWith (responseText) =
         if (@not query)
-          query := qapi.firstQuery()!
+          query := qapi.firstQueryGraph()!
         else
           query := response.query()!
 

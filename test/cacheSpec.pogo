@@ -1,5 +1,5 @@
 expect = require 'chai'.expect
-cache = require '../../server/cache'
+cache = require '../common/cache'
 
 describe 'cache'
   it 'should only calculate values once per key'
