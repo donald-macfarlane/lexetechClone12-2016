@@ -20,7 +20,7 @@ module.exports () =
 
   block(n) =
     blockCache.cacheBy (n)
-      client.lrange ("block_#(n)", 0, -1, ^)!
+      client.lrange ("block_#(n)_queries", 0, -1, ^)!
 
   {
     clear() =
@@ -39,7 +39,7 @@ module.exports () =
           ]
 
         promise! @(result, error)
-          client.rpush.apply (client) ["block_#(block.id)", [q <- block.queries, q.id], ...,  @(er, re)
+          client.rpush.apply (client) ["block_#(block.id)_queries", [q <- block.queries, q.id], ...,  @(er, re)
             if (er)
               error(er)
             else
@@ -54,6 +54,9 @@ module.exports () =
       blockCache.clear()
 
     queryById(id) = queryById(id)
+
+    createBlock(block) =
+      client.set("block_#(block.id)", block, ^)!
 
     block(blockId) = {
       query(n) =

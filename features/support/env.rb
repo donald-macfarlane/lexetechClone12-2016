@@ -1,3 +1,4 @@
+require 'pry'
 require 'cappie'
 
 Cappie.start(

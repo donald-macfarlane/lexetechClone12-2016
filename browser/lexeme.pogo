@@ -16,10 +16,22 @@ module.exports (element, queryApi, pageData, options) =
       handler = require './routes/notFound'
     }
     Route {
-      name = 'authoring'
       path = '/authoring'
-      handler = require './routes/authoring'
-    }
+      handler = require './routes/authoring/layout'
+    } (
+      Route {
+        name = 'new_block'
+        path = 'blocks/new'
+        handler = require './routes/authoring/blocks/new'
+      }
+      DefaultRoute {
+        name = 'authoring_index'
+        handler = require './routes/authoring/index'
+      }
+      NotFoundRoute {
+        handler = require './routes/notFound'
+      }
+    )
     Route {
       name = 'login'
       path = '/login'
@@ -39,5 +51,10 @@ module.exports (element, queryApi, pageData, options) =
       ReactRouter.HistoryLocation
 
   ReactRouter.run(routes, locationApi) @(Handler)
-    router = React.createElement(Handler, {queryApi = queryApi, user = pageData.user})
+    globalProps = {
+      queryApi = queryApi
+      user = pageData.user
+      http = require 'jquery'
+    }
+    router = React.createElement(Handler, globalProps)
     React.render(router, element)

@@ -6,8 +6,15 @@ When(/^I create the block "(.*?)"$/) do |name|
   @block_name = name
   visit '/authoring'
   click_on 'New Block'
-  fill_in 'new_block_name', with: name
+  fill_in 'Block Name', with: name
   click_on 'Create Block'
+end
+
+Given(/^I am signed in as an author$/) do
+  @doctors_email = "author@surgery.com"
+  @doctors_password = "omgomgomg"
+  api.sign_up(@doctors_email, @doctors_password)
+  login(@doctors_email, @doctors_password)
 end
 
 Then(/^I should arrive at the block$/) do

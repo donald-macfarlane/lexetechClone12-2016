@@ -1,10 +1,13 @@
 body {
   font-family: helvetica;
+  margin: 0;
+  padding: 0;
 }
 
 h1 {
   margin: 0;
   font-size: 1.4em;
+  margin-bottom: 10px;
 }
 
 form input {
@@ -13,27 +16,59 @@ form input {
 }
 
 .top-menu {
-  .user.logged-in {
-    float: right;
+  background-color: #E7E8D1;
+  height: 50px;
+  line-height: 50px;
+  border-bottom: 1px solid #D3CEAA;
+  .user {
+    display: inline-block;
+    position: absolute;
+    right: 10px;
+    &.logged-in {
+      form.logout {
+        display: inline-block;
+        margin-left: 5px;
 
-    form.logout {
-      display: inline;
+        input[type=submit] {
+          border: none;
+          background-color: transparent;
+          cursor: pointer;
+          color: #8F8B73;
 
-      input[type=submit] {
-        border: none;
-        background-color: transparent;
-        cursor: pointer;
-
-        &:hover {
-          background-color: fade(#669FEC, 20%);
+          &:hover {
+            background-color: fade(#669FEC, 20%);
+          }
         }
       }
     }
-  }
 
-  .user.logged-out {
-    text-align: center;
+    &.logged-out {
+    }
   }
+}
+
+.top-flash {
+  height: 34px;
+  line-height: 34px;
+  padding: 0 10px;
+  border-bottom: 1px solid #efefef;
+
+  .close {
+    float: right;
+    cursor: pointer;
+    font-size: 1.2em;
+    margin-right: 5px;
+  }
+}
+
+.warning {
+  color: #a94442;
+  background-color: #f2dede;
+  border-color: #ebccd1;
+}
+
+.content {
+  padding: 10px;
 }
 
 .query {
@@ -89,5 +124,10 @@ form input {
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
+}
+
+.authoring-menu {
+  position: absolute;
+  right: 10px;
 }
 

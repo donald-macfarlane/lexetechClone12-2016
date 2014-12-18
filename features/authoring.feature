@@ -3,6 +3,9 @@ Feature: Authoring
   To keep the system useful in new and changing domains
   Authors must edit and update queries and responses
 
+  Background: signed in as author
+    Given I am signed in as an author
+
   Scenario: Create block
     Given there are no blocks
     When I create the block "Haematology"
