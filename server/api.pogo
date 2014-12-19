@@ -2,6 +2,10 @@ express = require 'express'
 
 app = express()
 
+app.get '/blocks' @(req, res)
+  db = app.get 'db'
+  res.send(db.listBlocks()!)
+
 app.post '/blocks' @(req, res)
   db = app.get 'db'
   id = db.createBlock(req.body)!
@@ -10,6 +14,10 @@ app.post '/blocks' @(req, res)
 app.get '/blocks/:id' @(req, res)
   db = app.get 'db'
   res.send (db.blockById(req.param 'id')!)
+
+app.post '/blocks/:id' @(req, res)
+  db = app.get 'db'
+  res.send (db.updateBlockById(req.param 'id', { name = req.body.name })!)
 
 app.get '/blocks/:id/queries' @(req, res)
   db = app.get 'db'

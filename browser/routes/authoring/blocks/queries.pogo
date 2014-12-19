@@ -14,6 +14,7 @@ module.exports = React.createFactory(React.createClass {
     path = '/api/blocks/' + self.getParams().id
     self.props.http.get(path).done @(response)
       self.setState {
+        id = response.id
         loaded = true
         name = response.name
       }
@@ -21,6 +22,9 @@ module.exports = React.createFactory(React.createClass {
   render() =
     if (self.state.loaded)
       r 'div' {} (
+        r 'div' { className = 'authoring-menu' } (
+          Link { to = 'edit_block', params = { id = self.state.id } } 'Edit Block'
+        )
         r 'h1' {} (self.state.name)
         r 'h2' {} 'Queries'
         if (self.state.queries.length == 0)
@@ -29,5 +33,5 @@ module.exports = React.createFactory(React.createClass {
           r 'label' {} 'TODO: queries'
       )
     else
-      r 'div'
+      r 'div' {} 'Loading...'
 })

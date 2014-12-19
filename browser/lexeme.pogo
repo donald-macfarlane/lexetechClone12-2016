@@ -36,13 +36,12 @@ module.exports (element, queryApi, pageData, options) =
         name = 'block'
         path = 'blocks/:id'
         handler = require './routes/authoring/blocks/queries'
-      } (
-        Route {
-          name = 'edit_block'
-          path = 'edit'
-          handler = require './routes/authoring/blocks/new'
-        }
-      )
+      }
+      Route {
+        name = 'edit_block'
+        path = 'blocks/:id/edit'
+        handler = require './routes/authoring/blocks/edit'
+      }
     )
     Route {
       name = 'login'

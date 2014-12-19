@@ -1,6 +1,7 @@
 redis = require 'redis'
 urlUtils = require 'url'
 cache = require '../common/cache'
+_ = require 'underscore'
 
 createClient(url) =
   if (url)
@@ -55,6 +56,14 @@ module.exports () =
 
     queryById(id) = queryById(id)
 
+    listBlocks()! =
+      blockIds = client.keys("block_*", ^)!
+      blocks = [
+        block <- client.mget(blockIds, ^)!
+        JSON.parse(block)
+      ]
+      _.sortBy(blocks, @(b) @{ b.name })
+
     blockById(id)! =
       JSON.parse(client.get("block_#(id)", ^)!)
 
@@ -63,6 +72,12 @@ module.exports () =
       block.id = id
       client.set("block_#(id)", JSON.stringify(block), ^)!
       id
+
+    updateBlock(id, block)! =
+      b = self.blockById(id)!
+      b.name = block.name
+      client.set("block_#(id)", JSON.stringify(b), ^)!
+      true
 
     blockQueries(blockId)! =
       queryIds = block(blockId)!

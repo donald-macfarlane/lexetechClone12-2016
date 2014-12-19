@@ -5,8 +5,29 @@ RouteHandler = React.createFactory(ReactRouter.RouteHandler)
 r = React.createElement
 
 module.exports = React.createFactory(React.createClass {
+  getInitialState() =
+    { blocks = [] }
+
+  componentDidMount() =
+    path = '/api/blocks'
+    self.props.http.get(path).done @(response)
+      self.setState {
+        loaded = true
+        blocks = response
+      }
+
   render() =
-    r 'div' { className = 'authoring-menu' } (
-      Link { to = 'new_block' } 'New Block'
+    r 'div' { className = 'authoring-index'} (
+      r 'div' { className = 'authoring-menu' } (
+        Link { to = 'new_block' } 'New Block'
+      )
+      r 'h1' {} 'Blocks'
+      r 'ul' { className = 'block-list' } (
+        [
+          block <- self.state.blocks
+          r 'li' {} (Link { to = 'block', params = { id = block.id } } (block.name))
+        ]
+        ...
+      )
     )
 })
