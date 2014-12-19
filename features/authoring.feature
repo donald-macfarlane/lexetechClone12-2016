@@ -21,6 +21,7 @@ Feature: Authoring
     When I add the query "HPI:ChestPain Pain radiation"
     Then I can add responses to the query
 
+  @wip
   Scenario: Add responses to query
     Given the block "Haematology" exists
     And the query "HPI:ChestPain Pain radiation" exists
