@@ -1,12 +1,17 @@
 React = require 'react'
 ReactRouter = require 'react-router'
+Navigation = ReactRouter.Navigation
 Link = React.createFactory(ReactRouter.Link)
-RouteHandler = React.createFactory(ReactRouter.RouteHandler)
 r = React.createElement
 
 module.exports = React.createFactory(React.createClass {
+  mixins = [Navigation]
+
+  getInitialState() =
+    { name = '' }
+
   render() =
-    r 'div' { className = 'authoring' } (
-      RouteHandler.call(self, self.props)
+    r 'div' {} (
+      r 'h1' {} 'Edit Block'
     )
 })

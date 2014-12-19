@@ -18,7 +18,7 @@ describe "query api"
 
   it 'can insert blocks'
     db.clear()!
-    response = api.post('/api/blocks', { id = 'xyz' })!
+    response = api.post('/api/blocks', { })!
     expect(response.statusCode).to.equal(201)
-    block = db.block('xyz')!
-    expect(block).to.exist
+    blockId = response.body.block.id
+    expect(db.blockById(blockId)!).to.exist

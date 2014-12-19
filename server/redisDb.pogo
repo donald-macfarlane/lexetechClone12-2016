@@ -20,7 +20,7 @@ module.exports () =
 
   block(n) =
     blockCache.cacheBy (n)
-      client.lrange ("block_#(n)_queries", 0, -1, ^)!
+      client.lrange("block_#(n)_queries", 0, -1, ^)!
 
   {
     clear() =
@@ -55,28 +55,25 @@ module.exports () =
 
     queryById(id) = queryById(id)
 
-    createBlock(block) =
-      client.set("block_#(block.id)", block, ^)!
+    blockById(id)! =
+      JSON.parse(client.get("block_#(id)", ^)!)
 
-    block(blockId) = {
-      query(n) =
-        queryId = block(blockId)!.(n)
-        queryById(queryId)!
+    createBlock(block)! =
+      id = client.incr("next_block_id", ^)!
+      block.id = id
+      client.set("block_#(id)", JSON.stringify(block), ^)!
+      id
 
-      length() =
-        block(blockId)!.length
-
-      queries() =
-        queryIds = block(blockId)!
-        if (queryIds.length > 0)
-          promise! @(result, error)
-            client.mget.apply (client) [[q <- queryIds, "query_#(q)"], ...,  @(er, queries)
-              if (er)
-                error(er)
-              else
-                result [q <- queries, JSON.parse(q)]
-            ]
-        else
-          []
-    }
+    blockQueries(blockId)! =
+      queryIds = block(blockId)!
+      if (queryIds.length > 0)
+        promise! @(result, error)
+          client.mget.apply (client) [[q <- queryIds, "query_#(q)"], ...,  @(er, queries)
+            if (er)
+              error(er)
+            else
+              result [q <- queries, JSON.parse(q)]
+          ]
+      else
+        []
   }

@@ -10,6 +10,7 @@ module.exports (element, queryApi, pageData, options) =
 
   routes = Route { handler = require './routes/layout' } (
     DefaultRoute {
+      name = 'reports'
       handler = require './routes/home'
     }
     NotFoundRoute {
@@ -19,18 +20,29 @@ module.exports (element, queryApi, pageData, options) =
       path = '/authoring'
       handler = require './routes/authoring/layout'
     } (
-      Route {
-        name = 'new_block'
-        path = 'blocks/new'
-        handler = require './routes/authoring/blocks/new'
-      }
       DefaultRoute {
-        name = 'authoring_index'
+        name = 'authoring'
         handler = require './routes/authoring/index'
       }
       NotFoundRoute {
         handler = require './routes/notFound'
       }
+      Route {
+        name = 'new_block'
+        path = 'blocks/new'
+        handler = require './routes/authoring/blocks/new'
+      }
+      Route {
+        name = 'block'
+        path = 'blocks/:id'
+        handler = require './routes/authoring/blocks/queries'
+      } (
+        Route {
+          name = 'edit_block'
+          path = 'edit'
+          handler = require './routes/authoring/blocks/new'
+        }
+      )
     )
     Route {
       name = 'login'

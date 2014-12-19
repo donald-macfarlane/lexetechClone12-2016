@@ -35,8 +35,8 @@ describe "query api"
     expect(response.statusCode).to.eql 201
     expect(response.body.status).to.equal 'success'
 
-    expect(db.block(1).length()!).to.eql 1
-    query = db.block(1).query(0)!
+    expect(db.blockQueries(1)!.length).to.eql 1
+    query = db.blockQueries(1)!.(0)
 
     expect(query.text).to.eql 'query 1'
     expect(query.responses.0.text).to.eql 'response 1'
@@ -69,8 +69,8 @@ describe "query api"
           ]
         }
       ]
-    )
-    queries = api.get('/api/blocks/1')!.body
+    )!
+    queries = api.get('/api/blocks/1/queries')!.body
     expect(queries.length).to.eql 2
     expect [q <- queries, q.text].to.eql ['query 1', 'query 2']
 
@@ -78,6 +78,6 @@ describe "query api"
     db.clear()!
     db.setLexicon(
       lexicon.blocks []
-    )
-    queries = api.get('/api/blocks/2')!.body
+    )!
+    queries = api.get('/api/blocks/2/queries')!.body
     expect(queries.length).to.eql 0

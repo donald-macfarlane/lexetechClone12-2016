@@ -20,6 +20,31 @@ form input {
   height: 50px;
   line-height: 50px;
   border-bottom: 1px solid #D3CEAA;
+  .tabs {
+    display: inline-block;
+    position: absolute;
+    margin-left: 10px;
+    padding-top: 9px;
+    a, a:visited {
+      margin-right: 5px;
+      padding: 8px 12px;
+      border-radius: 6px 6px 0 0;
+      text-decoration: none;
+      font-weight: normal;
+    }
+    a.active {
+      color: darken(#D3CEAA, 20%);
+      background-color: #fff;
+      border: 1px solid #D3CEAA;
+      border-bottom: none;
+    }
+    a {
+      color: lighten(#E7E8D1, 20%);
+      background-color: #D3CEAA;
+      border: 1px solid #E7E8D1;
+      border-bottom: none;
+    }
+  }
   .user {
     display: inline-block;
     position: absolute;
@@ -68,6 +93,7 @@ form input {
 }
 
 .content {
+  position: relative;
   padding: 10px;
 }
 
@@ -128,6 +154,15 @@ form input {
 
 .authoring-menu {
   position: absolute;
-  right: 10px;
+  top: 20px;
+  right: 15px;
+  a {
+    background-color: #D3CEAA;
+    padding: 8px;
+    border-radius: 3px;
+    border-bottom: 1px solid #aaa;
+    color: white;
+    text-decoration: none;
+  }
 }
 

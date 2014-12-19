@@ -50,7 +50,7 @@ describe "lexicon"
         }
       )
     )
-    
+
     {
       shouldAsk (queryText) thenRespondWith (responseText) =
         if (@not query)

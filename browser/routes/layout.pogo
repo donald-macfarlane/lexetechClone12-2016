@@ -3,8 +3,10 @@ ReactRouter = require 'react-router'
 RouteHandler = React.createFactory(ReactRouter.RouteHandler)
 State = ReactRouter.State
 Navigation = ReactRouter.Navigation
-AuthStatus = require './authStatus'
 r = React.createElement
+
+AuthStatus = require './authStatus'
+TopMenuTabs = require './topMenuTabs'
 
 module.exports = React.createFactory(React.createClass {
   mixins = [Navigation, State]
@@ -29,6 +31,7 @@ module.exports = React.createFactory(React.createClass {
     else
       r 'div' { className = 'main' } (
         r 'div' { className = 'top-menu' } (
+          TopMenuTabs(user = self.props.user)
           AuthStatus(user = self.props.user)
         )
         if (self.state.showFlash)
