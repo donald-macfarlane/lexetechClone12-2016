@@ -1,7 +1,8 @@
-redis = require 'redis'
+redis = require 'then-redis'
 urlUtils = require 'url'
 cache = require '../common/cache'
 _ = require 'underscore'
+bluebird = require 'bluebird'
 
 createClient(url) =
   if (url)
@@ -17,35 +18,22 @@ module.exports () =
   blockCache = cache()
 
   queryById(id) =
-    JSON.parse(client.get("query_#(id)", ^)!)
+    JSON.parse(client.get("query_#(id)")!)
 
   block(n) =
     blockCache.cacheBy (n)
-      client.lrange("block_#(n)_queries", 0, -1, ^)!
+      client.lrange("block_#(n)_queries", 0, -1)!
 
   {
     clear() =
-      client.flushdb(^)!
+      client.flushdb()!
 
     setLexicon(lexicon) =
       self.clear()!
 
       writeBlock(block) =
-        promise! @(result, error)
-          client.mset.apply (client) [[q <- block.queries, i <- ["query_#(q.id)", JSON.stringify(q)], i], ..., @(er, re)
-            if (er)
-              error(er)
-            else
-              result(re)
-          ]
-
-        promise! @(result, error)
-          client.rpush.apply (client) ["block_#(block.id)_queries", [q <- block.queries, q.id], ...,  @(er, re)
-            if (er)
-              error(er)
-            else
-              result(re)
-          ]
+        client.mset ([q <- block.queries, i <- ["query_#(q.id)", JSON.stringify(q)], i], ...)!
+        client.rpush ("block_#(block.id)_queries", [q <- block.queries, q.id], ...)!
 
       [
         block <- lexicon.blocks
@@ -57,38 +45,48 @@ module.exports () =
     queryById(id) = queryById(id)
 
     listBlocks()! =
-      blockIds = client.keys("block_*", ^)!
+      blockIds = client.keys("block_*")!
       blocks = [
-        block <- client.mget(blockIds, ^)!
+        block <- client.mget(blockIds)!
         JSON.parse(block)
       ]
       _.sortBy(blocks, @(b) @{ b.name })
 
     blockById(id)! =
-      JSON.parse(client.get("block_#(id)", ^)!)
+      JSON.parse(client.get("block_#(id)")!)
 
     createBlock(block)! =
-      id = client.incr("next_block_id", ^)!
+      id = client.incr("next_block_id")!
       block.id = id
-      client.set("block_#(id)", JSON.stringify(block), ^)!
+      client.set("block_#(id)", JSON.stringify(block))!
       id
 
-    updateBlock(id, block)! =
+    updateBlockById(id, block)! =
       b = self.blockById(id)!
       b.name = block.name
-      client.set("block_#(id)", JSON.stringify(b), ^)!
+      client.set("block_#(id)", JSON.stringify(b))!
       true
+
+    predicants(predicant) =
+      ids = client.keys("predicant_*")!
+      predicants = [
+        p <- client.mget(ids)!
+        JSON.parse(p)
+      ]
+      _.indexBy(predicants, 'id')
+
+    addPredicant(predicant) =
+      id = client.incr("next_predicant_id")!
+      predicant.id = String(id)
+      client.set "predicant_#(id)" (JSON.stringify(predicant))
 
     blockQueries(blockId)! =
       queryIds = block(blockId)!
       if (queryIds.length > 0)
-        promise! @(result, error)
-          client.mget.apply (client) [[q <- queryIds, "query_#(q)"], ...,  @(er, queries)
-            if (er)
-              error(er)
-            else
-              result [q <- queries, JSON.parse(q)]
-          ]
+        [
+          query <- client.mget ([q <- queryIds, "query_#(q)"], ...)!
+          JSON.parse(query)
+        ]
       else
         []
   }

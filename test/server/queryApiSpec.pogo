@@ -33,7 +33,6 @@ describe "query api"
     ]
     response = api.post('/api/lexicon', l)!
     expect(response.statusCode).to.eql 201
-    expect(response.body.status).to.equal 'success'
 
     expect(db.blockQueries(1)!.length).to.eql 1
     query = db.blockQueries(1)!.(0)
@@ -81,3 +80,14 @@ describe "query api"
     )!
     queries = api.get('/api/blocks/2/queries')!.body
     expect(queries.length).to.eql 0
+
+  describe 'authoring'
+    describe 'predicants'
+      it 'can create a predicant'
+        api.post '/api/predicants' { name = 'predicant 1' }!
+        predicants = api.get '/api/predicants'!.body
+        predicantIds = Object.keys(predicants)
+        expect(predicantIds.length).to.equal 1
+        id = predicantIds.0
+        expect(predicants.(id).id).to.equal(id)
+        expect(predicants.(id).name).to.equal 'predicant 1'

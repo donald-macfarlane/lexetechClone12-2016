@@ -27,7 +27,7 @@ Given(/^I am signed in as an author$/) do
 end
 
 Then(/^I should arrive at the block$/) do
-  expect(page).to have_content(@block_name)
+  expect(page).to have_link('Edit Block')
 end
 
 Given(/^the block "(.+)" exists$/) do |name|
@@ -35,7 +35,7 @@ Given(/^the block "(.+)" exists$/) do |name|
 end
 
 When(/^I add the query "(.*?)"$/) do |arg1|
-  pending # express the regexp above with the code you wish you had
+  click_on 'Add'
 end
 
 Then(/^I can add responses to the query$/) do

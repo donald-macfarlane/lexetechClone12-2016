@@ -26,6 +26,16 @@ app.get '/blocks/:id/queries' @(req, res)
 app.post '/lexicon' @(req, res)
   db = app.get 'db'
   db.setLexicon(req.body)!
-  res.status(201).send({ status = 'success' })
+  res.status(201).send({})
+
+app.get '/predicants' @(req, res)
+  db = app.get 'db'
+  predicants = db.predicants()!
+  res.send(predicants)
+
+app.post '/predicants' @(req, res)
+  db = app.get 'db'
+  db.addPredicant(req.body)!
+  res.status(201).send({})
 
 module.exports = app

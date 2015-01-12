@@ -38,6 +38,11 @@ module.exports (element, queryApi, pageData, options) =
         handler = require './routes/authoring/blocks/queries'
       }
       Route {
+        name = 'new_query'
+        path = 'blocks/:id/newquery'
+        handler = require './routes/authoring/blocks/newQuery'
+      }
+      Route {
         name = 'edit_block'
         path = 'blocks/:id/edit'
         handler = require './routes/authoring/blocks/edit'

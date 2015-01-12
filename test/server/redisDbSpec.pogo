@@ -27,7 +27,7 @@ describe 'redisDb'
 
   it 'updates blocks'
     id = db.createBlock({ name = 'Block X' })!
-    db.updateBlock(id, { name = 'Block Y' })!
+    db.updateBlockById(id, { name = 'Block Y' })!
     expect(db.listBlocks()!).to.eql [
       { id = 1, name = 'Block Y' }
     ]
