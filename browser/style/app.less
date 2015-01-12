@@ -169,8 +169,16 @@ form input {
 .predicant-select {
   display: inline-block;
 
+  input[type=text] {
+    outline: none;
+  }
+
   ol {
-    max-height: 400px;
+    max-height: 200px;
     overflow-y: scroll;
+  }
+
+  ol:not(.show) {
+    display: none;
   }
 }

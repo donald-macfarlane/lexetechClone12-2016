@@ -55,17 +55,41 @@ module.exports = React.createFactory(React.createClass {
 })
 
 predicantSelect = React.createFactory(React.createClass {
-  getInitialState () = { search = '' }
+  getInitialState () = { search = '', show = false }
   searchChange(ev) =
     self.setState {
       search = ev.target.value
     }
 
+  focus() =
+    self.setState {
+      show = true
+    }
+
+  blur(ev) =
+    if (@not self.state.activated)
+      self.setState {
+        show = false
+      }
+    else
+      ev.target.focus()
+
+  activate() =
+    self.setState {
+      activated = true
+    }
+
+  disactivate() =
+    self.setState {
+      activated = false
+    }
+
   render() =
     selected = index (self.props.selectedPredicants)
-    r 'div' { className = 'predicant-select' } (
+    r 'div' { className = 'predicant-select', onMouseDown = self.activate, onMouseUp = self.disactivate, onBlur = self.blur, onFocus = self.focus } (
       r 'input' { type = 'text', placeholder = 'search', onChange = self.searchChange, value = self.state.search }
-      r 'ol' {} [
+
+      r 'ol' {className = if (self.state.show) @{ 'show' } else @{''}} [
         k <- Object.keys(self.props.predicants)
         p = self.props.predicants.(k)
 
