@@ -2,10 +2,11 @@ React = require 'react'
 r = React.createElement
 ReactRouter = require 'react-router'
 Navigation = ReactRouter.Navigation
+_ = require 'underscore'
 
 module.exports = React.createFactory(React.createClass {
   getInitialState() =
-    { query = {predicants = []}, predicants = [] }
+    { query = {predicants = [], responses = []}, predicants = [] }
 
   componentDidMount() =
     self.setState {
@@ -17,37 +18,82 @@ module.exports = React.createFactory(React.createClass {
       model.(field) = ev.target.value
       self.setState(self.state)
 
-  addPredicant(predicant) =
-    self.state.query.predicants.push(predicant.id)
-    self.setState({query = self.state.query})
+  addResponse() =
+    self.state.query.responses.push {
+      text = ''
+      predicants = []
+      notes = ''
+      actions = []
+    }
 
-  removePredicant(predicant) =
-    remove (predicant.id) from (self.state.query.predicants)
-    self.setState({query = self.state.query})
+    self.setState {query = self.state.query}
+
+  renderPredicants(predicants) =
+    addPredicant(predicant) =
+      predicants.push(predicant.id)
+      self.setState({query = self.state.query})
+
+    removePredicant(predicant) =
+      remove (predicant.id) from (predicants)
+      self.setState({query = self.state.query})
+
+    r 'div' { className = 'edit-query' } (
+      r 'ol' { className = 'predicants' } [
+        id <- predicants
+        p = self.state.predicants.(id)
+
+        remove() = removePredicant(p)
+
+        r 'li' {} (
+          r 'span' {} (p.name)
+          r 'button' {
+            className = 'remove'
+            onClick = remove
+            dangerouslySetInnerHTML = {
+              __html = '&cross;'
+            }
+          }
+        )
+      ]
+
+      predicantSelect({
+        onAddPredicant = addPredicant
+        onRemovePredicant = removePredicant
+        selectedPredicants = predicants
+        predicants = self.state.predicants
+      })
+    )
 
   render() =
     r 'div' {} 'create query' (
       r 'div' {key = 'name'} (
         r 'label' {} 'Name'
-        r 'input' {type = 'text', onChange = self.bind(self.state.query, 'name') } (self.state.query.name)
+        r 'input' {type = 'text', onChange = self.bind(self.state.query, 'name'), value = self.state.query.name }
       )
       r 'div' {key = 'qtext'} (
         r 'label' {} 'QText'
-        r 'input' {type = 'text', onChange = self.bind(self.state.query, 'text') } (self.state.query.name)
+        r 'input' {type = 'text', onChange = self.bind(self.state.query, 'text'), value = self.state.query.name }
       )
 
+      self.renderPredicants(self.state.query.predicants)
+
       r 'ol' {} [
-        id <- self.state.query.predicants
-        p = self.state.predicants.(id)
-        r 'li' {} (p.name)
+        response <- self.state.query.responses
+        r 'li' {} (
+          r 'div' {} (
+            r 'label' {} 'RText'
+            r 'input' { type = 'text', onChange = self.bind(response, 'text'), value = self.state.query.name }
+          )
+          r 'div' {} (
+            r 'label' {} 'Notes'
+            r 'input' { type = 'text', onChange = self.bind(response, 'notes'), value = self.state.query.notes }
+          )
+          self.renderPredicants(response.predicants)
+        )
       ]
 
-      predicantSelect({
-        onAddPredicant = self.addPredicant
-        onRemovePredicant = self.removePredicant
-        selectedPredicants = self.state.query.predicants
-        predicants = self.state.predicants
-      })
+      r 'button' { onClick = self.addResponse } 'Add'
+
       r 'div' {key = 'json'} (
         r 'pre' ({}, r 'code' ('json', JSON.stringify(self.state.query, nil, 2)))
       )
@@ -85,30 +131,41 @@ predicantSelect = React.createFactory(React.createClass {
     }
 
   render() =
+    predicant (p) matchesSearch (search) =
+      if (self.search == '')
+        true
+      else
+        terms = _.compact(search.toLowerCase().split r/ +/)
+
+        _.all(terms) @(t)
+          p.name.toLowerCase().indexOf(t) >= 0
+
     selected = index (self.props.selectedPredicants)
     r 'div' { className = 'predicant-select', onMouseDown = self.activate, onMouseUp = self.disactivate, onBlur = self.blur, onFocus = self.focus } (
-      r 'input' { type = 'text', placeholder = 'search', onChange = self.searchChange, value = self.state.search }
+      r 'input' { type = 'text', placeholder = 'add predicate', onChange = self.searchChange, value = self.state.search }
 
-      r 'ol' {className = if (self.state.show) @{ 'show' } else @{''}} [
-        k <- Object.keys(self.props.predicants)
-        p = self.props.predicants.(k)
+      r 'div' { className = 'select-list' } (
+        r 'ol' {className = if (self.state.show) @{ 'show' } else @{''}} [
+          k <- Object.keys(self.props.predicants)
+          p = self.props.predicants.(k)
 
-        self.state.search == "" @or p.name.indexOf (self.state.search) != -1
+          predicant (p) matchesSearch (self.state.search)
 
-        selectPredicant() =
-          if (selected.(p.id))
-            self.props.onRemovePredicant(p)
-          else
-            self.props.onAddPredicant(p)
-    
-        r 'li' { onClick = selectPredicant } (
-          r 'span' {} (p.name)
-          r 'span' {} (', id ', p.id)
+          selectPredicant() =
+            if (selected.(p.id))
+              self.props.onRemovePredicant(p)
+            else
+              self.props.onAddPredicant(p)
+      
+          r 'li' { onClick = selectPredicant } (
+            r 'span' {} (p.name)
+            r 'span' {} (', id ', p.id)
 
-          if (selected.(p.id))
-            r 'span' {className = 'selected', dangerouslySetInnerHTML = { __html = '&#x2713;' }}
-        )
-      ]
+            if (selected.(p.id))
+              r 'span' {className = 'selected', dangerouslySetInnerHTML = { __html = '&#x2713;' }}
+          )
+        ]
+      )
     )
 })
 

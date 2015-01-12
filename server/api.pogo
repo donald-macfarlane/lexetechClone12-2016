@@ -35,7 +35,16 @@ app.get '/predicants' @(req, res)
 
 app.post '/predicants' @(req, res)
   db = app.get 'db'
-  db.addPredicant(req.body)!
+  if (req.body :: Array)
+    db.addPredicants(req.body)!
+  else
+    db.addPredicant(req.body)!
+
   res.status(201).send({})
+
+app.delete '/predicants' @(req, res)
+  db = app.get 'db'
+  db.removeAllPredicants()!
+  res.status(204).send({})
 
 module.exports = app

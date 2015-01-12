@@ -40,6 +40,15 @@ module.exports () =
         writeBlock(block)!
       ]
 
+      predicateNames = _.uniq [
+        b <- lexicon.blocks
+        q <- b.queries
+        p <- [q.predicants, ..., [r <- q.responses, rp <- r.predicants, rp], ...]
+        p
+      ]
+
+      self.addPredicants([ name <- predicateNames, { name = name }])!
+
       blockCache.clear()
 
     queryById(id) = queryById(id)
@@ -69,16 +78,39 @@ module.exports () =
 
     predicants(predicant) =
       ids = client.keys("predicant_*")!
-      predicants = [
-        p <- client.mget(ids)!
-        JSON.parse(p)
-      ]
-      _.indexBy(predicants, 'id')
+      if (ids.length > 0)
+        predicants = [
+          p <- client.mget(ids)!
+          JSON.parse(p)
+        ]
+        _.indexBy(predicants, 'id')
+      else
+        []
+
+    removeAllPredicants() =
+      ids = client.keys("predicant_*")!
+      if (ids.length > 0)
+        client.del(ids)!
 
     addPredicant(predicant) =
       id = client.incr("next_predicant_id")!
       predicant.id = String(id)
-      client.set "predicant_#(id)" (JSON.stringify(predicant))
+      client.set "predicant_#(id)" (JSON.stringify(predicant))!
+
+    addPredicants(predicants) =
+      last = client.incrby("next_predicant_id", predicants.length)!
+      first = last - predicants.length
+
+      for each @(pn) in (_.zip(predicants, [(first + 1)..last]))
+        pn.0.id = String(pn.1)
+      
+      client.mset! [
+        p <- predicants
+        key = "predicant_#(p.id)"
+        value = JSON.stringify(p)
+        x <- [key, value]
+        x
+      ] ...
 
     blockQueries(blockId)! =
       queryIds = block(blockId)!

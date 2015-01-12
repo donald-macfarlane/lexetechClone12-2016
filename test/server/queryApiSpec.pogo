@@ -14,12 +14,12 @@ describe "query api"
     db := app.get 'db'
     server := app.listen (port)
     lexicon := lexiconBuilder()
+    db.clear()!
 
   afterEach
     server.close()
 
   it 'can insert queries'
-    db.clear()!
     l = lexicon.queries [
       {
         text 'query 1'
@@ -41,7 +41,6 @@ describe "query api"
     expect(query.responses.0.text).to.eql 'response 1'
 
   it 'can get queries for block'
-    db.clear()!
     db.setLexicon(
       lexicon.blocks [
         {
@@ -74,7 +73,6 @@ describe "query api"
     expect [q <- queries, q.text].to.eql ['query 1', 'query 2']
 
   it 'returns empty list for non-extant block'
-    db.clear()!
     db.setLexicon(
       lexicon.blocks []
     )!
@@ -91,3 +89,29 @@ describe "query api"
         id = predicantIds.0
         expect(predicants.(id).id).to.equal(id)
         expect(predicants.(id).name).to.equal 'predicant 1'
+
+      it 'can create multiple predicants'
+        api.post '/api/predicants' { name = 'predicant 1' }!
+        api.post! '/api/predicants' [
+          { name = 'predicant 2' }
+          { name = 'predicant 3' }
+        ]
+        predicants = api.get '/api/predicants'!.body
+        names = [k <- Object.keys(predicants), p = predicants.(k), p.name]
+        ids = Object.keys(predicants)
+        expect(ids.length).to.equal 3
+
+        for each @(id) in (Object.keys(predicants))
+          predicant = predicants.(id)
+          expect(predicant.id).to.equal(id)
+
+        expect(names).to.contain('predicant 1')
+        expect(names).to.contain('predicant 2')
+        expect(names).to.contain('predicant 3')
+
+      it 'can delete all predicants'
+        api.post '/api/predicants' { name = 'predicant 1' }!
+        api.delete '/api/predicants'!
+        predicants = api.get '/api/predicants'!.body
+        predicantIds = Object.keys(predicants)
+        expect(predicantIds.length).to.equal 0
