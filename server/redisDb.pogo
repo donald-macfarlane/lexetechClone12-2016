@@ -15,14 +15,82 @@ createClient(url) =
 
 module.exports () =
   client = createClient(process.env.REDISCLOUD_URL)
-  blockCache = cache()
 
-  queryById(id) =
-    JSON.parse(client.get("query_#(id)")!)
+  domainObject(name) =
+    {
+      addAll(objects) =
+        if (objects.length > 0)
+          last = client.incrby("last_#(name)_id", objects.length)!
+          first = last - objects.length
 
-  block(n) =
-    blockCache.cacheBy (n)
-      client.lrange("block_#(n)_queries", 0, -1)!
+          for each @(pn) in (_.zip(objects, [(first + 1)..last]))
+            pn.0.id = String(pn.1)
+          
+          client.mset! [
+            p <- objects
+            key = "#(name):#(p.id)"
+            value = JSON.stringify(p)
+            x <- [key, value]
+            x
+          ] ...
+
+      get(id) =
+        JSON.parse(client.get "#(name):#(id)"!)
+
+      add(object) =
+        id = client.incr("last_#(name)_id")!
+        object.id = String(id)
+        client.set("#(name):#(id)", JSON.stringify(object))!
+        object
+
+      update(id, object) =
+        object.id = id
+        client.set("#(name):#(id)", JSON.stringify(object))!
+        object
+
+      remove(id) =
+        client.del("#(name):#(id)")!
+
+      ids() =
+        ids = []
+
+        scan(c) =
+          cursor = if (c == nil)
+            0
+          else if (c == '0')
+            nil
+          else
+            c
+          
+          if (cursor != nil)
+            result = client.scan(cursor, 'match', "#(name):*")!
+            ids.push(result.1, ...)
+            scan(result.0)!
+
+        scan()!
+
+        ids
+
+      list() =
+        ids = self.ids()!
+        console.log('ids', ids)
+        if (ids.length > 0)
+          objects = [
+            p <- client.mget(ids)!
+            JSON.parse(p)
+          ]
+        else
+          []
+
+      removeAll() =
+        ids = self.ids()!
+        if (ids.length > 0)
+          client.del(ids, ...)!
+    }
+
+  blocks = domainObject 'block'
+  predicants = domainObject 'predicant'
+  queries = domainObject 'query'
 
   {
     clear() =
@@ -32,8 +100,10 @@ module.exports () =
       self.clear()!
 
       writeBlock(block) =
-        client.mset ([q <- block.queries, i <- ["query_#(q.id)", JSON.stringify(q)], i], ...)!
-        client.rpush ("block_#(block.id)_queries", [q <- block.queries, q.id], ...)!
+        queries.addAll(block.queries)!
+        id = block.id
+        savedBlock = blocks.add(_.omit(block, 'queries'))!
+        client.rpush ("block_queries:#(savedBlock.id)", [q <- block.queries, q.id], ...)!
 
       [
         block <- lexicon.blocks
@@ -49,74 +119,53 @@ module.exports () =
 
       self.addPredicants([ name <- predicateNames, { name = name }])!
 
-      blockCache.clear()
+    queryById(id) =
+      queries.get(id)!
 
-    queryById(id) = queryById(id)
+    updateQuery(id, query) =
+      queries.update(id, query)!
+      query
 
     listBlocks()! =
-      blockIds = client.keys("block_*")!
-      blocks = [
-        block <- client.mget(blockIds)!
-        JSON.parse(block)
-      ]
-      _.sortBy(blocks, @(b) @{ b.name })
+      b = blocks.list()!
+      _.sortBy(b, 'name')
 
-    blockById(id)! =
-      JSON.parse(client.get("block_#(id)")!)
+    blockById(id) =
+      blocks.get(id)!
 
     createBlock(block)! =
-      id = client.incr("next_block_id")!
-      block.id = id
-      client.set("block_#(id)", JSON.stringify(block))!
-      id
+      blocks.add(block)!
 
     updateBlockById(id, block)! =
-      b = self.blockById(id)!
-      b.name = block.name
-      client.set("block_#(id)", JSON.stringify(b))!
-      true
+      blocks.update(id, block)!
+
+    addQuery(blockId, query) =
+      q = queries.add(query)!
+      client.rpush("block_queries:#(blockId)", q.id)!
+      q
+
+    deleteQuery(blockId, queryId) =
+      queries.remove(queryId)!
+      client.lrem("block_queries:#(blockId)", 1, queryId)!
 
     predicants(predicant) =
-      ids = client.keys("predicant_*")!
-      if (ids.length > 0)
-        predicants = [
-          p <- client.mget(ids)!
-          JSON.parse(p)
-        ]
-        _.indexBy(predicants, 'id')
-      else
-        []
+      _.indexBy(predicants.list()!, 'id')
 
     removeAllPredicants() =
-      ids = client.keys("predicant_*")!
-      if (ids.length > 0)
-        client.del(ids)!
+      predicants.removeAll()!
 
     addPredicant(predicant) =
-      id = client.incr("next_predicant_id")!
-      predicant.id = String(id)
-      client.set "predicant_#(id)" (JSON.stringify(predicant))!
+      predicants.add(predicant)!
 
-    addPredicants(predicants) =
-      last = client.incrby("next_predicant_id", predicants.length)!
-      first = last - predicants.length
-
-      for each @(pn) in (_.zip(predicants, [(first + 1)..last]))
-        pn.0.id = String(pn.1)
-      
-      client.mset! [
-        p <- predicants
-        key = "predicant_#(p.id)"
-        value = JSON.stringify(p)
-        x <- [key, value]
-        x
-      ] ...
+    addPredicants(p) =
+      predicants.addAll(p)!
 
     blockQueries(blockId)! =
-      queryIds = block(blockId)!
+      queryIds = client.lrange("block_queries:#(blockId)", 0, -1)!
+
       if (queryIds.length > 0)
         [
-          query <- client.mget ([q <- queryIds, "query_#(q)"], ...)!
+          query <- client.mget ([q <- queryIds, "query:#(q)"], ...)!
           JSON.parse(query)
         ]
       else

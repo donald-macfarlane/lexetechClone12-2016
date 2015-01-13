@@ -11,7 +11,7 @@ module.exports = React.createFactory(React.createClass {
     { name = '' }
 
   componentDidMount() =
-    path = '/api/blocks/' + self.getParams().id
+    path = '/api/blocks/' + self.getParams().blockId
     self.props.http.get(path).done @(response)
       self.setState {
         id = response.id
@@ -37,8 +37,8 @@ module.exports = React.createFactory(React.createClass {
 
   submitForm(e) =
     e.preventDefault()
-    id = self.getParams().id
+    id = self.getParams().blockId
     path = '/api/blocks/' + id
     response = self.props.http.post(path, { name = self.state.name })!
-    self.transitionTo('block', id: id)
+    self.transitionTo('block', blockId: id)
 })

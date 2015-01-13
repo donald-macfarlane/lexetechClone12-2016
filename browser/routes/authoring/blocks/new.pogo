@@ -28,5 +28,5 @@ module.exports = React.createFactory(React.createClass {
     self.props.http.post('/api/blocks', { name = self.state.name }).done (self.redirectToBlock)
 
   redirectToBlock (response) =
-    self.transitionTo('block', id: response.block.id)
+    self.transitionTo('block', blockId: response.id)
 })

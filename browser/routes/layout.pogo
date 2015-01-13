@@ -15,7 +15,7 @@ module.exports = React.createFactory(React.createClass {
     { warning = nil, showFlash = false }
 
   componentDidMount() =
-    self.props.http(document).ajaxError @(event, jqxhr, settings, thrownError)
+    self.props.http.onError @(event, jqxhr, settings, thrownError)
       message = jqxhr.responseText || "Unknown. Are you online?"
       self.setState({
         showFlash = true

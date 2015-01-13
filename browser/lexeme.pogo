@@ -28,23 +28,28 @@ module.exports (element, queryApi, pageData, options) =
         handler = require './routes/notFound'
       }
       Route {
-        name = 'new_block'
-        path = 'blocks/new'
-        handler = require './routes/authoring/blocks/new'
+        name = 'create_block'
+        path = 'blocks/create'
+        handler = require './routes/authoring/blocks/block'
       }
       Route {
         name = 'block'
-        path = 'blocks/:id'
-        handler = require './routes/authoring/blocks/queries'
+        path = 'blocks/:blockId'
+        handler = require './routes/authoring/blocks/block'
       }
       Route {
-        name = 'new_query'
-        path = 'blocks/:id/newquery'
-        handler = require './routes/authoring/blocks/newQuery'
+        name = 'create_query'
+        path = 'blocks/:blockId/queries/create'
+        handler = require './routes/authoring/blocks/queries/query'
+      }
+      Route {
+        name = 'query'
+        path = 'blocks/:blockId/queries/:queryId'
+        handler = require './routes/authoring/blocks/queries/query'
       }
       Route {
         name = 'edit_block'
-        path = 'blocks/:id/edit'
+        path = 'blocks/:blockId/edit'
         handler = require './routes/authoring/blocks/edit'
       }
     )
@@ -70,7 +75,7 @@ module.exports (element, queryApi, pageData, options) =
     globalProps = {
       queryApi = queryApi
       user = pageData.user
-      http = require 'jquery'
+      http = require './http'
     }
     router = React.createElement(Handler, globalProps)
     React.render(router, element)

@@ -8,8 +8,8 @@ app.get '/blocks' @(req, res)
 
 app.post '/blocks' @(req, res)
   db = app.get 'db'
-  id = db.createBlock(req.body)!
-  res.status(201).send({ status = 'success', block = { id = id } })
+  block = db.createBlock(req.body)!
+  res.status(201).send(block)
 
 app.get '/blocks/:id' @(req, res)
   db = app.get 'db'
@@ -23,6 +23,27 @@ app.get '/blocks/:id/queries' @(req, res)
   db = app.get 'db'
   res.send (db.blockQueries(req.param 'id')!)
 
+app.get '/blocks/:blockId/queries/:queryId' @(req, res)
+  db = app.get 'db'
+  query = db.queryById(req.param 'queryId')!
+  if (query)
+    res.send (query)
+  else
+    res.status(404).send({})
+
+app.post '/blocks/:blockId/queries/:queryId' @(req, res)
+  db = app.get 'db'
+  res.send (db.updateQuery(req.param 'queryId', req.body)!)
+
+app.delete '/blocks/:blockId/queries/:queryId' @(req, res)
+  db = app.get 'db'
+  db.deleteQuery(req.param 'blockId', req.param 'queryId')!
+  res.send {}
+
+app.post '/blocks/:id/queries' @(req, res)
+  db = app.get 'db'
+  res.send (db.addQuery(req.param 'id', req.body)!)
+
 app.post '/lexicon' @(req, res)
   db = app.get 'db'
   db.setLexicon(req.body)!
@@ -31,6 +52,7 @@ app.post '/lexicon' @(req, res)
 app.get '/predicants' @(req, res)
   db = app.get 'db'
   predicants = db.predicants()!
+  console.log('preds', predicants)
   res.send(predicants)
 
 app.post '/predicants' @(req, res)

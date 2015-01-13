@@ -80,6 +80,68 @@ describe "query api"
     expect(queries.length).to.eql 0
 
   describe 'authoring'
+    describe 'blocks'
+      it 'can create a block'
+        block = api.post!('/api/blocks', {
+          name = 'a block'
+        }).body
+
+        blocks = api.get! '/api/blocks'.body
+        expect(blocks.length).to.equal(1)
+        expect(blocks.0.name).to.equal('a block')
+        expect(blocks.0.id).to.equal(block.id)
+
+    describe 'queries'
+      block = nil
+
+      beforeEach
+        block := api.post!('/api/blocks', {
+          name = 'a block'
+        }).body
+
+      it 'can insert a query into a block'
+        query = api.post!("/api/blocks/#(block.id)/queries", {
+          name = 'a query'
+        }).body
+
+        queries = api.get! "/api/blocks/#(block.id)/queries".body
+
+        expect(queries.length).to.equal 1
+        expect(queries.0.id).to.equal(query.id)
+        expect(queries.0.name).to.equal('a query')
+
+      context 'when a query is added'
+        newQuery = nil
+        beforeEach
+          newQuery := api.post!("/api/blocks/#(block.id)/queries", {
+            name = 'a query'
+          }).body
+
+        it 'can get the query'
+          query = api.get! "/api/blocks/#(block.id)/queries/#(newQuery.id)".body
+
+          expect(query.id).to.equal(newQuery.id)
+          expect(query.name).to.equal('a query')
+
+        it 'can update the query'
+          api.post! "/api/blocks/#(block.id)/queries/#(newQuery.id)" {
+            name = 'a new name'
+          }
+
+          query = api.get! "/api/blocks/#(block.id)/queries/#(newQuery.id)".body
+
+          expect(query.id).to.equal(newQuery.id)
+          expect(query.name).to.equal('a new name')
+
+        it 'can delete the query'
+          api.delete! "/api/blocks/#(block.id)/queries/#(newQuery.id)"
+
+          response = api.get! "/api/blocks/#(block.id)/queries/#(newQuery.id)" (exceptions = false)
+          expect(response.statusCode).to.equal 404
+
+          queries = api.get! "/api/blocks/#(block.id)/queries".body
+          expect(queries.length).to.equal 0
+
     describe 'predicants'
       it 'can create a predicant'
         api.post '/api/predicants' { name = 'predicant 1' }!

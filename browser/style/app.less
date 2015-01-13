@@ -4,12 +4,6 @@ body {
   padding: 0;
 }
 
-h1 {
-  margin: 0;
-  font-size: 1.4em;
-  margin-bottom: 10px;
-}
-
 form input {
   display: block;
   margin-bottom: 15px;
@@ -166,59 +160,201 @@ form input {
   }
 }
 
-.edit-query {
-  ol.predicants {
+.edit-query, .edit-block {
+  ul {
     list-style-type: none;
     padding-left: 0;
-    margin: 0;
     
-    li {
-      button.remove {
-        border: none;
-        background-color: inherit;
-        color: red;
-        outline: none;
-      }
+    & > li {
+      padding: 10px;
     }
   }
 
-  .predicant-select {
-    display: inline-block;
+  button {
+    border: none;
+    background-color: rgba(231, 232, 209, 1);
+    font-size: 15px;
+    border-right: 3px solid #D2D3B5;
+    padding: 5px 10px;
+    outline: none;
+    color: rgb(110, 102, 49);
+  }
 
-    input[type=text] {
-      outline: none;
-      width: 200px;
+  .buttons {
+    float: right;
+
+    button {
+      margin-right: 20px;
     }
 
-    div.select-list {
-      position: relative;
+    button.save {
+      background-color: rgb(113, 159, 231);
+      border-color: rgb(78, 131, 213);
+      color: white;
+    }
 
-      ol {
-        position: absolute;
-        background-color: white;
-        max-height: 200px;
-        overflow-y: scroll;
-        margin: 0;
-        list-style-type: none;
-        padding-left: 0;
-        box-shadow: 2px 2px 20px rgba(0, 0, 0, 0.1);
-        width: 206px;
+    button.create {
+      background-color: #94CF68;
+      border-right: 3px solid #5BAD1C;
+      color: white;
+    }
+    
+    button.cancel {
+      background-color: rgb(244, 138, 138);
+      border-color: rgb(226, 97, 97);
+      color: white;
+    }
+  }
 
-        li {
-          &:hover {
-            cursor: pointer;
-            background-color: rgba(0, 0, 0, 0.1);
-          }
+  input[type=text], textarea {
 
-          .selected {
-            color: green;
-            margin-left: 20px;
-          }
+    border: none;
+    border-bottom: 2px solid rgb(231, 232, 209);
+    outline: none;
+    background-color: rgba(231, 232, 209, 0.26);
+    font-size: 16px;
+    width: 200px;
+    padding: 3px 8px;
+    vertical-align: top;
+    color: rgb(94, 90, 67);
+  }
+
+
+  textarea {
+    width: 400px;
+    vertical-align: top;
+  }
+
+  label {
+    min-width: 160px;
+    display: inline-block;
+    margin-top: 4px;
+    font-weight: bold;
+    color: rgb(94, 90, 67);
+  }
+
+  h1, h2, h3 {
+    color: rgb(94, 90, 67);
+  }
+
+  .responses, .queries {
+    & > ol {
+      list-style-type: none;
+      padding-left: 0;
+
+      & > li {
+        margin: 20px 0;
+        background-color: rgba(231, 232, 209, 0.25);
+        position: relative;
+
+        label {
+          min-width: 130px;
         }
       }
+    }
 
-      ol:not(.show) {
-        display: none;
+    & > *:not(:first-child) {
+      margin-left: 20px;
+    }
+
+    button.remove-response, button.remove-query {
+      position: absolute;
+      right: 12px;
+      bottom: 9px;
+    }
+  }
+}
+
+.edit-query {
+  div.predicants {
+    display: inline-block;
+    vertical-align: top;
+
+    & > ol {
+      list-style-type: none;
+      padding-left: 0;
+      margin: 0;
+      
+      & > li {
+        padding: 5px;
+        position: relative;
+
+        span {
+          background-color: rgba(231, 232, 209, 0.41);
+          padding: 2px 4px;
+          border-radius: 6px;
+        }
+
+        &:hover {
+          button.remove-predicant {
+            display: inline-block;
+          }
+        }
+
+        &:last-child {
+          margin-bottom: 10px;
+        }
+
+        button.remove-predicant {
+          display: none;
+          position: absolute;
+          right: 0;
+          top: 0;
+          border: none;
+          background-color: inherit;
+          color: rgb(180, 182, 137);
+          outline: none;
+          font-size: 16px;
+        }
+      }
+    }
+
+    .predicant-select {
+      display: inline-block;
+
+      input[type=text] {
+        &::-webkit-input-placeholder { color: rgba(94, 90, 67, 0.28); }
+        &::-moz-placeholder { color: rgba(94, 90, 67, 0.28); }
+        outline: none;
+        width: 200px;
+      }
+
+      div.select-list {
+        position: relative;
+
+        ol {
+          position: absolute;
+          background-color: white;
+          max-height: 200px;
+          overflow-y: scroll;
+          margin: 0;
+          list-style-type: none;
+          padding-left: 0;
+          box-shadow: 2px 2px 20px rgba(0, 0, 0, 0.1);
+          width: 206px;
+          z-index: 1;
+
+          li {
+            position: relative;
+            padding: 5px;
+
+            &:hover {
+              cursor: pointer;
+              background-color: rgba(0, 0, 0, 0.1);
+            }
+
+            .selected {
+              position: absolute;
+              right: 0;
+              color: green;
+              margin-left: 20px;
+            }
+          }
+        }
+
+        ol:not(.show) {
+          display: none;
+        }
       }
     }
   }
