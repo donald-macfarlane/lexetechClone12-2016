@@ -19,9 +19,8 @@ module.exports = React.createFactory(React.createClass {
 
       b!.queries = q!
 
-      self.setState {
-        block = b!
-      }
+      self.state.block = b!
+      self.setState { block = b! }
 
   queries() =
     path = "/api/blocks/#(self.getParams().blockId)/queries"
@@ -36,7 +35,10 @@ module.exports = React.createFactory(React.createClass {
 
   nameChanged(e) =
     self.state.block.name = e.target.value
-    self.setState { block = self.state.block }
+    self.update()
+
+  update() =
+    self.setState { block = self.state.block, dirty = true }
 
   save() =
     self.props.http.post("/api/blocks/#(self.state.block.id)", _.omit(self.state.block, 'queries'))!
@@ -52,12 +54,15 @@ module.exports = React.createFactory(React.createClass {
   render() =
     r 'div' { className = 'edit-block' } (
       r 'div' { className = 'buttons' } (
-        if (self.state.block.id)
-          r 'button' { className = 'save', onClick = self.save } 'Save'
-        else
+        if (@not self.state.block.id)
           r 'button' { className = 'create', onClick = self.create } 'Create'
+        else if (self.state.dirty)
+          r 'button' { className = 'save', onClick = self.save } 'Save'
 
-        r 'button' { className = 'cancel', onClick = self.cancel } 'Cancel'
+        if (self.state.dirty)
+          r 'button' { className = 'cancel', onClick = self.cancel } 'Cancel'
+        else
+          r 'button' { className = 'cancel', onClick = self.cancel } 'Close'
       )
       r 'h2' {} ('Block ', self.state.block.name)
       r 'ul' {} (

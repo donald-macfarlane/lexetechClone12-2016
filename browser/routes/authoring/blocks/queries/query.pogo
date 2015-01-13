@@ -34,7 +34,7 @@ module.exports = React.createFactory(React.createClass {
   bind(model, field) =
     @(ev)
       model.(field) = ev.target.value
-      self.setState(self.state)
+      self.update()
 
   addResponse() =
     id = ++self.state.lastResponseId
@@ -46,16 +46,19 @@ module.exports = React.createFactory(React.createClass {
       id = id
     }
 
-    self.setState {query = self.state.query}
+    self.update()
+
+  update() =
+    self.setState { query = self.state.query, dirty = true }
 
   renderPredicants(predicants) =
     addPredicant(predicant) =
       predicants.push(predicant.id)
-      self.setState({query = self.state.query})
+      self.update()
 
     removePredicant(predicant) =
       remove (predicant.id) from (predicants)
-      self.setState({query = self.state.query})
+      self.update()
 
     r 'div' { className = 'predicants' } (
       r 'ol' {} [
@@ -98,12 +101,15 @@ module.exports = React.createFactory(React.createClass {
   render() =
     r 'div' { className = 'edit-query' } (
       r 'div' { className = 'buttons' } (
-        if (self.state.query.id)
-          r 'button' { className = 'save', onClick = self.save } 'Save'
-        else
+        if (@not self.state.query.id)
           r 'button' { className = 'create', onClick = self.create } 'Create'
+        else if (self.state.dirty)
+          r 'button' { className = 'save', onClick = self.save } 'Save'
 
-        r 'button' { className = 'cancel', onClick = self.cancel } 'Cancel'
+        if (self.state.dirty)
+          r 'button' { className = 'cancel', onClick = self.cancel } 'Cancel'
+        else
+          r 'button' { className = 'cancel', onClick = self.cancel } 'Close'
       )
       r 'h2' {} 'Query'
       r 'ul' {} (
@@ -129,6 +135,7 @@ module.exports = React.createFactory(React.createClass {
             remove () =
               self.state.query = _.without(self.state.query.responses, response)
               self.setState { query = self.state.query }
+              self.update()
 
             r 'li' { key = response.id } (
               r 'ul' {} (
