@@ -160,7 +160,11 @@ form input {
   }
 }
 
-.edit-query, .edit-block {
+.edit-block-query {
+  display: flex;
+}
+
+.edit-query, .edit-block, .edit-lexicon {
   ul {
     list-style-type: none;
     padding-left: 0;
@@ -206,7 +210,7 @@ form input {
     }
   }
 
-  input[type=text], textarea {
+  input[type=text], input[type=number], textarea {
 
     border: none;
     border-bottom: 2px solid rgb(231, 232, 209);
@@ -237,8 +241,8 @@ form input {
     color: rgb(94, 90, 67);
   }
 
-  .responses, .queries {
-    & > ol {
+  .responses, .queries, .blocks {
+    & > ol, & > ul {
       list-style-type: none;
       padding-left: 0;
 
@@ -246,21 +250,46 @@ form input {
         margin: 20px 0;
         background-color: rgba(231, 232, 209, 0.25);
         position: relative;
+        min-height: 46px;
+
+        a:visited {
+          color: #71672E;
+        }
+
+        a {
+          color: inherit;
+        }
 
         label {
           min-width: 130px;
+        }
+
+        > .buttons {
+          display: none;
+          position: absolute;
+          right: 7px;
+          bottom: 5px;
+
+          button {
+            font-size: 9px;
+            margin-right: 0;
+            margin-left: 10px;
+            border: none;
+            padding: 2px 4px;
+            cursor: pointer;
+          }
+        }
+
+        &:hover {
+          .buttons {
+            display: block;
+          }
         }
       }
     }
 
     & > *:not(:first-child) {
       margin-left: 20px;
-    }
-
-    button.remove-response, button.remove-query {
-      position: absolute;
-      right: 12px;
-      bottom: 9px;
     }
   }
 }

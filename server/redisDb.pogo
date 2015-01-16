@@ -73,7 +73,6 @@ module.exports () =
 
       list() =
         ids = self.ids()!
-        console.log('ids', ids)
         if (ids.length > 0)
           objects = [
             p <- client.mget(ids)!
@@ -138,6 +137,16 @@ module.exports () =
 
     updateBlockById(id, block)! =
       blocks.update(id, block)!
+
+    insertQueryBefore(blockId, queryId, query) =
+      q = queries.add(query)!
+      client.linsert("block_queries:#(blockId)", 'before', queryId, q.id)!
+      q
+
+    insertQueryAfter(blockId, queryId, query) =
+      q = queries.add(query)!
+      client.linsert("block_queries:#(blockId)", 'after', queryId, q.id)!
+      q
 
     addQuery(blockId, query) =
       q = queries.add(query)!

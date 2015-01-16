@@ -142,6 +142,34 @@ describe "query api"
           queries = api.get! "/api/blocks/#(block.id)/queries".body
           expect(queries.length).to.equal 0
 
+        it 'can insert a query into a block before another query'
+          query = api.post!("/api/blocks/#(block.id)/queries", {
+            before = newQuery.id
+            name = 'first query'
+          }).body
+
+          queries = api.get! "/api/blocks/#(block.id)/queries".body
+
+          expect(queries.length).to.equal 2
+          expect(queries.0.id).to.equal(query.id)
+          expect(queries.0.name).to.equal('first query')
+          expect(queries.1.id).to.equal(newQuery.id)
+          expect(queries.1.name).to.equal('a query')
+
+        it 'can insert a query into a block after another query'
+          query = api.post!("/api/blocks/#(block.id)/queries", {
+            after = newQuery.id
+            name = 'last query'
+          }).body
+
+          queries = api.get! "/api/blocks/#(block.id)/queries".body
+
+          expect(queries.length).to.equal 2
+          expect(queries.0.id).to.equal(newQuery.id)
+          expect(queries.0.name).to.equal('a query')
+          expect(queries.1.id).to.equal(query.id)
+          expect(queries.1.name).to.equal('last query')
+
     describe 'predicants'
       it 'can create a predicant'
         api.post '/api/predicants' { name = 'predicant 1' }!

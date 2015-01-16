@@ -3,53 +3,47 @@ r = React.createElement
 ReactRouter = require 'react-router'
 Navigation = ReactRouter.Navigation
 _ = require 'underscore'
+block = require '../block'
 
 module.exports = React.createFactory(React.createClass {
   mixins = [ReactRouter.State, Navigation]
 
   getInitialState() =
-    { query = {predicants = [], responses = []}, predicants = [], lastResponseId = 0 }
+    { query = module.exports.create(), predicants = [], lastResponseId = 0 }
 
   componentDidMount() =
-    query =
-      if (self.getParams().queryId != nil)
-        self.query()
-      else
-        self.state.query
-
     predicants = self.props.http.get('/api/predicants')
 
     self.setState {
       predicants = predicants!
-      query = query!
     }
 
-  query() =
-    query = self.props.http.get("/api/blocks/#(self.getParams().blockId)/queries/#(self.getParams().queryId)")!
-    query.predicants = query.predicants @or []
-    query.actions = query.actions @or []
-    query.responses = query.responses @or []
-    query
-
-  bind(model, field) =
+  bind(model, field, transform) =
     @(ev)
-      model.(field) = ev.target.value
+      if (transform)
+        model.(field) = transform(ev.target.value)
+      else
+        model.(field) = ev.target.value
+
       self.update()
 
   addResponse() =
     id = ++self.state.lastResponseId
-    self.state.query.responses.push {
+    self.props.query.responses.push {
       text = ''
       predicants = []
-      notes = ''
+      styles = {
+        'one' = ''
+        'two' = ''
+      }
       actions = []
       id = id
     }
 
     self.update()
 
-  update() =
-    self.setState { query = self.state.query, dirty = true }
+  update(dirty = true) =
+    self.setState { dirty = dirty }
 
   renderPredicants(predicants) =
     addPredicant(predicant) =
@@ -88,12 +82,20 @@ module.exports = React.createFactory(React.createClass {
     )
 
   save() =
-    self.props.http.post("/api/blocks/#(self.getParams().blockId)/queries/#(self.getParams().queryId)", self.state.query)!
-    self.cancel()
+    self.props.updateQuery(self.props.query)!
+    self.update(dirty = false)
 
   create() =
-    self.props.http.post("/api/blocks/#(self.getParams().blockId)/queries", self.state.query)!
-    self.cancel()
+    self.props.createQuery(self.props.query)!
+    self.update(dirty = false)
+
+  insertBefore() =
+    self.props.insertQueryBefore(self.props.query)!
+    self.update(dirty = false)
+
+  insertAfter() =
+    self.props.insertQueryAfter(self.props.query)!
+    self.update(dirty = false)
 
   cancel() =
     self.transitionTo('block', { blockId = self.getParams().blockId })
@@ -101,13 +103,24 @@ module.exports = React.createFactory(React.createClass {
   render() =
     r 'div' { className = 'edit-query' } (
       r 'div' { className = 'buttons' } (
-        if (@not self.state.query.id)
-          r 'button' { className = 'create', onClick = self.create } 'Create'
-        else if (self.state.dirty)
-          r 'button' { className = 'save', onClick = self.save } 'Save'
 
         if (self.state.dirty)
-          r 'button' { className = 'cancel', onClick = self.cancel } 'Cancel'
+          [
+            r 'button' { className = 'cancel', onClick = self.cancel } 'Cancel'
+
+            if (self.props.query.id)
+              [
+                r 'button' { className = 'save', onClick = self.save } 'Save'
+                r 'button' { className = 'insert-query-before', onClick = self.insertBefore } 'Insert Before'
+                r 'button' { className = 'insert-query-after', onClick = self.insertAfter } 'Insert After'
+              ]
+            else
+              [
+                r 'button' { className = 'create', onClick = self.create } 'Create'
+              ]
+
+            ...
+          ]
         else
           r 'button' { className = 'cancel', onClick = self.cancel } 'Close'
       )
@@ -115,26 +128,29 @@ module.exports = React.createFactory(React.createClass {
       r 'ul' {} (
         r 'li' {key = 'name'} (
           r 'label' {} 'Name'
-          r 'input' {type = 'text', onChange = self.bind(self.state.query, 'name'), value = self.state.query.name }
+          r 'input' {type = 'text', onChange = self.bind(self.props.query, 'name'), value = self.props.query.name }
         )
         r 'li' {key = 'qtext'} (
-          r 'label' {} 'QText'
-          r 'textarea' { onChange = self.bind(self.state.query, 'text') } ( self.state.query.text )
+          r 'label' {} 'Question'
+          r 'textarea' { onChange = self.bind(self.props.query, 'text') } ( self.props.query.text )
+        )
+        r 'li' {key = 'level'} (
+          r 'label' {} 'Level'
+          r 'input' { type = 'number', onChange = self.bind(self.props.query, 'level', Number), value = self.props.query.level }
         )
 
         r 'li' {} (
           r 'label' {} 'Predicants'
-          self.renderPredicants(self.state.query.predicants)
+          self.renderPredicants(self.props.query.predicants)
         )
 
         r 'li' { className = 'responses' } (
           r 'h3' {} 'Responses'
           r 'ol' {} [
-            response <- self.state.query.responses
+            response <- self.props.query.responses
 
             remove () =
-              self.state.query = _.without(self.state.query.responses, response)
-              self.setState { query = self.state.query }
+              self.props.query.responses = _.without(self.props.query.responses, response)
               self.update()
 
             r 'li' { key = response.id } (
@@ -144,8 +160,12 @@ module.exports = React.createFactory(React.createClass {
                   r 'input' { type = 'text', onChange = self.bind(response, 'text'), value = response.name }
                 )
                 r 'li' {} (
-                  r 'label' {} 'Notes'
-                  r 'input' { type = 'text', onChange = self.bind(response, 'notes'), value = response.notes }
+                  r 'label' {} 'Style 1'
+                  r 'textarea' { onChange = self.bind(response.styles, 'one'), value = response.styles.one }
+                )
+                r 'li' {} (
+                  r 'label' {} 'Style 2'
+                  r 'textarea' { onChange = self.bind(response.styles, 'two'), value = response.styles.two }
                 )
                 r 'li' {} (
                   r 'label' {} 'Predicants'
@@ -161,7 +181,7 @@ module.exports = React.createFactory(React.createClass {
       )
 
       r 'div' {key = 'json'} (
-        r 'pre' ({}, r 'code' ('json', JSON.stringify(self.state.query, nil, 2)))
+        r 'pre' ({}, r 'code' ('json', JSON.stringify(self.props.query, nil, 2)))
       )
     )
 })
@@ -258,3 +278,10 @@ index(array) =
     obj.(array.(n)) = true
 
   obj
+
+module.exports.create(obj) =
+  _.extend {
+    responses = []
+    predicants = []
+    level = 0
+  } (obj)

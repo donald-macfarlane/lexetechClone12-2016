@@ -42,7 +42,18 @@ app.delete '/blocks/:blockId/queries/:queryId' @(req, res)
 
 app.post '/blocks/:id/queries' @(req, res)
   db = app.get 'db'
-  res.send (db.addQuery(req.param 'id', req.body)!)
+  query = req.body
+
+  if (query.before)
+    before = query.before
+    delete (query.before)
+    res.send (db.insertQueryBefore(req.param 'id', before, query)!)
+  else if (query.after)
+    after = query.after
+    delete (query.after)
+    res.send (db.insertQueryAfter(req.param 'id', after, query)!)
+  else
+    res.send (db.addQuery(req.param 'id', query)!)
 
 app.post '/lexicon' @(req, res)
   db = app.get 'db'
@@ -52,7 +63,6 @@ app.post '/lexicon' @(req, res)
 app.get '/predicants' @(req, res)
   db = app.get 'db'
   predicants = db.predicants()!
-  console.log('preds', predicants)
   res.send(predicants)
 
 app.post '/predicants' @(req, res)
