@@ -125,6 +125,18 @@ module.exports () =
       queries.update(id, query)!
       query
 
+    moveQueryAfter(blockId, queryId, afterQueryId) =
+      client.multi()
+      client.linsert("block_queries:#(blockId)", 'after', afterQueryId, queryId)
+      client.lrem("block_queries:#(blockId)", 1, queryId)
+      client.exec()!
+
+    moveQueryBefore(blockId, queryId, beforeQueryId) =
+      client.multi()
+      client.linsert("block_queries:#(blockId)", 'before', beforeQueryId, queryId)
+      client.lrem("block_queries:#(blockId)", -1, queryId)
+      client.exec()!
+
     listBlocks()! =
       b = blocks.list()!
       _.sortBy(b, 'name')

@@ -33,7 +33,14 @@ app.get '/blocks/:blockId/queries/:queryId' @(req, res)
 
 app.post '/blocks/:blockId/queries/:queryId' @(req, res)
   db = app.get 'db'
-  res.send (db.updateQuery(req.param 'queryId', req.body)!)
+  query = req.body
+  
+  if (query.after)
+    res.send (db.moveQueryAfter(req.param 'blockId', req.param 'queryId', query.after)!)
+  else if (query.before)
+    res.send (db.moveQueryBefore(req.param 'blockId', req.param 'queryId', query.before)!)
+  else
+    res.send (db.updateQuery(req.param 'queryId', query)!)
 
 app.delete '/blocks/:blockId/queries/:queryId' @(req, res)
   db = app.get 'db'

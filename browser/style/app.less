@@ -252,6 +252,10 @@ form input {
         position: relative;
         min-height: 46px;
 
+        &.selected {
+          background-color: rgb(226, 228, 196);
+        }
+
         a:visited {
           color: #71672E;
         }
@@ -290,6 +294,21 @@ form input {
 
     & > *:not(:first-child) {
       margin-left: 20px;
+    }
+  }
+
+  .queries {
+    > ol > li {
+      cursor: pointer;
+      min-height: inherit;
+
+      .level-indent {
+        border-right: 1px solid rgba(82, 82, 70, 0.13);
+        margin-left: 5px;
+        margin-right: 5px;
+        display: inline-block;
+        min-height: 12px;
+      }
     }
   }
 }

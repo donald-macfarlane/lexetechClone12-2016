@@ -170,6 +170,48 @@ describe "query api"
           expect(queries.1.id).to.equal(query.id)
           expect(queries.1.name).to.equal('last query')
 
+      context 'when there are three queries'
+        query1 = nil
+        query2 = nil
+        query3 = nil
+
+        beforeEach
+          query1 := api.post!("/api/blocks/#(block.id)/queries", {
+            name = 'query 1'
+          }).body
+          query2 := api.post!("/api/blocks/#(block.id)/queries", {
+            name = 'query 2'
+          }).body
+          query3 := api.post!("/api/blocks/#(block.id)/queries", {
+            name = 'query 3'
+          }).body
+
+        it 'can move a query to after another query'
+          api.post!("/api/blocks/#(block.id)/queries/#(query1.id)", {
+            after = query3.id
+          }).body
+
+          queries = api.get! "/api/blocks/#(block.id)/queries".body
+
+          expect([q <- queries, q.name]).to.eql [
+            'query 2'
+            'query 3'
+            'query 1'
+          ]
+
+        it 'can move a query to before another query'
+          api.post!("/api/blocks/#(block.id)/queries/#(query3.id)", {
+            before = query1.id
+          }).body
+
+          queries = api.get! "/api/blocks/#(block.id)/queries".body
+
+          expect([q <- queries, q.name]).to.eql [
+            'query 3'
+            'query 1'
+            'query 2'
+          ]
+
     describe 'predicants'
       it 'can create a predicant'
         api.post '/api/predicants' { name = 'predicant 1' }!

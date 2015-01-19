@@ -3,7 +3,8 @@ r = React.createElement
 ReactRouter = require 'react-router'
 Navigation = ReactRouter.Navigation
 _ = require 'underscore'
-block = require '../block'
+draggable = require '../draggable'
+moveItemInFromTo = require '../moveItemInFromTo'
 
 module.exports = React.createFactory(React.createClass {
   mixins = [ReactRouter.State, Navigation]
@@ -146,36 +147,47 @@ module.exports = React.createFactory(React.createClass {
 
         r 'li' { className = 'responses' } (
           r 'h3' {} 'Responses'
-          r 'ol' {} [
-            response <- self.props.query.responses
+          block
+            render() =
+              r 'ol' {} [
+                response <- self.props.query.responses
 
-            remove () =
-              self.props.query.responses = _.without(self.props.query.responses, response)
+                remove () =
+                  self.props.query.responses = _.without(self.props.query.responses, response)
+                  self.update()
+
+                r 'li' { key = response.id } (
+                  r 'ul' {} (
+                    r 'li' {} (
+                      r 'label' {} 'RText'
+                      r 'input' { type = 'text', onChange = self.bind(response, 'text'), value = response.text }
+                    )
+                    r 'li' {} (
+                      r 'label' {} 'Style 1'
+                      r 'textarea' { onChange = self.bind(response.styles, 'one'), value = response.styles.one }
+                    )
+                    r 'li' {} (
+                      r 'label' {} 'Style 2'
+                      r 'textarea' { onChange = self.bind(response.styles, 'two'), value = response.styles.two }
+                    )
+                    r 'li' {} (
+                      r 'label' {} 'Predicants'
+                      self.renderPredicants(response.predicants)
+                    )
+                  )
+                  r 'button' { className = 'remove-response', onClick = remove } 'Remove'
+                )
+              ]
+
+            itemMoved(from, to) =
+              moveItemIn (self.props.query.responses) from (from) to (to)
               self.update()
 
-            r 'li' { key = response.id } (
-              r 'ul' {} (
-                r 'li' {} (
-                  r 'label' {} 'RText'
-                  r 'input' { type = 'text', onChange = self.bind(response, 'text'), value = response.name }
-                )
-                r 'li' {} (
-                  r 'label' {} 'Style 1'
-                  r 'textarea' { onChange = self.bind(response.styles, 'one'), value = response.styles.one }
-                )
-                r 'li' {} (
-                  r 'label' {} 'Style 2'
-                  r 'textarea' { onChange = self.bind(response.styles, 'two'), value = response.styles.two }
-                )
-                r 'li' {} (
-                  r 'label' {} 'Predicants'
-                  self.renderPredicants(response.predicants)
-                )
-              )
-              r 'button' { className = 'remove-response', onClick = remove } 'Remove'
-            )
-          ]
-          ...
+            draggable {
+              itemMoved = itemMoved
+              render = render
+            }
+
           r 'button' { className = 'add', onClick = self.addResponse } 'Add Response'
         )
       )
@@ -265,6 +277,9 @@ predicantSelect = React.createFactory(React.createClass {
       )
     )
 })
+
+block(b) =
+  b()
 
 remove (item) from (array) =
   i = array.indexOf(item)
