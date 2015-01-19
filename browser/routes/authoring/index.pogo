@@ -27,7 +27,7 @@ module.exports = React.createFactory(React.createClass {
           [
             block <- self.state.blocks
             r 'li' { key = block.id } (Link { to = 'block', params = { blockId = block.id } } (
-              r 'h3' { className = 'block-name' } (block.name)
+              r 'h3' { className = 'block-name' } (block.id, ': ', block.name)
             ))
           ]
           ...

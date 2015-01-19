@@ -98,6 +98,33 @@ module.exports () =
     setLexicon(lexicon) =
       self.clear()!
 
+      writePredicants() =
+        predicateNames = _.uniq [
+          b <- lexicon.blocks
+          q <- b.queries
+          p <- [q.predicants, ..., [r <- q.responses, rp <- r.predicants, rp], ...]
+          p
+        ]
+
+        preds = [name <- predicateNames, { name = name }]
+        self.addPredicants(preds)!
+        predIndex = _.indexBy(preds, 'name')
+
+        predicantContainers = [
+          b <- lexicon.blocks
+          q <- b.queries
+          x <- [q, q.responses, ...]
+          x
+        ]
+
+        for each @(predicantContainer) in (predicantContainers)
+          predicantContainer.predicants = [
+            pred <- predicantContainer.predicants
+            predIndex.(pred).id
+          ]
+
+      writePredicants()!
+
       writeBlock(block) =
         queries.addAll(block.queries)!
         id = block.id
@@ -108,15 +135,6 @@ module.exports () =
         block <- lexicon.blocks
         writeBlock(block)!
       ]
-
-      predicateNames = _.uniq [
-        b <- lexicon.blocks
-        q <- b.queries
-        p <- [q.predicants, ..., [r <- q.responses, rp <- r.predicants, rp], ...]
-        p
-      ]
-
-      self.addPredicants([ name <- predicateNames, { name = name }])!
 
     queryById(id) =
       queries.get(id)!

@@ -57,31 +57,32 @@ module.exports = React.createFactory(React.createClass {
       remove (predicant.id) from (predicants)
       self.update()
 
-    r 'div' { className = 'predicants' } (
-      r 'ol' {} [
-        id <- predicants
-        p = self.state.predicants.(id)
+    if (Object.keys(self.state.predicants).length > 0)
+      r 'div' { className = 'predicants' } (
+        r 'ol' {} [
+          id <- predicants
+          p = self.state.predicants.(id)
 
-        remove() = removePredicant(p)
+          remove() = removePredicant(p)
 
-        r 'li' {} (
-          r 'span' {} (p.name)
-          r 'button' {
-            className = 'remove-predicant'
-            onClick = remove
-            dangerouslySetInnerHTML = {
-              __html = '&cross;'
+          r 'li' {} (
+            r 'span' {} (p.name)
+            r 'button' {
+              className = 'remove-predicant'
+              onClick = remove
+              dangerouslySetInnerHTML = {
+                __html = '&cross;'
+              }
             }
-          }
-        )
-      ]
+          )
+        ]
 
-      predicantSelect({
-        onAddPredicant = addPredicant
-        onRemovePredicant = removePredicant
-        selectedPredicants = predicants
-        predicants = self.state.predicants
-      })
+        predicantSelect({
+          onAddPredicant = addPredicant
+          onRemovePredicant = removePredicant
+          selectedPredicants = predicants
+          predicants = self.state.predicants
+        })
     )
 
   save() =

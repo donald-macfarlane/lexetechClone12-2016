@@ -8,6 +8,7 @@ _ = require 'underscore'
 queryComponent = require './queries/query'
 draggable = require './draggable'
 moveItemInFromTo = require './moveItemInFromTo'
+$ = require 'jquery'
 
 module.exports = React.createFactory(React.createClass {
   mixins = [State, Navigation]
@@ -26,6 +27,33 @@ module.exports = React.createFactory(React.createClass {
         self.setState { selectedQuery = self.query() }
       else if (self.getRoutes().(self.getRoutes().length - 1).name == 'create_query')
         self.setState { selectedQuery = queryComponent.create {} }
+
+    self.repositionQueriesList()
+    self.resizeQueriesDiv()
+
+    addEventListener 'scroll'
+      self.repositionQueriesList()
+
+  componentDidUpdate() =
+    self.resizeQueriesDiv()
+
+  repositionQueriesList() =
+    pxNumber(x) =
+      Number(r/(.*)px$/.exec(x).1)
+
+    element = self.getDOMNode()
+    h3 = $(element).find('.queries > h3')
+    marginBottom = h3.css 'margin-bottom'
+    top = Math.max(0, pxNumber(h3.css 'margin-bottom') + h3.offset().top + h3.height() - Math.max(0, window.scrollY))
+    ol = $(element).find('.queries > ol')
+    ol.css('top', top + 'px')
+
+  resizeQueriesDiv() =
+    element = self.getDOMNode()
+    queriesDiv = $(element).find('.edit-block.query-list')
+    queriesOl = $(element).find('.queries > ol')
+    width = queriesOl.width()
+    queriesDiv.css('min-width', width)
 
   query() =
     [query <- self.state.queries, query.id == self.getParams().queryId, query].0
@@ -105,7 +133,7 @@ module.exports = React.createFactory(React.createClass {
 
   render() =
     r 'div' { className = 'edit-block-query' } (
-      r 'div' { className = 'edit-block' } (
+      r 'div' { className = 'edit-block query-list' } (
         if (self.state.block.id)
           r 'div' { className = 'queries' } (
             r 'h3' {} 'Queries'

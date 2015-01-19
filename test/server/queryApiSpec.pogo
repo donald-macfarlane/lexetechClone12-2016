@@ -247,3 +247,35 @@ describe "query api"
         predicants = api.get '/api/predicants'!.body
         predicantIds = Object.keys(predicants)
         expect(predicantIds.length).to.equal 0
+
+      it 'can insert a lexicon with predicants identified by id'
+        l = lexicon.queries [
+          {
+            text 'query 1'
+
+            predicants = [
+              'pred1'
+              'pred3'
+            ]
+
+            responses = [
+              {
+                text = 'response 1'
+                predicants = [
+                  'pred1'
+                  'pred2'
+                ]
+              }
+            ]
+          }
+        ]
+        api.post('/api/lexicon', l)!
+
+        block = api.get('/api/blocks')!.body.0
+        query = api.get("/api/blocks/#(block.id)/queries")!.body.0
+        predicants = api.get('/api/predicants')!.body
+
+        expect [p <- query.predicants, predicants.(p).name].to.eql [
+          'pred1'
+          'pred3'
+        ]
