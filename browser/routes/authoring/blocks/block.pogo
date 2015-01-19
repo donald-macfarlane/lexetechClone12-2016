@@ -106,6 +106,79 @@ module.exports = React.createFactory(React.createClass {
   render() =
     r 'div' { className = 'edit-block-query' } (
       r 'div' { className = 'edit-block' } (
+        if (self.state.block.id)
+          r 'div' { className = 'queries' } (
+            r 'h3' {} 'Queries'
+
+            if (self.state.queries.length == 0)
+              r 'label' {} 'This block has no queries'
+            else
+              itemMoved(from, to) =
+                q = self.state.queries.(from)
+
+                movement = if (from < to)
+                  {
+                    id = q.id
+                    after = self.state.queries.(to).id
+                  }
+                else
+                  {
+                    id = q.id
+                    before = self.state.queries.(to).id
+                  }
+
+                moveItemIn (self.state.queries) from (from) to (to)
+                self.setState { queries = self.state.queries }
+                self.updateQuery(movement)
+
+              render() =
+                r 'ol' {} [
+                  q <- self.state.queries
+
+                  remove () =
+                    self.state.queries = _.without(self.state.queries, q)
+                    self.props.http.delete ("/api/blocks/#(self.getParams().blockId)/queries/#(q.id)")!
+                    queries = self.props.http.get "/api/blocks/#(self.getParams().blockId)/queries"!
+                    self.setState { queries = queries }
+                    if (q.id == self.state.selectedQuery.id)
+                      self.setState { selectedQuery = nil }
+
+                  selected = self.state.selectedQuery @and self.state.selectedQuery.id == q.id
+
+                  select() =
+                    self.transitionTo 'query' { blockId = self.state.block.id, queryId = q.id }
+
+                  r 'li' { className = if (selected ) @{ 'selected' }, key = q.id, onClick = select } (
+                    r 'h3' { className = 'name' } (
+                      [
+                        i <- [1..(q.level)]
+                        r 'span' { className = 'level-indent' }
+                      ]
+                      q.name
+                    )
+                    r 'div' { className 'buttons' } (
+                      r 'button' {
+                        className = 'remove-query'
+                        onClick = remove
+                        dangerouslySetInnerHTML = {
+                          __html = '&cross;'
+                        }
+                      }
+                    )
+                  )
+                ]
+
+              draggable {
+                itemMoved = itemMoved
+                render = render
+              }
+
+            if (self.state.queries.length == 0)
+              r 'button' { onClick = self.addQuery } 'Add Query'
+          )
+      )
+
+      r 'div' { className = 'edit-block' } (
         r 'div' { className = 'buttons' } (
           if (@not self.state.block.id)
             r 'button' { className = 'create', onClick = self.create } 'Create'
@@ -119,90 +192,17 @@ module.exports = React.createFactory(React.createClass {
               r 'button' { className = 'cancel', onClick = self.cancel } 'Close'
         )
         r 'h2' {} ('Block ', self.state.block.name)
-        r 'ul' {} (
-          r 'li' {} (
-            r 'label' { htmlFor = 'block_name' } 'Name'
-            r 'input' { id = 'block_name', type = 'text', value = self.state.block.name, onChange = self.nameChanged }
-          )
-
-          if (self.state.block.id)
-            r 'li' { className = 'queries' } (
-              r 'h3' {} 'Queries'
-
-              if (self.state.queries.length == 0)
-                r 'label' {} 'This block has no queries'
-              else
-                itemMoved(from, to) =
-                  q = self.state.queries.(from)
-
-                  movement = if (from < to)
-                    {
-                      id = q.id
-                      after = self.state.queries.(to).id
-                    }
-                  else
-                    {
-                      id = q.id
-                      before = self.state.queries.(to).id
-                    }
-
-                  moveItemIn (self.state.queries) from (from) to (to)
-                  self.setState { queries = self.state.queries }
-                  self.updateQuery(movement)
-
-                render() =
-                  r 'ol' {} [
-                    q <- self.state.queries
-
-                    remove () =
-                      self.state.queries = _.without(self.state.queries, q)
-                      self.props.http.delete ("/api/blocks/#(self.getParams().blockId)/queries/#(q.id)")!
-                      queries = self.props.http.get "/api/blocks/#(self.getParams().blockId)/queries"!
-                      self.setState { queries = queries }
-                      if (q.id == self.state.selectedQuery.id)
-                        self.setState { selectedQuery = nil }
-
-                    selected = self.state.selectedQuery @and self.state.selectedQuery.id == q.id
-
-                    select() =
-                      self.transitionTo 'query' { blockId = self.state.block.id, queryId = q.id }
-
-                    r 'li' { className = if (selected ) @{ 'selected' }, key = q.id, onClick = select } (
-                      r 'h3' { className = 'name' } (
-                        [
-                          i <- [1..(q.level)]
-                          r 'span' { className = 'level-indent' }
-                        ]
-                        q.name
-                      )
-                      r 'div' { className 'buttons' } (
-                        r 'button' { className = 'remove-query', onClick = remove } 'Remove'
-                      )
-                    )
-                  ]
-
-                draggable {
-                  itemMoved = itemMoved
-                  render = render
-                }
-
-              if (self.state.queries.length == 0)
-                r 'button' { onClick = self.addQuery } 'Add Query'
-            )
-        )
-
-        r 'div' {key = 'json'} (
-          r 'pre' ({}, r 'code' ('json', JSON.stringify(self.state, nil, 2)))
-        )
+        r 'label' { htmlFor = 'block_name' } 'Name'
+        r 'input' { id = 'block_name', type = 'text', value = self.state.block.name, onChange = self.nameChanged }
+        if (self.state.selectedQuery)
+          queryComponent {
+            http = self.props.http
+            query = self.state.selectedQuery
+            updateQuery = self.updateQuery
+            createQuery = self.createQuery
+            insertQueryBefore = self.insertQueryBefore
+            insertQueryAfter = self.insertQueryAfter
+          }
       )
-      if (self.state.selectedQuery)
-        queryComponent {
-          http = self.props.http
-          query = self.state.selectedQuery
-          updateQuery = self.updateQuery
-          createQuery = self.createQuery
-          insertQueryBefore = self.insertQueryBefore
-          insertQueryAfter = self.insertQueryAfter
-        }
     )
 })

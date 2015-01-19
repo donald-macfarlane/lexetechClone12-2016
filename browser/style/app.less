@@ -291,23 +291,36 @@ form input {
         }
       }
     }
-
-    & > *:not(:first-child) {
-      margin-left: 20px;
-    }
   }
 
   .queries {
-    > ol > li {
-      cursor: pointer;
-      min-height: inherit;
+    min-width: 220px;
 
-      .level-indent {
-        border-right: 1px solid rgba(82, 82, 70, 0.13);
-        margin-left: 5px;
-        margin-right: 5px;
-        display: inline-block;
-        min-height: 12px;
+    > ol {
+      top: 119.4375px;
+      position: fixed;
+      overflow-y: scroll;
+      bottom: 0;
+      margin: 0;
+      margin-left: 0;
+
+      > li {
+        cursor: pointer;
+        min-height: inherit;
+        min-width: 190px;
+
+        h3 {
+          margin-top: 5px;
+          margin-bottom: 5px;
+        }
+
+        .level-indent {
+          border-right: 1px solid rgba(82, 82, 70, 0.13);
+          margin-left: 5px;
+          margin-right: 5px;
+          display: inline-block;
+          min-height: 12px;
+        }
       }
     }
   }
