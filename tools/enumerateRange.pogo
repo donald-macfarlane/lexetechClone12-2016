@@ -7,5 +7,5 @@ module.exports (s) =
     else
       [parseInt(range)]
 
-    n
+    String(n)
   ]

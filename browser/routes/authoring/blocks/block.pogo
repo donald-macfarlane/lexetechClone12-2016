@@ -31,8 +31,11 @@ module.exports = React.createFactory(React.createClass {
     self.repositionQueriesList()
     self.resizeQueriesDiv()
 
-    addEventListener 'scroll'
+    $(window).on 'scroll.repositionQueriesList'
       self.repositionQueriesList()
+
+  componentWillUnmount() =
+    $(window).off 'scroll.repositionQueriesList'
 
   componentDidUpdate() =
     self.resizeQueriesDiv()

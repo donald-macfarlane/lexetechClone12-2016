@@ -42,6 +42,7 @@ module.exports = function (options) {
       }
 
       addEventListener(list, 'dragover', function (e) {
+        console.log('dragover');
         if (!$.contains(list, e.target) || !self.dragged) {
           return;
         }
@@ -53,7 +54,9 @@ module.exports = function (options) {
         e.preventDefault();
 
         self.dragged.style.display = "none";
-        if(target.className == "placeholder") return;
+        if(target == placeholder) return;
+        if(target == self.dragged) return;
+        console.log('dragover not placeholder, and not dragged');
         self.over = target;
         // Inside the dragOver method
         var relY = e.clientY + window.scrollY - $(self.over).offset().top;
@@ -76,25 +79,43 @@ module.exports = function (options) {
         item.dataset.draggableId = n;
 
         addEventListener(item, 'dragstart', function (e) {
-          var currentTarget = draggableTarget(e.currentTarget);
-          self.dragged = currentTarget;
-          e.dataTransfer.effectAllowed = 'move';
-          $(placeholder).height($(self.dragged).height());
-          
-          // Firefox requires dataTransfer data to be set
-          e.dataTransfer.setData("text/html", currentTarget);
+          console.log('dragstart');
+          try {
+            var currentTarget = draggableTarget(e.currentTarget);
+            self.dragged = currentTarget;
+            e.dataTransfer.effectAllowed = 'move';
+            $(placeholder).height($(self.dragged).height());
+            
+            // Firefox requires dataTransfer data to be set
+            e.dataTransfer.setData("text/html", currentTarget);
+            console.log('dragstart kind of done');
+          } catch (e) {
+            console.log('dragstart error', e);
+          } finally {
+            console.log('dragstart finally');
+          }
+        });
+        addEventListener(item, 'drag', function (e) {
+          console.log('drag');
+          if (!placeholder.parentNode) {
+            list.insertBefore(placeholder, self.dragged.nextElementSibling);
+          }
         });
         addEventListener(item, 'dragend', function (e) {
+          console.log('dragend');
           self.dragged.style.display = "block";
           self.dragged.parentNode.removeChild(placeholder);
 
           // Update data
           var from = Number(self.dragged.dataset.draggableId);
-          var to = Number(self.over.dataset.draggableId);
-          if(from < to) to--;
-          if(self.nodePlacement == "after") to++;
-          self.itemDragged(from, to);
-          delete self.dragged;
+          if (self.over) {
+            var to = Number(self.over.dataset.draggableId);
+            if(from < to) to--;
+            console.log('item dragged', from, to);
+            if(self.nodePlacement == "after") to++;
+            self.itemDragged(from, to);
+            delete self.dragged;
+          }
         });
       }
     },

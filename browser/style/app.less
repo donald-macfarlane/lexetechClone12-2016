@@ -256,7 +256,7 @@ hr {
     color: rgb(94, 90, 67);
   }
 
-  h1, h2, h3 {
+  h1, h2, h3, h4 {
     color: rgb(94, 90, 67);
   }
 
@@ -384,6 +384,33 @@ hr {
 }
 
 .edit-query {
+  .actions {
+    > div {
+      display: inline-block;
+      vertical-align: top;
+      margin-top: 5px;
+
+      & > ol, & > ul {
+        list-style-type: none;
+        padding-left: 0;
+        margin: 0;
+
+        > li {
+          > h4 {
+            margin: 0;
+          }
+
+          &> ul, &> ol {
+            > li {
+              padding: 0;
+              display: inline-block;
+            }
+          }
+        }
+      }
+    }
+  }
+
   div.predicants {
     display: inline-block;
     vertical-align: top;
@@ -425,53 +452,53 @@ hr {
         }
       }
     }
+  }
 
-    .predicant-select {
-      display: inline-block;
+  .item-select {
+    display: inline-block;
 
-      input[type=text] {
-        &::-webkit-input-placeholder { color: rgba(94, 90, 67, 0.28); }
-        &::-moz-placeholder { color: rgba(94, 90, 67, 0.28); }
-        outline: none;
-        width: 200px;
-      }
+    input[type=text] {
+      &::-webkit-input-placeholder { color: rgba(94, 90, 67, 0.28); }
+      &::-moz-placeholder { color: rgba(94, 90, 67, 0.28); }
+      outline: none;
+      width: 200px;
+    }
 
-      div.select-list {
-        position: relative;
+    div.select-list {
+      position: relative;
 
-        ol {
-          position: absolute;
-          background-color: white;
-          max-height: 200px;
-          overflow-y: scroll;
-          margin: 0;
-          list-style-type: none;
-          padding-left: 0;
-          box-shadow: 2px 2px 20px rgba(0, 0, 0, 0.1);
-          width: 206px;
-          z-index: 1;
+      ol {
+        position: absolute;
+        background-color: white;
+        max-height: 200px;
+        overflow-y: scroll;
+        margin: 0;
+        list-style-type: none;
+        padding-left: 0;
+        box-shadow: 2px 2px 20px rgba(0, 0, 0, 0.1);
+        width: 206px;
+        z-index: 1;
 
-          li {
-            position: relative;
-            padding: 5px;
+        li {
+          position: relative;
+          padding: 5px;
 
-            &:hover {
-              cursor: pointer;
-              background-color: rgba(0, 0, 0, 0.1);
-            }
+          &:hover {
+            cursor: pointer;
+            background-color: rgba(0, 0, 0, 0.1);
+          }
 
-            .selected {
-              position: absolute;
-              right: 0;
-              color: green;
-              margin-left: 20px;
-            }
+          .selected {
+            position: absolute;
+            right: 0;
+            color: green;
+            margin-left: 20px;
           }
         }
+      }
 
-        ol:not(.show) {
-          display: none;
-        }
+      ol:not(.show) {
+        display: none;
       }
     }
   }

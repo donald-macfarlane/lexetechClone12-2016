@@ -13,11 +13,18 @@ module.exports = React.createFactory(React.createClass {
     { query = module.exports.create(), predicants = [], lastResponseId = 0 }
 
   componentDidMount() =
-    predicants = self.props.http.get('/api/predicants')
+    loadPredicants() =
+      self.setState {
+        predicants = self.props.http.get('/api/predicants')!
+      }
 
-    self.setState {
-      predicants = predicants!
-    }
+    loadBlocks() =
+      self.setState {
+        blocks = _.indexBy(self.props.http.get('/api/blocks')!, 'id')
+      }
+
+    loadPredicants()
+    loadBlocks()
 
   bind(model, field, transform) =
     @(ev)
@@ -48,6 +55,73 @@ module.exports = React.createFactory(React.createClass {
   update(dirty = true) =
     self.setState { dirty = dirty }
 
+  renderActions(actions) =
+    r 'div' {} (
+      r 'ol' {} (
+        [
+          action <- actions
+          self.renderAction(action)
+        ]
+      )
+    )
+
+  renderAction(action) =
+    renderAction = {
+      setBlocks(action) =
+        r 'li' { className = 'action-set-blocks' } (
+          r 'h4' {} 'Set Blocks'
+          if (self.state.blocks)
+            addBlock(block) =
+              action.arguments.push(block.id)
+              self.update()
+
+            removeBlock(block) =
+              remove (block.id) from (action.arguments)
+              self.update()
+
+            renderBlockText(b) =
+              if (b.name)
+                "#(b.id): #(b.name)"
+              else
+                b.id
+
+            [
+              r 'ol' {} (
+                [
+                  id <- action.arguments
+
+                  b = self.state.blocks.(id)
+                  remove() = removeBlock(b)
+
+                  r 'li' {} (
+                    r 'span' {} (renderBlockText(b))
+                    r 'button' {
+                      className = 'remove-block remove'
+                      onClick = remove
+                      dangerouslySetInnerHTML = {
+                        __html = '&cross;'
+                      }
+                    }
+                  )
+                ]
+              )
+              itemSelect({
+                onAdd = addBlock
+                onRemove = removeBlock
+                selectedItems = action.arguments
+                items = self.state.blocks
+                renderItemText = renderBlockText
+                placeholder = 'add block'
+              })
+            ]
+
+          ...
+        )
+    }.(action.name)
+
+    if (renderAction)
+      renderAction.call(self, action)
+
   renderPredicants(predicants) =
     addPredicant(predicant) =
       predicants.push(predicant.id)
@@ -77,11 +151,12 @@ module.exports = React.createFactory(React.createClass {
           )
         ]
 
-        predicantSelect({
-          onAddPredicant = addPredicant
-          onRemovePredicant = removePredicant
-          selectedPredicants = predicants
-          predicants = self.state.predicants
+        itemSelect({
+          onAdd = addPredicant
+          onRemove = removePredicant
+          selectedItems = predicants
+          items = self.state.predicants
+          placeholder = 'add predicant'
         })
     )
 
@@ -123,13 +198,11 @@ module.exports = React.createFactory(React.createClass {
 
         if (self.state.dirty)
           [
-            r 'button' { className = 'cancel', onClick = self.cancel } 'Cancel'
-
             if (self.props.query.id)
               [
-                r 'button' { className = 'save', onClick = self.save } 'Save'
                 r 'button' { className = 'insert-query-before', onClick = self.insertBefore } 'Insert Before'
                 r 'button' { className = 'insert-query-after', onClick = self.insertAfter } 'Insert After'
+                r 'button' { className = 'save', onClick = self.save } 'Save'
               ]
             else
               [
@@ -137,6 +210,7 @@ module.exports = React.createFactory(React.createClass {
               ]
 
             ...
+            r 'button' { className = 'cancel', onClick = self.cancel } 'Cancel'
           ]
         else
           r 'button' { className = 'cancel', onClick = self.cancel } 'Close'
@@ -205,6 +279,10 @@ module.exports = React.createFactory(React.createClass {
                               r 'label' {} 'Style 2'
                               r 'textarea' { onChange = self.bind(response.styles, '2'), value = response.styles.('2') }
                             )
+                            r 'li' { className = 'actions' } (
+                              r 'label' {} 'Actions'
+                              self.renderActions(response.actions)
+                            )
                             r 'li' {} (
                               r 'label' {} 'Predicants'
                               self.renderPredicants(response.predicants)
@@ -233,7 +311,7 @@ module.exports = React.createFactory(React.createClass {
     )
 })
 
-predicantSelect = React.createFactory(React.createClass {
+itemSelect = React.createFactory(React.createClass {
   getInitialState () = { search = '', show = false }
   searchChange(ev) =
     self.setState {
@@ -264,7 +342,7 @@ predicantSelect = React.createFactory(React.createClass {
     }
 
   render() =
-    predicant (p) matchesSearch (search) =
+    (p) matchesSearch (search) =
       if (self.search == '')
         true
       else
@@ -273,37 +351,43 @@ predicantSelect = React.createFactory(React.createClass {
         _.all(terms) @(t)
           p.name.toLowerCase().indexOf(t) >= 0
 
-    selected = index (self.props.selectedPredicants)
+    selected = index (self.props.selectedItems)
 
-    matchingPredicants = [
-      k <- Object.keys(self.props.predicants)
-      p = self.props.predicants.(k)
-      predicant (p) matchesSearch (self.state.search)
+    matchingItems = [
+      k <- Object.keys(self.props.items)
+      p = self.props.items.(k)
+      (p) matchesSearch (self.state.search)
       p
     ]
 
-    selectPredicant(p) =
+    selectItem(p) =
       if (selected.(p.id))
-        self.props.onRemovePredicant(p)
+        self.props.onRemove(p)
       else
-        self.props.onAddPredicant(p)
+        self.props.onAdd(p)
 
     searchKeyDown(ev) =
       if (ev.keyCode == 13)
-        selectPredicant(matchingPredicants.0)
+        selectItem(matchingItems.0)
 
-    r 'div' { className = 'predicant-select', onMouseDown = self.activate, onMouseUp = self.disactivate, onBlur = self.blur, onFocus = self.focus } (
-      r 'input' { type = 'text', placeholder = 'add predicant', onChange = self.searchChange, onKeyDown = searchKeyDown, value = self.state.search }
+    r 'div' { className = 'item-select', onMouseDown = self.activate, onMouseUp = self.disactivate, onBlur = self.blur, onFocus = self.focus } (
+      r 'input' { type = 'text', placeholder = self.props.placeholder, onChange = self.searchChange, onKeyDown = searchKeyDown, value = self.state.search }
 
       r 'div' { className = 'select-list' } (
         r 'ol' {className = if (self.state.show) @{ 'show' } else @{''}} [
-          p <- matchingPredicants
+          p <- matchingItems
 
           select() =
-            selectPredicant(p)
+            selectItem(p)
+
+          text =
+            if (self.props.renderItemText)
+              self.props.renderItemText(p)
+            else
+              p.name
       
           r 'li' { onClick = select } (
-            r 'span' {} (p.name)
+            r 'span' {} (text)
 
             if (selected.(p.id))
               r 'span' {className = 'selected', dangerouslySetInnerHTML = { __html = '&#x2713;' }}
