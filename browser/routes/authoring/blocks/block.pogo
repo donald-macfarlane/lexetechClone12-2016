@@ -39,12 +39,16 @@ module.exports = React.createFactory(React.createClass {
 
   repositionQueriesList() =
     pxNumber(x) =
-      Number(r/(.*)px$/.exec(x).1)
+      m = r/(.*)px$/.exec(x)
+      if (m)
+        Number(m.1)
+      else
+        0
 
     element = self.getDOMNode()
-    h3 = $(element).find('.queries > h3')
-    marginBottom = h3.css 'margin-bottom'
-    top = Math.max(0, pxNumber(h3.css 'margin-bottom') + h3.offset().top + h3.height() - Math.max(0, window.scrollY))
+    h2 = $(element).find('.queries > h2')
+    marginBottom = h2.css 'margin-bottom'
+    top = Math.max(0, pxNumber(marginBottom) + h2.offset().top + h2.height() - Math.max(0, window.scrollY))
     ol = $(element).find('.queries > ol')
     ol.css('top', top + 'px')
 
@@ -136,7 +140,7 @@ module.exports = React.createFactory(React.createClass {
       r 'div' { className = 'edit-block query-list' } (
         if (self.state.block.id)
           r 'div' { className = 'queries' } (
-            r 'h3' {} 'Queries'
+            r 'h2' {} 'Queries'
 
             if (self.state.queries.length == 0)
               r 'label' {} 'This block has no queries'
@@ -186,7 +190,7 @@ module.exports = React.createFactory(React.createClass {
                     )
                     r 'div' { className 'buttons' } (
                       r 'button' {
-                        className = 'remove-query'
+                        className = 'remove-query remove'
                         onClick = remove
                         dangerouslySetInnerHTML = {
                           __html = '&cross;'
@@ -219,18 +223,25 @@ module.exports = React.createFactory(React.createClass {
             else
               r 'button' { className = 'cancel', onClick = self.cancel } 'Close'
         )
-        r 'h2' {} ('Block ', self.state.block.name)
-        r 'label' { htmlFor = 'block_name' } 'Name'
-        r 'input' { id = 'block_name', type = 'text', value = self.state.block.name, onChange = self.nameChanged }
+        r 'h2' {} ('Block')
+        r 'ul' {} (
+          r 'li' {} (
+            r 'label' { htmlFor = 'block_name' } 'Name'
+            r 'input' { id = 'block_name', type = 'text', value = self.state.block.name, onChange = self.nameChanged }
+          )
+        )
         if (self.state.selectedQuery)
-          queryComponent {
-            http = self.props.http
-            query = self.state.selectedQuery
-            updateQuery = self.updateQuery
-            createQuery = self.createQuery
-            insertQueryBefore = self.insertQueryBefore
-            insertQueryAfter = self.insertQueryAfter
-          }
+          [
+            r 'hr' {}
+            queryComponent {
+              http = self.props.http
+              query = self.state.selectedQuery
+              updateQuery = self.updateQuery
+              createQuery = self.createQuery
+              insertQueryBefore = self.insertQueryBefore
+              insertQueryAfter = self.insertQueryAfter
+            }
+          ]
       )
     )
 })

@@ -61,8 +61,11 @@ module.exports(connectionInfo) =
             id = m.ModID
             text = m.Mod
             setLevel = m.LevelSet
-            notes = m.StyleOne
-            action = action
+            styles {
+              '1' = m.StyleOne
+              '2' = m.StyleTwo
+            }
+            actions = [action]
           }
         ]
       }

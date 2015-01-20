@@ -68,7 +68,7 @@ module.exports = React.createFactory(React.createClass {
           r 'li' {} (
             r 'span' {} (p.name)
             r 'button' {
-              className = 'remove-predicant'
+              className = 'remove-predicant remove'
               onClick = remove
               dangerouslySetInnerHTML = {
                 __html = '&cross;'
@@ -100,6 +100,19 @@ module.exports = React.createFactory(React.createClass {
   insertAfter() =
     self.props.insertQueryAfter(self.props.query)!
     self.update(dirty = false)
+
+  numberInput(model, field) =
+    r 'input' {
+      type = 'number'
+      onChange = self.bind(model, field, Number)
+      value = model.(field)
+      onFocus(ev) =
+        $(ev.target).on 'mousewheel.disableScroll' @(ev)
+          ev.preventDefault()
+
+      onBlur(ev) =
+        $(ev.target).off 'mousewheel.disableScroll'
+    }
 
   cancel() =
     self.transitionTo('block', { blockId = self.getParams().blockId })
@@ -140,7 +153,7 @@ module.exports = React.createFactory(React.createClass {
         )
         r 'li' {key = 'level'} (
           r 'label' {} 'Level'
-          r 'input' { type = 'number', onChange = self.bind(self.props.query, 'level', Number), value = self.props.query.level }
+          self.numberInput(self.props.query, 'level')
         )
 
         r 'li' {} (
@@ -160,33 +173,48 @@ module.exports = React.createFactory(React.createClass {
                   self.update()
 
                 r 'li' { key = response.id } (
-                  if (self.state.selectedResponse == response)
-                    [
-                      r 'ul' {} (
-                        r 'li' {} (
-                          r 'label' {} 'Selector'
-                          r 'textarea' { onChange = self.bind(response, 'text'), value = response.text }
-                        )
-                        r 'li' {} (
-                          r 'label' {} 'Style 1'
-                          r 'textarea' { onChange = self.bind(response.styles, 'one'), value = response.styles.one }
-                        )
-                        r 'li' {} (
-                          r 'label' {} 'Style 2'
-                          r 'textarea' { onChange = self.bind(response.styles, 'two'), value = response.styles.two }
-                        )
-                        r 'li' {} (
-                          r 'label' {} 'Predicants'
-                          self.renderPredicants(response.predicants)
-                        )
-                      )
-                      r 'button' { className = 'remove-response', onClick = remove } 'Remove'
-                    ]
-                  else
+                  block
                     select() =
                       self.setState { selectedResponse = response }
 
-                    r 'div' { onClick = select } (response.text)
+                    deselect() =
+                      self.setState { selectedResponse = nil }
+
+                    [
+                      if (self.state.selectedResponse == response)
+                        r 'div' { className = 'buttons top' } (
+                          r 'button' { className = 'close', onClick = deselect } 'Close'
+                        )
+
+                      r 'ul' {} (
+                        r 'li' { className = 'selector' } (
+                          r 'label' {} 'Selector'
+                          r 'textarea' { onChange = self.bind(response, 'text'), value = response.text, onFocus = select }
+                        )
+                        if (self.state.selectedResponse == response)
+                          [
+                            r 'li' {} (
+                              r 'label' {} 'Set Level'
+                              self.numberInput(response, 'setLevel')
+                            )
+                            r 'li' {} (
+                              r 'label' {} 'Style 1'
+                              r 'textarea' { onChange = self.bind(response.styles, '1'), value = response.styles.('1') }
+                            )
+                            r 'li' {} (
+                              r 'label' {} 'Style 2'
+                              r 'textarea' { onChange = self.bind(response.styles, '2'), value = response.styles.('2') }
+                            )
+                            r 'li' {} (
+                              r 'label' {} 'Predicants'
+                              self.renderPredicants(response.predicants)
+                            )
+                          ]
+                      )
+                      r 'div' { className = 'buttons' } (
+                        r 'button' { className = 'remove-response', onClick = remove } 'Remove'
+                      )
+                    ]
                 )
               ]
 
@@ -201,10 +229,6 @@ module.exports = React.createFactory(React.createClass {
 
           r 'button' { className = 'add', onClick = self.addResponse } 'Add Response'
         )
-      )
-
-      r 'div' {key = 'json'} (
-        r 'pre' ({}, r 'code' ('json', JSON.stringify(self.props.query, nil, 2)))
       )
     )
 })
