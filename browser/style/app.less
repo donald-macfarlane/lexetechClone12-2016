@@ -4,11 +4,6 @@ body {
   padding: 0;
 }
 
-form input {
-  display: block;
-  margin-bottom: 15px;
-}
-
 .top-menu {
   background-color: #E7E8D1;
   height: 50px;
@@ -292,33 +287,36 @@ hr {
         label {
           min-width: 130px;
         }
+      }
 
-        > .buttons {
-          display: none;
-          position: absolute;
-          right: 7px;
-          bottom: 5px;
+    }
+  }
 
-          &.top {
-            bottom: none;
-            top: 7px;
-          }
+  li {
+    > .buttons {
+      display: none;
+      position: absolute;
+      right: 7px;
+      bottom: 5px;
 
-          button {
-            font-size: 9px;
-            margin-right: 0;
-            margin-left: 10px;
-            border: none;
-            padding: 2px 4px;
-            cursor: pointer;
-          }
-        }
+      &.top {
+        bottom: none;
+        top: 7px;
+      }
 
-        &:hover {
-          .buttons {
-            display: block;
-          }
-        }
+      button {
+        font-size: 9px;
+        margin-right: 0;
+        margin-left: 10px;
+        border: none;
+        padding: 2px 4px;
+        cursor: pointer;
+      }
+    }
+
+    &:hover {
+      > .buttons {
+        display: block;
       }
     }
   }
@@ -396,14 +394,64 @@ hr {
         margin: 0;
 
         > li {
+          padding: 6px 0;
+          border-bottom: 1pt solid rgb(235, 235, 218);
+          position: relative;
+
+          &:first-child {
+            padding-top: 0;
+          }
+
           > h4 {
             margin: 0;
           }
 
           &> ul, &> ol {
+            list-style-type: none;
+            padding: 4px 0;
+
             > li {
-              padding: 0;
-              display: inline-block;
+              padding: 2px 3px;
+              position: relative;
+              font-weight: 200;
+            }
+          }
+        }
+      }
+
+      label {
+        font-size: 13px;
+        font-weight: 200;
+      }
+
+      .action-set-gender {
+        label {
+          min-width: initial;
+        }
+      }
+
+      .btn-group {
+        .btn, .dropdown-menu {
+          min-width: 100px;
+          background-color: #E7E8D1;
+          box-shadow: 2px 2px 5px #CFD0AF;
+          cursor: pointer;
+        }
+
+        .dropdown-menu {
+          margin-top: 4px;
+
+          li {
+            padding: 3px 5px;
+            color: #6e6631;
+
+            &:hover {
+              background-color: rgb(221, 223, 190);
+            }
+
+            a {
+              text-decoration: none;
+              outline: none;
             }
           }
         }
@@ -430,25 +478,8 @@ hr {
           border-radius: 6px;
         }
 
-        &:hover {
-          button.remove-predicant {
-            display: inline-block;
-          }
-        }
-
         &:last-child {
           margin-bottom: 10px;
-        }
-
-        button.remove-predicant {
-          display: none;
-          position: absolute;
-          right: 0;
-          top: 0;
-          background-color: inherit;
-          color: rgb(180, 182, 137);
-          outline: none;
-          font-size: 16px;
         }
       }
     }
@@ -502,4 +533,41 @@ hr {
       }
     }
   }
+
+  li {
+    > button.remove {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 0;
+      background-color: inherit;
+      color: rgb(180, 182, 137);
+      outline: none;
+      font-size: 16px;
+      padding: 0;
+    }
+
+    &:hover {
+      > button.remove {
+        display: inline-block;
+      }
+    }
+  }
+}
+
+/* minimum bootstrap for dropdown */
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  z-index: 1;
+}
+
+.open {
+  > .dropdown-menu {
+    display: block;
+  }
+}
+
+.btn-group {
+  display: inline-block;
 }

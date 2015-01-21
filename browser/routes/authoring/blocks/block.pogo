@@ -6,7 +6,7 @@ r = React.createElement
 Navigation = ReactRouter.Navigation
 _ = require 'underscore'
 queryComponent = require './queries/query'
-draggable = require './draggable'
+sortable = require './sortable'
 moveItemInFromTo = require './moveItemInFromTo'
 $ = require 'jquery'
 
@@ -203,7 +203,7 @@ module.exports = React.createFactory(React.createClass {
                   )
                 ]
 
-              draggable {
+              sortable {
                 itemMoved = itemMoved
                 render = render
               }

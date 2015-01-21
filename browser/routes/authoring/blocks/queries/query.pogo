@@ -3,8 +3,12 @@ r = React.createElement
 ReactRouter = require 'react-router'
 Navigation = ReactRouter.Navigation
 _ = require 'underscore'
-draggable = require '../draggable'
+sortable = require '../sortable'
 moveItemInFromTo = require '../moveItemInFromTo'
+
+reactBootstrap = require 'react-bootstrap'
+DropdownButton = reactBootstrap.DropdownButton
+MenuItem = reactBootstrap.MenuItem
 
 module.exports = React.createFactory(React.createClass {
   mixins = [ReactRouter.State, Navigation]
@@ -56,66 +60,164 @@ module.exports = React.createFactory(React.createClass {
     self.setState { dirty = dirty }
 
   renderActions(actions) =
+    addAction(action) =
+      actions.push(action)
+
+      self.update()
+
+    removeAction(action) =
+      remove (action) from (actions)
+      self.update()
+      
     r 'div' {} (
       r 'ol' {} (
         [
           action <- actions
-          self.renderAction(action)
+          remove() = removeAction(action)
+          self.renderAction(action, remove)
         ]
+      )
+      DropdownButton {title = 'Add Action'} (
+        MenuItem { onClick() = @{ addAction { name = 'setBlocks', arguments = [] }, false } } ('Set Block')
+        MenuItem { onClick() = @{ addAction { name = 'addBlocks', arguments = [] }, false } } ('Add Block')
+        MenuItem { onClick() = @{ addAction { name = 'email', arguments = [] }, false } } ('Email')
+        MenuItem { onClick() = @{ addAction { name = 'repeatLexeme', arguments = [] }, false } } ('Repeat')
+        MenuItem { onClick() = @{ addAction { name = 'setVariable', arguments = ['', ''] }, false } } ('Set Variable')
+        MenuItem { onClick() = @{ addAction { name = 'suppressPunctuation', arguments = [] }, false } } ('Suppress Punctuation')
+        MenuItem { onClick() = @{ addAction { name = 'loadFromFile', arguments = [] }, false } } ('Load from File')
+        MenuItem { onClick() = @{ addAction { name = 'setGender', arguments = [] }, false } } ('Set Gender')
       )
     )
 
-  renderAction(action) =
-    renderAction = {
-      setBlocks(action) =
-        r 'li' { className = 'action-set-blocks' } (
-          r 'h4' {} 'Set Blocks'
-          if (self.state.blocks)
-            addBlock(block) =
-              action.arguments.push(block.id)
-              self.update()
+  renderAction(action, removeAction) =
+    removeButton () = r 'div' { className = 'buttons' } (
+      r 'button' { className = 'remove-action', onClick = removeAction } 'Remove'
+    )
 
-            removeBlock(block) =
-              remove (block.id) from (action.arguments)
-              self.update()
+    blocks(name, class) =
+      r 'li' { className = class} (
+        r 'h4' {} (name)
+        if (self.state.blocks)
+          addBlock(block) =
+            action.arguments.push(block.id)
+            self.update()
 
-            renderBlockText(b) =
-              if (b.name)
-                "#(b.id): #(b.name)"
-              else
-                b.id
+          removeBlock(block) =
+            remove (block.id) from (action.arguments)
+            self.update()
 
-            [
-              r 'ol' {} (
-                [
-                  id <- action.arguments
+          renderBlockText(b) =
+            if (b.name)
+              "#(b.id): #(b.name)"
+            else
+              b.id
 
-                  b = self.state.blocks.(id)
-                  remove() = removeBlock(b)
+          renderArguments() =
+            r 'ol' {} (
+              [
+                id <- action.arguments
 
-                  r 'li' {} (
-                    r 'span' {} (renderBlockText(b))
-                    r 'button' {
-                      className = 'remove-block remove'
-                      onClick = remove
-                      dangerouslySetInnerHTML = {
-                        __html = '&cross;'
-                      }
+                b = self.state.blocks.(id)
+                remove() = removeBlock(b)
+
+                r 'li' {} (
+                  r 'span' {} (renderBlockText(b))
+                  r 'button' {
+                    className = 'remove-block remove'
+                    onClick = remove
+                    dangerouslySetInnerHTML = {
+                      __html = '&cross;'
                     }
-                  )
-                ]
-              )
-              itemSelect({
-                onAdd = addBlock
-                onRemove = removeBlock
-                selectedItems = action.arguments
-                items = self.state.blocks
-                renderItemText = renderBlockText
-                placeholder = 'add block'
-              })
-            ]
+                  }
+                )
+              ]
+            )
 
-          ...
+          itemMoved(from, to) =
+            moveItemIn (action.arguments) from (from) to (to)
+            self.update()
+
+          [
+            sortable {
+              itemMoved = itemMoved
+              render = renderArguments
+            }
+            itemSelect({
+              onAdd = addBlock
+              onRemove = removeBlock
+              selectedItems = action.arguments
+              items = self.state.blocks
+              renderItemText = renderBlockText
+              placeholder = 'add block'
+            })
+          ]
+
+        ...
+
+        removeButton()
+      )
+
+    renderAction = {
+      setBlocks(action) = blocks('Set Blocks', 'action-set-blocks')
+      addBlocks(action) = blocks('Add Blocks', 'action-add-blocks')
+      setVariable(action) =
+        r 'li' {} (
+          r 'h4' {} 'Set Variable'
+          r 'ul' {} (
+            r 'li' {} (
+              r 'label' {} 'Name'
+              r 'input' { type = 'text', onChange = self.bind(action.arguments, 0), value = action.arguments.0 }
+            )
+            r 'li' {} (
+              r 'label' {} 'Value'
+              r 'input' { type = 'text', onChange = self.bind(action.arguments, 1), value = action.arguments.1 }
+            )
+          )
+          removeButton()
+        )
+
+      email(action) =
+        r 'li' {} (
+          r 'h4' {} 'Send Email'
+          r 'ul' {} (
+            r 'li' {} (
+              r 'label' {} 'Email Address'
+              r 'input' { type = 'text', onChange = self.bind(action.arguments, 0), value = action.arguments.0 }
+            )
+          )
+          removeButton()
+        )
+
+      repeatLexeme(action) =
+        r 'li' {} (
+          r 'h4' {} 'Repeat Lexeme'
+          removeButton()
+        )
+
+      suppressPunctuation(action) =
+        r 'li' {} (
+          r 'h4' {} 'Suppress Punctuation'
+          removeButton()
+        )
+
+      setGender(action) =
+        r 'li' { className 'action-set-gender' } (
+          r 'h4' {} 'Set Gender'
+          r 'ul' {} (
+            r 'li' {} (
+              r 'form' {} (
+                r 'label' {} ('Male', r 'input' { type = 'radio', name = 'gender' })
+                r 'label' {} ('Female', r 'input' { type = 'radio', name = 'gender' })
+              )
+            )
+          )
+          removeButton()
+        )
+
+      loadFromFile(action) =
+        r 'li' {} (
+          r 'h4' {} 'Load from File'
+          removeButton()
         )
     }.(action.name)
 
@@ -300,7 +402,7 @@ module.exports = React.createFactory(React.createClass {
               moveItemIn (self.props.query.responses) from (from) to (to)
               self.update()
 
-            draggable {
+            sortable {
               itemMoved = itemMoved
               render = render
             }

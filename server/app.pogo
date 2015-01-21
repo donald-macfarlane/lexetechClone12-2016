@@ -68,6 +68,7 @@ app.post '/logout' @(req, res)
   res.redirect '/'
 
 app.use(express.static(__dirname + '/generated'))
+app.use(express.static(__dirname + '/public'))
 app.use('/source', express.static(__dirname + '/../browser/style'))
 
 app.get '*' @(req, res)

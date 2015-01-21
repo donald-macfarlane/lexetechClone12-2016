@@ -66,6 +66,7 @@
     "pogo": "^0.9.7",
     "pogoify": "^0.1.1",
     "react": "^0.12.1",
+    "react-bootstrap": "^0.13.2",
     "react-router": "^0.11.4",
     "redis": "^0.12.1",
     "shell-quote": "^1.4.2",
