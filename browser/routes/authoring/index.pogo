@@ -11,10 +11,11 @@ module.exports = React.createFactory(React.createClass {
   componentDidMount() =
     path = '/api/blocks'
     self.props.http.get(path).done @(response)
-      self.setState {
-        loaded = true
-        blocks = response
-      }
+      if (self.isMounted())
+        self.setState {
+          loaded = true
+          blocks = response
+        }
 
   render() =
     r 'div' { className = 'authoring-index edit-lexicon'} (

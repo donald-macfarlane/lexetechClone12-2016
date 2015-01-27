@@ -45,8 +45,8 @@ module.exports = React.createFactory(React.createClass {
       text = ''
       predicants = []
       styles = {
-        'one' = ''
-        'two' = ''
+        'style1' = ''
+        'style2' = ''
       }
       actions = []
       id = id
@@ -68,6 +68,12 @@ module.exports = React.createFactory(React.createClass {
     removeAction(action) =
       remove (action) from (actions)
       self.update()
+
+    addActionClick(createAction) =
+      handler (ev) =
+        action = createAction()
+        addAction (action)
+        ev.preventDefault()
       
     r 'div' {} (
       r 'ol' {} (
@@ -78,14 +84,14 @@ module.exports = React.createFactory(React.createClass {
         ]
       )
       DropdownButton {title = 'Add Action'} (
-        MenuItem { onClick() = @{ addAction { name = 'setBlocks', arguments = [] }, false } } ('Set Block')
-        MenuItem { onClick() = @{ addAction { name = 'addBlocks', arguments = [] }, false } } ('Add Block')
-        MenuItem { onClick() = @{ addAction { name = 'email', arguments = [] }, false } } ('Email')
-        MenuItem { onClick() = @{ addAction { name = 'repeatLexeme', arguments = [] }, false } } ('Repeat')
-        MenuItem { onClick() = @{ addAction { name = 'setVariable', arguments = ['', ''] }, false } } ('Set Variable')
-        MenuItem { onClick() = @{ addAction { name = 'suppressPunctuation', arguments = [] }, false } } ('Suppress Punctuation')
-        MenuItem { onClick() = @{ addAction { name = 'loadFromFile', arguments = [] }, false } } ('Load from File')
-        MenuItem { onClick() = @{ addAction { name = 'setGender', arguments = [] }, false } } ('Set Gender')
+        MenuItem { onClick = addActionClick @{ { name = 'setBlocks', arguments = [] } } } ('Set Block')
+        MenuItem { onClick = addActionClick @{ { name = 'addBlocks', arguments = [] } } } ('Add Block')
+        MenuItem { onClick = addActionClick @{ { name = 'email', arguments = [] } } } ('Email')
+        MenuItem { onClick = addActionClick @{ { name = 'repeatLexeme', arguments = [] } } } ('Repeat')
+        MenuItem { onClick = addActionClick @{ { name = 'setVariable', arguments = ['', ''] } } } ('Set Variable')
+        MenuItem { onClick = addActionClick @{ { name = 'suppressPunctuation', arguments = [] } } } ('Suppress Punctuation')
+        MenuItem { onClick = addActionClick @{ { name = 'loadFromFile', arguments = [] } } } ('Load from File')
+        MenuItem { onClick = addActionClick @{ { name = 'setGender', arguments = [] } } } ('Set Gender')
       )
     )
 
@@ -319,15 +325,15 @@ module.exports = React.createFactory(React.createClass {
       )
       r 'h2' {} 'Query'
       r 'ul' {} (
-        r 'li' {key = 'name'} (
+        r 'li' {key = 'name', className = 'name' } (
           r 'label' {} 'Name'
           r 'input' {type = 'text', onChange = self.bind(self.props.query, 'name'), value = self.props.query.name }
         )
-        r 'li' {key = 'qtext'} (
+        r 'li' {key = 'qtext', className = 'question' } (
           r 'label' {} 'Question'
           r 'textarea' { onChange = self.bind(self.props.query, 'text') } ( self.props.query.text )
         )
-        r 'li' {key = 'level'} (
+        r 'li' {key = 'level', className = 'level' } (
           r 'label' {} 'Level'
           self.numberInput(self.props.query, 'level')
         )
@@ -369,23 +375,23 @@ module.exports = React.createFactory(React.createClass {
                         )
                         if (self.state.selectedResponse == response)
                           [
-                            r 'li' {} (
+                            r 'li' { className = 'set-level' } (
                               r 'label' {} 'Set Level'
                               self.numberInput(response, 'setLevel')
                             )
-                            r 'li' {} (
+                            r 'li' { className = 'style1' } (
                               r 'label' {} 'Style 1'
-                              r 'textarea' { onChange = self.bind(response.styles, '1'), value = response.styles.('1') }
+                              r 'textarea' { onChange = self.bind(response.styles, 'style1'), value = response.styles.('1') }
                             )
-                            r 'li' {} (
+                            r 'li' { className = 'style2' } (
                               r 'label' {} 'Style 2'
-                              r 'textarea' { onChange = self.bind(response.styles, '2'), value = response.styles.('2') }
+                              r 'textarea' { onChange = self.bind(response.styles, 'style2'), value = response.styles.('2') }
                             )
                             r 'li' { className = 'actions' } (
                               r 'label' {} 'Actions'
                               self.renderActions(response.actions)
                             )
-                            r 'li' {} (
+                            r 'li' { className = 'predicants' } (
                               r 'label' {} 'Predicants'
                               self.renderPredicants(response.predicants)
                             )

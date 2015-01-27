@@ -41,19 +41,20 @@ module.exports = React.createFactory(React.createClass {
     self.resizeQueriesDiv()
 
   repositionQueriesList() =
-    pxNumber(x) =
-      m = r/(.*)px$/.exec(x)
-      if (m)
-        Number(m.1)
-      else
-        0
+    if (self.state.block.id)
+      pxNumber(x) =
+        m = r/(.*)px$/.exec(x)
+        if (m)
+          Number(m.1)
+        else
+          0
 
-    element = self.getDOMNode()
-    h2 = $(element).find('.queries > h2')
-    marginBottom = h2.css 'margin-bottom'
-    top = Math.max(0, pxNumber(marginBottom) + h2.offset().top + h2.height() - Math.max(0, window.scrollY))
-    ol = $(element).find('.queries > ol')
-    ol.css('top', top + 'px')
+      element = self.getDOMNode()
+      h2 = $(element).find('.queries > h2')
+      marginBottom = h2.css 'margin-bottom'
+      top = Math.max(0, pxNumber(marginBottom) + h2.offset().top + h2.height() - Math.max(0, window.scrollY))
+      ol = $(element).find('.queries > ol')
+      ol.css('top', top + 'px')
 
   resizeQueriesDiv() =
     element = self.getDOMNode()
@@ -101,6 +102,7 @@ module.exports = React.createFactory(React.createClass {
 
   create() =
     self.state.block.id = self.props.http.post("/api/blocks", _.omit(self.state.block, 'queries'))!.id
+    self.replaceWith 'block' { blockId = self.state.block.id }
     self.update(dirty = false)
 
   cancel() =
@@ -141,7 +143,7 @@ module.exports = React.createFactory(React.createClass {
   render() =
     r 'div' { className = 'edit-block-query' } (
       r 'div' { className = 'edit-block query-list' } (
-        if (self.state.block.id)
+        if (self.getParams().blockId)
           r 'div' { className = 'queries' } (
             r 'h2' {} 'Queries'
 
@@ -215,7 +217,7 @@ module.exports = React.createFactory(React.createClass {
 
       r 'div' { className = 'edit-block' } (
         r 'div' { className = 'buttons' } (
-          if (@not self.state.block.id)
+          if (@not self.getParams().blockId)
             r 'button' { className = 'create', onClick = self.create } 'Create'
           else if (self.state.dirty)
             r 'button' { className = 'save', onClick = self.save } 'Save'
