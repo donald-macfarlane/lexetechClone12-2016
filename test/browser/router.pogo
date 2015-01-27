@@ -69,5 +69,5 @@ routerPrototype = {}
 router = prototype (routerPrototype)
 
 module.exports() =
-  $.mockjaxClear()
+  $.mockjax.clear()
   router()

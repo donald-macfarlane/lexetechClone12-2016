@@ -30,27 +30,27 @@ module.exports (element, queryApi, pageData, options) =
       Route {
         name = 'create_block'
         path = 'blocks/create'
-        handler = require './routes/authoring/blocks/block'
+        handler = require './routes/authoring/index'
       }
       Route {
         name = 'block'
         path = 'blocks/:blockId'
-        handler = require './routes/authoring/blocks/block'
+        handler = require './routes/authoring/index'
       }
       Route {
         name = 'create_query'
         path = 'blocks/:blockId/queries/create'
-        handler = require './routes/authoring/blocks/block'
+        handler = require './routes/authoring/index'
       }
       Route {
         name = 'query'
         path = 'blocks/:blockId/queries/:queryId'
-        handler = require './routes/authoring/blocks/block'
+        handler = require './routes/authoring/index'
       }
       Route {
         name = 'edit_block'
         path = 'blocks/:blockId/edit'
-        handler = require './routes/authoring/blocks/edit'
+        handler = require './routes/authoring/index'
       }
     )
     Route {

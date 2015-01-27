@@ -5,6 +5,7 @@ Navigation = ReactRouter.Navigation
 _ = require 'underscore'
 sortable = require '../sortable'
 moveItemInFromTo = require '../moveItemInFromTo'
+blockName = require '../blockName'
 
 reactBootstrap = require 'react-bootstrap'
 DropdownButton = reactBootstrap.DropdownButton
@@ -112,12 +113,6 @@ module.exports = React.createFactory(React.createClass {
             remove (block.id) from (action.arguments)
             self.update()
 
-          renderBlockText(b) =
-            if (b.name)
-              "#(b.id): #(b.name)"
-            else
-              b.id
-
           renderArguments() =
             r 'ol' {} (
               [
@@ -127,7 +122,7 @@ module.exports = React.createFactory(React.createClass {
                 remove() = removeBlock(b)
 
                 r 'li' {} (
-                  r 'span' {} (renderBlockText(b))
+                  r 'span' {} (blockName(b))
                   r 'button' {
                     className = 'remove-block remove'
                     onClick = remove
@@ -153,7 +148,7 @@ module.exports = React.createFactory(React.createClass {
               onRemove = removeBlock
               selectedItems = action.arguments
               items = self.state.blocks
-              renderItemText = renderBlockText
+              renderItemText = blockName
               placeholder = 'add block'
             })
           ]

@@ -161,7 +161,7 @@ hr {
   margin: 20px;
 }
 
-.edit-block-query {
+.edit-block-query, .edit-lexicon {
   display: flex;
 
   > *:last-child {
@@ -255,7 +255,7 @@ hr {
     color: rgb(94, 90, 67);
   }
 
-  .responses, .queries, .blocks {
+  .responses, .blocks-queries {
     & > ol, & > ul {
       list-style-type: none;
       padding-left: 0;
@@ -268,7 +268,6 @@ hr {
         box-shadow: 1px 1px 10px rgb(231, 232, 209);
 
         &.selected {
-          background-color: rgb(226, 228, 196);
         }
 
         &.placeholder {
@@ -321,7 +320,7 @@ hr {
     }
   }
 
-  .queries {
+  .blocks-queries {
     min-width: 220px;
 
     > ol {
@@ -333,27 +332,73 @@ hr {
       margin-left: 0;
 
       > li {
-        cursor: pointer;
         min-height: inherit;
         min-width: 190px;
+        box-shadow: none;
+      }
+    }
 
-        h3 {
-          margin-top: 5px;
-          margin-bottom: 5px;
+    ol {
+      list-style-type: none;
+      padding-left: 15px;
+      cursor: default;
+
+      li {
+        cursor: pointer;
+        position: relative;
+        margin: 0;
+
+        &.selected {
+          > h3, > h4 {
+            background-color: rgba(149, 153, 86, 0.16);
+          }
         }
 
-        .level-indent {
-          color: rgba(82, 82, 70, 0.13);
-          margin-left: 5px;
-          margin-right: 5px;
-          display: inline-block;
-          min-height: 12px;
+        button.toggle {
+          padding: 0;
+          border: none;
+          box-shadow: none;
+          min-height: 20px;
+          min-width: 20px;
+          border-radius: 40px;
+          position: absolute;
+          left: 2px;
+          top: -3px;
+        }
 
-          &:before {
-            content: '>';
-            position: relative;
-            top: -2px;
-            font-weight: 100;
+        h3, h4 {
+          padding-left: 27px;
+          margin: 0;
+
+          button.toggle {
+            padding: 0;
+            border: none;
+            box-shadow: none;
+            min-height: 20px;
+            min-width: 20px;
+            border-radius: 40px;
+            position: absolute;
+            background-color: transparent;
+          }
+        }
+
+        h3 {
+          padding-top: 6px;
+          padding-bottom: 6px;
+
+          button.toggle {
+            left: 2px;
+            top: 2px;
+          }
+        }
+
+        h4 {
+          padding-top: 2px;
+          padding-bottom: 2px;
+
+          button.toggle {
+            left: 2px;
+            top: -3px;
           }
         }
       }

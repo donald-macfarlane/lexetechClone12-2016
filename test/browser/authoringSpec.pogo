@@ -164,3 +164,43 @@ describe 'authoring'
               ]
             }
           ]
+        
+      it 'can navigate blocks and queries in a tree view'
+        api.blocks.push {
+          id = '1'
+          name = 'one'
+
+          queries = [
+            {
+              name = 'query 1.1'
+              level = 1
+            }
+            {
+              name = 'query 1.2'
+              level = 1
+            }
+            {
+              name = 'query 1.3'
+              level = 2
+            }
+          ]
+        }
+        api.blocks.push {
+          id = '2'
+          name = 'two'
+
+          queries = [
+            {
+              name = 'query 2.1'
+              level = 1
+            }
+            {
+              name = 'query 2.2'
+              level = 1
+            }
+            {
+              name = 'query 2.3'
+              level = 2
+            }
+          ]
+        }
