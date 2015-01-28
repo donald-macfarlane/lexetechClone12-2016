@@ -520,5 +520,5 @@ module.exports.create(obj) =
   _.extend {
     responses = []
     predicants = []
-    level = 0
+    level = 1
   } (obj)

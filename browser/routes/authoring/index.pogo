@@ -26,9 +26,8 @@ module.exports = React.createFactory(React.createClass {
       r 'div' { className = 'authoring-menu' } (
         Link { to = 'create_block' } 'New Block'
       )
-      if (self.getParams().blockId @or self.getRoutes().(self.getRoutes().length - 1).name == 'create_block')
-        blockComponent {
-          http = self.props.http
-        }
+      blockComponent {
+        http = self.props.http
+      }
     )
 })
