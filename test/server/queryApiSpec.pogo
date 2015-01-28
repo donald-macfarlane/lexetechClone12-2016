@@ -5,13 +5,14 @@ lexiconBuilder = require '../lexiconBuilder'
 
 describe "query api"
   port = 12345
-  api = httpism.api "http://api:squidandeels@localhost:#(port)"
+  api = httpism.api "http://user:password@localhost:#(port)"
   server = nil
   db = nil
   lexicon = nil
 
   beforeEach
     db := app.get 'db'
+    app.set 'apiUsers' { "user:password" = true }
     server := app.listen (port)
     lexicon := lexiconBuilder()
     db.clear()!
@@ -279,3 +280,85 @@ describe "query api"
           'pred1'
           'pred3'
         ]
+
+    describe.only 'clipboards'
+      it 'can store new queries for a given user'
+        query = {
+          text = 'query 1'
+          responses = [
+            {
+              text = 'reseponse 1'
+            }
+          ]
+        }
+
+        postedQuery = api.post!('/api/user/queries', query).body
+        queries = api.get!('/api/user/queries').body
+
+        query.id = postedQuery.id
+        expect(queries).to.eql [
+          query
+        ]
+
+      context 'given some queries in a users clipboard'
+        beforeEach
+          api.post!('/api/user/queries', {
+            text = 'query 1'
+            responses = [
+              {
+                text = 'reseponse 1'
+              }
+            ]
+          })
+          
+          api.post!('/api/user/queries', {
+            text = 'query 2'
+            responses = [
+              {
+                text = 'reseponse 2'
+              }
+            ]
+          })
+
+        it 'can delete one'
+          queries = api.get!('/api/user/queries').body
+          expect(queries.length).to.equal(2)
+          api.delete!("/api/user/queries/#(queries.0.id)")
+          newQueries = api.get!('/api/user/queries').body
+          expect(newQueries.length).to.equal(1)
+          expect(newQueries.0.text).to.equal('query 2')
+
+      context "when there is more than one user"
+        user1 = nil
+        user2 = nil
+
+        beforeEach
+          user1 := api
+          user2 := httpism.api "http://different:password@localhost:#(port)"
+          users = app.get 'apiUsers'
+          users."different:password" = true
+
+        it "one user cannot access another's queries"
+          user1.post!('/api/user/queries', {
+            text = 'query 1'
+            responses = [
+              {
+                text = 'reseponse 1'
+              }
+            ]
+          })
+          
+          user2.post!('/api/user/queries', {
+            text = 'query 2'
+            responses = [
+              {
+                text = 'reseponse 2'
+              }
+            ]
+          })
+        
+          user1Queries = user1.get!('/api/user/queries').body
+          expect([q <- user1Queries, q.text]).to.eql ['query 1']
+
+          user2Queries = user2.get!('/api/user/queries').body
+          expect([q <- user2Queries, q.text]).to.eql ['query 2']

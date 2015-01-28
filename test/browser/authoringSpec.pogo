@@ -145,3 +145,35 @@ describe 'authoring'
           block = $(div).find('.blocks-queries ol li:contains("2: xyz")')
           query = block.find('ol li:contains("query 1")')
           expect(query.length).to.equal(1)
+
+    describe 'clipboards'
+      it.only 'can add a query to the clipboard'
+        api.blocks.push {
+          id = '1'
+          name = 'one'
+
+          queries = [
+            {
+              id = '1'
+              name = 'query 1'
+              text = 'question 1'
+              level = 1
+              predicants = []
+              responses = []
+            }
+          ]
+        }
+
+        query = retry!
+          block = $(div).find('.blocks-queries ol li:contains("1: one")')
+          q = block.find('ol li:contains("query 1")')
+          expect(q.length).to.equal(1)
+          q
+
+        click!(query)
+        click!('button', text = 'Add to Clipboard')
+
+        retry!
+          expect([q <- api.userQueries, q.name]).to.eql ['query 1']
+
+        click('button.clipboard', text = 'Clipboard')

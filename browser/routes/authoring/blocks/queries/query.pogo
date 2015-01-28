@@ -25,7 +25,6 @@ module.exports = React.createFactory(React.createClass {
 
     loadBlocks() =
       blocks = _.indexBy(self.props.http.get('/api/blocks')!, 'id')
-      console.log('query has blocks', blocks)
       self.setState {
         blocks = blocks
       }
@@ -280,6 +279,9 @@ module.exports = React.createFactory(React.createClass {
     self.props.insertQueryBefore(self.props.query)!
     self.update(dirty = false)
 
+  addToClipboard() =
+    self.props.addQueryToClipboard(self.props.query)!
+
   insertAfter() =
     self.props.insertQueryAfter(self.props.query)!
     self.update(dirty = false)
@@ -304,13 +306,22 @@ module.exports = React.createFactory(React.createClass {
     r 'div' { className = 'edit-query' } (
       r 'h2' {} 'Query'
       r 'div' { className = 'buttons' } (
+        r 'button' { className = 'add-to-clipboard', onClick = self.addToClipboard } 'Add to Clipboard'
+        r 'button' { className = 'clipboard', onClick = self.addToClipboard } 'Clipboard'
+        DropdownButton {title = 'Clipboard'} (
+          if (self.state.clipboard)
+            [
+              q <- self.state.clipboard
+              MenuItem {} (q.name)
+            ]
+        )
         if (self.state.dirty)
           [
             if (self.props.query.id)
               [
                 r 'button' { className = 'insert-query-before', onClick = self.insertBefore } 'Insert Before'
                 r 'button' { className = 'insert-query-after', onClick = self.insertAfter } 'Insert After'
-                r 'button' { className = 'save', onClick = self.save } 'Save'
+                r 'button' { className = 'save', onClick = self.save } 'Overwrite'
               ]
             else
               [
@@ -333,7 +344,7 @@ module.exports = React.createFactory(React.createClass {
         )
         r 'li' {key = 'qtext', className = 'question' } (
           r 'label' {} 'Question'
-          r 'textarea' { onChange = self.bind(self.props.query, 'text') } ( self.props.query.text )
+          r 'textarea' { onChange = self.bind(self.props.query, 'text'), value = self.props.query.text }
         )
         r 'li' {key = 'level', className = 'level' } (
           r 'label' {} 'Level'

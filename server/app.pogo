@@ -7,7 +7,6 @@ BasicStrategy = require 'passport-http'.BasicStrategy
 api = require './api'
 _ = require 'underscore'
 
-apiUsers = require './apiUsers.json'
 users = require './users.pogo'
 User = require './models/user'
 
@@ -31,8 +30,9 @@ passport.serializeUser(User.serializeUser())
 passport.deserializeUser(User.deserializeUser())
 
 passport.use (new (BasicStrategy @(username, password, done)
-  if (apiUsers."#(username):#(password)")
-    done(nil, { username = username })
+  console.log 'in basic auth'
+  if (app.get 'apiUsers'."#(username):#(password)")
+    done(nil, { id = username, username = username })
   else
     done()
 ))

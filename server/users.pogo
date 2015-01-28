@@ -13,4 +13,7 @@ exports.authenticate! (email, password) =
         failure (otherStuff)
 
 exports.signUp! (email, password) =
-  User.register (@new User({ email = email }), password) ^!
+  user = User.register (@new User({ email = email }), password) ^!
+  user.id = user._id
+  delete (user._id)
+  user

@@ -71,15 +71,24 @@ module.exports () =
 
         ids
 
-      list() =
-        ids = self.ids()!
-        if (ids.length > 0)
+      getAll(ids, withPrefix) =
+        keys =
+          if (withPrefix)
+            ids
+          else
+            [id <- ids, "#(name):#(id)"]
+
+        if (keys.length > 0)
           objects = [
-            p <- client.mget(ids)!
+            p <- client.mget(keys)!
             JSON.parse(p)
           ]
         else
           []
+
+      list() =
+        ids = self.ids()!
+        self.getAll(ids, true)!
 
       removeAll() =
         ids = self.ids()!
@@ -87,9 +96,57 @@ module.exports () =
           client.del(ids, ...)!
     }
 
+  orderedListPrototype = prototype {
+    add(id, item) =
+      i = self.collection.add(item)!
+      client.rpush("#(self.name):#(id)", i.id)!
+      i
+
+    addAll(id, items) =
+      self.collection.addAll(items)!
+      client.rpush ("#(self.name):#(id)", [i <- items, i.id], ...)!
+
+    list(id) =
+      ids = client.lrange("#(self.name):#(id)", 0, -1)!
+      self.collection.getAll(ids)!
+
+    moveAfter(id, itemId, afterItemId) =
+      client.multi()
+      client.linsert("#(self.name):#(id)", 'after', afterItemId, itemId)
+      client.lrem("#(self.name):#(id)", 1, itemId)
+      client.exec()!
+
+    moveBefore(id, itemId, beforeItemId) =
+      client.multi()
+      client.linsert("#(self.name):#(id)", 'before', beforeItemId, itemId)
+      client.lrem("#(self.name):#(id)", -1, itemId)
+      client.exec()!
+
+    insertBefore(id, itemId, item) =
+      i = self.collection.add(item)!
+      client.linsert("#(self.name):#(id)", 'before', itemId, i.id)!
+      i
+
+    insertAfter(id, itemId, item) =
+      i = self.collection.add(item)!
+      client.linsert("#(self.name):#(id)", 'after', itemId, i.id)!
+      i
+
+    remove(id, itemId) =
+      self.collection.remove(itemId)!
+      client.lrem("#(self.name):#(id)", 1, itemId)!
+  }
+
+  orderedList(name, collection) = orderedListPrototype {
+    name = name
+    collection = collection
+  }
+
   blocks = domainObject 'block'
   predicants = domainObject 'predicant'
   queries = domainObject 'query'
+  blockQueries = orderedList('block_queries', queries)
+  userQueries = orderedList('user_queries', queries)
 
   {
     clear() =
@@ -126,10 +183,8 @@ module.exports () =
       writePredicants()!
 
       writeBlock(block) =
-        queries.addAll(block.queries)!
-        id = block.id
         savedBlock = blocks.add(_.omit(block, 'queries'))!
-        client.rpush ("block_queries:#(savedBlock.id)", [q <- block.queries, q.id], ...)!
+        blockQueries.addAll(savedBlock.id, block.queries)!
 
       [
         block <- lexicon.blocks
@@ -144,16 +199,10 @@ module.exports () =
       query
 
     moveQueryAfter(blockId, queryId, afterQueryId) =
-      client.multi()
-      client.linsert("block_queries:#(blockId)", 'after', afterQueryId, queryId)
-      client.lrem("block_queries:#(blockId)", 1, queryId)
-      client.exec()!
+      blockQueries.moveAfter(blockId, queryId, afterQueryId)!
 
     moveQueryBefore(blockId, queryId, beforeQueryId) =
-      client.multi()
-      client.linsert("block_queries:#(blockId)", 'before', beforeQueryId, queryId)
-      client.lrem("block_queries:#(blockId)", -1, queryId)
-      client.exec()!
+      blockQueries.moveBefore(blockId, queryId, beforeQueryId)!
 
     listBlocks()! =
       b = blocks.list()!
@@ -169,23 +218,25 @@ module.exports () =
       blocks.update(id, block)!
 
     insertQueryBefore(blockId, queryId, query) =
-      q = queries.add(query)!
-      client.linsert("block_queries:#(blockId)", 'before', queryId, q.id)!
-      q
+      blockQueries.insertBefore(blockId, queryId, query)!
 
     insertQueryAfter(blockId, queryId, query) =
-      q = queries.add(query)!
-      client.linsert("block_queries:#(blockId)", 'after', queryId, q.id)!
-      q
+      blockQueries.insertAfter(blockId, queryId, query)!
 
     addQuery(blockId, query) =
-      q = queries.add(query)!
-      client.rpush("block_queries:#(blockId)", q.id)!
-      q
+      blockQueries.add(blockId, query)!
+
+    addQueryToUser(userId, query) =
+      userQueries.add(userId, query)!
+
+    userQueries(userId, query) =
+      userQueries.list(userId)!
+
+    deleteUserQuery(userId, queryId) =
+      userQueries.remove(userId, queryId)!
 
     deleteQuery(blockId, queryId) =
-      queries.remove(queryId)!
-      client.lrem("block_queries:#(blockId)", 1, queryId)!
+      blockQueries.remove(blockId, queryId)!
 
     predicants(predicant) =
       _.indexBy(predicants.list()!, 'id')
@@ -200,13 +251,5 @@ module.exports () =
       predicants.addAll(p)!
 
     blockQueries(blockId)! =
-      queryIds = client.lrange("block_queries:#(blockId)", 0, -1)!
-
-      if (queryIds.length > 0)
-        [
-          query <- client.mget ([q <- queryIds, "query:#(q)"], ...)!
-          JSON.parse(query)
-        ]
-      else
-        []
+      blockQueries.list(blockId)!
   }

@@ -47,20 +47,20 @@ app.delete '/blocks/:blockId/queries/:queryId' @(req, res)
   db.deleteQuery(req.param 'blockId', req.param 'queryId')!
   res.send {}
 
-app.post '/blocks/:id/queries' @(req, res)
+app.post '/blocks/:blockId/queries' @(req, res)
   db = app.get 'db'
   query = req.body
 
   if (query.before)
     before = query.before
     delete (query.before)
-    res.send (db.insertQueryBefore(req.param 'id', before, query)!)
+    res.send (db.insertQueryBefore(req.param 'blockId', before, query)!)
   else if (query.after)
     after = query.after
     delete (query.after)
-    res.send (db.insertQueryAfter(req.param 'id', after, query)!)
+    res.send (db.insertQueryAfter(req.param 'blockId', after, query)!)
   else
-    res.send (db.addQuery(req.param 'id', query)!)
+    res.send (db.addQuery(req.param 'blockId', query)!)
 
 app.post '/lexicon' @(req, res)
   db = app.get 'db'
@@ -84,6 +84,22 @@ app.post '/predicants' @(req, res)
 app.delete '/predicants' @(req, res)
   db = app.get 'db'
   db.removeAllPredicants()!
+  res.status(204).send({})
+
+app.post '/user/queries' @(req, res)
+  db = app.get 'db'
+  query = req.body
+  res.send (db.addQueryToUser(req.user.id, query)!)
+
+app.get '/user/queries' @(req, res)
+  db = app.get 'db'
+  query = req.body
+  res.send (db.userQueries(req.user.id, query)!)
+
+app.delete '/user/queries/:queryId' @(req, res)
+  db = app.get 'db'
+  query = req.body
+  db.deleteUserQuery(req.user.id, req.param 'queryId')!
   res.status(204).send({})
 
 module.exports = app

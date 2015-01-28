@@ -198,6 +198,9 @@ module.exports = React.createFactory(React.createClass {
     self.state.selectedBlock.update()
     self.replaceWith 'query' { blockId = self.blockId(), queryId = query.id }
 
+  addQueryToClipboard(query) =
+    self.props.http.post("/api/user/queries", query)!
+
   insertQueryAfter(q) =
     q.after = q.id
     q.id = nil
@@ -341,6 +344,7 @@ module.exports = React.createFactory(React.createClass {
                 createQuery = self.createQuery
                 insertQueryBefore = self.insertQueryBefore
                 insertQueryAfter = self.insertQueryAfter
+                addQueryToClipboard = self.addQueryToClipboard
               }
             ]
         )

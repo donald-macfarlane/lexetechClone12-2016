@@ -56,6 +56,16 @@ module.exports() =
       body = block.queries
     }
 
+  userQueries = []
+
+  router.post '/api/user/queries' @(req)
+    userQueries.push(req.body)
+    req.body.id = String(userQueries.length)
+    {
+      statusCode = 201
+      body = req.body
+    }
+
   blocks = model('/api/blocks')
   predicants = []
 
@@ -67,4 +77,5 @@ module.exports() =
   {
     blocks = blocks
     predicants = predicants
+    userQueries = userQueries
   }
