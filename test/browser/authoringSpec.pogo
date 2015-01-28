@@ -7,6 +7,8 @@ $ = require 'jquery'
 expect = require 'chai'.expect
 chinchilla = require 'chinchilla'
 
+createRouter = require './router'
+
 queryApi = require './queryApi'
 
 describe 'authoring'
@@ -35,37 +37,6 @@ describe 'authoring'
     el = find!(css)
     sendkeys(el, text)
 
-  context 'when already have a block'
-    beforeEach
-      div := createTestDiv()
-      api := queryApi()
-
-      window.location = '#/authoring/blocks/1/queries/create'
-
-      api.blocks.push {
-        name = 'one'
-      }
-
-      lexeme(div, {}, { user = { email = 'blah@example.com'} }, { historyApi = false })
-
-    it "asdflk" =>
-      self.timeout 100000
-      // click!('button', text = 'Add Query')
-
-      typeIn!('.edit-query ul li.name input', 'Query Name')
-      click!('.edit-query button', text = 'Create')
-
-      retry!
-        expect(api.blocks.(0).queries).to.eql [
-          {
-            id = "1"
-            name = 'Query Name'
-            level = 0
-            predicants = []
-            responses = []
-          }
-        ]
-
   context 'when authoring'
     beforeEach
       div := createTestDiv()
@@ -86,11 +57,11 @@ describe 'authoring'
 
     describe 'blocks'
       beforeEach
-        click!('a', text = 'New Block')
+        click!('button', text = 'Add Block')
         typeIn!('#block_name', 'abcd')
         click!('button', text = 'Create')!
 
-      it.only 'can create a new block'
+      it 'can create a new block'
         retry!
           expect(api.blocks).to.eql [
             {
@@ -98,11 +69,16 @@ describe 'authoring'
               name = 'abcd'
             }
           ]
+
+        find('.blocks-queries ol li:contains("1: abcd")')!
       
       it 'can create a new query'
-        click!('button', text = 'Close')
+        find('button', text = 'Close')!
+        click!('button', text = 'Add Block')
 
-        click!('a', text = 'New Block')
+        retry!
+          expect($(find('#block_name')!).val()).to.equal ''
+
         typeIn!('#block_name', 'xyz')
         click!('button', text = 'Create')!
 
@@ -164,43 +140,8 @@ describe 'authoring'
               ]
             }
           ]
-        
-      it 'can navigate blocks and queries in a tree view'
-        api.blocks.push {
-          id = '1'
-          name = 'one'
 
-          queries = [
-            {
-              name = 'query 1.1'
-              level = 1
-            }
-            {
-              name = 'query 1.2'
-              level = 1
-            }
-            {
-              name = 'query 1.3'
-              level = 2
-            }
-          ]
-        }
-        api.blocks.push {
-          id = '2'
-          name = 'two'
-
-          queries = [
-            {
-              name = 'query 2.1'
-              level = 1
-            }
-            {
-              name = 'query 2.2'
-              level = 1
-            }
-            {
-              name = 'query 2.3'
-              level = 2
-            }
-          ]
-        }
+        retry!
+          block = $(div).find('.blocks-queries ol li:contains("2: xyz")')
+          query = block.find('ol li:contains("query 1")')
+          expect(query.length).to.equal(1)

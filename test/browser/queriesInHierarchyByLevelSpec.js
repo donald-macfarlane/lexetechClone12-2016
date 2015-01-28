@@ -81,20 +81,4 @@ describe('queriesInHierarchyByLevel', function () {
       hquery(9, 1)
     ]);
   });
-
-  it("doesn't braek", function () {
-    var queries = [
-      query(1, 1),
-      query(2, 1),
-      query(3, 0),
-      query(4, 0)
-    ];
-
-    expect(queriesInHierarchyByLevel(queries)).to.eql([
-      hquery(1, 1),
-      hquery(2, 1),
-      hquery(3, 0),
-      hquery(4, 0)
-    ]);
-  });
 });

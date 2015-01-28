@@ -24,8 +24,10 @@ module.exports = React.createFactory(React.createClass {
       }
 
     loadBlocks() =
+      blocks = _.indexBy(self.props.http.get('/api/blocks')!, 'id')
+      console.log('query has blocks', blocks)
       self.setState {
-        blocks = _.indexBy(self.props.http.get('/api/blocks')!, 'id')
+        blocks = blocks
       }
 
     loadPredicants()
@@ -271,6 +273,9 @@ module.exports = React.createFactory(React.createClass {
     self.props.createQuery(self.props.query)!
     self.update(dirty = false)
 
+  remove() =
+    self.props.removeQuery(self.props.query)!
+
   insertBefore() =
     self.props.insertQueryBefore(self.props.query)!
     self.update(dirty = false)
@@ -297,8 +302,8 @@ module.exports = React.createFactory(React.createClass {
 
   render() =
     r 'div' { className = 'edit-query' } (
+      r 'h2' {} 'Query'
       r 'div' { className = 'buttons' } (
-
         if (self.state.dirty)
           [
             if (self.props.query.id)
@@ -316,9 +321,11 @@ module.exports = React.createFactory(React.createClass {
             r 'button' { className = 'cancel', onClick = self.cancel } 'Cancel'
           ]
         else
-          r 'button' { className = 'cancel', onClick = self.cancel } 'Close'
+          r 'button' { className = 'close', onClick = self.cancel } 'Close'
+
+        if (self.props.query.id)
+          r 'button' { className = 'delete', onClick = self.remove } 'Delete'
       )
-      r 'h2' {} 'Query'
       r 'ul' {} (
         r 'li' {key = 'name', className = 'name' } (
           r 'label' {} 'Name'

@@ -11,6 +11,10 @@ moveItemInFromTo = require './moveItemInFromTo'
 $ = require 'jquery'
 blockName = require './blockName'
 queriesInHierarchyByLevel = require './queriesInHierarchyByLevel'
+rjson = require './rjson'
+
+blockPrototype = prototype {
+}
 
 module.exports = React.createFactory(React.createClass {
   mixins = [State, Navigation]
@@ -44,9 +48,9 @@ module.exports = React.createFactory(React.createClass {
           0
 
       element = self.getDOMNode()
-      h2 = $(element).find('.blocks-queries > h2')
-      marginBottom = h2.css 'margin-bottom'
-      top = Math.max(0, pxNumber(marginBottom) + h2.offset().top + h2.height() - Math.max(0, window.scrollY))
+      buttons = $(element).find('.blocks-queries > .buttons')
+      marginBottom = buttons.css 'margin-bottom'
+      top = Math.max(0, pxNumber(marginBottom) + buttons.offset().top + buttons.height() - Math.max(0, window.scrollY))
       ol = $(element).find('.blocks-queries > ol')
       ol.css('top', top + 'px')
 
@@ -74,10 +78,6 @@ module.exports = React.createFactory(React.createClass {
   componentWillReceiveProps() =
     self.loadBlock()
     self.loadQuery()
-
-  queries() =
-    path = "/api/blocks/#(self.getParams().blockId)/queries"
-    self.props.http.get(path)!
 
   loadBlocks() =
     blockSelf = self
@@ -113,10 +113,13 @@ module.exports = React.createFactory(React.createClass {
     blocksPromise!.forEach @(block)
       block.update()
 
+  clone(obj) =
+    JSON.parse(JSON.stringify(obj))
+
   loadQuery() =
     if (self.getParams().queryId)
       if (self.queryId() != self.getParams().queryId)
-        self.setState { selectedQuery = self.query()! }
+        self.setState { selectedQuery = self.clone(self.query()!) }
     else if (self.getRoutes().(self.getRoutes().length - 1).name == 'create_query')
       if (@not self.isNewQuery())
         self.setState { selectedQuery = queryComponent.create {} }
@@ -167,16 +170,16 @@ module.exports = React.createFactory(React.createClass {
     self.update(dirty = false)
 
   create() =
-    self.state.selectedBlock.block.id = self.props.http.post("/api/blocks", self.state.selectedBlock.block)!.id
-    self.replaceWith 'block' { blockId = self.blockId() }
-    self.loadBlocks()
+    id = self.props.http.post("/api/blocks", self.state.selectedBlock.block)!.id
+    self.replaceWith 'block' { blockId = id }
     self.update(dirty = false)
+    self.loadBlocks()
 
   cancel() =
     self.transitionTo('authoring')
 
   createQuery(q) =
-    self.state.selectedQuery.id = self.props.http.post("/api/blocks/#(self.getParams().blockId)/queries", q)!.id
+    self.state.selectedQuery.id = self.props.http.post("/api/blocks/#(self.blockId())/queries", q)!.id
     self.setState {
       selectedQuery = self.state.selectedQuery
     }
@@ -190,7 +193,7 @@ module.exports = React.createFactory(React.createClass {
   insertQueryBefore(q) =
     q.before = q.id
     q.id = nil
-    query = self.props.http.post("/api/blocks/#(self.getParams().blockId)/queries", q)!
+    query = self.props.http.post("/api/blocks/#(self.blockId())/queries", q)!
     self.setState { selectedQuery = query }
     self.state.selectedBlock.update()
     self.replaceWith 'query' { blockId = self.blockId(), queryId = query.id }
@@ -198,16 +201,19 @@ module.exports = React.createFactory(React.createClass {
   insertQueryAfter(q) =
     q.after = q.id
     q.id = nil
-    query = self.props.http.post("/api/blocks/#(self.getParams().blockId)/queries", q)!
+    query = self.props.http.post("/api/blocks/#(self.blockId())/queries", q)!
     self.setState { selectedQuery = query }
     self.state.selectedBlock.update()
     self.replaceWith 'query' { blockId = self.blockId(), queryId = query.id }
 
   removeQuery(q) =
-    self.props.http.delete ("/api/blocks/#(self.getParams().blockId)/queries/#(q.id)")!
-    queries = self.props.http.get "/api/blocks/#(self.getParams().blockId)/queries"!
+    self.props.http.delete ("/api/blocks/#(self.blockId())/queries/#(q.id)")!
+    queries = self.props.http.get "/api/blocks/#(self.blockId())/queries"!
     self.setState { selectedQuery = nil }
     self.state.selectedBlock.update()
+
+  addBlock() =
+    self.transitionTo 'create_block'
 
   render() =
     r 'div' { className = 'edit-block-query' } (
@@ -252,6 +258,9 @@ module.exports = React.createFactory(React.createClass {
 
         r 'div' { className = 'blocks-queries' } (
           r 'h2' {} 'Blocks'
+          r 'div' { className = 'buttons' } (
+            r 'button' { onClick = self.addBlock } 'Add Block'
+          )
           r 'ol' {} [
             blockViewModel <- self.state.blocks
             block = blockViewModel.block
@@ -292,34 +301,35 @@ module.exports = React.createFactory(React.createClass {
         )
 
       if (self.state.selectedBlock @and self.state.selectedBlock.block)
-        newQuery() =
+        addQuery() =
           self.transitionTo 'create_query' { blockId = self.blockId() }
 
         r 'div' { className = 'edit-block' } (
+          r 'h2' {} ('Block')
           r 'div' { className = 'buttons' } (
-            if (@not self.getParams().blockId)
+            if (@not self.blockId())
               r 'button' { className = 'create', onClick = self.create } 'Create'
             else if (self.state.dirty)
               r 'button' { className = 'save', onClick = self.save } 'Save'
 
-            if (@not self.state.selectedQuery)
-              if (self.state.dirty)
-                r 'button' { className = 'cancel', onClick = self.cancel } 'Cancel'
-              else
-                r 'button' { className = 'cancel', onClick = self.cancel } 'Close'
+            if (self.state.dirty @or self.isNewBlock())
+              r 'button' { className = 'cancel', onClick = self.cancel } 'Cancel'
+            else
+              r 'button' { className = 'cancel', onClick = self.cancel } 'Close'
           )
-          r 'h2' {} ('Block')
           r 'ul' {} (
             r 'li' {} (
               r 'label' { htmlFor = 'block_name' } 'Name'
               r 'input' { id = 'block_name', type = 'text', value = self.state.selectedBlock.block.name, onChange = self.nameChanged }
             )
           )
-          r 'ul' {} (
-            r 'li' {} (
-              r 'button' { onClick = newQuery } 'New Query'
+          if (self.blockId() @and self.state.selectedBlock.queries @and self.state.selectedBlock.queries.length == 0)
+            r 'ul' {} (
+              r 'li' {} (
+                r 'button' { onClick = addQuery } 'Add Query'
+              )
             )
-          )
+
           if (self.state.selectedQuery)
             [
               r 'hr' {}
@@ -334,5 +344,7 @@ module.exports = React.createFactory(React.createClass {
               }
             ]
         )
+      else
+        r 'div' {}
     )
 })
