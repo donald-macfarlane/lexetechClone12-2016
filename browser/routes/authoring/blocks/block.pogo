@@ -62,15 +62,9 @@ module.exports = React.createFactory(React.createClass {
     queriesDiv.css('min-width', width)
 
   query() =
-    if (@not self.state.blocksPromise)
-      throw (new (Error 'argh! no blocksPromise in self.query()'))
-
-    self.state.blocksPromise!
+    self.state.selectedBlock.update()!
     [
-      b <- self.state.blocks
-      b.block.id == self.getParams().blockId
-      b.queriesPromise!
-      q <- b.queries
+      q <- self.state.selectedBlock.queries
       q.id == self.getParams().queryId
       q
     ].0
@@ -93,6 +87,7 @@ module.exports = React.createFactory(React.createClass {
               self.queries = queries
               self.queriesHierarchy = queriesInHierarchyByLevel(queries)
 
+            console.log "resetting queriesPromise"
             self.queriesPromise = getQueries()
 
             self.queriesPromise!
@@ -110,16 +105,17 @@ module.exports = React.createFactory(React.createClass {
 
     self.setState { blocksPromise = blocksPromise }
 
-    blocksPromise!.forEach @(block)
+    latestBlocks = blocksPromise!
+
+    latestBlocks.forEach @(block)
       block.update()
 
-  clone(obj) =
-    JSON.parse(JSON.stringify(obj))
+    latestBlocks
 
   loadQuery() =
     if (self.getParams().queryId)
       if (self.queryId() != self.getParams().queryId)
-        self.setState { selectedQuery = self.clone(self.query()!) }
+        self.setState { selectedQuery = self.query()! }
     else if (self.getRoutes().(self.getRoutes().length - 1).name == 'create_query')
       if (@not self.isNewQuery())
         self.setState { selectedQuery = queryComponent.create {} }
@@ -129,7 +125,7 @@ module.exports = React.createFactory(React.createClass {
   loadBlock() =
     if (self.getParams().blockId)
       if (self.blockId() != self.getParams().blockId)
-        self.setState { selectedBlock = self.block()! }
+        self.setState { selectedBlock = self.block()!, dirty = false }
     else if (self.getRoutes().(self.getRoutes().length - 1).name == 'create_block')
       if (@not self.isNewBlock())
         self.setState { selectedBlock = { block = {} } }
@@ -149,11 +145,8 @@ module.exports = React.createFactory(React.createClass {
     self.state.selectedQuery @and @not self.state.selectedQuery.id
     
   block() =
-    if (@not self.state.blocksPromise)
-      throw (new (Error 'argh! no blocksPromise in self.block()'))
-
-    self.state.blocksPromise!
-    [b <- self.state.blocks, b.block.id == self.getParams().blockId, b].0
+    blocks = self.loadBlocks()!
+    [b <- blocks, b.block.id == self.getParams().blockId, b].0
     
   addQuery () =
     self.transitionTo('create_query', { blockId = self.blockId() })
@@ -171,20 +164,15 @@ module.exports = React.createFactory(React.createClass {
 
   create() =
     id = self.props.http.post("/api/blocks", self.state.selectedBlock.block)!.id
-    self.replaceWith 'block' { blockId = id }
-    self.update(dirty = false)
     self.loadBlocks()
+    self.replaceWith 'block' { blockId = id }
 
   cancel() =
     self.transitionTo('authoring')
 
   createQuery(q) =
-    self.state.selectedQuery.id = self.props.http.post("/api/blocks/#(self.blockId())/queries", q)!.id
-    self.setState {
-      selectedQuery = self.state.selectedQuery
-    }
-    self.state.selectedBlock.update()
-    self.replaceWith 'query' { blockId = self.blockId(), queryId = self.queryId() }
+    id = self.props.http.post("/api/blocks/#(self.blockId())/queries", q)!.id
+    self.replaceWith 'query' { blockId = self.blockId(), queryId = id }
 
   updateQuery(q) =
     self.props.http.post("/api/blocks/#(self.blockId())/queries/#(q.id)", q)!
@@ -194,8 +182,6 @@ module.exports = React.createFactory(React.createClass {
     q.before = q.id
     q.id = nil
     query = self.props.http.post("/api/blocks/#(self.blockId())/queries", q)!
-    self.setState { selectedQuery = query }
-    self.state.selectedBlock.update()
     self.replaceWith 'query' { blockId = self.blockId(), queryId = query.id }
 
   addQueryToClipboard(query) =
@@ -205,8 +191,6 @@ module.exports = React.createFactory(React.createClass {
     q.after = q.id
     q.id = nil
     query = self.props.http.post("/api/blocks/#(self.blockId())/queries", q)!
-    self.setState { selectedQuery = query }
-    self.state.selectedBlock.update()
     self.replaceWith 'query' { blockId = self.blockId(), queryId = query.id }
 
   removeQuery(q) =
@@ -350,5 +334,7 @@ module.exports = React.createFactory(React.createClass {
         )
       else
         r 'div' {}
+
+      rjson(self.state)
     )
 })

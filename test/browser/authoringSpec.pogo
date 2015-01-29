@@ -71,6 +71,9 @@ describe 'authoring'
           ]
 
         find('.blocks-queries ol li:contains("1: abcd")')!
+
+        retry!
+          expect($(div).find('#block_name').val()).to.equal('abcd')
       
       it 'can create a new query'
         find('button', text = 'Close')!

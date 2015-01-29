@@ -42,6 +42,7 @@ passport.use(User.createStrategy())
 basicAuth = passport.authenticate('basic', { session = false })
 
 app.use '/api' @(req, res, next)
+  console.log "in api auth"
   if (req.user)
     next()
   else
