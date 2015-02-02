@@ -29,8 +29,21 @@ module.exports = React.createFactory(React.createClass {
         blocks = blocks
       }
 
+    self.setState {
+      query = self.props.query
+    }
+
     loadPredicants()
     loadBlocks()
+    self.loadClipboard()
+
+  componentWillReceiveProps(newprops) =
+    self.loadClipboard()
+
+    if (@not self.state.dirty)
+      self.setState {
+        query = newprops.query
+      }
 
   bind(model, field, transform) =
     @(ev)
@@ -53,7 +66,7 @@ module.exports = React.createFactory(React.createClass {
       actions = []
       id = id
     }
-    self.props.query.responses.push (response)
+    self.state.query.responses.push (response)
 
     self.update()
     self.setState { selectedResponse = response }
@@ -265,25 +278,31 @@ module.exports = React.createFactory(React.createClass {
     )
 
   save() =
-    self.props.updateQuery(self.props.query)!
+    self.props.updateQuery(self.state.query)!
     self.update(dirty = false)
 
   create() =
-    self.props.createQuery(self.props.query)!
+    self.props.createQuery(self.state.query)!
     self.update(dirty = false)
 
   remove() =
-    self.props.removeQuery(self.props.query)!
+    self.props.removeQuery(self.state.query)!
 
   insertBefore() =
-    self.props.insertQueryBefore(self.props.query)!
+    self.props.insertQueryBefore(self.state.query)!
     self.update(dirty = false)
 
+  loadClipboard() =
+    self.setState {
+      clipboard = self.props.http.get!('/api/user/queries')
+    }
+
   addToClipboard() =
-    self.props.addQueryToClipboard(self.props.query)!
+    self.props.http.post!("/api/user/queries", self.state.query)
+    self.loadClipboard()
 
   insertAfter() =
-    self.props.insertQueryAfter(self.props.query)!
+    self.props.insertQueryAfter(self.state.query)!
     self.update(dirty = false)
 
   numberInput(model, field) =
@@ -307,17 +326,22 @@ module.exports = React.createFactory(React.createClass {
       r 'h2' {} 'Query'
       r 'div' { className = 'buttons' } (
         r 'button' { className = 'add-to-clipboard', onClick = self.addToClipboard } 'Add to Clipboard'
-        r 'button' { className = 'clipboard', onClick = self.addToClipboard } 'Clipboard'
         DropdownButton {title = 'Clipboard'} (
           if (self.state.clipboard)
             [
               q <- self.state.clipboard
-              MenuItem {} (q.name)
+
+              pasteFromClipboard(ev) =
+                _.extend (self.state.query, q)
+                self.setState { query = self.state.query }
+                ev.preventDefault()
+                
+              MenuItem { onClick = pasteFromClipboard } (q.name)
             ]
         )
         if (self.state.dirty)
           [
-            if (self.props.query.id)
+            if (self.state.query.id)
               [
                 r 'button' { className = 'insert-query-before', onClick = self.insertBefore } 'Insert Before'
                 r 'button' { className = 'insert-query-after', onClick = self.insertAfter } 'Insert After'
@@ -334,26 +358,26 @@ module.exports = React.createFactory(React.createClass {
         else
           r 'button' { className = 'close', onClick = self.cancel } 'Close'
 
-        if (self.props.query.id)
+        if (self.state.query.id)
           r 'button' { className = 'delete', onClick = self.remove } 'Delete'
       )
       r 'ul' {} (
         r 'li' {key = 'name', className = 'name' } (
           r 'label' {} 'Name'
-          r 'input' {type = 'text', onChange = self.bind(self.props.query, 'name'), value = self.props.query.name }
+          r 'input' {type = 'text', onChange = self.bind(self.state.query, 'name'), value = self.state.query.name }
         )
         r 'li' {key = 'qtext', className = 'question' } (
           r 'label' {} 'Question'
-          r 'textarea' { onChange = self.bind(self.props.query, 'text'), value = self.props.query.text }
+          r 'textarea' { onChange = self.bind(self.state.query, 'text'), value = self.state.query.text }
         )
         r 'li' {key = 'level', className = 'level' } (
           r 'label' {} 'Level'
-          self.numberInput(self.props.query, 'level')
+          self.numberInput(self.state.query, 'level')
         )
 
         r 'li' {} (
           r 'label' {} 'Predicants'
-          self.renderPredicants(self.props.query.predicants)
+          self.renderPredicants(self.state.query.predicants)
         )
 
         r 'li' { className = 'responses' } (
@@ -361,10 +385,10 @@ module.exports = React.createFactory(React.createClass {
           block
             render() =
               r 'ol' {} [
-                response <- self.props.query.responses
+                response <- self.state.query.responses
 
                 remove () =
-                  self.props.query.responses = _.without(self.props.query.responses, response)
+                  self.state.query.responses = _.without(self.state.query.responses, response)
                   self.update()
 
                 r 'li' { key = response.id } (
@@ -418,7 +442,7 @@ module.exports = React.createFactory(React.createClass {
               ]
 
             itemMoved(from, to) =
-              moveItemIn (self.props.query.responses) from (from) to (to)
+              moveItemIn (self.state.query.responses) from (from) to (to)
               self.update()
 
             sortable {

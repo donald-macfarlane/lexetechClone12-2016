@@ -62,12 +62,13 @@ module.exports = React.createFactory(React.createClass {
     queriesDiv.css('min-width', width)
 
   query() =
-    self.state.selectedBlock.update()!
-    [
-      q <- self.state.selectedBlock.queries
-      q.id == self.getParams().queryId
-      q
-    ].0
+    block = self.block()
+    if (block)
+      [
+        q <- block.queries
+        q.id == self.getParams().queryId
+        q
+      ].0
 
   componentWillReceiveProps() =
     self.loadBlock()
@@ -87,11 +88,15 @@ module.exports = React.createFactory(React.createClass {
               self.queries = queries
               self.queriesHierarchy = queriesInHierarchyByLevel(queries)
 
-            console.log "resetting queriesPromise"
             self.queriesPromise = getQueries()
 
             self.queriesPromise!
             blockSelf.setState { blocks = blockSelf.state.blocks }
+            
+            if (blockSelf.blockId() == self.block.id)
+              query = blockSelf.query()
+              if (query)
+                blockSelf.setState { selectedQuery = query }
         }
       ]
 
@@ -110,12 +115,19 @@ module.exports = React.createFactory(React.createClass {
     latestBlocks.forEach @(block)
       block.update()
 
+    if (@not self.state.dirty)
+      self.setState {
+        selectedBlock = self.block()
+      }
+
     latestBlocks
 
   loadQuery() =
     if (self.getParams().queryId)
       if (self.queryId() != self.getParams().queryId)
-        self.setState { selectedQuery = self.query()! }
+        query = self.query()
+        if (query)
+          self.setState { selectedQuery = query }
     else if (self.getRoutes().(self.getRoutes().length - 1).name == 'create_query')
       if (@not self.isNewQuery())
         self.setState { selectedQuery = queryComponent.create {} }
@@ -125,7 +137,7 @@ module.exports = React.createFactory(React.createClass {
   loadBlock() =
     if (self.getParams().blockId)
       if (self.blockId() != self.getParams().blockId)
-        self.setState { selectedBlock = self.block()!, dirty = false }
+        self.setState { selectedBlock = self.block(), dirty = false }
     else if (self.getRoutes().(self.getRoutes().length - 1).name == 'create_block')
       if (@not self.isNewBlock())
         self.setState { selectedBlock = { block = {} } }
@@ -145,8 +157,7 @@ module.exports = React.createFactory(React.createClass {
     self.state.selectedQuery @and @not self.state.selectedQuery.id
     
   block() =
-    blocks = self.loadBlocks()!
-    [b <- blocks, b.block.id == self.getParams().blockId, b].0
+    [b <- self.state.blocks, b.block.id == self.getParams().blockId, b].0
     
   addQuery () =
     self.transitionTo('create_query', { blockId = self.blockId() })
@@ -172,6 +183,7 @@ module.exports = React.createFactory(React.createClass {
 
   createQuery(q) =
     id = self.props.http.post("/api/blocks/#(self.blockId())/queries", q)!.id
+    self.loadBlocks()
     self.replaceWith 'query' { blockId = self.blockId(), queryId = id }
 
   updateQuery(q) =
@@ -183,9 +195,6 @@ module.exports = React.createFactory(React.createClass {
     q.id = nil
     query = self.props.http.post("/api/blocks/#(self.blockId())/queries", q)!
     self.replaceWith 'query' { blockId = self.blockId(), queryId = query.id }
-
-  addQueryToClipboard(query) =
-    self.props.http.post("/api/user/queries", query)!
 
   insertQueryAfter(q) =
     q.after = q.id
@@ -328,13 +337,10 @@ module.exports = React.createFactory(React.createClass {
                 createQuery = self.createQuery
                 insertQueryBefore = self.insertQueryBefore
                 insertQueryAfter = self.insertQueryAfter
-                addQueryToClipboard = self.addQueryToClipboard
               }
             ]
         )
       else
         r 'div' {}
-
-      rjson(self.state)
     )
 })

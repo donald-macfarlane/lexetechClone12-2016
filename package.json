@@ -65,7 +65,7 @@
     "passport-http": "^0.2.2",
     "passport-local": "^1.0.0",
     "passport-local-mongoose": "^1.0.0",
-    "pogo": "^0.9.7",
+    "pogo": "^0.9.8",
     "pogoify": "^0.1.1",
     "react": "^0.12.2",
     "react-bootstrap": "^0.13.2",

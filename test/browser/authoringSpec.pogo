@@ -4,42 +4,77 @@ createTestDiv = require './createTestDiv'
 sendkeys = require './sendkeys'
 sendclick = require './sendclick'
 $ = require 'jquery'
-expect = require 'chai'.expect
+chai = require 'chai'
+expect = chai.expect
 chinchilla = require 'chinchilla'
+element = require './element'
 
 createRouter = require './router'
 
 queryApi = require './queryApi'
 
+authoringElement = prototypeExtending (element) {
+  dropdownMenu(name) =
+    self.find('.btn-group').containing('button.dropdown-toggle', text = name)
+    
+  dropdownMenuItem(name) =
+    self.find('ul.dropdown-menu li a', text = name)
+
+  queryMenuItem(blockName, queryName) =
+    self.blockMenuItem(blockName).find('ol li', text = queryName, message = "query  #(JSON.stringify(queryName))")
+
+  blockMenuItem(blockName, queryName) =
+    self.find('.blocks-queries ol li', text = blockName, message = "block #(JSON.stringify(blockName))")
+
+  block() =
+    self.find('.edit-block')
+
+  blockName() =
+    self.find('#block_name')
+
+  query() =
+    self.find('.edit-query')
+
+  queryName() =
+    self.find('.edit-query ul li.name input')
+}
+
 describe 'authoring'
   div = nil
   api = nil
 
-  find(css, text = nil) =
-    retry!
-      cssContains =
-        if (text)
-          css + ":contains(#(JSON.stringify(text)))"
-        else
-          css
+  foundElement = prototype {
+    click() = sendclick(self.element)
+    typeIn(text) = sendkeys(self.element, text)
 
-      els = $(div).find(cssContains)
-      expect(els.length).to.eql 1 "expected to find exactly one element `#(cssContains)'"
-      els.(els.length - 1)
+    find(css, predicate = nil, text = nil, contains = nil) =
+      retry!
+        cssContains =
+          if (text)
+            css + ":contains(#(JSON.stringify(text)))"
+          else
+            css
 
-  click(css, text = nil) =
-    el = find!(css, text = text)
+        els = $(self.element).find(cssContains)
+        expect(els.length).to.eql 1 "expected to find exactly one element `#(cssContains)'"
+        found = els.(els.length - 1)
 
-    //$(el).click()
-    sendclick(el)
+        if (predicate)
+          predicate(found)
 
-  typeIn(css, text) =
-    el = find!(css)
-    sendkeys(el, text)
+        if (contains)
+          expect($(found).find(contains).length).to.be.greaterThan(0)
+
+        foundElement { element = found }
+  }
 
   context 'when authoring'
+    page = nil
+
     beforeEach
       div := createTestDiv()
+      page := authoringElement { element = div }
+
       api := queryApi()
 
       api.predicants.push {
@@ -56,10 +91,11 @@ describe 'authoring'
       lexeme(div, {}, { user = { email = 'blah@example.com'} }, { historyApi = false })
 
     describe 'blocks'
+
       beforeEach
-        click!('button', text = 'Add Block')
-        typeIn!('#block_name', 'abcd')
-        click!('button', text = 'Create')!
+        page.find('button', text = 'Add Block').click!()
+        page.find('#block_name').typeIn!('abcd')
+        page.find('button', text = 'Create').click!()
 
       it 'can create a new block'
         retry!
@@ -70,46 +106,46 @@ describe 'authoring'
             }
           ]
 
-        find('.blocks-queries ol li:contains("1: abcd")')!
-
-        retry!
-          expect($(div).find('#block_name').val()).to.equal('abcd')
+        page.find('.blocks-queries ol li:contains("1: abcd")').exists()!
+        page.find('#block_name', ensure(e) = expect(e.val()).to.equal('abcd')).exists!()
       
       it 'can create a new query'
-        find('button', text = 'Close')!
-        click!('button', text = 'Add Block')
+        page.find('button', text = 'Close').exists!()
+        page.find('button', text = 'Add Block').click!()
 
-        retry!
-          expect($(find('#block_name')!).val()).to.equal ''
+        page.find('#block_name', ensure(el) = expect(el.val()).to.equal '').exists()!
 
-        typeIn!('#block_name', 'xyz')
-        click!('button', text = 'Create')!
+        page.find('#block_name').typeIn!('xyz')
+        page.find('button', text = 'Create').click!()
 
-        click!('button', text = 'Add Query')
+        page.find('button', text = 'Add Query').click!()
 
-        typeIn!('.edit-query ul li.name input', 'query 1')
-        typeIn!('.edit-query ul li.question textarea', 'question 1')
-        typeIn!('.edit-query ul li.level input', '3')
-        typeIn!('.edit-query ul li div.predicants input', 'hemo viii')
-        click!('.edit-query ul li div.predicants ol li', text = 'HemophilVIII')
+        editQuery = page.find('.edit-query')
+        editQuery.find('ul li.name input').typeIn!('query 1')
+        editQuery.find('ul li.question textarea').typeIn!('question 1')
+        editQuery.find('ul li.level input').typeIn!('3')
+        editQuery.find('ul li div.predicants input').typeIn!('hemo viii')
+        editQuery.find('ul li div.predicants ol li', text = 'HemophilVIII').click!()
 
-        click!('.edit-query ul li.responses button', text = 'Add Response')
-        typeIn!('.edit-query ul li.responses ul li.selector textarea', 'response 1')
-        typeIn!('.edit-query ul li.responses ul li.set-level input', '4')
-        typeIn!('.edit-query ul li.responses ul li div.predicants input', 'hemo')
-        click!('.edit-query ul li.responses ul li div.predicants ol li', text = 'Hemophilia')
-        typeIn!('.edit-query ul li.responses ul li.style1 textarea', 'style 1')
-        typeIn!('.edit-query ul li.responses ul li.style2 textarea', 'style 2')
+        responses = editQuery.find('ul li.responses')
+        responses.find('button', text = 'Add Response').click!()
+        responses.find('ul li.selector textarea').typeIn!('response 1')
+        responses.find('ul li.set-level input').typeIn!('4')
+        responses.find('ul li div.predicants input').typeIn!('hemo')
+        responses.find('ul li div.predicants ol li', text = 'Hemophilia').click!()
+        responses.find('ul li.style1 textarea').typeIn!('style 1')
+        responses.find('ul li.style2 textarea').typeIn!('style 2')
 
-        click!('.edit-query ul li.responses ul li.actions button', text = 'Add Action')
-        click!('.edit-query ul li.responses ul li.actions ul.dropdown-menu li a', text = 'Set Block')
-        click!('.edit-query ul li.responses ul li.actions ol li.action-set-blocks .select-list ol li', text = 'abcd')
+        actions = responses.find('ul li.actions')
+        actions.find('button', text = 'Add Action').click!()
+        actions.find('ul.dropdown-menu li a', text = 'Set Block').click!()
+        actions.find('ol li.action-set-blocks .select-list ol li', text = 'abcd').click!()
 
-        click!('.edit-query ul li.responses ul li.actions button', text = 'Add Action')
-        click!('.edit-query ul li.responses ul li.actions ul.dropdown-menu li a', text = 'Add Block')
-        click!('.edit-query ul li.responses ul li.actions ol li.action-add-blocks .select-list ol li', text = 'xyz')
+        actions.find('button', text = 'Add Action').click!()
+        actions.find('ul.dropdown-menu li a', text = 'Add Block').click!()
+        actions.find('ol li.action-add-blocks .select-list ol li', text = 'xyz').click!()
 
-        click!('.edit-query button', text = 'Create')
+        page.find('.edit-query button', text = 'Create').click!()
 
         retry!
           expect(api.blocks.(1).queries).to.eql [
@@ -144,13 +180,109 @@ describe 'authoring'
             }
           ]
 
-        retry!
-          block = $(div).find('.blocks-queries ol li:contains("2: xyz")')
-          query = block.find('ol li:contains("query 1")')
-          expect(query.length).to.equal(1)
+        page.queryMenuItem('xyz', 'query 1').exists!()
+
+    describe 'selecting blocks and queries'
+      beforeEach
+        api.blocks.push {
+          id = '1'
+          name = 'one'
+
+          queries = [
+            {
+              id = '1'
+              name = 'query 1'
+              text = 'question 1'
+              level = 1
+              predicants = []
+              responses = []
+            }
+          ]
+        }
+        api.blocks.push {
+          id = '2'
+          name = 'two'
+
+          queries = [
+            {
+              id = '2'
+              name = 'query 2'
+              text = 'question 2'
+              level = 1
+              predicants = []
+              responses = []
+            }
+          ]
+        }
+
+      it 'can select one block after another'
+        page.blockMenuItem('one').click!()
+        page.blockName().wait! @(element)
+          expect(element.val()).to.equal 'one'
+
+        page.blockMenuItem('two').click!()
+        page.blockName().wait! @(element)
+          expect(element.val()).to.equal 'two'
+
+      it 'can select one query after another'
+        page.queryMenuItem('one', 'query 1').click!()
+        page.queryName().wait! @(element)
+          expect(element.val()).to.equal 'query 1'
+
+        page.queryMenuItem('two', 'query 2').click!()
+        page.queryName().wait! @(element)
+          expect(element.val()).to.equal 'query 2'
+
+    describe 'updating and inserting queries'
+      beforeEach
+        api.blocks.push {
+          id = '1'
+          name = 'one'
+
+          queries = [
+            {
+              id = '1'
+              name = 'query 1'
+              text = 'question 1'
+              level = 1
+              predicants = []
+              responses = []
+            }
+          ]
+        }
+      
+      it 'can update a block'
+        page.queryMenuItem('one').click!()
+        page.blockName().typeIn!('one (updated)')
+        page.block().find('button', text = 'Save').click!()
+
+        page.blockMenuItem('one (updated)').exists!()
+      
+      it 'can update a query'
+        page.queryMenuItem('one', 'query 1').click!()
+        page.queryName().typeIn!('query 1 (updated)')
+        page.query().find('button', text = 'Overwrite').click!()
+
+        page.queryMenuItem('one', 'query 1 (updated)').exists!()
+      
+      it.only 'can insert a query before'
+        page.queryMenuItem('one', 'query 1').click!()
+        page.queryName().typeIn!('query 2 (before 1)')
+        page.query().find('button', text = 'Insert Before').click!()
+
+        page.queryMenuItem('one', 'query 2 (before 1)').exists!()
+        page.queryMenuItem('one', 'query 1').exists!()
+      
+      it.only 'can insert a query after'
+        page.queryMenuItem('one', 'query 1').click!()
+        page.queryName().typeIn!('query 2 (after 1)')
+        page.query().find('button', text = 'Insert After').click!()
+
+        page.queryMenuItem('one', 'query 2 (after 1)').exists!()
+        page.queryMenuItem('one', 'query 1').exists!()
 
     describe 'clipboards'
-      it.only 'can add a query to the clipboard'
+      beforeEach
         api.blocks.push {
           id = '1'
           name = 'one'
@@ -167,16 +299,49 @@ describe 'authoring'
           ]
         }
 
+      selectQuery(blockName, queryName) =
         query = retry!
-          block = $(div).find('.blocks-queries ol li:contains("1: one")')
-          q = block.find('ol li:contains("query 1")')
+          block = $(div).find(".blocks-queries ol li:contains(#(JSON.stringify(blockName)))")
+          q = block.find("ol li:contains(#(JSON.stringify(queryName)))")
           expect(q.length).to.equal(1)
           q
 
-        click!(query)
-        click!('button', text = 'Add to Clipboard')
+        page.find!(query).click()
+
+      it 'can add a query to the clipboard'
+        page.queryMenuItem('one', 'query 1').click()!
+        page.find('button', text = 'Add to Clipboard').click()!
 
         retry!
-          expect([q <- api.userQueries, q.name]).to.eql ['query 1']
+          expect(api.clipboard).to.eql [
+            {
+              id = '1'
+              name = 'query 1'
+              text = 'question 1'
+              level = 1
+              predicants = []
+              responses = []
+            }
+        ]
 
-        click('button.clipboard', text = 'Clipboard')
+        page.dropdownMenu('Clipboard').click()!
+        page.dropdownMenu('Clipboard').dropdownMenuItem('query 1').exists()!
+
+      context 'when there is a query in the clipboard'
+        beforeEach
+          api.clipboard.push {
+            id = '1'
+            name = 'query 2'
+            text = 'question 1'
+            level = 1
+            predicants = []
+            responses = []
+          }
+
+        it 'can paste the query into a new query'
+          page.queryMenuItem('one', 'query 1').click()!
+
+          page.dropdownMenu('Clipboard').click()!
+          page.dropdownMenu('Clipboard').dropdownMenuItem('query 2').click()!
+
+          page.find('.edit-query ul li.name input', ensure(input) = expect(input.val()).to.equal 'query 2').exists()!
