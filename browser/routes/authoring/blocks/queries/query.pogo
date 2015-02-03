@@ -66,6 +66,8 @@ module.exports = React.createFactory(React.createClass {
 
       self.update()
 
+  textValue(value) = value @or ''
+
   addResponse() =
     id = ++self.state.lastResponseId
     response = {
@@ -193,11 +195,11 @@ module.exports = React.createFactory(React.createClass {
           r 'ul' {} (
             r 'li' {} (
               r 'label' {} 'Name'
-              r 'input' { type = 'text', onChange = self.bind(action.arguments, 0), value = action.arguments.0 }
+              r 'input' { type = 'text', onChange = self.bind(action.arguments, 0), value = self.textValue(action.arguments.0) }
             )
             r 'li' {} (
               r 'label' {} 'Value'
-              r 'input' { type = 'text', onChange = self.bind(action.arguments, 1), value = action.arguments.1 }
+              r 'input' { type = 'text', onChange = self.bind(action.arguments, 1), value = self.textValue(action.arguments.1) }
             )
           )
           removeButton()
@@ -209,7 +211,7 @@ module.exports = React.createFactory(React.createClass {
           r 'ul' {} (
             r 'li' {} (
               r 'label' {} 'Email Address'
-              r 'input' { type = 'text', onChange = self.bind(action.arguments, 0), value = action.arguments.0 }
+              r 'input' { type = 'text', onChange = self.bind(action.arguments, 0), value = self.textValue(action.arguments.0) }
             )
           )
           removeButton()
@@ -322,46 +324,57 @@ module.exports = React.createFactory(React.createClass {
     }
 
   cancel() =
+    self.setState {
+      query = clone(self.props.query)
+      dirty = false
+    }
+
+  close() =
     self.transitionTo('block', { blockId = self.getParams().blockId })
 
   addToClipboard() =
     self.props.addToClipboard(self.state.query)
 
   render() =
+    activeWhen(b) =
+      if (b)
+        ''
+      else
+        ' disabled'
+
+    dirty = self.state.dirty
+    created = self.state.query.id
+
+    activeWhenDirtyAndCreated = activeWhen(dirty @and created)
+
     r 'div' { className = 'edit-query' } (
       r 'h2' {} 'Query'
       r 'div' { className = 'buttons' } (
         r 'button' { className = 'add-to-clipboard', onClick = self.addToClipboard } 'Add to Clipboard'
-        if (self.state.dirty)
+        if (created)
           [
-            if (self.state.query.id)
-              [
-                r 'button' { className = 'insert-query-before', onClick = self.insertBefore } 'Insert Before'
-                r 'button' { className = 'insert-query-after', onClick = self.insertAfter } 'Insert After'
-                r 'button' { className = 'save', onClick = self.save } 'Overwrite'
-              ]
-            else
-              [
-                r 'button' { className = 'create', onClick = self.create } 'Create'
-              ]
-
-            ...
-            r 'button' { className = 'cancel', onClick = self.cancel } 'Cancel'
+            r 'button' { className = 'insert-query-before' + activeWhenDirtyAndCreated, onClick = self.insertBefore } 'Insert Before'
+            r 'button' { className = 'insert-query-after' + activeWhenDirtyAndCreated, onClick = self.insertAfter } 'Insert After'
+            r 'button' { className = 'save' + activeWhenDirtyAndCreated, onClick = self.save } 'Overwrite'
+            r 'button' { className = 'cancel' + activeWhen(dirty), onClick = self.cancel } 'Cancel'
+            r 'button' { className = 'delete', onClick = self.remove } 'Delete'
+            r 'button' { className = 'close', onClick = self.close } 'Close'
           ]
         else
-          r 'button' { className = 'close', onClick = self.cancel } 'Close'
-
-        if (self.state.query.id)
-          r 'button' { className = 'delete', onClick = self.remove } 'Delete'
+          [
+            r 'button' { className = 'create' + activeWhen(dirty @and @not created), onClick = self.create } 'Create'
+            r 'button' { className = 'cancel' + activeWhen(dirty), onClick = self.cancel } 'Cancel'
+            r 'button' { className = 'close', onClick = self.close } 'Close'
+          ]
       )
       r 'ul' {} (
         r 'li' {key = 'name', className = 'name' } (
           r 'label' {} 'Name'
-          r 'input' {type = 'text', onChange = self.bind(self.state.query, 'name'), value = self.state.query.name }
+          r 'input' {type = 'text', onChange = self.bind(self.state.query, 'name'), value = self.textValue(self.state.query.name) }
         )
         r 'li' {key = 'qtext', className = 'question' } (
           r 'label' {} 'Question'
-          r 'textarea' { onChange = self.bind(self.state.query, 'text'), value = self.state.query.text }
+          r 'textarea' { onChange = self.bind(self.state.query, 'text'), value = self.textValue(self.state.query.text) }
         )
         r 'li' {key = 'level', className = 'level' } (
           r 'label' {} 'Level'
@@ -401,7 +414,7 @@ module.exports = React.createFactory(React.createClass {
                       r 'ul' {} (
                         r 'li' { className = 'selector' } (
                           r 'label' {} 'Selector'
-                          r 'textarea' { onChange = self.bind(response, 'text'), value = response.text, onFocus = select }
+                          r 'textarea' { onChange = self.bind(response, 'text'), value = self.textValue(response.text), onFocus = select }
                         )
                         if (self.state.selectedResponse == response)
                           [
@@ -411,11 +424,11 @@ module.exports = React.createFactory(React.createClass {
                             )
                             r 'li' { className = 'style1' } (
                               r 'label' {} 'Style 1'
-                              r 'textarea' { onChange = self.bind(response.styles, 'style1'), value = response.styles.('1') }
+                              r 'textarea' { onChange = self.bind(response.styles, 'style1'), value = self.textValue(response.styles.('1')) }
                             )
                             r 'li' { className = 'style2' } (
                               r 'label' {} 'Style 2'
-                              r 'textarea' { onChange = self.bind(response.styles, 'style2'), value = response.styles.('2') }
+                              r 'textarea' { onChange = self.bind(response.styles, 'style2'), value = self.textValue(response.styles.('2')) }
                             )
                             r 'li' { className = 'actions' } (
                               r 'label' {} 'Actions'

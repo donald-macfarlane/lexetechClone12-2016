@@ -248,6 +248,8 @@ module.exports = React.createFactory(React.createClass {
       showClipboard = @not self.state.showClipboard
     }
 
+  textValue(value) = value @or ''
+
   render() =
     r 'div' { className = 'edit-block-query' } (
       r 'div' { className = 'left-panel' } (
@@ -265,7 +267,7 @@ module.exports = React.createFactory(React.createClass {
                     self.pasteQueryFromClipboard(q)
                     ev.preventDefault()
                     
-                  r 'li' { onClick = pasteFromClipboard } (q.name)
+                  r 'li' { onClick = pasteFromClipboard } (r 'h4' {} (q.name))
                 ]
             ]
         )
@@ -374,7 +376,7 @@ module.exports = React.createFactory(React.createClass {
           r 'ul' {} (
             r 'li' {} (
               r 'label' { htmlFor = 'block_name' } 'Name'
-              r 'input' { id = 'block_name', type = 'text', value = self.state.selectedBlock.block.name, onChange = self.nameChanged }
+              r 'input' { id = 'block_name', type = 'text', value = self.textValue(self.state.selectedBlock.block.name), onChange = self.nameChanged }
             )
           )
           if (self.blockId() @and self.state.selectedBlock.queries @and self.state.selectedBlock.queries.length == 0)

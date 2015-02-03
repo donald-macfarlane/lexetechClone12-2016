@@ -220,6 +220,7 @@ hr {
     padding: 5px 10px;
     outline: none;
     color: rgb(110, 102, 49);
+    margin-bottom: 5px;
 
     &.remove {
       background-color: inherit;
@@ -256,6 +257,12 @@ hr {
       background-color: rgb(244, 138, 138);
       border-color: rgb(226, 97, 97);
       color: white;
+    }
+
+    button.disabled {
+      box-shadow: none;
+      background-color: rgb(251, 252, 243);
+      color: rgb(208, 205, 177);
     }
   }
 
@@ -350,6 +357,29 @@ hr {
     &:hover {
       > .buttons {
         display: block;
+      }
+    }
+  }
+
+  .clipboard {
+    h2 {
+      a {
+        color: inherit;
+      }
+    }
+    > ol {
+      list-style-type: none;
+      background-color: rgba(149, 153, 86, 0.16);
+      padding-left: 0;
+
+      h4 {
+        margin: 0;
+        padding: 4px;
+        cursor: pointer;
+
+        &:hover {
+          background-color: rgba(197, 199, 165, 0.22);
+        }
       }
     }
   }
