@@ -23,23 +23,42 @@ module.exports() =
         body = request.body
       }
 
-    router.put(url + '/:id') @(request)
-      collection.(Number(request.params.id) + 1) = request.body
+    router.post(url + '/:id') @(request)
+      collection.(Number(request.params.id) - 1) = request.body
       {
         statusCode = 200
       }
 
+    router.delete(url + '/:id') @(request)
+      collection.splice(Number(request.params.id) - 1, 1)
+      {
+        statusCode = 204
+      }
+
     collection
 
-  router.get '/api/blocks/:blockid/queries/:queryid' @(req)
-    block = blocks.(req.params.blockid - 1)
+  router.get '/api/blocks/:blockId/queries/:queryId' @(req)
+    block = blocks.(req.params.blockId - 1)
     block.queries = block.queries @or []
     {
-      body = block.queries.(req.params.queryid)
+      body = block.queries.(req.params.queryId)
     }
 
-  router.post '/api/blocks/:blockid/queries' @(req)
-    block = blocks.(req.params.blockid - 1)
+  router.post '/api/blocks/:blockId/queries/:queryId' @(req)
+    block = blocks.(req.params.blockId - 1)
+
+    if (block)
+      block.queries = block.queries @or []
+      block.queries.(Number(req.params.queryId) - 1) = req.body
+      {
+      }
+    else
+      {
+        statusCode = 404
+      }
+
+  router.post '/api/blocks/:blockId/queries' @(req)
+    block = blocks.(req.params.blockId - 1)
     block.queries = block.queries @or []
     block.queries.push(req.body)
     req.body.id = String(block.queries.length)
@@ -48,12 +67,28 @@ module.exports() =
       body = req.body
     }
 
-  router.get '/api/blocks/:blockid/queries' @(req)
-    block = blocks.(req.params.blockid - 1)
+  router.get '/api/blocks/:blockId/queries' @(req)
+    block = blocks.(req.params.blockId - 1)
+
+    if (block)
+      block.queries = block.queries @or []
+
+      {
+        body = block.queries
+      }
+    else
+      {
+        statusCode = 404
+      }
+
+  router.delete '/api/blocks/:blockId/queries/:queryId' @(req)
+    block = blocks.(req.params.blockId - 1)
     block.queries = block.queries @or []
+    if (block.queries)
+      block.queries.splice(Number(req.params.queryId) - 1, 1)
 
     {
-      body = block.queries
+      statusCode = 204
     }
 
   userQueries = []

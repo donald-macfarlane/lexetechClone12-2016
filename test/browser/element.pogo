@@ -48,26 +48,37 @@ module.exports = prototype {
         element
     }
 
-  resolve() =
-    printFinders(finders) =
-      [f <- finders, f.toString()].join ' / '
+  printFinders(finders) =
+    [f <- finders, f.toString()].join ' / '
 
-    findElement(el, finderIndex) =
+  findElement(el) =
+    findWithFinder(el, finderIndex) =
       finder = self.finders.(finderIndex)
       if (finder)
         found = finder.find(el)
-        assert(found, "expected to find: #(printFinders(self.finders.slice(0, finderIndex + 1)))")
-        findElement(found, finderIndex + 1)
+        assert(found, "expected to find: #(self.printFinders(self.finders.slice(0, finderIndex + 1)))")
+        findWithFinder(found, finderIndex + 1)
       else
         el
 
+    findWithFinder($(el), 0)
+
+  resolve() =
     retry!
-      els = findElement(self.element, 0)
-      expect(els.length).to.equal 1 "expected to find exactly one element: #(printFinders(self.finders))"
+      els = self.findElement(self.element)
+      expect(els.length).to.equal 1 "expected to find exactly one element: #(self.printFinders(self.finders))"
       els
 
   exists() =
     self.resolve()!
+
+  doesntExist() =
+    retry!
+      try
+        els = self.findElement(self.element)
+        expect(els.length).to.equal 0 "expected not to find any elements: #(self.printFinders(self.finders))"
+      catch(e)
+        nil
 
   wait(assertion) =
     self.addFinder {

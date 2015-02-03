@@ -184,6 +184,33 @@ hr {
     }
   }
 
+  .btn-group {
+    .btn, .dropdown-menu {
+      min-width: 100px;
+      background-color: #E7E8D1;
+      box-shadow: 2px 2px 5px #CFD0AF;
+      cursor: pointer;
+    }
+
+    .dropdown-menu {
+      margin-top: 4px;
+
+      li {
+        padding: 3px 5px;
+
+        &:hover {
+          background-color: rgb(221, 223, 190);
+        }
+
+        a {
+          text-decoration: none;
+          color: #6e6631;
+          outline: none;
+        }
+      }
+    }
+  }
+
   button {
     cursor: pointer;
     border: none;
@@ -486,32 +513,6 @@ hr {
         }
       }
 
-      .btn-group {
-        .btn, .dropdown-menu {
-          min-width: 100px;
-          background-color: #E7E8D1;
-          box-shadow: 2px 2px 5px #CFD0AF;
-          cursor: pointer;
-        }
-
-        .dropdown-menu {
-          margin-top: 4px;
-
-          li {
-            padding: 3px 5px;
-            color: #6e6631;
-
-            &:hover {
-              background-color: rgb(221, 223, 190);
-            }
-
-            a {
-              text-decoration: none;
-              outline: none;
-            }
-          }
-        }
-      }
     }
   }
 

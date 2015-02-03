@@ -13,6 +13,10 @@ blockName = require './blockName'
 queriesInHierarchyByLevel = require './queriesInHierarchyByLevel'
 rjson = require './rjson'
 
+reactBootstrap = require 'react-bootstrap'
+DropdownButton = reactBootstrap.DropdownButton
+MenuItem = reactBootstrap.MenuItem
+
 blockPrototype = prototype {
 }
 
@@ -26,6 +30,7 @@ module.exports = React.createFactory(React.createClass {
     self.loadBlocks()
     self.loadBlock()
     self.loadQuery()
+    self.loadClipboard()
     self.repositionQueriesList()
     self.resizeQueriesDiv()
 
@@ -122,6 +127,17 @@ module.exports = React.createFactory(React.createClass {
 
     latestBlocks
 
+  loadClipboard() =
+    clipboard = self.props.http.get!('/api/user/queries')
+    if (self.isMounted())
+      self.setState {
+        clipboard = clipboard
+      }
+
+  addToClipboard(query) =
+    self.props.http.post!("/api/user/queries", query)
+    self.loadClipboard()
+
   loadQuery() =
     if (self.getParams().queryId)
       if (self.queryId() != self.getParams().queryId)
@@ -178,12 +194,25 @@ module.exports = React.createFactory(React.createClass {
     self.loadBlocks()
     self.replaceWith 'block' { blockId = id }
 
+  pasteQueryFromClipboard(query) =
+    if (query :: Function)
+      if (self.state.clipboardQuery)
+        query(self.state.clipboardQuery)
+        self.setState {
+          clipboardQuery = nil
+        }
+    else
+      if (self.state.selectedQuery)
+        self.setState {
+          clipboardQuery = query
+        }
+
   cancel() =
     self.transitionTo('authoring')
 
   createQuery(q) =
     id = self.props.http.post("/api/blocks/#(self.blockId())/queries", q)!.id
-    self.loadBlocks()
+    self.state.selectedBlock.update()
     self.replaceWith 'query' { blockId = self.blockId(), queryId = id }
 
   updateQuery(q) =
@@ -194,17 +223,18 @@ module.exports = React.createFactory(React.createClass {
     q.before = q.id
     q.id = nil
     query = self.props.http.post("/api/blocks/#(self.blockId())/queries", q)!
+    self.state.selectedBlock.update()
     self.replaceWith 'query' { blockId = self.blockId(), queryId = query.id }
 
   insertQueryAfter(q) =
     q.after = q.id
     q.id = nil
     query = self.props.http.post("/api/blocks/#(self.blockId())/queries", q)!
+    self.state.selectedBlock.update()
     self.replaceWith 'query' { blockId = self.blockId(), queryId = query.id }
 
   removeQuery(q) =
     self.props.http.delete ("/api/blocks/#(self.blockId())/queries/#(q.id)")!
-    queries = self.props.http.get "/api/blocks/#(self.blockId())/queries"!
     self.setState { selectedQuery = nil }
     self.state.selectedBlock.update()
 
@@ -256,6 +286,18 @@ module.exports = React.createFactory(React.createClass {
           r 'h2' {} 'Blocks'
           r 'div' { className = 'buttons' } (
             r 'button' { onClick = self.addBlock } 'Add Block'
+            DropdownButton {title = 'Paste from Clipboard'} (
+              if (self.state.clipboard)
+                [
+                  q <- self.state.clipboard
+
+                  pasteFromClipboard(ev) =
+                    self.pasteQueryFromClipboard(q)
+                    ev.preventDefault()
+                    
+                  MenuItem { onClick = pasteFromClipboard } (q.name)
+                ]
+            )
           )
           r 'ol' {} [
             blockViewModel <- self.state.blocks
@@ -337,6 +379,8 @@ module.exports = React.createFactory(React.createClass {
                 createQuery = self.createQuery
                 insertQueryBefore = self.insertQueryBefore
                 insertQueryAfter = self.insertQueryAfter
+                pasteQueryFromClipboard = self.pasteQueryFromClipboard
+                addToClipboard = self.addToClipboard
               }
             ]
         )

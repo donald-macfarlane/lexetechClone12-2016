@@ -5,7 +5,7 @@ $.mockjaxSettings.responseTime = 0
 $.mockjaxSettings.logging = false
 
 route(r) =
-  new (RegExp(r.replace(r/:[a-z0-0]+/ig, '([^/?]*)') + '(\?(.*))?'))
+  new (RegExp('^' + r.replace(r/:[a-z0-0]+/ig, '([^/?]*)') + '(\?(.*))?$'))
 
 params(pattern, url) =
   re = r/:([a-z0-9]+)/ig

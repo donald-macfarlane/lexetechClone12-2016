@@ -257,6 +257,9 @@ describe 'authoring'
         page.block().find('button', text = 'Save').click!()
 
         page.blockMenuItem('one (updated)').exists!()
+
+        retry!
+          expect([b <- api.blocks, b.name]).to.eql ['one (updated)']
       
       it 'can update a query'
         page.queryMenuItem('one', 'query 1').click!()
@@ -264,22 +267,40 @@ describe 'authoring'
         page.query().find('button', text = 'Overwrite').click!()
 
         page.queryMenuItem('one', 'query 1 (updated)').exists!()
+
+        retry!
+          expect([q <- api.blocks.0.queries, q.name]).to.eql ['query 1 (updated)']
       
-      it.only 'can insert a query before'
+      it 'can insert a query before'
         page.queryMenuItem('one', 'query 1').click!()
         page.queryName().typeIn!('query 2 (before 1)')
         page.query().find('button', text = 'Insert Before').click!()
 
         page.queryMenuItem('one', 'query 2 (before 1)').exists!()
         page.queryMenuItem('one', 'query 1').exists!()
+
+        retry!
+          expect([q <- api.blocks.0.queries, q.name]).to.eql ['query 2 (before 1)', 'query 1']
       
-      it.only 'can insert a query after'
+      it 'can insert a query after'
         page.queryMenuItem('one', 'query 1').click!()
         page.queryName().typeIn!('query 2 (after 1)')
         page.query().find('button', text = 'Insert After').click!()
 
         page.queryMenuItem('one', 'query 2 (after 1)').exists!()
         page.queryMenuItem('one', 'query 1').exists!()
+
+        retry!
+          expect([q <- api.blocks.0.queries, q.name]).to.eql ['query 1', 'query 2 (after 1)']
+      
+      it 'can delete a query'
+        page.queryMenuItem('one', 'query 1').click!()
+        page.query().find('button', text = 'Delete').click!()
+
+        page.queryMenuItem('one', 'query 1').doesntExist!()
+
+        retry!
+          expect([q <- api.blocks.0.queries, q.name]).to.eql []
 
     describe 'clipboards'
       beforeEach
@@ -299,15 +320,6 @@ describe 'authoring'
           ]
         }
 
-      selectQuery(blockName, queryName) =
-        query = retry!
-          block = $(div).find(".blocks-queries ol li:contains(#(JSON.stringify(blockName)))")
-          q = block.find("ol li:contains(#(JSON.stringify(queryName)))")
-          expect(q.length).to.equal(1)
-          q
-
-        page.find!(query).click()
-
       it 'can add a query to the clipboard'
         page.queryMenuItem('one', 'query 1').click()!
         page.find('button', text = 'Add to Clipboard').click()!
@@ -324,8 +336,8 @@ describe 'authoring'
             }
         ]
 
-        page.dropdownMenu('Clipboard').click()!
-        page.dropdownMenu('Clipboard').dropdownMenuItem('query 1').exists()!
+        page.dropdownMenu('Paste from Clipboard').click()!
+        page.dropdownMenu('Paste from Clipboard').dropdownMenuItem('query 1').exists()!
 
       context 'when there is a query in the clipboard'
         beforeEach
@@ -333,15 +345,25 @@ describe 'authoring'
             id = '1'
             name = 'query 2'
             text = 'question 1'
-            level = 1
+            level = 10
             predicants = []
             responses = []
           }
 
-        it 'can paste the query into a new query'
+        it 'can paste the query into a new query, not including level'
           page.queryMenuItem('one', 'query 1').click()!
 
-          page.dropdownMenu('Clipboard').click()!
-          page.dropdownMenu('Clipboard').dropdownMenuItem('query 2').click()!
+          page.queryName().wait! @(input)
+            expect(input.val()).to.equal 'query 1'
 
-          page.find('.edit-query ul li.name input', ensure(input) = expect(input.val()).to.equal 'query 2').exists()!
+          page.dropdownMenu('Paste from Clipboard').click()!
+          page.dropdownMenu('Paste from Clipboard').dropdownMenuItem('query 2').click()!
+
+          page.queryName().wait! @(input)
+            expect(input.val()).to.equal 'query 2'
+
+          page.query().find('li.level input').wait! @(input)
+            expect(input.val()).to.equal '1'
+
+          page.query().find('button', text = 'Overwrite').click!()
+          page.queryMenuItem('one', 'query 2').exists!()

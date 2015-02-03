@@ -19,15 +19,18 @@ module.exports = React.createFactory(React.createClass {
 
   componentDidMount() =
     loadPredicants() =
-      self.setState {
-        predicants = self.props.http.get('/api/predicants')!
-      }
+      predicants = self.props.http.get('/api/predicants')!
+      if (self.isMounted())
+        self.setState {
+          predicants = predicants
+        }
 
     loadBlocks() =
       blocks = _.indexBy(self.props.http.get('/api/blocks')!, 'id')
-      self.setState {
-        blocks = blocks
-      }
+      if (self.isMounted())
+        self.setState {
+          blocks = blocks
+        }
 
     self.setState {
       query = self.props.query
@@ -35,12 +38,19 @@ module.exports = React.createFactory(React.createClass {
 
     loadPredicants()
     loadBlocks()
-    self.loadClipboard()
 
   componentWillReceiveProps(newprops) =
-    self.loadClipboard()
+    clipboardPaste = false
 
-    if (@not self.state.dirty)
+    newprops.pasteQueryFromClipboard @(clipboardQuery)
+      clipboardPaste := true
+      clipboardQuery.level = self.state.query.level
+      self.setState {
+        query = clipboardQuery
+        dirty = true
+      }
+
+    if (@not self.state.dirty @and @not clipboardPaste)
       self.setState {
         query = newprops.query
       }
@@ -278,6 +288,7 @@ module.exports = React.createFactory(React.createClass {
     )
 
   save() =
+    console.log('saving ', self.state.query.text)
     self.props.updateQuery(self.state.query)!
     self.update(dirty = false)
 
@@ -291,15 +302,6 @@ module.exports = React.createFactory(React.createClass {
   insertBefore() =
     self.props.insertQueryBefore(self.state.query)!
     self.update(dirty = false)
-
-  loadClipboard() =
-    self.setState {
-      clipboard = self.props.http.get!('/api/user/queries')
-    }
-
-  addToClipboard() =
-    self.props.http.post!("/api/user/queries", self.state.query)
-    self.loadClipboard()
 
   insertAfter() =
     self.props.insertQueryAfter(self.state.query)!
@@ -321,24 +323,14 @@ module.exports = React.createFactory(React.createClass {
   cancel() =
     self.transitionTo('block', { blockId = self.getParams().blockId })
 
+  addToClipboard() =
+    self.props.addToClipboard(self.state.query)
+
   render() =
     r 'div' { className = 'edit-query' } (
       r 'h2' {} 'Query'
       r 'div' { className = 'buttons' } (
         r 'button' { className = 'add-to-clipboard', onClick = self.addToClipboard } 'Add to Clipboard'
-        DropdownButton {title = 'Clipboard'} (
-          if (self.state.clipboard)
-            [
-              q <- self.state.clipboard
-
-              pasteFromClipboard(ev) =
-                _.extend (self.state.query, q)
-                self.setState { query = self.state.query }
-                ev.preventDefault()
-                
-              MenuItem { onClick = pasteFromClipboard } (q.name)
-            ]
-        )
         if (self.state.dirty)
           [
             if (self.state.query.id)
