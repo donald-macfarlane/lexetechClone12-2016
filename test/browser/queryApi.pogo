@@ -37,19 +37,49 @@ module.exports() =
 
     collection
 
+  setupBlockQueries(block) =
+    block.lastQueryId = block.lastQueryId @or 0
+    block.queries = block.queries @or []
+
+  indexOfQueryIdInBlock(block, queryId) =
+    indexOf(block.queries, @(q) @{ q.id == queryId })
+
+  indexOf(array, predicate) =
+    for (n = 0, n < array.length, ++n)
+      if (predicate(array.(n)))
+        return (n)
+
+    -1
+
   router.get '/api/blocks/:blockId/queries/:queryId' @(req)
     block = blocks.(req.params.blockId - 1)
-    block.queries = block.queries @or []
-    {
-      body = block.queries.(req.params.queryId)
-    }
+
+    if (block)
+      setupBlockQueries(block)
+
+      query = [q <- block.queries, q.id == req.params.queryId].0
+
+      if (query)
+        {
+          body = query
+        }
+      else
+        {
+          statusCode = 404
+        }
+    else
+      {
+        statusCode = 404
+      }
 
   router.post '/api/blocks/:blockId/queries/:queryId' @(req)
     block = blocks.(req.params.blockId - 1)
 
     if (block)
-      block.queries = block.queries @or []
-      block.queries.(Number(req.params.queryId) - 1) = req.body
+      setupBlockQueries(block)
+      index = indexOfQueryIdInBlock(block, req.params.queryId)
+
+      block.queries.(index) = req.body
       {
       }
     else
@@ -59,19 +89,39 @@ module.exports() =
 
   router.post '/api/blocks/:blockId/queries' @(req)
     block = blocks.(req.params.blockId - 1)
-    block.queries = block.queries @or []
-    block.queries.push(req.body)
-    req.body.id = String(block.queries.length)
-    {
-      statusCode = 201
-      body = req.body
-    }
+
+    if (block)
+      setupBlockQueries(block)
+      query = req.body
+
+      ++block.lastQueryId
+      query.id = String(block.lastQueryId)
+
+      if (query.before)
+        before = indexOfQueryIdInBlock(block, query.before)
+        delete (query.before)
+        block.queries.splice(before, 0, query)
+      else if (query.after)
+        after = indexOfQueryIdInBlock(block, query.after)
+        delete (query.after)
+        block.queries.splice(after + 1, 0, query)
+      else
+        block.queries.push(query)
+
+      {
+        statusCode = 201
+        body = query
+      }
+    else
+      {
+        statusCode = 404
+      }
 
   router.get '/api/blocks/:blockId/queries' @(req)
     block = blocks.(req.params.blockId - 1)
 
     if (block)
-      block.queries = block.queries @or []
+      setupBlockQueries(block)
 
       {
         body = block.queries
@@ -83,9 +133,12 @@ module.exports() =
 
   router.delete '/api/blocks/:blockId/queries/:queryId' @(req)
     block = blocks.(req.params.blockId - 1)
-    block.queries = block.queries @or []
-    if (block.queries)
-      block.queries.splice(Number(req.params.queryId) - 1, 1)
+
+    setupBlockQueries(block)
+
+    index = indexOfQueryIdInBlock(block, req.params.queryId)
+    if (index >= 0)
+      block.queries.splice(index, 1)
 
     {
       statusCode = 204

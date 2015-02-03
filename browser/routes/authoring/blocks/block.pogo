@@ -41,6 +41,7 @@ module.exports = React.createFactory(React.createClass {
     $(window).off 'scroll.repositionQueriesList'
 
   componentDidUpdate() =
+    self.repositionQueriesList()
     self.resizeQueriesDiv()
 
   repositionQueriesList() =
@@ -61,10 +62,10 @@ module.exports = React.createFactory(React.createClass {
 
   resizeQueriesDiv() =
     element = self.getDOMNode()
-    queriesDiv = $(element).find('.blocks-queries')
+    queriesDiv = $(element).find('.left-panel')
     queriesOl = $(element).find('.blocks-queries > ol')
-    width = queriesOl.width()
-    queriesDiv.css('min-width', width)
+    width = queriesOl.outerWidth()
+    queriesDiv.css('min-width', width + 'px')
 
   query() =
     block = self.block()
@@ -241,52 +242,21 @@ module.exports = React.createFactory(React.createClass {
   addBlock() =
     self.transitionTo 'create_block'
 
+  toggleClipboard(ev) =
+    ev.preventDefault()
+    self.setState {
+      showClipboard = @not self.state.showClipboard
+    }
+
   render() =
     r 'div' { className = 'edit-block-query' } (
-      if (self.state.blocks)
-        renderQueries(block, queries) =
-
-          r 'ol' {} [
-            tree <- queries
-
-            selectQuery(ev) =
-              self.replaceWith 'query' { blockId = block.id, queryId = tree.query.id }
-              ev.stopPropagation()
-
-            show(ev) =
-              tree.hideQueries = false
-              self.setState { blocks = self.state.blocks }
-              ev.stopPropagation()
-
-            hide(ev) =
-              tree.hideQueries = true
-              self.setState { blocks = self.state.blocks }
-              ev.stopPropagation()
-
-            selectedClass = if (self.queryId() == tree.query.id)
-              'selected'
-
-            r 'li' { onClick = selectQuery, className = selectedClass } (
-              r 'h4' {} (
-                if (tree.queries)
-                  if (tree.hideQueries)
-                    r 'button' { className = 'toggle', onClick = show } (r 'span' {} '+')
-                  else
-                    r 'button' { className = 'toggle', onClick = hide } (r 'span' {} '-')
-
-                tree.query.name
-              )
-
-              if (@not tree.hideQueries @and tree.queries)
-                renderQueries(block, tree.queries)
-            )
-          ]
-
-        r 'div' { className = 'blocks-queries' } (
-          r 'h2' {} 'Blocks'
-          r 'div' { className = 'buttons' } (
-            r 'button' { onClick = self.addBlock } 'Add Block'
-            DropdownButton {title = 'Paste from Clipboard'} (
+      r 'div' { className = 'left-panel' } (
+        r 'div' { className = 'clipboard' } (
+          r 'h2' {} (
+            r 'a' { href = '#', onClick = self.toggleClipboard } ("Clipboard", if (self.state.clipboard) @{ " (#(self.state.clipboard.length))" })
+          )
+          if (self.state.showClipboard)
+            r 'ol' {} [
               if (self.state.clipboard)
                 [
                   q <- self.state.clipboard
@@ -295,48 +265,94 @@ module.exports = React.createFactory(React.createClass {
                     self.pasteQueryFromClipboard(q)
                     ev.preventDefault()
                     
-                  MenuItem { onClick = pasteFromClipboard } (q.name)
+                  r 'li' { onClick = pasteFromClipboard } (q.name)
                 ]
-            )
-          )
-          r 'ol' {} [
-            blockViewModel <- self.state.blocks
-            block = blockViewModel.block
-
-            selectBlock(ev) =
-              self.replaceWith 'block' { blockId = block.id }
-              ev.stopPropagation()
-
-            show(ev) =
-              blockViewModel.hideQueries = false
-              self.setState { blocks = self.state.blocks }
-              ev.stopPropagation()
-
-            hide(ev) =
-              blockViewModel.hideQueries = true
-              self.setState { blocks = self.state.blocks }
-              ev.stopPropagation()
-
-            selectedClass = if (self.blockId() == block.id)
-              'selected'
-
-            r 'li' { onClick = selectBlock, className = selectedClass } (
-
-              r 'h3' {} (
-                if (blockViewModel.queries @and blockViewModel.queries.length > 0)
-                  if (blockViewModel.hideQueries)
-                    r 'button' { className = 'toggle', onClick = show } '+'
-                  else
-                    r 'button' { className = 'toggle', onClick = hide } '-'
-
-                blockName(block)
-              )
-
-              if (@not blockViewModel.hideQueries @and blockViewModel.queriesHierarchy)
-                renderQueries(block, blockViewModel.queriesHierarchy)
-            )
-          ]
+            ]
         )
+
+        if (self.state.blocks)
+          renderQueries(block, queries) =
+
+            r 'ol' {} [
+              tree <- queries
+
+              selectQuery(ev) =
+                self.replaceWith 'query' { blockId = block.id, queryId = tree.query.id }
+                ev.stopPropagation()
+
+              show(ev) =
+                tree.hideQueries = false
+                self.setState { blocks = self.state.blocks }
+                ev.stopPropagation()
+
+              hide(ev) =
+                tree.hideQueries = true
+                self.setState { blocks = self.state.blocks }
+                ev.stopPropagation()
+
+              selectedClass = if (self.queryId() == tree.query.id)
+                'selected'
+
+              r 'li' { onClick = selectQuery, className = selectedClass } (
+                r 'h4' {} (
+                  if (tree.queries)
+                    if (tree.hideQueries)
+                      r 'button' { className = 'toggle', onClick = show } (r 'span' {} '+')
+                    else
+                      r 'button' { className = 'toggle', onClick = hide } (r 'span' {} '-')
+
+                  tree.query.name
+                )
+
+                if (@not tree.hideQueries @and tree.queries)
+                  renderQueries(block, tree.queries)
+              )
+            ]
+
+          r 'div' { className = 'blocks-queries' } (
+            r 'h2' {} 'Blocks'
+            r 'div' { className = 'buttons' } (
+              r 'button' { onClick = self.addBlock } 'Add Block'
+            )
+            r 'ol' {} [
+              blockViewModel <- self.state.blocks
+              block = blockViewModel.block
+
+              selectBlock(ev) =
+                self.replaceWith 'block' { blockId = block.id }
+                ev.stopPropagation()
+
+              show(ev) =
+                blockViewModel.hideQueries = false
+                self.setState { blocks = self.state.blocks }
+                ev.stopPropagation()
+
+              hide(ev) =
+                blockViewModel.hideQueries = true
+                self.setState { blocks = self.state.blocks }
+                ev.stopPropagation()
+
+              selectedClass = if (self.blockId() == block.id)
+                'selected'
+
+              r 'li' { onClick = selectBlock, className = selectedClass } (
+
+                r 'h3' {} (
+                  if (blockViewModel.queries @and blockViewModel.queries.length > 0)
+                    if (blockViewModel.hideQueries)
+                      r 'button' { className = 'toggle', onClick = show } '+'
+                    else
+                      r 'button' { className = 'toggle', onClick = hide } '-'
+
+                  blockName(block)
+                )
+
+                if (@not blockViewModel.hideQueries @and blockViewModel.queriesHierarchy)
+                  renderQueries(block, blockViewModel.queriesHierarchy)
+              )
+            ]
+          )
+      )
 
       if (self.state.selectedBlock @and self.state.selectedBlock.block)
         addQuery() =

@@ -11,6 +11,8 @@ reactBootstrap = require 'react-bootstrap'
 DropdownButton = reactBootstrap.DropdownButton
 MenuItem = reactBootstrap.MenuItem
 
+clone(obj) = JSON.parse(JSON.stringify(obj))
+
 module.exports = React.createFactory(React.createClass {
   mixins = [ReactRouter.State, Navigation]
 
@@ -33,7 +35,7 @@ module.exports = React.createFactory(React.createClass {
         }
 
     self.setState {
-      query = self.props.query
+      query = clone(self.props.query)
     }
 
     loadPredicants()
@@ -44,15 +46,15 @@ module.exports = React.createFactory(React.createClass {
 
     newprops.pasteQueryFromClipboard @(clipboardQuery)
       clipboardPaste := true
-      clipboardQuery.level = self.state.query.level
+      _.extend(self.state.query, _.omit(clipboardQuery, 'level', 'id'))
       self.setState {
-        query = clipboardQuery
+        query = self.state.query
         dirty = true
       }
 
     if (@not self.state.dirty @and @not clipboardPaste)
       self.setState {
-        query = newprops.query
+        query = clone(newprops.query)
       }
 
   bind(model, field, transform) =
@@ -288,7 +290,6 @@ module.exports = React.createFactory(React.createClass {
     )
 
   save() =
-    console.log('saving ', self.state.query.text)
     self.props.updateQuery(self.state.query)!
     self.update(dirty = false)
 

@@ -16,6 +16,15 @@ queryApi = require './queryApi'
 authoringElement = prototypeExtending (element) {
   dropdownMenu(name) =
     self.find('.btn-group').containing('button.dropdown-toggle', text = name)
+
+  clipboard() =
+    self.find('.clipboard')
+
+  clipboardHeader() =
+    self.clipboard().find('a', text = 'Clipboard')
+
+  clipboardItem(name) =
+    self.clipboard().find('ol li', text = name)
     
   dropdownMenuItem(name) =
     self.find('ul.dropdown-menu li a', text = name)
@@ -336,8 +345,8 @@ describe 'authoring'
             }
         ]
 
-        page.dropdownMenu('Paste from Clipboard').click()!
-        page.dropdownMenu('Paste from Clipboard').dropdownMenuItem('query 1').exists()!
+        page.clipboardHeader().click()!
+        page.clipboardItem('query 1').exists()!
 
       context 'when there is a query in the clipboard'
         beforeEach
@@ -356,8 +365,8 @@ describe 'authoring'
           page.queryName().wait! @(input)
             expect(input.val()).to.equal 'query 1'
 
-          page.dropdownMenu('Paste from Clipboard').click()!
-          page.dropdownMenu('Paste from Clipboard').dropdownMenuItem('query 2').click()!
+          page.clipboardHeader().click()!
+          page.clipboardItem('query 2').click()!
 
           page.queryName().wait! @(input)
             expect(input.val()).to.equal 'query 2'
