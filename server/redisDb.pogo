@@ -7,7 +7,7 @@ bluebird = require 'bluebird'
 createClient(url) =
   if (url)
     redisURL = urlUtils.parse(url)
-    client = redis.createClient(redisURL.port, redisURL.hostname, {no_ready_check = true})
+    client = redis.createClient {port = redisURL.port, host = redisURL.hostname, no_ready_check = true}
     client.auth(redisURL.auth.split(':').(1))
     client
   else
