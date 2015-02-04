@@ -105,6 +105,9 @@ module.exports(api = lexemeApi()) =
   queryGraph (query, context) =
     {
       text = query.text
+      name = query.name
+      id = query.id
+      block = query.block
 
       responses = [
         r <- query.responses

@@ -54,11 +54,16 @@ describe "lexicon"
 
     {
       shouldAsk (queryText) thenRespondWith (responseText) =
+        originalQuery = query
         if (@not query)
           query := qapi.firstQueryGraph()!
         else
           query := response.query()!
 
+        message =
+          "expected query to be returned from \"#(response @and "#(originalQuery.text) / #(response.text)" @or 'the start')\""
+          
+        expect(query, message).to.exist
         expect(query.text).to.equal (queryText)
 
         response := [r <- query.responses, r.text == responseText, r].0
@@ -479,7 +484,18 @@ describe "lexicon"
                   ]
                 }
                 {
-                  text = 'block 1, query 2'
+                  text = 'block 1, query 2, level 2'
+                  level = 2
+
+                  responses = [
+                    {
+                      text = 'response 1'
+                    }
+                  ]
+                }
+                {
+                  text = 'block 1, query 3, level 1'
+                  level = 1
 
                   responses = [
                     {
@@ -513,7 +529,11 @@ describe "lexicon"
 
                   responses = [
                     {
-                      text = 'response 1'
+                      text = 'response 1, level 1'
+                    }
+                    {
+                      text = 'response 2, level 2'
+                      setLevel = 2
                     }
                   ]
                 }
@@ -540,6 +560,15 @@ describe "lexicon"
           c = conversation()
           c.shouldAsk 'block 1, query 1' thenRespondWith 'response 1'!
           c.shouldAsk 'block 4, query 1' thenRespondWith 'response 1'!
-          c.shouldAsk 'block 3, query 1' thenRespondWith 'response 1'!
-          c.shouldAsk 'block 1, query 2' thenRespondWith 'response 1'!
+          c.shouldAsk 'block 3, query 1' thenRespondWith 'response 2, level 2'!
+          c.shouldAsk 'block 1, query 2, level 2' thenRespondWith 'response 1'!
+          c.shouldAsk 'block 1, query 3, level 1' thenRespondWith 'response 1'!
+          c.shouldBeFinished()!
+        
+        it 'goes to those new blocks, then comes back to keeping the level of the last response in the added blocks'
+          c = conversation()
+          c.shouldAsk 'block 1, query 1' thenRespondWith 'response 1'!
+          c.shouldAsk 'block 4, query 1' thenRespondWith 'response 1'!
+          c.shouldAsk 'block 3, query 1' thenRespondWith 'response 1, level 1'!
+          c.shouldAsk 'block 1, query 3, level 1' thenRespondWith 'response 1'!
           c.shouldBeFinished()!
