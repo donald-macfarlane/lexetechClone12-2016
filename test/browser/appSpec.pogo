@@ -1,12 +1,13 @@
 retry = require 'trytryagain'
 lexeme = require '../../browser/lexeme'
-removeTestElement = require './removeTestElement'
+createTestDiv = require './createTestDiv'
 $ = require 'jquery'
 expect = require 'chai'.expect
 
 describe 'lexeme'
+  div = nil
   beforeEach
-    removeTestElement()
+    div := createTestDiv()
 
   singleElement(css) =
     retry!
@@ -31,10 +32,6 @@ describe 'lexeme'
       expect($'.notes'.text()).to.eql (notes)
 
   it 'can generate notes by answering queries'
-    div = document.createElement('div')
-    div.className = 'test'
-    document.body.appendChild(div)
-
     queryGraph = {
       firstQueryGraph()! = {
         text = 'Where does it hurt?'

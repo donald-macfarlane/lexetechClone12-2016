@@ -5,8 +5,8 @@ flash = require 'connect-flash'
 session = require 'express-session'
 BasicStrategy = require 'passport-http'.BasicStrategy
 api = require './api'
+_ = require 'underscore'
 
-apiUsers = require './apiUsers.json'
 users = require './users.pogo'
 User = require './models/user'
 
@@ -30,8 +30,8 @@ passport.serializeUser(User.serializeUser())
 passport.deserializeUser(User.deserializeUser())
 
 passport.use (new (BasicStrategy @(username, password, done)
-  if (apiUsers."#(username):#(password)")
-    done(nil, { username = username })
+  if (app.get 'apiUsers'."#(username):#(password)")
+    done(nil, { id = username, username = username })
   else
     done()
 ))
@@ -67,9 +67,13 @@ app.post '/logout' @(req, res)
   res.redirect '/'
 
 app.use(express.static(__dirname + '/generated'))
+app.use(express.static(__dirname + '/public'))
 app.use('/source', express.static(__dirname + '/../browser/style'))
 
 app.get '*' @(req, res)
-  res.render 'index.html' { user = req.user }
+  res.render 'index.html' {
+    user = if (req.user)
+      _.pick(req.user, 'email')
+  }
 
 module.exports = app

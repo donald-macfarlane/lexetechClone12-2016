@@ -2,18 +2,18 @@ $ = require 'jquery'
 cache = require '../common/cache'
 
 module.exports(http = $) =
-  blockCache = cache()
+  blockQueriesCache = cache()
 
-  block(n) =
-    blockCache.cacheBy (n)
-      http.get "/api/blocks/#(n)"!
+  blockQueries(n) =
+    blockQueriesCache.cacheBy (n)
+      http.get "/api/blocks/#(n)/queries"!
 
   {
     block(blockId) = {
       query(n) =
-        block(blockId)!.(n)
+        blockQueries(blockId)!.(n)
 
       length() =
-        block(blockId)!.length
+        blockQueries(blockId)!.length
     }
   }

@@ -10,16 +10,49 @@ module.exports (element, queryApi, pageData, options) =
 
   routes = Route { handler = require './routes/layout' } (
     DefaultRoute {
+      name = 'reports'
       handler = require './routes/home'
     }
     NotFoundRoute {
       handler = require './routes/notFound'
     }
     Route {
-      name = 'authoring'
       path = '/authoring'
-      handler = require './routes/authoring'
-    }
+      handler = require './routes/authoring/layout'
+    } (
+      DefaultRoute {
+        name = 'authoring'
+        handler = require './routes/authoring/index'
+      }
+      NotFoundRoute {
+        handler = require './routes/notFound'
+      }
+      Route {
+        name = 'create_block'
+        path = 'blocks/create'
+        handler = require './routes/authoring/index'
+      }
+      Route {
+        name = 'block'
+        path = 'blocks/:blockId'
+        handler = require './routes/authoring/index'
+      }
+      Route {
+        name = 'create_query'
+        path = 'blocks/:blockId/queries/create'
+        handler = require './routes/authoring/index'
+      }
+      Route {
+        name = 'query'
+        path = 'blocks/:blockId/queries/:queryId'
+        handler = require './routes/authoring/index'
+      }
+      Route {
+        name = 'edit_block'
+        path = 'blocks/:blockId/edit'
+        handler = require './routes/authoring/index'
+      }
+    )
     Route {
       name = 'login'
       path = '/login'
@@ -39,5 +72,10 @@ module.exports (element, queryApi, pageData, options) =
       ReactRouter.HistoryLocation
 
   ReactRouter.run(routes, locationApi) @(Handler)
-    router = React.createElement(Handler, {queryApi = queryApi, user = pageData.user})
+    globalProps = {
+      queryApi = queryApi
+      user = pageData.user
+      http = require './http'
+    }
+    router = React.createElement(Handler, globalProps)
     React.render(router, element)

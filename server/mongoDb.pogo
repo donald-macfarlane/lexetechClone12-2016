@@ -1,5 +1,5 @@
 mongoose = require 'mongoose'
-mongoose.set('debug', true)
+mongoose.set('debug', process.env.MONGO_DEBUG == 'true')
 
 connected = false
 

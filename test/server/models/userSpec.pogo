@@ -9,9 +9,6 @@ describe 'User'
     mongoDb.connect()!
     User.remove {} ^!
 
-  after
-    mongoDb.disconnect()!
-
   context 'before registering'
     it 'cannot be authenticated' @(done)
       auth('josh@work.com', 'whatever') @(err, result, otherStuff)
@@ -20,7 +17,7 @@ describe 'User'
 
   context 'after registering'
     it 'can be authenticated' @(done)
-      User.register ({email = 'josh@work.com'}, 'whatever')
-        auth('josh@work.com', 'whatever') @(err, result, otherStuff)
-          expect(result.email).to.equal('josh@work.com')
-          done()
+      User.register ({email = 'josh@work.com'}, 'whatever') ^!
+      auth('josh@work.com', 'whatever') @(err, result, otherStuff)
+        expect(result.email).to.equal('josh@work.com')
+        done()
