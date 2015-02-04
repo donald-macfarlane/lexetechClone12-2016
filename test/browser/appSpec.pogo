@@ -31,7 +31,7 @@ describe 'lexeme'
     retry!
       expect($'.notes'.text()).to.eql (notes)
 
-  it 'can generate notes by answering queries'
+  it.only 'can generate notes by answering queries'
     queryGraph = {
       firstQueryGraph()! = {
         text = 'Where does it hurt?'
@@ -39,9 +39,11 @@ describe 'lexeme'
         responses = [
           {
             text = 'left leg'
-            notes = 'Complaint
-                     ---------
-                     left leg'
+            styles {
+              style1 = 'Complaint
+                        ---------
+                        left leg'
+            }
 
             query()! = {
               text = "Is it bleeding?"
@@ -49,7 +51,9 @@ describe 'lexeme'
               responses = [
                 {
                   text = 'yes'
-                  notes = 'bleeding'
+                  styles {
+                    style1 = 'bleeding'
+                  }
 
                   query()! = {
                     text = "Is it aching?"

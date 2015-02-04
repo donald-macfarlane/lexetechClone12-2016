@@ -62,8 +62,8 @@ module.exports(connectionInfo) =
             text = m.Mod
             setLevel = m.LevelSet
             styles {
-              '1' = m.StyleOne
-              '2' = m.StyleTwo
+              style1 = m.StyleOne
+              style2 = m.StyleTwo
             }
             actions = [action]
           }

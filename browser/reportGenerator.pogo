@@ -46,8 +46,9 @@ module.exports = React.createFactory(React.createClass {
         dangerouslySetInnerHTML = {
           __html = [
             response <- self.state.responses
-            response.notes
-            response.notes
+            response.styles
+            response.styles.style1
+            response.styles.style1
           ].join ' '
         }
       }
