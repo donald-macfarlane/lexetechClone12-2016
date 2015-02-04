@@ -288,7 +288,7 @@ describe "lexicon"
             responses = [
               {
                 text = 'response 1'
-                action = { name = 'repeatLexeme', arguments = [] }
+                actions = [{ name = 'repeatLexeme', arguments = [] }]
               }
               {
                 text = 'response 2'
@@ -328,7 +328,7 @@ describe "lexicon"
                   responses = [
                     {
                       text = 'response 1'
-                      action = { name = 'setBlocks', arguments = [3, 4] }
+                      actions = [{ name = 'setBlocks', arguments = [3, 4] }]
                     }
                   ]
                 }
@@ -338,7 +338,7 @@ describe "lexicon"
                   responses = [
                     {
                       text = 'response 1'
-                      action = { name = 'setBlocks', arguments = [3, 4] }
+                      actions = [{ name = 'setBlocks', arguments = [3, 4] }]
                     }
                   ]
                 }
@@ -407,7 +407,7 @@ describe "lexicon"
                   responses = [
                     {
                       text = 'response 1'
-                      action = { name = 'setBlocks', arguments = [1, 3] }
+                      actions = [{ name = 'setBlocks', arguments = [1, 3] }]
                     }
                   ]
                 }
@@ -474,7 +474,7 @@ describe "lexicon"
                   responses = [
                     {
                       text = 'response 1'
-                      action = { name = 'addBlocks', arguments = [4, 3] }
+                      actions = [{ name = 'addBlocks', arguments = [4, 3] }]
                     }
                   ]
                 }

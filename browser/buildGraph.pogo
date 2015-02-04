@@ -54,8 +54,10 @@ newContextFromResponse (response) context (context) =
   newContext.level = response.setLevel
   ++newContext.coherenceIndex
 
-  action = actions.(response.action.name)
-  action(response, newContext, response.action.arguments, ...)
+  if (response.actions)
+    for each @(responseAction) in (response.actions)
+      action = actions.(responseAction.name)
+      action(response, newContext, responseAction.arguments, ...)
 
   for each @(p) in (response.predicants)
     newContext.predicants.(p) = true
