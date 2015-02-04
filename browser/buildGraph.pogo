@@ -110,7 +110,7 @@ module.exports(api = lexemeApi()) =
         r <- query.responses
         {
           text = r.text
-          notes = r.notes
+          styles = r.styles
 
           query(preload = true) =
             if (@not self._query)

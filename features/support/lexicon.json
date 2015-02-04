@@ -16,7 +16,9 @@
               "predicants": [],
               "action": { "name":"none", "arguments":[] },
               "text": "right arm",
-              "notes": "Complaint\n---------\nright arm"
+              "styles": {
+                "style1": "Complaint\n---------\nright arm"
+              }
             },
             {
               "id": 2,
@@ -24,7 +26,9 @@
               "predicants": [],
               "action": { "name":"none", "arguments":[] },
               "text": "left leg",
-              "notes": "Complaint\n---------\nleft leg"
+              "styles": {
+                "style1": "Complaint\n---------\nleft leg"
+              }
             }
           ]
         },
@@ -41,7 +45,9 @@
               "predicants": [],
               "action": { "name":"none", "arguments":[] },
               "text": "yes",
-              "notes": "bleeding"
+              "styles": {
+                "style1": "bleeding"
+              }
             },
             {
               "id": 4,
@@ -65,7 +71,9 @@
               "predicants": [],
               "action": { "name":"none", "arguments":[] },
               "text": "yes",
-              "notes": "and aching"
+              "styles": {
+                "style1": "and aching"
+              }
             },
             {
               "id": 6,
