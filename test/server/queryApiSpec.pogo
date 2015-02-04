@@ -92,6 +92,20 @@ describe "query api"
         expect(blocks.0.name).to.equal('a block')
         expect(blocks.0.id).to.equal(block.id)
 
+      it 'orders blocks by name alphabetically'
+        api.post!('/api/blocks', {
+          name = 'zzz'
+        })
+        api.post!('/api/blocks', {
+          name = 'aaa'
+        })
+        api.post!('/api/blocks', {
+          name = 'mmm'
+        })
+
+        blocks = api.get! '/api/blocks'.body
+        expect([b <- blocks, b.name]).to.eql ['aaa', 'mmm', 'zzz']
+
     describe 'queries'
       block = nil
 
@@ -281,7 +295,7 @@ describe "query api"
           'pred3'
         ]
 
-    describe.only 'clipboards'
+    describe 'clipboards'
       it 'can store new queries for a given user'
         query = {
           text = 'query 1'

@@ -7,13 +7,14 @@ lexemeApi = require '../browser/lexemeApi'
 
 describe "lexicon"
   port = 12345
-  api = httpism.api "http://api:squidandeels@localhost:#(port)"
+  api = httpism.api "http://user:password@localhost:#(port)"
   server = nil
   db = nil
   lexicon = nil
 
   beforeEach
     db := app.get 'db'
+    app.set 'apiUsers' { "user:password" = true }
     server := app.listen (port)
     lexicon := lexiconBuilder()
 
