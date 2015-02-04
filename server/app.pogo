@@ -30,7 +30,6 @@ passport.serializeUser(User.serializeUser())
 passport.deserializeUser(User.deserializeUser())
 
 passport.use (new (BasicStrategy @(username, password, done)
-  console.log 'in basic auth'
   if (app.get 'apiUsers'."#(username):#(password)")
     done(nil, { id = username, username = username })
   else
@@ -42,7 +41,6 @@ passport.use(User.createStrategy())
 basicAuth = passport.authenticate('basic', { session = false })
 
 app.use '/api' @(req, res, next)
-  console.log "in api auth"
   if (req.user)
     next()
   else
