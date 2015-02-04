@@ -142,8 +142,8 @@ describe 'authoring'
         responses.find('ul li.set-level input').typeIn!('4')
         responses.find('ul li div.predicants input').typeIn!('hemo')
         responses.find('ul li div.predicants ol li', text = 'Hemophilia').click!()
-        responses.find('ul li.style1 textarea').typeIn!('style 1')
-        responses.find('ul li.style2 textarea').typeIn!('style 2')
+        responses.find('ul li.style1 .editor').typeInHtml!('<p>style 1</p>')
+        responses.find('ul li.style2 .editor').typeInHtml!('<p>style 2</p>')
 
         actions = responses.find('ul li.actions')
         actions.find('button', text = 'Add Action').click!()
@@ -169,8 +169,8 @@ describe 'authoring'
                   text = 'response 1'
                   predicants = ["2"]
                   styles = {
-                    style1 = 'style 1'
-                    style2 = 'style 2'
+                    style1 = '<p>style 1</p>'
+                    style2 = '<p>style 2</p>'
                   }
                   actions = [
                     {

@@ -6,6 +6,7 @@ _ = require 'underscore'
 sortable = require '../sortable'
 moveItemInFromTo = require '../moveItemInFromTo'
 blockName = require '../blockName'
+editor = require '../../editor'
 
 reactBootstrap = require 'react-bootstrap'
 DropdownButton = reactBootstrap.DropdownButton
@@ -63,6 +64,15 @@ module.exports = React.createFactory(React.createClass {
         model.(field) = transform(ev.target.value)
       else
         model.(field) = ev.target.value
+
+      self.update()
+
+  bindHtml(model, field, transform) =
+    @(ev)
+      if (transform)
+        model.(field) = transform(ev.target.innerHTML)
+      else
+        model.(field) = ev.target.innerHTML
 
       self.update()
 
@@ -424,11 +434,11 @@ module.exports = React.createFactory(React.createClass {
                             )
                             r 'li' { className = 'style1' } (
                               r 'label' {} 'Style 1'
-                              r 'textarea' { onChange = self.bind(response.styles, 'style1'), value = self.textValue(response.styles.('1')) }
+                              editor { onChange = self.bindHtml(response.styles, 'style1'), value = self.textValue(response.styles.style1) }
                             )
                             r 'li' { className = 'style2' } (
                               r 'label' {} 'Style 2'
-                              r 'textarea' { onChange = self.bind(response.styles, 'style2'), value = self.textValue(response.styles.('2')) }
+                              editor { onChange = self.bindHtml(response.styles, 'style2'), value = self.textValue(response.styles.style2) }
                             )
                             r 'li' { className = 'actions' } (
                               r 'label' {} 'Actions'

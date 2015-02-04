@@ -59,6 +59,7 @@
     "gulp-util": "^3.0.1",
     "gulp-watch": "^3.0.0",
     "jquery": "^2.1.1",
+    "medium.js": "^1.0.1",
     "mongoose": "^3.8.20",
     "morgan": "^1.5.0",
     "passport": "^0.2.1",

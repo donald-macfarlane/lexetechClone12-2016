@@ -92,4 +92,7 @@ module.exports = prototype {
 
   typeIn(text) =
     sendkeys(self.resolve()!.0, text)
+
+  typeInHtml(html) =
+    sendkeys.html(self.resolve()!.0, html)
 }

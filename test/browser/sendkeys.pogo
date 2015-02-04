@@ -16,3 +16,7 @@ module.exports(el, text) =
     sendkey(el, char)
 
   dispatchEvent(el, 'input')
+
+module.exports.html(el, html) =
+  el.innerHTML = html
+  dispatchEvent(el, 'input')
