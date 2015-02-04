@@ -6,3 +6,4 @@ gem 'redis'
 gem 'mongo'
 gem 'bson_ext'
 gem 'pry'
+gem "chromedriver-helper"

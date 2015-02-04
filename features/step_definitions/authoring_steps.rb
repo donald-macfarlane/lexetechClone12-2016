@@ -5,17 +5,16 @@ end
 When(/^I create the block "(.*?)"$/) do |name|
   @block_name = name
   visit '/authoring'
-  click_on 'New Block'
-  fill_in 'Block Name', with: name
-  click_on 'Create Block'
+  click_on 'Add Block'
+  fill_in 'Name', with: name
+  click_on 'Create'
 end
 
 When(/^I update the block name to "(.*?)"$/) do |new_name|
   visit '/authoring'
-  click_on @block_name
-  click_on 'Edit Block'
+  find('h3, h4', text: @block_name).click
   fill_in 'Name', with: new_name
-  click_on 'Update Block'
+  click_on 'Save'
   @block_name = new_name
 end
 
@@ -27,7 +26,7 @@ Given(/^I am signed in as an author$/) do
 end
 
 Then(/^I should arrive at the block$/) do
-  expect(page).to have_link('Edit Block')
+  expect(page).to have_button('Add Query')
 end
 
 Given(/^the block "(.+)" exists$/) do |name|
