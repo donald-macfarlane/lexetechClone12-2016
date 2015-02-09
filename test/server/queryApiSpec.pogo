@@ -1,7 +1,10 @@
 httpism = require 'httpism'
+express = require 'express'
+bodyParser = require 'body-parser'
 app = require '../../server/app'
 expect = require 'chai'.expect
 lexiconBuilder = require '../lexiconBuilder'
+retry = require 'trytryagain'
 
 describe "query api"
   port = 12345
@@ -20,11 +23,7 @@ describe "query api"
   afterEach
     server.close()
 
-  describe 'setting and getting whole lexicon'
-
-    jsonify(x) =
-      console.log(JSON.stringify(x, @(k, v) @{ if (@not v) @{ String(v) } else @{ v } }, 2))
-
+  describe 'backups'
     it 'can set and get the lexicon'
       lexicon1 = lexicon.blocks [
         {
@@ -90,6 +89,81 @@ describe "query api"
       api.post('/api/lexicon', lexicon1)!
       lexicon2 = api.get('/api/lexicon')!.body
       expect(lexicon2).to.eql(lexicon1)
+
+    context 'given a single query in the lexicon'
+      backupApp = nil
+      backupAppPort = 23456
+      lexiconBackups = []
+
+      beforeEach
+        backupApp := express()
+        backupApp.use(bodyParser.json {limit = '1mb'})
+
+        backupApp.get '/content/' @(req, res)
+          if (lexiconBackups.length > 0)
+            res.send [
+              {
+                name = 'lexicon.json'
+                sha = String(lexiconBackups.length)
+              }
+            ]
+          else
+            res.send []
+
+        backupApp.put '/content/lexicon.json' @(req, res)
+          if (lexiconBackups.length == 0 @or req.body.sha == String(lexiconBackups.length))
+            stringContent = @new Buffer(req.body.content, 'base64').toString('ascii')
+            lexiconBackups.push(JSON.parse(stringContent))
+            res.send()
+          else
+            res.status(422).send({message = "sha (#(req.body.sha)) not found"})
+
+        backupApp.listen(backupAppPort)
+
+        app.set 'backupHttpism' (httpism.api("http://localhost:#(backupAppPort)/content/"))
+        app.set 'backupDelay' (100)
+
+        l = lexicon.queries [
+          {
+            text 'query 1'
+
+            responses = [
+              {
+                text = 'response 1'
+              }
+            ]
+          }
+        ]
+        response = api.post('/api/lexicon', l)!
+
+      it 'backs up the lexicon on writes'
+        query1 = api.get('/api/blocks/1/queries/1')!.body
+        query1.text = 'query 1 (updated)'
+        api.post('/api/blocks/1/queries/1', query1)!
+        api.post('/api/blocks/1/queries/1', query1)!
+        api.post('/api/blocks/1/queries/1', query1)!
+
+        retry (timeout = 120)!
+          expect(lexiconBackups.length).to.equal(1)
+          expect([l <- lexiconBackups, b <- l.blocks, q <- b.queries, q.text]).to.eql(['query 1 (updated)'])
+
+      it 'can update the lexicon backup'
+        query1 = api.get('/api/blocks/1/queries/1')!.body
+        query1.text = 'query 1 (updated)'
+        api.post('/api/blocks/1/queries/1', query1)!
+        api.post('/api/blocks/1/queries/1', query1)!
+        api.post('/api/blocks/1/queries/1', query1)!
+
+        retry (timeout = 120)!
+          expect(lexiconBackups.length).to.equal(1)
+          expect([l <- lexiconBackups, b <- l.blocks, q <- b.queries, q.text]).to.eql(['query 1 (updated)'])
+
+        query1.text = 'query 1 (updated, again)'
+        api.post('/api/blocks/1/queries/1', query1)!
+
+        retry (timeout = 120)!
+          expect(lexiconBackups.length).to.equal(2)
+          expect([l <- lexiconBackups, b <- l.blocks, q <- b.queries, q.text]).to.eql(['query 1 (updated)', 'query 1 (updated, again)'])
 
   it 'can insert queries'
     l = lexicon.queries [

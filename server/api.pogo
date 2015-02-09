@@ -1,6 +1,35 @@
 express = require 'express'
+_ = require 'underscore'
+githubContent = require './githubContent'
 
 app = express()
+
+backup(redisDb, backupHttpism) =
+  github = githubContent(backupHttpism)
+  try
+    github.put!('lexicon.json', JSON.stringify(redisDb.getLexicon()!, nil, 2))
+    console.log "backed up lexicon"
+  catch (e)
+    console.log "could not backup lexicon"
+    console.log(e)
+
+delayBackupsByWait = {}
+
+delayBackup(wait) =
+  if (delayBackupsByWait.(wait))
+    delayBackupsByWait.(wait)
+  else
+    delayBackupsByWait.(wait) = _.debounce(backup, wait)
+
+app.use @(req, res, next)
+  if (req.method == 'PUT' @or req.method == 'POST' @or req.method == 'DELETE')
+    backupHttpism = app.get 'backupHttpism'
+    if (backupHttpism)
+      (delayBackup(app.get 'backupDelay'))(app.get 'db', backupHttpism)
+
+    next()
+  else
+    next()
 
 app.get '/blocks' @(req, res)
   db = app.get 'db'

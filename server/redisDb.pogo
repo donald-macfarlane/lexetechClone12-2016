@@ -218,7 +218,7 @@ module.exports () =
 
       {
         blocks = [
-          block <- blocks.list()!
+          block <- _.sortBy (blocks.list()!, @(b) @{ Number(b.id) })
           getBlockQueries(block)!
         ]
       }
