@@ -67,6 +67,10 @@ app.post '/lexicon' @(req, res)
   db.setLexicon(req.body)!
   res.status(201).send({})
 
+app.get '/lexicon' @(req, res)
+  db = app.get 'db'
+  res.send(db.getLexicon(req.body)!)
+
 app.get '/predicants' @(req, res)
   db = app.get 'db'
   predicants = db.predicants()!

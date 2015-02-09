@@ -7,7 +7,7 @@ module.exports () =
   buildQuery(q, blockId) =
     ++queryId
     query = _.extend {
-      id = queryId
+      id = String(queryId)
       level = 1
       block = blockId
 
@@ -26,10 +26,7 @@ module.exports () =
 
       predicants = []
 
-      action = {
-        name = 'none'
-        arguments = []
-      }
+      actions = []
     } (r)
 
   {
@@ -49,5 +46,5 @@ module.exports () =
     }
 
     blocks(blocks) = self.lexicon {blocks = blocks}
-    queries(queries) = self.blocks [{id = 1, queries = queries}]
+    queries(queries) = self.blocks [{id = String(1), queries = queries}]
   }

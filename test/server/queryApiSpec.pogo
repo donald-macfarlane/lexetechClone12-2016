@@ -20,6 +20,77 @@ describe "query api"
   afterEach
     server.close()
 
+  describe 'setting and getting whole lexicon'
+
+    jsonify(x) =
+      console.log(JSON.stringify(x, @(k, v) @{ if (@not v) @{ String(v) } else @{ v } }, 2))
+
+    it 'can set and get the lexicon'
+      lexicon1 = lexicon.blocks [
+        {
+          id = '1'
+          name = 'block 1'
+          queries = [
+            {
+              text 'query 1'
+
+              responses = [
+                {
+                  text = 'response 1'
+                }
+              ]
+            }
+            {
+              text 'query 2'
+
+              responses = [
+                {
+                  text = 'response 1'
+
+                  predicants = [
+                    "three"
+                    "four"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+        {
+          id = '2'
+          name = 'block 2'
+          queries = [
+            {
+              text 'query 3'
+
+              predicants = [
+                "three"
+                "four"
+              ]
+
+              responses = [
+                {
+                  text = 'response 1'
+                }
+              ]
+            }
+            {
+              text 'query 4'
+
+              responses = [
+                {
+                  text = 'response 1'
+                }
+              ]
+            }
+          ]
+        }
+      ]
+
+      api.post('/api/lexicon', lexicon1)!
+      lexicon2 = api.get('/api/lexicon')!.body
+      expect(lexicon2).to.eql(lexicon1)
+
   it 'can insert queries'
     l = lexicon.queries [
       {

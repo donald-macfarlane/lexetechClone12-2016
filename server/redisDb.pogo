@@ -191,6 +191,38 @@ module.exports () =
         writeBlock(block)!
       ]
 
+    mapQueryPredicants(query, predicants) =
+      query.predicants = [
+        pred <- query.predicants
+        predicants.(pred).name
+      ]
+
+      query.responses.forEach @(response)
+        response.predicants = [
+          pred <- response.predicants
+          predicants.(pred).name
+        ]
+
+      query
+
+    getLexicon() =
+      predicantsById = self.predicants()!
+
+      getBlockQueries(block) =
+        block.queries = [
+          query <- blockQueries.list(block.id)!
+          self.mapQueryPredicants(query, predicantsById)
+        ]
+
+        block
+
+      {
+        blocks = [
+          block <- blocks.list()!
+          getBlockQueries(block)!
+        ]
+      }
+
     queryById(id) =
       queries.get(id)!
 
