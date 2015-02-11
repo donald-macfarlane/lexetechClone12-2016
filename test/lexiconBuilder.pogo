@@ -35,16 +35,16 @@ module.exports () =
         block <- lexicon.blocks
         {
           name = block.name
-          id = block.id
+          id = String(block.id)
 
           queries = [
             query <- block.queries
-            buildQuery(query, block.id)
+            buildQuery(query, String(block.id))
           ]
         }
       ]
     }
 
     blocks(blocks) = self.lexicon {blocks = blocks}
-    queries(queries) = self.blocks [{id = String(1), queries = queries}]
+    queries(queries) = self.blocks [{id = "1", queries = queries}]
   }

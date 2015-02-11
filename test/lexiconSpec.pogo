@@ -63,14 +63,14 @@ describe "lexicon"
         message =
           "expected query to be returned from \"#(response @and "#(originalQuery.text) / #(response.text)" @or 'the start')\""
           
-        expect(query, message).to.exist
-        expect(query.text).to.equal (queryText)
+        expect(query.query, message).to.exist
+        expect(query.query.text).to.equal (queryText)
 
         response := [r <- query.responses, r.text == responseText, r].0
         expect(response, "response '#(responseText)' not one of #([r <- query.responses, "'#(r.text)'"].join ', ')").to.exist
 
       shouldBeFinished() =
-        expect(response.query()!).to.be.undefined
+        expect(response.query()!.query).to.be.undefined
     }
 
   it 'queries are asked in coherence order'
@@ -432,7 +432,6 @@ describe "lexicon"
               queries = [
                 {
                   text = 'block 2, query 1'
-                  block 2
 
                   responses = [
                     {
@@ -447,7 +446,6 @@ describe "lexicon"
               queries = [
                 {
                   text = 'block 3, query 1'
-                  block = 3
 
                   responses = [
                     {
@@ -510,7 +508,7 @@ describe "lexicon"
               queries = [
                 {
                   text = 'block 2, query 1'
-                  block 2
+                  block = '2'
 
                   responses = [
                     {
@@ -525,7 +523,7 @@ describe "lexicon"
               queries = [
                 {
                   text = 'block 3, query 1'
-                  block = 3
+                  block = '3'
 
                   responses = [
                     {
@@ -544,7 +542,7 @@ describe "lexicon"
               queries = [
                 {
                   text = 'block 4, query 1'
-                  block = 3
+                  block = '3'
 
                   responses = [
                     {

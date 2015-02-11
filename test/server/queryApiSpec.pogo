@@ -92,6 +92,7 @@ describe "query api"
 
     context 'given a single query in the lexicon'
       backupApp = nil
+      backupServer = nil
       backupAppPort = 23456
       lexiconBackups = []
 
@@ -118,7 +119,7 @@ describe "query api"
           else
             res.status(422).send({message = "sha (#(req.body.sha)) not found"})
 
-        backupApp.listen(backupAppPort)
+        backupServer := backupApp.listen(backupAppPort)
 
         app.set 'backupHttpism' (httpism.api("http://localhost:#(backupAppPort)/content/"))
         app.set 'backupDelay' (100)
@@ -135,6 +136,10 @@ describe "query api"
           }
         ]
         response = api.post('/api/lexicon', l)!
+
+      afterEach
+        backupServer.close()
+        app.set('backupHttpism', nil)
 
       it 'backs up the lexicon on writes'
         query1 = api.get('/api/blocks/1/queries/1')!.body

@@ -5,7 +5,8 @@ lexemeApi = require '../browser/lexemeApi'
 
 cloneContext(c) =
   predicants = {}
-  for @(pk) in (c.predicants)
+
+  Object.keys(c.predicants).forEach @(pk)
     predicants.(pk) = true
 
   blockStack = JSON.parse(JSON.stringify(c.blockStack))
@@ -35,10 +36,9 @@ actions = {
 
     nextBlock = context.blocks.shift()
 
-    if (nextBlock != context.block)
+    if (String(nextBlock) != String(context.block))
       context.block = nextBlock
       context.coherenceIndex = 0
-
 
   setVariable (response, context, variable, value) = nil
 
@@ -75,17 +75,29 @@ block (block) inActiveBlocks (blocks) =
   blocks.(block)
 
 findNextQuery(api, context) =
-  query = findNextQueryInCurrentBlock(api, context)!
-  if (@not query)
-    if (context.blocks.length > 0)
-      context.block = context.blocks.shift()
-      context.coherenceIndex = 0
-      findNextQuery(api, context)!
-    else if (context.blockStack.length > 0)
-      context.popBlockStack()
-      findNextQuery(api, context)!
-  else
-    query
+  blocksSearched = []
+
+  findNext(context) =
+    blocksSearched.push(context.block)
+
+    query = findNextQueryInCurrentBlock(api, context)!
+    if (@not query)
+      if (context.blocks.length > 0)
+        context.block = context.blocks.shift()
+        context.coherenceIndex = 0
+        findNext(context)!
+      else if (context.blockStack.length > 0)
+        context.popBlockStack()
+        findNext(context)!
+    else
+      query
+
+  result = {}
+  result.query = findNext(context)!
+
+  result.blocksSearched = blocksSearched
+
+  result
 
 findNextQueryInCurrentBlock(api, context) =
   findNextItem! @(query) in (api.block(context.block)) startingFrom (context.coherenceIndex) matching
@@ -93,7 +105,7 @@ findNextQueryInCurrentBlock(api, context) =
       @and anyPredicantIn (query.predicants) foundIn (context.predicants)
 
 preloadQueryGraph(query, depth) =
-  if (depth > 0 @and query)
+  if (depth > 0 @and query.query)
     [
       r <- query.responses
       preloadQueryGraph(r.query(preload = false)!, depth - 1)!
@@ -102,15 +114,19 @@ preloadQueryGraph(query, depth) =
 module.exports(api = lexemeApi()) =
   queryCache = cache()
 
-  queryGraph (query, context) =
-    {
-      text = query.text
-      name = query.name
-      id = query.id
-      block = query.block
+  queryGraph (next, context) =
+    graph = {
+      query = next.query
 
-      responses = [
-        r <- query.responses
+      context = next.context
+      previousContext = next.previousContext
+      nextContext = next.nextContext
+      blocksSearched = next.blocksSearched
+    }
+
+    if (next.query)
+      graph.responses = [
+        r <- next.query.responses
         {
           text = r.text
           styles = r.styles
@@ -128,33 +144,47 @@ module.exports(api = lexemeApi()) =
             self._query
         }
       ]
-    }
+
+    graph
 
   nextQueryForResponse (response, context) =
     newContext = newContextFromResponse (response) context (context)
 
     queryCache.cacheBy "#(newContext.coherenceIndex):#(newContext.key())"!
-      nextQuery = findNextQuery!(api, newContext)
+      originalContext = cloneContext(newContext)
 
-      if (nextQuery)
-        newContext.coherenceIndex = nextQuery.index
-        queryGraph (nextQuery, newContext)
+      next = findNextQuery!(api, newContext)
+
+      if (next.query)
+        newContext.coherenceIndex = next.query.index
+
+      next.previousContext = context
+      next.context = originalContext
+      next.nextContext = newContext
+
+      queryGraph (next, newContext)
 
   {
-    firstQueryGraph() =
+    firstQueryGraph(preload = true) =
       query = api.block(1).query(0)!
+
+      firstPredicants = {}
+      query.predicants.forEach @(p)
+        firstPredicants.(p) = true
 
       context = createContext {
         coherenceIndex = 0
         block = query.block
         blocks = []
         level = 1
-        predicants = {context = true}
+        predicants = firstPredicants
         blockStack = []
       }
 
-      graph = queryGraph (query, context)
-      preloadQueryGraph(graph, 4)
+      graph = queryGraph ({ query = query, context = context }, context)
+      if (preload)
+        preloadQueryGraph(graph, 4)
+
       graph
   }
 

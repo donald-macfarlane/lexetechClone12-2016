@@ -1,7 +1,6 @@
-$ = require 'jquery'
 cache = require '../common/cache'
 
-module.exports(http = $) =
+module.exports(http = require('./http')) =
   blockQueriesCache = cache()
 
   blockQueries(n) =

@@ -184,6 +184,10 @@ module.exports () =
 
       writeBlock(block) =
         savedBlock = blocks.add(_.omit(block, 'queries'))!
+
+        block.queries.forEach @(query)
+          query.block = savedBlock.id
+
         blockQueries.addAll(savedBlock.id, block.queries)!
 
       [

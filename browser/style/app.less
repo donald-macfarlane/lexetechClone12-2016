@@ -4,6 +4,98 @@ body {
   padding: 0;
 }
 
+.debug {
+  display: flex;
+
+  > * {
+    flex: 1;
+  }
+
+  .query-detail {
+    .blocks {
+      list-style-type: none;
+      padding-left: 0;
+
+      .block {
+        .block-queries {
+          list-style-type: none;
+          padding-left: 0;
+          margin-left: 5px;
+          border-left: 1px solid lightgray;
+
+          .block-query {
+            padding-left: 5px;
+          }
+        }
+      }
+    }
+  }
+
+  .query {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: 10px;
+    padding-left: 10px;
+    border-left: 1px solid lightgray;
+
+    .query-text {
+      margin-bottom: 0;
+      margin-top: 0;
+    }
+
+    .query-name {
+      margin-bottom: 5px;
+      display: block;
+      margin-left: 5px;
+    }
+
+    .responses {
+      padding-left: 0;
+      margin: 0;
+      list-style-type: none;
+
+      .response {
+        padding: 2px;
+      }
+    }
+    
+    a {
+      text-decoration: none;
+      color: inherit;
+      padding: 3px;
+
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.10);
+      }
+    }
+  }
+
+  .found {
+    font-weight: bold;
+  }
+  .before {
+    color: gray;
+  }
+  .previous {
+    font-weight: bold;
+  }
+  .skipped {
+    text-decoration: line-through;
+  }
+  .after {
+    color: gray;
+  }
+
+  /*
+  > .query, > .query-detail {
+    margin: 0;
+    padding: 0;
+    max-height: 100vh;
+    overflow-y: scroll;
+  }
+  */
+}
+
 .top-menu {
   background-color: #E7E8D1;
   height: 50px;
@@ -86,31 +178,37 @@ body {
   padding: 10px;
 }
 
-.query {
-  ul {
-    list-style-type: none;
-    padding-left: 0;
+.report {
+  .query {
+    ul.responses {
+      list-style-type: none;
+      padding-left: 0;
 
-    li {
-      border-top: 1px solid #f0f0f0;
+      li.response {
+        border-top: 1px solid #f0f0f0;
 
-      &:last-child {
-        border-bottom: 1px solid #f0f0f0;
-      }
+        &:last-child {
+          border-bottom: 1px solid #f0f0f0;
+        }
 
-      button {
-        display: block;
-        width: 100%;
-        text-align: left;
-        font-size: 16px;
+        &.selected {
+          background-color: yellow;
+        }
 
-        background-color: white;
-        border: none;
-        border-left: 2px solid white;
+        button {
+          display: block;
+          width: 100%;
+          text-align: left;
+          font-size: 16px;
 
-        &:hover {
-          background-color: #f8f8f8;
-          border-left: 2px solid #669FEC;
+          background-color: white;
+          border: none;
+          border-left: 2px solid white;
+
+          &:hover {
+            background-color: #f8f8f8;
+            border-left: 2px solid #669FEC;
+          }
         }
       }
     }

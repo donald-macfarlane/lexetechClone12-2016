@@ -6,7 +6,6 @@ sendclick = require './sendclick'
 $ = require 'jquery'
 chai = require 'chai'
 expect = chai.expect
-chinchilla = require 'chinchilla'
 element = require './element'
 
 createRouter = require './router'

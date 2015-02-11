@@ -70,8 +70,23 @@ app.use(express.static(__dirname + '/generated'))
 app.use(express.static(__dirname + '/public'))
 app.use('/source', express.static(__dirname + '/../browser/style'))
 
+app.get '/debug/*' @(req, res)
+  res.render 'index.html' {
+    script = '/debug.js'
+    user = if (req.user)
+      _.pick(req.user, 'email')
+  }
+
+app.get '/authoring/*' @(req, res)
+  res.render 'index.html' {
+    script = '/authoring.js'
+    user = if (req.user)
+      _.pick(req.user, 'email')
+  }
+
 app.get '*' @(req, res)
   res.render 'index.html' {
+    script = '/app.js'
     user = if (req.user)
       _.pick(req.user, 'email')
   }

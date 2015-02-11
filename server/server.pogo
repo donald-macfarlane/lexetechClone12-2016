@@ -14,15 +14,16 @@ githubBackupHttpism =
   owner = process.env.BACKUP_GITHUB_REPO_OWNER
   repo = process.env.BACKUP_GITHUB_REPO
 
-  httpism.api(
-    {
-      headers = {
-        authorization = 'token ' + token
-        'user-agent' = 'httpism'
+  if (token @and owner @and repo)
+    httpism.api(
+      {
+        headers = {
+          authorization = 'token ' + token
+          'user-agent' = 'httpism'
+        }
       }
-    }
-    "https://api.github.com/repos/#(owner)/#(repo)/contents/"
-  )
+      "https://api.github.com/repos/#(owner)/#(repo)/contents/"
+    )
 
 server.set('backupDelay', 1000)
 server.set('backupHttpism', githubBackupHttpism)

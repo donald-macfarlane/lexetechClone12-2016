@@ -87,6 +87,13 @@ module.exports = prototype {
         element
     }.exists!()
 
+  expect(assertion) =
+    self.addFinder {
+      find(element) =
+        assertion(element)
+        element
+    }.exists!()
+
   click() =
     sendclick(self.resolve()!.0)
 
@@ -96,3 +103,11 @@ module.exports = prototype {
   typeInHtml(html) =
     sendkeys.html(self.resolve()!.0, html)
 }
+
+module.exports.hasText(text) =
+  @(element)
+    expect(element.text()).to.equal(text)
+
+module.exports.is(css) =
+  @(element)
+    expect(element.is(css)).to.be.true

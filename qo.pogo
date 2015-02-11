@@ -1,4 +1,5 @@
 shell = require './tools/ps'
+loadQueriesFromSql = require './tools/loadQueriesFromSql'
 
 runAllThenThrow(args, ...) =
   firstError = nil
@@ -35,7 +36,6 @@ task 'karma'
 task 'load-from-file' @(args, env = 'dev')
   file = args.0
 
-  loadQueriesFromSql = require './tools/loadQueriesFromSql'
   httpism = require 'httpism'
 
   connectionInfoLive = {
@@ -56,6 +56,10 @@ task 'load-from-file' @(args, env = 'dev')
 
   body = httpism.post (envs.(env)) (queries)!.body
   console.log(body)
+
+task 'sqldump' @(args, env = 'local.json')
+  creds = JSON.parse(fs.readFile(env, 'utf-8')!)
+  console.log(JSON.stringify(loadQueriesFromSql(creds)!, nil, 2))
 
 compileLess() =
   fs = require 'fs-promise'
