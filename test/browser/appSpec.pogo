@@ -17,7 +17,9 @@ describe 'report'
   browser = nil
 
   reportBrowser = prototypeExtending(element) {
-    undoButton() = self.find('button', text = 'undo')
+    undoButton() = self.find('.query button', text = 'undo')
+    acceptButton() = self.find('.query button', text = 'accept')
+
     response(text) = self.find('.response', text = text)
     queryText() = self.find('.query .query-text')
   }
@@ -151,3 +153,19 @@ describe 'report'
                       right leg bleeding"
 
     it 'can undo a response, and apply it again'
+      shouldHaveQuery 'Where does it hurt?'!
+      selectResponse 'left leg'!
+      shouldHaveQuery 'Is it bleeding?'!
+      browser.find('button', text = 'undo').click!()
+      shouldHaveQuery 'Where does it hurt?'!
+      browser.response('left leg').expect!(element.is('.selected'))
+      browser.acceptButton().click!()
+      shouldHaveQuery 'Is it bleeding?'!
+      selectResponse 'yes'!
+      shouldHaveQuery 'Is it aching?'!
+      selectResponse 'no'!
+      shouldBeFinished()!
+
+      notesShouldBe! "Complaint
+                      ---------
+                      left leg bleeding"
