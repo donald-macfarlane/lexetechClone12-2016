@@ -461,10 +461,13 @@ module.exports = React.createFactory(React.createClass {
               moveItemIn (self.state.query.responses) from (from) to (to)
               self.update()
 
-            sortable {
-              itemMoved = itemMoved
-              render = render
-            }
+            if (@not self.state.selectedResponse)
+              sortable {
+                itemMoved = itemMoved
+                render = render
+              }
+            else
+              render()
 
           r 'button' { className = 'add', onClick = self.addResponse } 'Add Response'
         )

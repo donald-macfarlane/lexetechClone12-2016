@@ -145,6 +145,7 @@ body {
 
       li.response {
         border-top: 1px solid #f0f0f0;
+        position: relative;
 
         &:last-child {
           border-bottom: 1px solid #f0f0f0;
@@ -419,6 +420,20 @@ hr {
         background-color: rgba(231, 232, 209, 0.25);
         position: relative;
         box-shadow: 1px 1px 10px rgb(231, 232, 209);
+
+        &[draggable] {
+          cursor: move;
+
+          &:hover:before {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            bottom: 3px;
+            width: 5px;
+            border-left: 3px dotted rgba(231, 232, 209, 0.86);
+          }
+        }
 
         &.selected {
         }
