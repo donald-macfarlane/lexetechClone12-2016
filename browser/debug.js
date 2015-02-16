@@ -59,6 +59,7 @@ var debugComponent = prototype({
   render: function () {
     var predicants = this.predicants;
     var query = this.model.currentQuery();
+    var self = this;
 
     this.refresh = h.refresh;
 
@@ -159,7 +160,7 @@ var debugComponent = prototype({
           h('div',
             h('p', 'coherence index: ', renderContextScalars(previousContext, context, 'coherenceIndex', code)),
             h('p', 'level: ', renderContextScalars(previousContext, context, 'level', code)),
-            self.predicants
+            this.predicants
               ? h('p', 'predicants: ', renderContextArrays(previousContext, context, contextPredicants, code))
               : undefined,
             h('p', 'blocks: ', renderContextArrays(previousContext, context, contextBlocks, code))

@@ -1,6 +1,6 @@
 _ = require 'underscore'
 createContext = require './context'
-cache = require '../common/cache'
+createCache = require '../common/cache'
 lexemeApi = require '../browser/lexemeApi'
 
 cloneContext(c) =
@@ -108,11 +108,15 @@ preloadQueryGraph(query, depth) =
   if (depth > 0 @and query.query)
     [
       r <- query.responses
-      preloadQueryGraph(r.query(preload = false)!, depth - 1)!
+      preloadQueryGraph(r.query()!, depth - 1)!
     ]
 
-module.exports(api = lexemeApi()) =
-  queryCache = cache()
+nocache = {
+  cacheBy(key, fn) = fn()
+}
+
+module.exports(api = lexemeApi(), cache = true) =
+  queryCache = (cache @and createCache()) @or nocache
 
   queryGraph (next, context) =
     graph = {
@@ -131,17 +135,20 @@ module.exports(api = lexemeApi()) =
           text = r.text
           styles = r.styles
 
-          query(preload = true) =
-            if (@not self._query)
-              self._query = nextQueryForResponse(r, context)
+          query() =
+            if (@not cache)
+              nextQueryForResponse(r, context)!
+            else
+              if (@not self._query)
+                self._query = nextQueryForResponse(r, context)
 
-            if (preload @and @not self.preloaded)
-              @{
-                self.preloaded = true
-                preloadQueryGraph(self._query!, 4)!
-              }()
+              if (@not self.preloaded)
+                @{
+                  self.preloaded = true
+                  preloadQueryGraph(self._query!, 4)!
+                }()
 
-            self._query
+              self._query
         }
       ]
 
@@ -165,7 +172,7 @@ module.exports(api = lexemeApi()) =
       queryGraph (next, newContext)
 
   {
-    firstQueryGraph(preload = true) =
+    firstQueryGraph() =
       query = api.block(1).query(0)!
 
       firstPredicants = {}
@@ -181,8 +188,8 @@ module.exports(api = lexemeApi()) =
         blockStack = []
       }
 
-      graph = queryGraph ({ query = query, context = context }, context)
-      if (preload)
+      graph = queryGraph ({ query = query, context = context, nextContext = context }, context)
+      if (cache)
         preloadQueryGraph(graph, 4)
 
       graph
