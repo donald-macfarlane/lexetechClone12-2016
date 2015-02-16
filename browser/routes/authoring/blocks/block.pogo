@@ -121,7 +121,7 @@ module.exports = React.createFactory(React.createClass {
     latestBlocks.forEach @(block)
       block.update()
 
-    if (@not self.state.dirty)
+    if (@not self.state.dirty @and @not self.isNewBlock())
       self.setState {
         selectedBlock = self.block()
       }

@@ -113,6 +113,9 @@ module.exports = React.createFactory(React.createClass {
         action = createAction()
         addAction (action)
         ev.preventDefault()
+
+    hasRepeat = [a <- actions, a.name == 'repeatLexeme', a].length > 0
+    hasSetOrAddBlocks = [a <- actions, a.name == 'setBlocks' @or a.name == 'addBlocks', a].length > 0
       
     r 'div' {} (
       r 'ol' {} (
@@ -123,8 +126,12 @@ module.exports = React.createFactory(React.createClass {
         ]
       )
       DropdownButton {title = 'Add Action'} (
-        MenuItem { onClick = addActionClick @{ { name = 'setBlocks', arguments = [] } } } ('Set Block')
-        MenuItem { onClick = addActionClick @{ { name = 'addBlocks', arguments = [] } } } ('Add Block')
+        if (@not hasRepeat @and @not hasSetOrAddBlocks)
+          MenuItem { onClick = addActionClick @{ { name = 'setBlocks', arguments = [] } } } ('Set Blocks')
+
+        if (@not hasRepeat @and @not hasSetOrAddBlocks)
+          MenuItem { onClick = addActionClick @{ { name = 'addBlocks', arguments = [] } } } ('Add Blocks')
+
         MenuItem { onClick = addActionClick @{ { name = 'email', arguments = [] } } } ('Email')
         MenuItem { onClick = addActionClick @{ { name = 'repeatLexeme', arguments = [] } } } ('Repeat')
         MenuItem { onClick = addActionClick @{ { name = 'setVariable', arguments = ['', ''] } } } ('Set Variable')

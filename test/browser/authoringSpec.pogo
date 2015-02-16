@@ -45,6 +45,15 @@ authoringElement = prototypeExtending (element) {
 
   queryName() =
     self.find('.edit-query ul li.name input')
+
+  responses() =
+    self.query().find('ul li.responses')
+  
+  actions() =
+    self.responses().find('ul li.actions')
+
+  action(name) =
+    self.actions().find('ul.dropdown-menu li a', text = name)
 }
 
 describe 'authoring'
@@ -146,12 +155,8 @@ describe 'authoring'
 
         actions = responses.find('ul li.actions')
         actions.find('button', text = 'Add Action').click!()
-        actions.find('ul.dropdown-menu li a', text = 'Set Block').click!()
+        actions.find('ul.dropdown-menu li a', text = 'Set Blocks').click!()
         actions.find('ol li.action-set-blocks .select-list ol li', text = 'abcd').click!()
-
-        actions.find('button', text = 'Add Action').click!()
-        actions.find('ul.dropdown-menu li a', text = 'Add Block').click!()
-        actions.find('ol li.action-add-blocks .select-list ol li', text = 'xyz').click!()
 
         page.find('.edit-query button', text = 'Create').click!()
 
@@ -176,10 +181,6 @@ describe 'authoring'
                       name = 'setBlocks'
                       arguments = ['1']
                     }
-                    {
-                      name = 'addBlocks'
-                      arguments = ['2']
-                    }
                   ]
                   id = 1
                   setLevel = 4
@@ -189,6 +190,45 @@ describe 'authoring'
           ]
 
         page.queryMenuItem('xyz', 'query 1').exists!()
+
+    context 'a query with a response'
+      beforeEach
+        page.find('button', text = 'Add Block').click!()
+
+        page.find('#block_name', ensure(el) = expect(el.val()).to.equal '').exists()!
+
+        page.find('#block_name').typeIn!('xyz')
+        page.find('button', text = 'Create').click!()
+
+        page.find('button', text = 'Add Query').click!()
+
+        editQuery = page.find('.edit-query')
+        responses = page.responses()
+        responses.find('button', text = 'Add Response').click!()
+
+      (action) isNotCompatibleWith (disallowedActions) =
+        it "disallows creation of #(action) and #(disallowedActions.join(', '))"
+          actions = page.actions()
+          actions.find('button', text = 'Add Action').click!()
+
+          for each @(actionName) in (disallowedActions)
+            console.log "#(actionName) exists"
+            page.action(actionName).exists!()
+
+          page.action(action).click!()
+
+          for each @(actionName) in (disallowedActions)
+            console.log "#(actionName) doesn't exist"
+            page.action(actionName).doesntExist!()
+
+      describe 'repeat'
+        'Repeat' isNotCompatibleWith ['Set Blocks', 'Add Blocks']
+
+      describe 'add blocks'
+        'Add Blocks' isNotCompatibleWith ['Set Blocks', 'Add Blocks']
+
+      describe 'set blocks'
+        'Set Blocks' isNotCompatibleWith ['Set Blocks', 'Add Blocks']
 
     describe 'selecting blocks and queries'
       beforeEach

@@ -270,10 +270,12 @@ describe 'report'
         }
       ].blocks, ...)
 
+      api.predicants.push({id = 'end', name = 'end'})
+
       report = reportComponent {user = { email = 'blah@example.com' } }
       plastiq.attach(div, report.render.bind(report))
 
-    it.only 'displays debugging information' =>
+    it 'displays debugging information' =>
       self.timeout 100000
       browser.debugButton().click!()
 

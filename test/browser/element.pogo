@@ -82,11 +82,13 @@ module.exports = prototype {
 
   doesntExist() =
     retry!
-      try
-        els = self.findElement(self.element)
-        expect(els.length).to.equal 0 "expected not to find any elements: #(self.printFinders(self.finders))"
-      catch(e)
-        nil
+      length =
+        try
+          self.findElement(self.element).length
+        catch (e)
+          0
+
+      expect(length).to.equal 0 "expected not to find any elements: #(self.printFinders(self.finders))"
 
   wait(assertion) =
     self.addFinder {
@@ -118,4 +120,4 @@ module.exports.hasText(text) =
 
 module.exports.is(css) =
   @(element)
-    expect(element.is(css)).to.be.true
+    expect(element.is(css), css).to.be.true

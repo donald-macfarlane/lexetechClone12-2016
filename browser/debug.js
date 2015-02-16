@@ -109,6 +109,9 @@ var debugComponent = prototype({
 
         function contextPredicants(context) {
           return Object.keys(context.predicants).map(function (p) {
+            if (!predicants[p]) {
+              console.log('uh oh');
+            }
             return predicants[p].name;
           });
         }
