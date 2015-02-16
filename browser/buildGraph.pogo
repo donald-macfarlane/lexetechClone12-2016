@@ -108,7 +108,7 @@ preloadQueryGraph(query, depth) =
   if (depth > 0 @and query.query)
     [
       r <- query.responses
-      preloadQueryGraph(r.query()!, depth - 1)!
+      preloadQueryGraph(r.query(preload = false)!, depth - 1)!
     ]
 
 nocache = {
@@ -135,14 +135,14 @@ module.exports(api = lexemeApi(), cache = true) =
           text = r.text
           styles = r.styles
 
-          query() =
+          query(preload = true) =
             if (@not cache)
               nextQueryForResponse(r, context)!
             else
               if (@not self._query)
                 self._query = nextQueryForResponse(r, context)
 
-              if (@not self.preloaded)
+              if (preload @and @not self.preloaded)
                 @{
                   self.preloaded = true
                   preloadQueryGraph(self._query!, 4)!
