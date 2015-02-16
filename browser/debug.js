@@ -180,7 +180,7 @@ var debugComponent = prototype({
                         return h('li.block-query',
                           {
                             class: {
-                              before: current < 0,
+                              before: current < 0 && previous != 0,
                               previous: previous == 0,
                               skipped: current >= 0 && next < 0,
                               after: next > 0,

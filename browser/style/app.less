@@ -5,31 +5,6 @@ body {
 }
 
 .debug {
-  display: flex;
-
-  > * {
-    flex: 1;
-  }
-
-  .query-detail {
-    .blocks {
-      list-style-type: none;
-      padding-left: 0;
-
-      .block {
-        .block-queries {
-          list-style-type: none;
-          padding-left: 0;
-          margin-left: 5px;
-          border-left: 1px solid lightgray;
-
-          .block-query {
-            padding-left: 5px;
-          }
-        }
-      }
-    }
-  }
 
   .query {
     margin-top: 10px;
@@ -68,22 +43,6 @@ body {
         background-color: rgba(0, 0, 0, 0.10);
       }
     }
-  }
-
-  .found {
-    font-weight: bold;
-  }
-  .before {
-    color: gray;
-  }
-  .previous {
-    font-weight: bold;
-  }
-  .skipped {
-    text-decoration: line-through;
-  }
-  .after {
-    color: gray;
   }
 
   /*
@@ -211,6 +170,42 @@ body {
           }
         }
       }
+    }
+  }
+
+  .query-detail {
+    .blocks {
+      list-style-type: none;
+      padding-left: 0;
+
+      .block {
+        .block-queries {
+          list-style-type: none;
+          padding-left: 0;
+          margin-left: 5px;
+          border-left: 1px solid lightgray;
+
+          .block-query {
+            padding-left: 5px;
+          }
+        }
+      }
+    }
+
+    .found {
+      font-weight: bold;
+    }
+    .before {
+      color: gray;
+    }
+    .previous {
+      font-weight: bold;
+    }
+    .skipped {
+      text-decoration: line-through;
+    }
+    .after {
+      color: gray;
     }
   }
 }

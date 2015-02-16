@@ -43,9 +43,17 @@ module.exports = prototype {
     finder = elementFinder(args, ...)
 
     self.addFinder {
-      find(element) =
-        finder.find(element)
-        element
+      find(elements) =
+        els = elements.filter =>
+          try
+            finder.find(self)
+          catch(e)
+            false
+
+        if (els.length > 0)
+          els
+
+      toString() = finder.toString()
     }
 
   printFinders(finders) =
