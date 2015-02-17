@@ -38,8 +38,13 @@ module.exports () =
         JSON.parse(client.get "#(name):#(id)"!)
 
       add(object) =
-        id = client.incr("last_#(name)_id")!
-        object.id = String(id)
+        id =
+          if (@not object.id)
+            lastId = client.incr("last_#(name)_id")!
+            object.id = String(lastId)
+          else
+            object.id
+
         client.set("#(name):#(id)", JSON.stringify(object))!
         object
 
