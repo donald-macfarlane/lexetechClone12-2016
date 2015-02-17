@@ -24,6 +24,42 @@ describe "query api"
     server.close()
 
   describe 'backups'
+    it 'block ids are maintained'
+      lexicon1 = lexicon.blocks [
+        {
+          id = '10'
+          name = 'block 10'
+          queries = [
+            {
+              text 'query 1'
+              responses = [
+                {
+                  text = 'response 1'
+                }
+              ]
+            }
+          ]
+        }
+        {
+          id = '20'
+          name = 'block 20'
+          queries = [
+            {
+              text 'query 2'
+              responses = [
+                {
+                  text = 'response 2'
+                }
+              ]
+            }
+          ]
+        }
+      ]
+
+      api.post('/api/lexicon', lexicon1)!
+      lexicon2 = api.get('/api/lexicon')!.body
+      expect(lexicon2).to.eql(lexicon1)
+
     it 'can set and get the lexicon'
       lexicon1 = lexicon.blocks [
         {
