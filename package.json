@@ -27,6 +27,7 @@
     "chai-as-promised": "^4.1.1",
     "chinchilla": "0.0.9",
     "fs-promise": "^0.3.0",
+    "gulp-merge": "0.1.0",
     "handlebars": "^2.0.0",
     "httpism": "^0.2.4",
     "jquery-sendkeys": "^1.0.2",
