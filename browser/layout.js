@@ -3,7 +3,7 @@ var h = plastiq.html;
 var router = require('plastiq/router');
 
 module.exports = function (model, contents) {
-  if (model.user || location.pathname == '/login') {
+  if (model.user || model.auth) {
     return h('div.main',
       h('div.top-menu',
         topMenuTabs(model.user),

@@ -7,6 +7,7 @@ var debugComponent = require('./debug');
 var documentComponent = require('./document');
 var layout = require('./layout');
 var login = require('./login');
+var signup = require('./signup');
 var historyComponent = require('./history');
 
 module.exports = prototype({
@@ -25,19 +26,36 @@ module.exports = prototype({
   render: function () {
     var self = this;
 
-    return layout(self,
-      router(
-        router.page('/',
-          function () {
-            return h('div.report',
-              self.query.render(),
-              self.document.render(),
-              h('button', {onclick: function () { self.debug.show = !self.debug.show; }}, 'debug'),
-              self.debug.render()
-            );
-          }
-        ),
-        router.page('/login', login)
+    function master(fn) {
+      return function() {
+        return layout(self, fn());
+      };
+    }
+
+    return router(
+      router.page('/',
+        master(function () {
+          return h('div.report',
+            self.query.render(),
+            self.document.render(),
+            h('button', {onclick: function () { self.debug.show = !self.debug.show; }}, 'debug'),
+            self.debug.render()
+          );
+        })
+      ),
+      router.page('/login',
+        {
+          binding: [self, 'auth'],
+          state: true
+        },
+        master(login)
+      ),
+      router.page('/signup',
+        {
+          binding: [self, 'auth'],
+          state: true
+        },
+        master(signup)
       )
     );
   }

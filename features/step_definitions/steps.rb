@@ -17,7 +17,7 @@ When(/^I answer "(.*?)"$/) do |response|
 end
 
 Then(/^the doctor makes the following notes:$/) do |string|
-  within '.notes' do
+  within '.document' do
     expect(page).to have_content(string)
   end
 end
