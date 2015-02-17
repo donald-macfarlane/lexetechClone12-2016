@@ -7,7 +7,7 @@ module.exports = React.createFactory(React.createClass {
   render() =
     if (self.props.user)
       r 'div' { className = 'tabs' } (
-        Link { to = 'reports' } 'Reports'
+        r 'a' { href = '/' } 'Report'
         Link { to = 'authoring' } 'Authoring'
       )
     else

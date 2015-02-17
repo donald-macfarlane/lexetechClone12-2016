@@ -1,6 +1,7 @@
 var gulp = require('gulp');
 var gutil = require('gulp-util');
 var source = require('vinyl-source-stream');
+var streamify = require('gulp-streamify');
 var buffer = require('vinyl-buffer');
 var watchify = require('watchify');
 var browserify = require('browserify');
@@ -11,6 +12,8 @@ var sourcemaps = require('gulp-sourcemaps');
 var shell = require('./tools/ps.pogo');
 var gulpMerge = require('gulp-merge');
 var pathUtils = require('path');
+var uglify = require('gulp-uglify');
+var gulpif = require('gulp-if');
 
 function browserifyBundle(watch, filename) {
   return browserify(filename, {
@@ -23,8 +26,8 @@ function browserifyBundle(watch, filename) {
   });
 }
 
-function rebundle() {
-  var bundles = Array.prototype.slice.call(arguments, 0);
+function rebundle(options) {
+  var bundles = Array.prototype.slice.call(arguments, 1);
 
   return function () {
     console.log("bundling...");
@@ -39,6 +42,7 @@ function rebundle() {
     });
 
     return gulpMerge.apply(undefined, bundlesWithErrors)
+      .pipe(gulpif(options.minify, streamify(uglify())))
       .pipe(gulp.dest('./server/generated'));
   }
 }
@@ -50,8 +54,8 @@ gulp.task('build', ['js', 'css'])
 function watchJs(filename) {
   var bundle = browserifyBundle(true, filename);
   var watch = watchify(bundle);
-  watch.on('update', rebundle(watch));
-  rebundle(watch)();
+  watch.on('update', rebundle({}, watch));
+  rebundle({}, watch)();
 }
 
 gulp.task('watch-js', function () {
@@ -62,6 +66,7 @@ gulp.task('watch-js', function () {
 
 gulp.task('js',
   rebundle(
+    {minify: true},
     browserifyBundle(false, './browser/app.js'),
     browserifyBundle(false, './browser/authoring.pogo'),
     browserifyBundle(false, './browser/debug.js')

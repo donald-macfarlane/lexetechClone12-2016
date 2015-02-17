@@ -26,7 +26,7 @@ function topMenuTabs(user) {
   return h('div.tabs',
     user
       ? [
-          h('a', {href: '/debug'}, 'Debug'),
+          h('a.active', {href: '/'}, 'Report'),
           h('a', {href: '/authoring'}, 'Authoring')
       ]
       : undefined
