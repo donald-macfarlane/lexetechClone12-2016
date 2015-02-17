@@ -44,7 +44,8 @@
     "mssql": "^1.3.0",
     "qo": "^0.3.0",
     "sworm": "^0.4.0",
-    "trytryagain": "^0.1.0"
+    "trytryagain": "^0.1.0",
+    "vinyl-buffer": "1.0.0"
   },
   "dependencies": {
     "body-parser": "^1.10.0",
@@ -68,7 +69,7 @@
     "passport-http": "^0.2.2",
     "passport-local": "^1.0.0",
     "passport-local-mongoose": "^1.0.0",
-    "plastiq": "^1.9.1",
+    "plastiq": "1.9.2",
     "pogo": "^0.9.10",
     "pogoify": "^0.1.1",
     "prote": "^1.1.0",
