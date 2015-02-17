@@ -7,3 +7,4 @@ gem 'mongo'
 gem 'bson_ext'
 gem 'pry'
 gem "chromedriver-helper"
+gem 'capybara-screenshot', :group => :test
