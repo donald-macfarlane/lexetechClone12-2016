@@ -195,6 +195,12 @@ module.exports = React.createFactory(React.createClass {
     self.loadBlocks()
     self.replaceWith 'block' { blockId = id }
 
+  delete() =
+    self.state.selectedBlock.block.deleted = true
+    self.props.http.post("/api/blocks/#(self.blockId())", self.state.selectedBlock.block)!
+    self.loadBlocks()
+    self.replaceWith 'authoring'
+
   pasteQueryFromClipboard(query) =
     if (query :: Function)
       if (self.state.clipboardQuery)
@@ -239,6 +245,7 @@ module.exports = React.createFactory(React.createClass {
     self.props.http.post ("/api/blocks/#(self.blockId())/queries/#(q.id)", q)!
     self.setState { selectedQuery = nil }
     self.state.selectedBlock.update()
+    self.replaceWith 'block' { blockId = self.blockId() }
 
   addBlock() =
     self.transitionTo 'create_block'
@@ -369,10 +376,14 @@ module.exports = React.createFactory(React.createClass {
             else if (self.state.dirty)
               r 'button' { className = 'save', onClick = self.save } 'Save'
 
+            if (self.blockId())
+              r 'button' { className = 'delete', onClick = self.delete } 'Delete'
+
             if (self.state.dirty @or self.isNewBlock())
               r 'button' { className = 'cancel', onClick = self.cancel } 'Cancel'
             else
               r 'button' { className = 'cancel', onClick = self.cancel } 'Close'
+
           )
           r 'ul' {} (
             r 'li' {} (

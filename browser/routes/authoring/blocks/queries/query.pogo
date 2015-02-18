@@ -316,7 +316,7 @@ module.exports = React.createFactory(React.createClass {
     self.props.createQuery(self.state.query)!
     self.update(dirty = false)
 
-  remove() =
+  delete() =
     self.props.removeQuery(self.state.query)!
 
   insertBefore() =
@@ -374,7 +374,7 @@ module.exports = React.createFactory(React.createClass {
             r 'button' { className = 'insert-query-after' + activeWhenDirtyAndCreated, onClick = self.insertAfter } 'Insert After'
             r 'button' { className = 'save' + activeWhenDirtyAndCreated, onClick = self.save } 'Overwrite'
             r 'button' { className = 'cancel' + activeWhen(dirty), onClick = self.cancel } 'Cancel'
-            r 'button' { className = 'delete', onClick = self.remove } 'Delete'
+            r 'button' { className = 'delete', onClick = self.delete } 'Delete'
             r 'button' { className = 'close', onClick = self.close } 'Close'
           ]
         else
