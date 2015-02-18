@@ -9,7 +9,7 @@ module.exports = function (model, contents) {
         topMenuTabs(model.user),
         authStatus(model.user)
       ),
-      model.flash
+      model.flash && model.flash.length > 0
         ? h('div.top-flash.warning', model.flash,
             h('a.close', {onclick: function () { delete model.flash; }})
           )

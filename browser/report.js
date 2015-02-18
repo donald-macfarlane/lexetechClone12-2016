@@ -13,6 +13,7 @@ var historyComponent = require('./history');
 module.exports = prototype({
   constructor: function (pageData) {
     this.user = pageData.user;
+    this.flash = pageData.flash;
     this.document = documentComponent(this);
     this.debug = debugComponent(this);
     this.query = queryComponent(this);

@@ -6,6 +6,7 @@ session = require 'express-session'
 BasicStrategy = require 'passport-http'.BasicStrategy
 api = require './api'
 _ = require 'underscore'
+logger = require 'winston'
 
 users = require './users.pogo'
 User = require './models/user'
@@ -19,6 +20,7 @@ app.use(session { name = 'session', secret = 'haha bolshevik', resave = false, s
 app.use(bodyParser.urlencoded { extended = true })
 app.engine('html', require('ejs').renderFile)
 app.set 'views' (__dirname + '/views')
+app.set('logger', logger)
 
 app.use(passport.initialize())
 app.use(passport.session())
@@ -60,6 +62,8 @@ app.post '/signup' @(req, res)
     req.login (user, ^)!
     res.redirect '/'
   catch (e)
+    logger.error("could not sign up", e)
+    req.flash('error', 'that email address is already used')
     res.redirect '/signup'
 
 app.post '/logout' @(req, res)
@@ -70,21 +74,21 @@ app.use(express.static(__dirname + '/generated'))
 app.use(express.static(__dirname + '/public'))
 app.use('/source', express.static(__dirname + '/../browser/style'))
 
+page(req, js) = {
+  script = js
+  user = if (req.user)
+    _.pick(req.user, 'email')
+
+  flash = req.flash('error')
+}
+
 authoring (req, res) =
-  res.render 'index.html' {
-    script = '/authoring.js'
-    user = if (req.user)
-      _.pick(req.user, 'email')
-  }
+  res.render 'index.html' (page (req, '/authoring.js'))
 
 app.get('/authoring/*', authoring)
 app.get('/authoring', authoring)
 
 app.get '*' @(req, res)
-  res.render 'index.html' {
-    script = '/app.js'
-    user = if (req.user)
-      _.pick(req.user, 'email')
-  }
+  res.render 'index.html' (page (req, '/app.js'))
 
 module.exports = app
