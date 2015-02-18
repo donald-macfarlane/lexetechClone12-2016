@@ -399,7 +399,7 @@ module.exports = React.createFactory(React.createClass {
         )
 
         r 'li' {} (
-          r 'label' {} 'Predicants'
+          r 'label' {} 'Predicants Needed'
           self.renderPredicants(self.state.query.predicants)
         )
 
@@ -452,7 +452,7 @@ module.exports = React.createFactory(React.createClass {
                               self.renderActions(response.actions)
                             )
                             r 'li' { className = 'predicants' } (
-                              r 'label' {} 'Predicants'
+                              r 'label' {} 'Predicants Issued'
                               self.renderPredicants(response.predicants)
                             )
                           ]
