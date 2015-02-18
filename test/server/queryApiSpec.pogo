@@ -269,14 +269,19 @@ describe "query api"
   describe 'authoring'
     describe 'blocks'
       it 'can create a block'
-        block = api.post!('/api/blocks', {
+        response = api.post!('/api/blocks', {
           name = 'a block'
-        }).body
+        })
+        block = response.body
 
         blocks = api.get! '/api/blocks'.body
+        expect(response.headers.location).to.equal('/api/blocks/1')
         expect(blocks.length).to.equal(1)
         expect(blocks.0.name).to.equal('a block')
         expect(blocks.0.id).to.equal(block.id)
+
+        expect(api.get!('/api/blocks/1').body).to.eql(block)
+        expect(api.get!('/api/blocks').body).to.eql [block]
 
       it 'orders blocks by id numerically'
         api.post!('/api/blocks', {
@@ -294,6 +299,26 @@ describe "query api"
 
         blocks = api.get! '/api/blocks'.body
         expect([b <- blocks, b.id]).to.eql ['1', '2', '3', '10']
+
+      it 'can soft delete a block'
+        block1Url = api.post!('/api/blocks', {
+          id = "1"
+        }).location
+        api.post!('/api/blocks', {
+          id = "2"
+        })
+
+        expect([b <- api.get!('/api/blocks').body, b.id]).to.eql ["1", "2"]
+
+        api.post!('/api/blocks/1', {
+          id = "1"
+          deleted = true
+        })
+        expect([b <- api.get!('/api/blocks').body, b.id]).to.eql ["2"]
+        expect(api.get!('/api/blocks/1').body).to.eql {
+          id = "1"
+          deleted = true
+        }
 
     describe 'queries'
       block = nil
@@ -342,6 +367,16 @@ describe "query api"
 
           response = api.get! "/api/blocks/#(block.id)/queries/#(newQuery.id)" (exceptions = false)
           expect(response.statusCode).to.equal 404
+
+          queries = api.get! "/api/blocks/#(block.id)/queries".body
+          expect(queries.length).to.equal 0
+
+        it 'can soft delete the query'
+          newQuery.deleted = true
+          api.post!("/api/blocks/#(block.id)/queries/#(newQuery.id)", newQuery)
+
+          deletedQuery = api.get! "/api/blocks/#(block.id)/queries/#(newQuery.id)".body
+          expect(deletedQuery).to.eql(newQuery)
 
           queries = api.get! "/api/blocks/#(block.id)/queries".body
           expect(queries.length).to.equal 0

@@ -76,7 +76,7 @@ module.exports () =
 
         ids
 
-      getAll(ids, withPrefix) =
+      getAll(ids, withPrefix = false) =
         keys =
           if (withPrefix)
             ids
@@ -86,14 +86,16 @@ module.exports () =
         if (keys.length > 0)
           objects = [
             p <- client.mget(keys)!
-            JSON.parse(p)
+            object = JSON.parse(p)
+            @not object.deleted
+            object
           ]
         else
           []
 
       list() =
         ids = self.ids()!
-        self.getAll(ids, true)!
+        self.getAll(ids, withPrefix = true)!
 
       removeAll() =
         ids = self.ids()!

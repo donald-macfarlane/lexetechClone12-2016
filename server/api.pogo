@@ -38,6 +38,7 @@ app.get '/blocks' @(req, res)
 app.post '/blocks' @(req, res)
   db = app.get 'db'
   block = db.createBlock(req.body)!
+  res.set 'location' "#(req.baseUrl)/blocks/#(block.id)"
   res.status(201).send(block)
 
 app.get '/blocks/:id' @(req, res)
@@ -46,7 +47,7 @@ app.get '/blocks/:id' @(req, res)
 
 app.post '/blocks/:id' @(req, res)
   db = app.get 'db'
-  res.send (db.updateBlockById(req.param 'id', { name = req.body.name })!)
+  res.send (db.updateBlockById(req.param 'id', req.body)!)
 
 app.get '/blocks/:id/queries' @(req, res)
   db = app.get 'db'

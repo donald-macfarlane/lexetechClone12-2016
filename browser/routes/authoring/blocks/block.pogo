@@ -235,7 +235,8 @@ module.exports = React.createFactory(React.createClass {
     self.replaceWith 'query' { blockId = self.blockId(), queryId = query.id }
 
   removeQuery(q) =
-    self.props.http.delete ("/api/blocks/#(self.blockId())/queries/#(q.id)")!
+    q.deleted = true
+    self.props.http.post ("/api/blocks/#(self.blockId())/queries/#(q.id)", q)!
     self.setState { selectedQuery = nil }
     self.state.selectedBlock.update()
 
