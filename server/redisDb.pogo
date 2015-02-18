@@ -247,7 +247,8 @@ module.exports () =
 
     listBlocks()! =
       b = blocks.list()!
-      _.sortBy(b, 'name')
+      _.sortBy(b) @(x)
+        Number(x.id)
 
     blockById(id) =
       blocks.get(id)!

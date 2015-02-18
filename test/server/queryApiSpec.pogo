@@ -278,19 +278,22 @@ describe "query api"
         expect(blocks.0.name).to.equal('a block')
         expect(blocks.0.id).to.equal(block.id)
 
-      it 'orders blocks by name alphabetically'
+      it 'orders blocks by id numerically'
         api.post!('/api/blocks', {
-          name = 'zzz'
+          id = "3"
         })
         api.post!('/api/blocks', {
-          name = 'aaa'
+          id = "1"
         })
         api.post!('/api/blocks', {
-          name = 'mmm'
+          id = "2"
+        })
+        api.post!('/api/blocks', {
+          id = "10"
         })
 
         blocks = api.get! '/api/blocks'.body
-        expect([b <- blocks, b.name]).to.eql ['aaa', 'mmm', 'zzz']
+        expect([b <- blocks, b.id]).to.eql ['1', '2', '3', '10']
 
     describe 'queries'
       block = nil
