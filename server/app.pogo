@@ -2,7 +2,7 @@ express = require 'express'
 bodyParser = require 'body-parser'
 passport = require 'passport'
 flash = require 'connect-flash'
-session = require 'express-session'
+session = require 'cookie-session'
 BasicStrategy = require 'passport-http'.BasicStrategy
 api = require './api'
 _ = require 'underscore'
@@ -14,9 +14,11 @@ User = require './models/user'
 redisDb = require './redisDb'
 require './mongoDb'.connect()
 
+(n) days = n * 60 * 60 * 24 * 1000
+
 app = express()
 app.use(bodyParser.json {limit = '1mb'})
-app.use(session { name = 'session', secret = 'haha bolshevik', resave = false, saveUninitialized = false })
+app.use(session { name = 'session', secret = 'haha bolshevik', maxAge = 30 days, overwrite = true })
 app.use(bodyParser.urlencoded { extended = true })
 app.engine('html', require('ejs').renderFile)
 app.set 'views' (__dirname + '/views')
