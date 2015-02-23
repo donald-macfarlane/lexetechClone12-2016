@@ -14,7 +14,7 @@ module.exports () =
       predicants = []
     } (q)
 
-    query.responses = [r <- q.responses, buildResponse(r)]
+    query.responses = [r <- q.responses @or [], buildResponse(r)]
     query
 
   buildResponse(r) =
@@ -38,7 +38,7 @@ module.exports () =
           id = String(block.id)
 
           queries = [
-            query <- block.queries
+            query <- block.queries @or []
             buildQuery(query, String(block.id))
           ]
         }

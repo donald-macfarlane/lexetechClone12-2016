@@ -3,6 +3,7 @@ urlUtils = require 'url'
 cache = require '../common/cache'
 _ = require 'underscore'
 bluebird = require 'bluebird'
+semaphore = require './semaphore'
 
 createClient(url) =
   if (url)
@@ -16,15 +17,30 @@ createClient(url) =
 module.exports () =
   client = createClient(process.env.REDISCLOUD_URL)
 
+  oneMax = semaphore()
+
+  setMax(key, value) =
+    oneMax
+      client.watch!(key)
+      existingValue = client.get!(key)
+      newValue = Math.max(existingValue, value)
+      client.multi()!
+      client.set!(key, newValue)
+      client.exec()!
+
   domainObject(name) =
     {
-      addAll(objects) =
+      addAll(objects, keepIds = false) =
         if (objects.length > 0)
-          last = client.incrby("last_#(name)_id", objects.length)!
-          first = last - objects.length
+          if (keepIds)
+            highest = Math.max [o <- objects, Number(o.id)] ...
+            setMax!("last_#(name)_id", highest)
+          else
+            last = client.incrby("last_#(name)_id", objects.length)!
+            first = last - objects.length
 
-          for each @(pn) in (_.zip(objects, [(first + 1)..last]))
-            pn.0.id = String(pn.1)
+            for each @(pn) in (_.zip(objects, [(first + 1)..last]))
+              pn.0.id = String(pn.1)
           
           client.mset! [
             p <- objects
@@ -38,14 +54,10 @@ module.exports () =
         JSON.parse(client.get "#(name):#(id)"!)
 
       add(object) =
-        id =
-          if (@not object.id)
-            lastId = client.incr("last_#(name)_id")!
-            object.id = String(lastId)
-          else
-            object.id
+        lastId = client.incr("last_#(name)_id")!
+        object.id = String(lastId)
 
-        client.set("#(name):#(id)", JSON.stringify(object))!
+        client.set("#(name):#(object.id)", JSON.stringify(object))!
         object
 
       update(id, object) =
@@ -109,15 +121,17 @@ module.exports () =
       client.rpush("#(self.name):#(id)", i.id)!
       i
 
-    addAll(id, items) =
-      self.collection.addAll(items)!
-      client.rpush ("#(self.name):#(id)", [i <- items, i.id], ...)!
+    addAll(id, items, options) =
+      if (items.length > 0)
+        self.collection.addAll(items, options)!
+        client.rpush ("#(self.name):#(id)", [i <- items, i.id], ...)!
 
     list(id) =
       ids = client.lrange("#(self.name):#(id)", 0, -1)!
       self.collection.getAll(ids)!
 
     moveAfter(id, itemId, afterItemId) =
+      console.log('here #2')
       client.multi()
       client.linsert("#(self.name):#(id)", 'after', afterItemId, itemId)
       client.lrem("#(self.name):#(id)", 1, itemId)
@@ -165,8 +179,9 @@ module.exports () =
       writePredicants() =
         predicateNames = _.uniq [
           b <- lexicon.blocks
+          b.queries
           q <- b.queries
-          p <- [q.predicants, ..., [r <- q.responses, rp <- r.predicants, rp], ...]
+          p <- [q.predicants, ..., [r <- q.responses @or [], rp <- r.predicants, rp], ...]
           p
         ]
 
@@ -176,8 +191,9 @@ module.exports () =
 
         predicantContainers = [
           b <- lexicon.blocks
+          b.queries
           q <- b.queries
-          x <- [q, q.responses, ...]
+          x <- [q, q.responses @or [], ...]
           x
         ]
 
@@ -190,12 +206,14 @@ module.exports () =
       writePredicants()!
 
       writeBlock(block) =
-        savedBlock = blocks.add(_.omit(block, 'queries'))!
+        block.id = String(block.id)
+        if (block.queries)
+          block.queries.forEach @(query)
+            query.block = block.id
 
-        block.queries.forEach @(query)
-          query.block = savedBlock.id
+          blockQueries.addAll!(block.id, block.queries, keepIds = true)
 
-        blockQueries.addAll(savedBlock.id, block.queries)!
+      blocks.addAll!([b <- lexicon.blocks, _.omit(b, 'queries')], keepIds = true)
 
       [
         block <- lexicon.blocks
@@ -204,15 +222,16 @@ module.exports () =
 
     mapQueryPredicants(query, predicants) =
       query.predicants = [
-        pred <- query.predicants
+        pred <- query.predicants @or []
         predicants.(pred).name
       ]
 
-      query.responses.forEach @(response)
-        response.predicants = [
-          pred <- response.predicants
-          predicants.(pred).name
-        ]
+      if (query.responses)
+        query.responses.forEach @(response)
+          response.predicants = [
+            pred <- response.predicants @or []
+            predicants.(pred).name
+          ]
 
       query
 

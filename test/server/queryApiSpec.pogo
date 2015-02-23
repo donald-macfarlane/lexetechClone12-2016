@@ -24,41 +24,118 @@ describe "query api"
     server.close()
 
   describe 'backups'
-    it 'block ids are maintained'
-      lexicon1 = lexicon.blocks [
-        {
-          id = '10'
-          name = 'block 10'
-          queries = [
-            {
-              text 'query 1'
-              responses = [
-                {
-                  text = 'response 1'
-                }
-              ]
-            }
-          ]
-        }
-        {
-          id = '20'
-          name = 'block 20'
-          queries = [
-            {
-              text 'query 2'
-              responses = [
-                {
-                  text = 'response 2'
-                }
-              ]
-            }
-          ]
-        }
-      ]
+    describe 'block ids'
+      it 'block ids are maintained'
+        lexicon1 = lexicon.blocks [
+          {
+            id = '10'
+            name = 'block 10'
+          }
+          {
+            id = '30'
+            name = 'block 30'
+          }
+          {
+            id = '20'
+            name = 'block 20'
+          }
+        ]
 
-      api.post('/api/lexicon', lexicon1)!
-      lexicon2 = api.get('/api/lexicon')!.body
-      expect(lexicon2).to.eql(lexicon1)
+        api.post('/api/lexicon', lexicon1)!
+        lexicon2 = api.get('/api/lexicon')!.body
+        expect([b <- lexicon2.blocks, {id = b.id, name = b.name}]).to.eql([
+          {id = '10', name = 'block 10'}
+          {id = '20', name = 'block 20'}
+          {id = '30', name = 'block 30'}
+        ])
+
+      it 'the next block id is one higher than highest from before'
+        lexicon1 = lexicon.blocks [
+          {
+            id = '1'
+            name = 'block 1'
+          }
+          {
+            id = '30'
+            name = 'block 30'
+          }
+          {
+            id = '20'
+            name = 'block 20'
+          }
+        ]
+
+        api.post('/api/lexicon', lexicon1)!
+        api.post!('/api/blocks', {
+          name = 'block 31'
+          queries = [
+            {
+              text 'query 4'
+            }
+          ]
+        })
+
+        lexicon2 = api.get('/api/lexicon')!.body
+        expect([b <- lexicon2.blocks, {id = b.id, name = b.name}]).to.eql([
+          {id = '1', name = 'block 1'}
+          {id = '20', name = 'block 20'}
+          {id = '30', name = 'block 30'}
+          {id = '31', name = 'block 31'}
+        ])
+
+      it 'the next query id is one higher than highest from before'
+        lexicon1 = lexicon.blocks [
+          {
+            id = '1'
+            name = 'block 1'
+            queries = [
+              { id = '1', name = 'query 1' }
+            ]
+          }
+          {
+            id = '30'
+            name = 'block 30'
+            queries = [
+              { id = '10', name = 'query 10' }
+              { id = '20', name = 'query 20' }
+            ]
+          }
+        ]
+
+        api.post('/api/lexicon', lexicon1)!
+        api.post!('/api/blocks/1/queries', {
+          name = 'query next'
+        })
+
+        lexicon2 = api.get('/api/lexicon')!.body
+        expect([
+          b <- lexicon2.blocks
+          {
+            id = b.id
+            name = b.name
+            queries = [
+              q <- b.queries
+              { id = q.id, name = q.name }
+            ]
+          }
+        ]).to.eql([
+          {
+            id = '1'
+            name = 'block 1'
+            queries = [
+              { id = '1', name = 'query 1' }
+              { id = '21', name = 'query next' }
+            ]
+          }
+          {
+            id = '30'
+            name = 'block 30'
+            queries = [
+              { id = '10', name = 'query 10' }
+              { id = '20', name = 'query 20' }
+            ]
+          }
+        ])
 
     it 'can set and get the lexicon'
       lexicon1 = lexicon.blocks [
@@ -284,21 +361,26 @@ describe "query api"
         expect(api.get!('/api/blocks').body).to.eql [block]
 
       it 'orders blocks by id numerically'
-        api.post!('/api/blocks', {
-          id = "3"
-        })
-        api.post!('/api/blocks', {
-          id = "1"
-        })
-        api.post!('/api/blocks', {
-          id = "2"
-        })
-        api.post!('/api/blocks', {
-          id = "10"
-        })
+        lexicon1 = lexicon.blocks [
+          { id = '3' }
+          { id = '10' }
+          { id = '1' }
+          { id = '2' }
+        ]
+
+        api.post('/api/lexicon', lexicon1)!
 
         blocks = api.get! '/api/blocks'.body
         expect([b <- blocks, b.id]).to.eql ['1', '2', '3', '10']
+
+      it 'post ignores block id'
+        api.post!('/api/blocks', {
+          id = "1000"
+          name = "block 1000"
+        })
+
+        blocks = api.get! '/api/blocks'.body
+        expect([b <- blocks, { id = b.id, name = b.name}]).to.eql [{id = '1', name = 'block 1000'}]
 
       it 'can soft delete a block'
         block1Url = api.post!('/api/blocks', {
@@ -338,6 +420,18 @@ describe "query api"
         expect(queries.length).to.equal 1
         expect(queries.0.id).to.equal(query.id)
         expect(queries.0.name).to.equal('a query')
+
+      it 'ignores the query id on creation'
+        query = api.post!("/api/blocks/#(block.id)/queries", {
+          id = '1000'
+          name = 'query 1000'
+        }).body
+
+        queries = api.get! "/api/blocks/#(block.id)/queries".body
+
+        expect([q <- queries, { id = q.id, name = q.name }]).to.eql [
+          { id = '1', name = 'query 1000' }
+        ]
 
       context 'when a query is added'
         newQuery = nil
