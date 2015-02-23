@@ -1,6 +1,6 @@
 $ = window.$ = window.jQuery = require 'jquery'
-require '../../bower_components/jquery-mockjax/jquery.mockjax.js'
-createRouter = require './router'
+require 'jquery-mockjax'
+createRouter = require 'mockjax-router'
 _ = require 'underscore'
 
 module.exports() =
@@ -12,7 +12,8 @@ module.exports() =
     router.get(url) @(request)
       {
         statusCode = 200
-        body = collection
+        body = collection.filter @(item)
+          @not item.deleted
       }
 
     router.post(url) @(request)
@@ -30,6 +31,7 @@ module.exports() =
       }
 
     router.delete(url + '/:id') @(request)
+      console.log('deleting ' + request)
       collection.splice(Number(request.params.id) - 1, 1)
       {
         statusCode = 204
@@ -124,7 +126,8 @@ module.exports() =
       setupBlockQueries(block)
 
       {
-        body = block.queries
+        body = block.queries.filter @(q)
+          @not q.deleted
       }
     else
       {

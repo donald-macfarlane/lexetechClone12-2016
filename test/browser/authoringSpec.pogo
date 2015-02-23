@@ -8,7 +8,7 @@ chai = require 'chai'
 expect = chai.expect
 element = require './element'
 
-createRouter = require './router'
+createRouter = require 'mockjax-router'
 
 queryApi = require './queryApi'
 
@@ -105,11 +105,13 @@ describe 'authoring'
 
       window.location = '#/authoring'
 
+    startApp() =
       lexeme(div, {}, { user = { email = 'blah@example.com'} }, { historyApi = false })
 
     describe 'blocks'
 
       beforeEach
+        startApp()
         page.find('button', text = 'Add Block').click!()
         page.find('#block_name').typeIn!('abcd')
         page.find('button', text = 'Create').click!()
@@ -193,6 +195,7 @@ describe 'authoring'
 
     context 'a query with a response'
       beforeEach
+        startApp()
         page.find('button', text = 'Add Block').click!()
 
         page.find('#block_name', ensure(el) = expect(el.val()).to.equal '').exists()!
@@ -263,6 +266,8 @@ describe 'authoring'
           ]
         }
 
+        startApp()
+
       it 'can select one block after another'
         page.blockMenuItem('one').click!()
         page.blockName().wait! @(element)
@@ -298,6 +303,8 @@ describe 'authoring'
             }
           ]
         }
+
+        startApp()
       
       it 'can update a block'
         page.queryMenuItem('one').click!()
@@ -348,7 +355,7 @@ describe 'authoring'
         page.queryMenuItem('one', 'query 1').doesntExist!()
 
         retry!
-          expect([q <- api.blocks.0.queries, q.name]).to.eql []
+          expect([q <- api.blocks.0.queries, @not q.deleted, q.name]).to.eql []
 
     describe 'clipboards'
       beforeEach
@@ -367,6 +374,7 @@ describe 'authoring'
             }
           ]
         }
+        startApp()
 
       it 'can add a query to the clipboard'
         page.queryMenuItem('one', 'query 1').click()!
@@ -397,6 +405,7 @@ describe 'authoring'
             predicants = []
             responses = []
           }
+          startApp()
 
         it 'can paste the query into a new query, not including level'
           page.queryMenuItem('one', 'query 1').click()!
