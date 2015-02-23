@@ -24,8 +24,8 @@ module.exports () =
       client.watch!(key)
       existingValue = client.get!(key)
       newValue = Math.max(existingValue, value)
-      client.multi()!
-      client.set!(key, newValue)
+      client.multi()
+      client.set(key, newValue)
       client.exec()!
 
   domainObject(name) =
