@@ -43,19 +43,19 @@ app.post '/blocks' @(req, res)
 
 app.get '/blocks/:id' @(req, res)
   db = app.get 'db'
-  res.send (db.blockById(req.param 'id')!)
+  res.send (db.blockById(req.params.id)!)
 
 app.post '/blocks/:id' @(req, res)
   db = app.get 'db'
-  res.send (db.updateBlockById(req.param 'id', req.body)!)
+  res.send (db.updateBlockById(req.params.id, req.body)!)
 
 app.get '/blocks/:id/queries' @(req, res)
   db = app.get 'db'
-  res.send (db.blockQueries(req.param 'id')!)
+  res.send (db.blockQueries(req.params.id)!)
 
 app.get '/blocks/:blockId/queries/:queryId' @(req, res)
   db = app.get 'db'
-  query = db.queryById(req.param 'queryId')!
+  query = db.queryById(req.params.queryId)!
   if (query)
     res.send (query)
   else
@@ -66,15 +66,15 @@ app.post '/blocks/:blockId/queries/:queryId' @(req, res)
   query = req.body
   
   if (query.after)
-    res.send (db.moveQueryAfter(req.param 'blockId', req.param 'queryId', query.after)!)
+    res.send (db.moveQueryAfter(req.params.blockId, req.params.queryId, query.after)!)
   else if (query.before)
-    res.send (db.moveQueryBefore(req.param 'blockId', req.param 'queryId', query.before)!)
+    res.send (db.moveQueryBefore(req.params.blockId, req.params.queryId, query.before)!)
   else
-    res.send (db.updateQuery(req.param 'queryId', query)!)
+    res.send (db.updateQuery(req.params.queryId, query)!)
 
 app.delete '/blocks/:blockId/queries/:queryId' @(req, res)
   db = app.get 'db'
-  db.deleteQuery(req.param 'blockId', req.param 'queryId')!
+  db.deleteQuery(req.params.blockId, req.params.queryId)!
   res.send {}
 
 app.post '/blocks/:blockId/queries' @(req, res)
@@ -84,13 +84,13 @@ app.post '/blocks/:blockId/queries' @(req, res)
   if (query.before)
     before = query.before
     delete (query.before)
-    res.send (db.insertQueryBefore(req.param 'blockId', before, query)!)
+    res.send (db.insertQueryBefore(req.params.blockId, before, query)!)
   else if (query.after)
     after = query.after
     delete (query.after)
-    res.send (db.insertQueryAfter(req.param 'blockId', after, query)!)
+    res.send (db.insertQueryAfter(req.params.blockId, after, query)!)
   else
-    res.send (db.addQuery(req.param 'blockId', query)!)
+    res.send (db.addQuery(req.params.blockId, query)!)
 
 app.post '/lexicon' @(req, res)
   db = app.get 'db'
@@ -133,7 +133,7 @@ app.get '/user/queries' @(req, res)
 app.delete '/user/queries/:queryId' @(req, res)
   db = app.get 'db'
   query = req.body
-  db.deleteUserQuery(req.user.id, req.param 'queryId')!
+  db.deleteUserQuery(req.user.id, req.params.queryId)!
   res.status(204).send({})
 
 module.exports = app

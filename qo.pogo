@@ -1,5 +1,6 @@
 shell = require './tools/ps'
 loadQueriesFromSql = require './tools/loadQueriesFromSql'
+fs = require 'fs-promise'
 
 runAllThenThrow(args, ...) =
   firstError = nil
@@ -45,8 +46,6 @@ task 'load-from-file' @(args, env = 'dev')
     database = 'dbLexemeLive'
   }
 
-  fs = require 'fs-promise'
-
   queries = JSON.parse(fs.readFile (file, 'utf-8')!)
 
   envs = {
@@ -62,7 +61,6 @@ task 'sqldump' @(args, env = 'local.json')
   console.log(JSON.stringify(loadQueriesFromSql(creds)!, nil, 2))
 
 compileLess() =
-  fs = require 'fs-promise'
   recess = require 'recess'
   try
     data = recess './browser/style/app.less' { compile = true } ^!
