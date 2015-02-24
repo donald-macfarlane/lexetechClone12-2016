@@ -9,7 +9,7 @@ module.exports = function () {
         return value;
       });
     } else {
-      executing.then(function () {
+      return executing.then(function () {
         return run(block);
       });
     }

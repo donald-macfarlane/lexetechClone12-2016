@@ -15,14 +15,14 @@ describe('semaphore', function () {
 
     function job(n) {
       return function () {
-        log.push('started job 1');
+        log.push('started job ' + n);
         return wait(10).then(function () {
-          log.push('finished job 1');
+          log.push('finished job ' + n);
         });
       };
     }
 
-    Promise.all(s(job(1)), s(job(2)), s(job(3))).then(function () {
+    return Promise.all([s(job(1)), s(job(2)), s(job(3))]).then(function () {
       expect(log).to.eql([
         'started job 1',
         'finished job 1',
