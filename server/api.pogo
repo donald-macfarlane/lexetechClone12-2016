@@ -136,4 +136,24 @@ app.delete '/user/queries/:queryId' @(req, res)
   db.deleteUserQuery(req.user.id, req.params.queryId)!
   res.status(204).send({})
 
+app.post '/user/documents' @(req, res)
+  db = app.get 'db'
+  document = db.createDocument!(req.user.id, req.body)
+  res.set 'location' "#(req.baseUrl)/user/documents/#(document.id)"
+  res.send (document)
+
+app.post '/user/documents/:id' @(req, res)
+  db = app.get 'db'
+  db.writeDocument!(req.user.id, req.params.id, req.body)
+  res.send {}
+
+app.get '/user/documents/:id' @(req, res)
+  db = app.get 'db'
+  doc = db.readDocument!(req.user.id, req.params.id)
+
+  if (doc)
+    res.send (doc)
+  else
+    res.status(404).send { message = 'no such document' }
+
 module.exports = app

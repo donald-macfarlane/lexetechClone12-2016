@@ -34,9 +34,9 @@ module.exports () =
         if (objects.length > 0)
           if (keepIds)
             highest = Math.max [o <- objects, Number(o.id)] ...
-            setMax!("last_#(name)_id", highest)
+            setMax!("last_id:#(name)", highest)
           else
-            last = client.incrby("last_#(name)_id", objects.length)!
+            last = client.incrby("last_id:#(name)", objects.length)!
             first = last - objects.length
 
             for each @(pn) in (_.zip(objects, [(first + 1)..last]))
@@ -54,7 +54,7 @@ module.exports () =
         JSON.parse(client.get "#(name):#(id)"!)
 
       add(object) =
-        lastId = client.incr("last_#(name)_id")!
+        lastId = client.incr("last_id:#(name)")!
         object.id = String(lastId)
 
         client.set("#(name):#(object.id)", JSON.stringify(object))!
@@ -315,4 +315,13 @@ module.exports () =
 
     blockQueries(blockId)! =
       blockQueries.list(blockId)!
+
+    createDocument(userId, document) =
+      domainObject("user_documents:#(userId)").add!(document)
+
+    writeDocument(userId, id, document) =
+      domainObject("user_documents:#(userId)").update!(id, document)
+
+    readDocument(userId, id, document) =
+      domainObject("user_documents:#(userId)").get!(id)
   }
