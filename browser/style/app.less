@@ -44,15 +44,6 @@ body {
       }
     }
   }
-
-  /*
-  > .query, > .query-detail {
-    margin: 0;
-    padding: 0;
-    max-height: 100vh;
-    overflow-y: scroll;
-  }
-  */
 }
 
 .top-menu {
@@ -208,6 +199,24 @@ body {
     }
     .after {
       color: gray;
+    }
+  }
+
+  ol.document {
+    padding-left: 0;
+    list-style-type: none;
+
+    li {
+      display: inline;
+
+      a {
+        text-decoration: none;
+        color: inherit;
+
+        &:hover {
+          background-color: yellow;
+        }
+      }
     }
   }
 }

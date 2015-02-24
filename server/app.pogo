@@ -60,7 +60,7 @@ app.post '/login' (passport.authenticate 'local' {
 
 app.post '/signup' @(req, res)
   try
-    user = users.signUp(req.params.email, req.param 'password')!
+    user = users.signUp(req.body.email, req.body.password)!
     req.login (user, ^)!
     res.redirect '/'
   catch (e)

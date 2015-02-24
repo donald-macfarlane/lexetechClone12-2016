@@ -14,6 +14,10 @@ var queryComponent = prototype({
         self.refresh();
       });
     }
+
+    this.model.history.on('query', function (query) {
+      self.query = query;
+    });
   },
 
   selectResponse: function (response) {
@@ -31,7 +35,7 @@ var queryComponent = prototype({
   refresh: function () {},
 
   undo: function () {
-    this.query = this.model.history.undo();
+    this.model.history.undo();
   },
 
   render: function () {

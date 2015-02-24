@@ -24,11 +24,16 @@ describe 'report'
     response(text) = self.find('.response', text = text)
     queryText() = self.find('.query .query-text')
     debug() = debugBrowser(self.find('.query-detail'))
+    document() = documentBrowser(self.find('.document'))
   }
 
   debugBrowser = prototypeExtending(element) {
     block(name) = self.find('li').containing('h3', text = name)
     blockQuery(block, query) = self.block(block).find('.block-query', text = query)
+  }
+
+  documentBrowser = prototypeExtending(element) {
+    section(text) = self.find('.section', text = text)
   }
 
   beforeEach
@@ -119,6 +124,10 @@ describe 'report'
               responses = [
                 {
                   text = 'no'
+
+                  styles = {
+                    style1 = ', aching'
+                  }
                 }
               ]
             }
@@ -140,7 +149,7 @@ describe 'report'
 
       notesShouldBe! "Complaint
                       ---------
-                      left leg bleeding"
+                      left leg bleeding, aching"
 
     it 'can undo a response, choose a different response'
       shouldHaveQuery 'Where does it hurt?'!
@@ -157,7 +166,7 @@ describe 'report'
 
       notesShouldBe! "Complaint
                       ---------
-                      right leg bleeding"
+                      right leg bleeding, aching"
 
     it 'can undo a response, and apply it again'
       shouldHaveQuery 'Where does it hurt?'!
@@ -175,7 +184,25 @@ describe 'report'
 
       notesShouldBe! "Complaint
                       ---------
-                      left leg bleeding"
+                      left leg bleeding, aching"
+
+    it 'can choose another response for a previous query by clicking in the document'
+      shouldHaveQuery 'Where does it hurt?'!
+      selectResponse 'left leg'!
+      shouldHaveQuery 'Is it bleeding?'!
+      selectResponse 'yes'!
+      shouldHaveQuery 'Is it aching?'!
+      selectResponse 'no'!
+      browser.document().section('bleeding').click!()
+      browser.response('yes').expect!(element.is('.selected'))
+      browser.acceptButton().click!()
+      browser.response('no').expect!(element.is('.selected'))
+      browser.acceptButton().click!()
+      shouldBeFinished()!
+
+      notesShouldBe! "Complaint
+                      ---------
+                      left leg bleeding, aching"
 
   context 'lexicon with several blocks'
     beforeEach
