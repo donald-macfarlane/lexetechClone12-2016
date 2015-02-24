@@ -57,13 +57,38 @@ describe 'documents'
     expect(user1.get!(docUrl).body.query).to.eql("user 1's")
 
   it 'remember the last document written to'
-    response = api.post!('/api/user/documents', {
+    response1 = api.post!('/api/user/documents', {
       query = '1'
     })
-    docUrl = response.headers.location
-    doc = response.body
-    doc.query = 'blah'
 
-    api.post!(docUrl, doc)
+    expect(api.get!('/api/user/documents/last').body).to.eql {
+      query = '1'
+      id = '1'
+    }
 
-    expect(api.get!(docUrl).body).to.eql(doc)
+    response2 = api.post!('/api/user/documents', {
+      query = '2'
+    })
+
+    expect(api.get!('/api/user/documents/last').body).to.eql {
+      query = '2'
+      id = '2'
+    }
+
+    api.post!(response1.headers.location, {
+      query = '1, altered'
+    })
+
+    expect(api.get!('/api/user/documents/last').body).to.eql {
+      query = '1, altered'
+      id = '1'
+    }
+
+    api.post!(response2.headers.location, {
+      query = '2, altered'
+    })
+
+    expect(api.get!('/api/user/documents/last').body).to.eql {
+      query = '2, altered'
+      id = '2'
+    }

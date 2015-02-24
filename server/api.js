@@ -233,6 +233,19 @@ app.post("/user/documents/:id", function(req, res) {
   });
 });
 
+app.get("/user/documents/last", function(req, res) {
+  var db = app.get("db");
+  db.lastDocument(req.user.id).then(function(doc) {
+    if (doc) {
+      res.send(doc);
+    } else {
+      res.status(404).send({
+        message: "no such document"
+      });
+    }
+  });
+});
+
 app.get("/user/documents/:id", function(req, res) {
   var db = app.get("db");
   db.readDocument(req.user.id, req.params.id).then(function(doc) {

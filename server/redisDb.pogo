@@ -318,10 +318,18 @@ module.exports () =
 
     createDocument(userId, document) =
       domainObject("user_documents:#(userId)").add!(document)
+      client.set!("last_user_document:#(userId)", document.id)
+      document
 
     writeDocument(userId, id, document) =
       domainObject("user_documents:#(userId)").update!(id, document)
+      client.set!("last_user_document:#(userId)", document.id)
+      document
 
     readDocument(userId, id, document) =
+      domainObject("user_documents:#(userId)").get!(id)
+
+    lastDocument(userId) =
+      id = client.get!("last_user_document:#(userId)")
       domainObject("user_documents:#(userId)").get!(id)
   }
