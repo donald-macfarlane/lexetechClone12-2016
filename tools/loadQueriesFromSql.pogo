@@ -24,7 +24,7 @@ module.exports(connectionInfo) =
     } map @(ms) @{
       main = ms.0
       {
-        id = main.MainID.0
+        id = String(main.MainID.0)
         name = main.NavigantInfo
         navMajor = main.NavMajor
         navMinor = main.NavMinor
@@ -58,7 +58,7 @@ module.exports(connectionInfo) =
           action = buildAction()
 
           {
-            id = m.ModID
+            id = String(m.ModID)
             text = m.Mod
             setLevel = m.LevelSet
             styles {
@@ -110,7 +110,7 @@ module.exports(connectionInfo) =
       blocks = [
         bkey <- Object.keys(blocks)
         {
-          id = bkey
+          id = String(bkey)
           queries = sortQueriesByCoherenceOrder(blocks.(bkey))
         }
       ]
