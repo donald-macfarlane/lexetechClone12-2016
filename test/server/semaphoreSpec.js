@@ -1,5 +1,6 @@
 var semaphore = require('../../server/semaphore');
 var expect = require('chai').expect;
+var Promise = require('bluebird');
 
 describe('semaphore', function () {
   it('can process only one job at a time', function () {
