@@ -1,5 +1,7 @@
 .sw?
 .*.sw?
+/screenshot_*.html
+/screenshot_*.png
 /node_modules/
 /.floo
 /bower_components/

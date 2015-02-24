@@ -3,7 +3,7 @@ require 'cappie'
 require 'capybara-screenshot/cucumber'
 
 Capybara.register_driver :selenium do |app|
-    Capybara::Selenium::Driver.new(app, :browser => :chrome)
+  Capybara::Selenium::Driver.new(app, :browser => :chrome)
 end
 
 Cappie.start(

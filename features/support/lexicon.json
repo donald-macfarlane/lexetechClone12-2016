@@ -46,7 +46,7 @@
               "action": { "name":"none", "arguments":[] },
               "text": "yes",
               "styles": {
-                "style1": "bleeding"
+                "style1": " bleeding"
               }
             },
             {
@@ -72,7 +72,7 @@
               "action": { "name":"none", "arguments":[] },
               "text": "yes",
               "styles": {
-                "style1": "and aching"
+                "style1": " and aching"
               }
             },
             {
