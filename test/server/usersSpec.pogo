@@ -1,5 +1,5 @@
 mongoDb = require '../../server/mongoDb'
-users = require '../../server/users.pogo'
+users = require '../../server/users'
 expect = require '../expect'
 
 describe 'users'

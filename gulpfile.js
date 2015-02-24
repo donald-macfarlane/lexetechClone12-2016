@@ -91,5 +91,5 @@ gulp.task('css', function () {
 });
 
 gulp.task('server', ['watch-js', 'watch-css'], function(done) {
-  shell('./node_modules/.bin/pogo server/server.pogo').then(done);
+  shell('node server/server.js').then(done);
 });

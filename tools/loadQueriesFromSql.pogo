@@ -1,7 +1,6 @@
 sworm = require 'sworm'
 _ = require 'underscore'
 enumerateRange = require './enumerateRange'
-debug = require '../server/debug'
 
 group (items) by (fn) map (map) =
   groups = _.groupBy (items, fn)
