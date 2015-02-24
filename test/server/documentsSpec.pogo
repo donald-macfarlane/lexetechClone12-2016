@@ -55,3 +55,15 @@ describe 'documents'
     user2.post!(docUrl, doc)
 
     expect(user1.get!(docUrl).body.query).to.eql("user 1's")
+
+  it 'remember the last document written to'
+    response = api.post!('/api/user/documents', {
+      query = '1'
+    })
+    docUrl = response.headers.location
+    doc = response.body
+    doc.query = 'blah'
+
+    api.post!(docUrl, doc)
+
+    expect(api.get!(docUrl).body).to.eql(doc)
