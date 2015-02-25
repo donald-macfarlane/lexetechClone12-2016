@@ -18,7 +18,7 @@ module.exports() =
 
     router.post(url) @(request)
       collection.push(request.body)
-      request.body.id = String(blocks.length)
+      request.body.id = String(collection.length)
 
       if (hrefs)
         request.body.href = url + '/' + request.body.id
@@ -45,7 +45,6 @@ module.exports() =
       }
 
     router.delete(url + '/:id') @(request)
-      console.log('deleting ' + request)
       collection.splice(Number(request.params.id) - 1, 1)
       {
         statusCode = 204

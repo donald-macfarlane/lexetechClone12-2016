@@ -28,7 +28,6 @@ module.exports = prototype({
         }
       };
     });
-    console.log('history: updating');
     this.documentsApi.updateDocument({lexemes: lexemes});
   },
 

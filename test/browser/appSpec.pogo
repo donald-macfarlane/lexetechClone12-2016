@@ -70,6 +70,11 @@ describe 'report'
     retry!
       expect($'.document'.text()).to.eql (notes)
 
+  waitForLexemesToSave(lexemeCount) =
+    retry!
+      expect(api.documents.length).to.eql(1)
+      expect(api.documents.0.lexemes.length).to.eql(lexemeCount)
+
   context 'with simple lexicon'
     beforeEach
       api.blocks.push(lexicon.blocks [
@@ -338,6 +343,8 @@ describe 'report'
                       ---------
                       right leg bleeding, aching"
 
+      waitForLexemesToSave!(3)
+
     it 'can undo a response, and apply it again'
       shouldHaveQuery 'Where does it hurt?'!
       selectResponse 'left leg'!
@@ -356,6 +363,8 @@ describe 'report'
                       ---------
                       left leg bleeding, aching"
 
+      waitForLexemesToSave!(3)
+
     it 'can choose another response for a previous query by clicking in the document'
       shouldHaveQuery 'Where does it hurt?'!
       selectResponse 'left leg'!
@@ -373,6 +382,8 @@ describe 'report'
       notesShouldBe! "Complaint
                       ---------
                       left leg bleeding, aching"
+
+      waitForLexemesToSave!(3)
 
   context 'lexicon with several blocks'
     beforeEach
@@ -493,3 +504,5 @@ describe 'report'
       notesShouldBe! "Complaint
                       ---------
                       left leg bleedingaching"
+
+      waitForLexemesToSave!(3)
