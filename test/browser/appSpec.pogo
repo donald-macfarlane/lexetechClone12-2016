@@ -84,6 +84,7 @@ describe 'report'
 
               responses = [
                 {
+                  id = '1'
                   text = 'left leg'
 
                   styles = {
@@ -93,6 +94,7 @@ describe 'report'
                   }
                 }
                 {
+                  id = '2'
                   text = 'right leg'
 
                   styles = {
@@ -109,6 +111,7 @@ describe 'report'
 
               responses = [
                 {
+                  id = '1'
                   text = 'yes'
 
                   styles = {
@@ -123,6 +126,7 @@ describe 'report'
 
               responses = [
                 {
+                  id = '1'
                   text = 'no'
 
                   styles = {
@@ -146,6 +150,157 @@ describe 'report'
       shouldHaveQuery 'Is it aching?'!
       selectResponse 'no'!
       shouldBeFinished()!
+
+      notesShouldBe! "Complaint
+                      ---------
+                      left leg bleeding, aching"
+
+    it "as each query is answered, history is stored in the user's document"
+      shouldHaveQuery 'Where does it hurt?'!
+      selectResponse 'left leg'!
+
+      retry!
+        expected = [{
+          href = '/api/user/documents/1'
+          lexemes = [
+            {
+              query = {
+                id = '1'
+                name = 'query1'
+              }
+              context = {
+                coherenceIndex = 0
+                block = '1'
+                blocks = []
+                level = 1
+                predicants = {}
+                blockStack = []
+              }
+              response = {
+                id = '1'
+                text = 'left leg'
+              }
+            }
+          ]
+        }]
+        expect(api.documents).to.eql (expected)
+
+      shouldHaveQuery 'Is it bleeding?'!
+      selectResponse 'yes'!
+
+      retry!
+        expected = [
+          {
+            href = '/api/user/documents/1'
+            lexemes = [
+              {
+                query = {
+                  id = '1'
+                  name = 'query1'
+                }
+                context = {
+                  coherenceIndex = 0
+                  block = '1'
+                  blocks = []
+                  level = 1
+                  predicants = {}
+                  blockStack = []
+                }
+                response = {
+                  id = '1'
+                  text = 'left leg'
+                }
+              }
+              {
+                query = {
+                  id = '2'
+                  name = 'query2'
+                }
+                context = {
+                  coherenceIndex = 1
+                  block = '1'
+                  blocks = []
+                  level = 1
+                  predicants = {}
+                  blockStack = []
+                }
+                response = {
+                  id = '1'
+                  text = 'yes'
+                }
+              }
+            ]
+          }
+        ]
+        expect(api.documents).to.eql (expected)
+
+      shouldHaveQuery 'Is it aching?'!
+      selectResponse 'no'!
+      shouldBeFinished()!
+
+      retry!
+        expected = [
+          {
+            href = '/api/user/documents/1'
+            lexemes = [
+              {
+                query = {
+                  id = '1'
+                  name = 'query1'
+                }
+                context = {
+                  coherenceIndex = 0
+                  block = '1'
+                  blocks = []
+                  level = 1
+                  predicants = {}
+                  blockStack = []
+                }
+                response = {
+                  id = '1'
+                  text = 'left leg'
+                }
+              }
+              {
+                query = {
+                  id = '2'
+                  name = 'query2'
+                }
+                context = {
+                  coherenceIndex = 1
+                  block = '1'
+                  blocks = []
+                  level = 1
+                  predicants = {}
+                  blockStack = []
+                }
+                response = {
+                  id = '1'
+                  text = 'yes'
+                }
+              }
+              {
+                query = {
+                  id = '3'
+                  name = 'query3'
+                }
+                context = {
+                  coherenceIndex = 2
+                  block = '1'
+                  blocks = []
+                  level = 1
+                  predicants = {}
+                  blockStack = []
+                }
+                response = {
+                  id = '1'
+                  text = 'no'
+                }
+              }
+            ]
+          }
+        ]
+        expect(api.documents).to.eql (expected)
 
       notesShouldBe! "Complaint
                       ---------

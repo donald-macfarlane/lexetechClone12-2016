@@ -132,6 +132,7 @@ module.exports(api = lexemeApi(), cache = true) =
       graph.responses = [
         r <- next.query.responses
         {
+          id = r.id
           text = r.text
           styles = r.styles
 

@@ -16,7 +16,7 @@ module.exports = prototype({
     this.flash = pageData.flash;
     this.document = documentComponent(this);
     this.debug = debugComponent(this);
-    this.history = historyComponent(this);
+    this.history = historyComponent();
     this.query = queryComponent(this);
   },
 

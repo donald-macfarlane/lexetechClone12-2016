@@ -78,8 +78,14 @@ module.exports = React.createFactory(React.createClass {
 
   textValue(value) = value @or ''
 
+  highestResponseId() =
+    if (self.state.query.responses.length)
+      _.max [response <- self.state.query.responses, Number(response.id)]
+    else
+      0
+
   addResponse() =
-    id = ++self.state.lastResponseId
+    id = self.highestResponseId() + 1
     response = {
       text = ''
       predicants = []

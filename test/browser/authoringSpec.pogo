@@ -47,13 +47,27 @@ authoringElement = prototypeExtending (element) {
     self.find('.edit-query ul li.name input')
 
   responses() =
-    self.query().find('ul li.responses')
+    responsesElement(self.query().find('ul li.responses'))
   
   actions() =
     self.responses().find('ul li.actions')
 
   action(name) =
     self.actions().find('ul.dropdown-menu li a', text = name)
+}
+
+responsesElement = prototypeExtending(element) {
+  addResponseButton() = self.find('button', text = 'Add Response')
+  response(n) = responseElement(self.find("ol li:nth-of-type(#(n))"))
+}
+
+responseElement = prototypeExtending(element) {
+  selector() = self.find('ul li.selector textarea')
+  setLevel() = self.find('ul li.set-level input')
+  predicantSearch() = self.find('ul li div.predicants input')
+  predicant(name) = self.find('ul li div.predicants ol li', text = 'Hemophilia')
+  style1() = self.find('ul li.style1 .editor')
+  style2() = self.find('ul li.style2 .editor')
 }
 
 describe 'authoring'
@@ -146,14 +160,15 @@ describe 'authoring'
         editQuery.find('ul li div.predicants input').typeIn!('hemo viii')
         editQuery.find('ul li div.predicants ol li', text = 'HemophilVIII').click!()
 
-        responses = editQuery.find('ul li.responses')
-        responses.find('button', text = 'Add Response').click!()
-        responses.find('ul li.selector textarea').typeIn!('response 1')
-        responses.find('ul li.set-level input').typeIn!('4')
-        responses.find('ul li div.predicants input').typeIn!('hemo')
-        responses.find('ul li div.predicants ol li', text = 'Hemophilia').click!()
-        responses.find('ul li.style1 .editor').typeInHtml!('<p>style 1</p>')
-        responses.find('ul li.style2 .editor').typeInHtml!('<p>style 2</p>')
+        responses = page.responses()
+        responses.addResponseButton().click!()
+        newResponse = responses.response(1)
+        newResponse.selector().typeIn!('response 1')
+        newResponse.setLevel().typeIn!('4')
+        newResponse.predicantSearch().typeIn!('hemo')
+        newResponse.predicant('Hemophilia').click!()
+        newResponse.style1().typeInHtml!('<p>style 1</p>')
+        newResponse.style2().typeInHtml!('<p>style 2</p>')
 
         actions = responses.find('ul li.actions')
         actions.find('button', text = 'Add Action').click!()
@@ -207,7 +222,7 @@ describe 'authoring'
 
         editQuery = page.find('.edit-query')
         responses = page.responses()
-        responses.find('button', text = 'Add Response').click!()
+        responses.addResponseButton().click!()
 
       (action) isNotCompatibleWith (disallowedActions) =
         it "disallows creation of #(action) and #(disallowedActions.join(', '))"
@@ -299,7 +314,24 @@ describe 'authoring'
               text = 'question 1'
               level = 1
               predicants = []
-              responses = []
+              responses = [
+                {
+                  text = 'response 1'
+                  predicants = ["2"]
+                  styles = {
+                    style1 = '<p>style 1</p>'
+                    style2 = '<p>style 2</p>'
+                  }
+                  actions = [
+                    {
+                      name = 'setBlocks'
+                      arguments = ['1']
+                    }
+                  ]
+                  id = 10
+                  setLevel = 4
+                }
+              ]
             }
           ]
         }
@@ -325,6 +357,27 @@ describe 'authoring'
 
         retry!
           expect([q <- api.blocks.0.queries, q.name]).to.eql ['query 1 (updated)']
+      
+      it 'can add a response to a query'
+        page.queryMenuItem('one', 'query 1').click!()
+        responses = page.responses()
+        responses.addResponseButton().click!()
+        newResponse = responses.response(2)
+        newResponse.selector().typeIn!('response 2')
+        page.query().find('button', text = 'Overwrite').click!()
+
+        retry!
+          actual = [r <- api.blocks.0.queries.0.responses, {id = r.id, text = r.text}]
+          expect(actual).to.eql [
+            {
+              id = 10
+              text = 'response 1'
+            }
+            {
+              id = 11
+              text = 'response 2'
+            }
+          ]
       
       it 'can insert a query before'
         page.queryMenuItem('one', 'query 1').click!()

@@ -6,7 +6,7 @@ _ = require 'underscore'
 module.exports() =
   router = createRouter()
 
-  model(url) =
+  model(url, hrefs = false) =
     collection = []
 
     router.get(url) @(request)
@@ -19,6 +19,10 @@ module.exports() =
     router.post(url) @(request)
       collection.push(request.body)
       request.body.id = String(blocks.length)
+
+      if (hrefs)
+        request.body.href = url + '/' + request.body.id
+
       {
         statusCode = 201
         body = request.body
@@ -26,8 +30,18 @@ module.exports() =
 
     router.post(url + '/:id') @(request)
       collection.(Number(request.params.id) - 1) = request.body
+
+      if (hrefs)
+        request.body.href = url + '/' + request.params.id
+
       {
         statusCode = 200
+      }
+
+    router.get(url + '/:id') @(request)
+      body = collection.(Number(request.params.id) - 1)
+      {
+        body = body
       }
 
     router.delete(url + '/:id') @(request)
@@ -147,10 +161,21 @@ module.exports() =
       statusCode = 204
     }
 
+  router.get '/api/user/documents/last' @(req)
+    if (documents.length)
+      {
+        body = documents.0
+      }
+    else
+      {
+        statusCode = 404
+      }
+
   userQueries = []
 
   blocks = model('/api/blocks')
   clipboard = model('/api/user/queries')
+  documents = model('/api/user/documents', hrefs = true)
   predicants = []
 
   router.get '/api/predicants' @(req)
@@ -163,4 +188,5 @@ module.exports() =
     predicants = predicants
     userQueries = userQueries
     clipboard = clipboard
+    documents = documents
   }

@@ -131,7 +131,6 @@ module.exports () =
       self.collection.getAll(ids)!
 
     moveAfter(id, itemId, afterItemId) =
-      console.log('here #2')
       client.multi()
       client.linsert("#(self.name):#(id)", 'after', afterItemId, itemId)
       client.lrem("#(self.name):#(id)", 1, itemId)
