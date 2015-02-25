@@ -183,7 +183,12 @@ describe 'report'
             }
           ]
         }]
-        expect(api.documents).to.eql (expected)
+        try
+          expect(api.documents).to.eql (expected)
+        catch(e)
+          console.log('expected', JSON.stringify(expected, nil, 2))
+          console.log('actual', JSON.stringify(api.documents, nil, 2))
+          throw (e)
 
       shouldHaveQuery 'Is it bleeding?'!
       selectResponse 'yes'!
@@ -232,7 +237,12 @@ describe 'report'
             ]
           }
         ]
-        expect(api.documents).to.eql (expected)
+        try
+          expect(api.documents).to.eql (expected)
+        catch(e)
+          console.log('expected', JSON.stringify(expected, nil, 2))
+          console.log('actual', JSON.stringify(api.documents, nil, 2))
+          throw (e)
 
       shouldHaveQuery 'Is it aching?'!
       selectResponse 'no'!
@@ -300,7 +310,12 @@ describe 'report'
             ]
           }
         ]
-        expect(api.documents).to.eql (expected)
+        try
+          expect(api.documents).to.eql (expected)
+        catch(e)
+          console.log('expected', JSON.stringify(expected, nil, 2))
+          console.log('actual', JSON.stringify(api.documents, nil, 2))
+          throw (e)
 
       notesShouldBe! "Complaint
                       ---------
