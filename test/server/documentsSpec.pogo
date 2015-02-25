@@ -25,6 +25,8 @@ describe 'documents'
     response2 = api.post!('/api/user/documents')
 
     expect(response1.headers.location).to.not.equal(response2.headers.location)
+    expect(response1.body.href).to.equal(response1.headers.location)
+    expect(response2.body.href).to.equal(response2.headers.location)
 
   it 'can create a document, and put updates to it'
     response = api.post!('/api/user/documents')
@@ -57,11 +59,14 @@ describe 'documents'
     expect(user1.get!(docUrl).body.query).to.eql("user 1's")
 
   it 'remember the last document written to'
+    expect(api.get!('/api/user/documents/last', exceptions = false).statusCode).to.eql 404
+
     response1 = api.post!('/api/user/documents', {
       query = '1'
     })
 
     expect(api.get!('/api/user/documents/last').body).to.eql {
+      href = '/api/user/documents/1'
       query = '1'
       id = '1'
     }
@@ -71,6 +76,7 @@ describe 'documents'
     })
 
     expect(api.get!('/api/user/documents/last').body).to.eql {
+      href = '/api/user/documents/2'
       query = '2'
       id = '2'
     }
@@ -80,6 +86,7 @@ describe 'documents'
     })
 
     expect(api.get!('/api/user/documents/last').body).to.eql {
+      href = '/api/user/documents/1'
       query = '1, altered'
       id = '1'
     }
@@ -89,6 +96,7 @@ describe 'documents'
     })
 
     expect(api.get!('/api/user/documents/last').body).to.eql {
+      href = '/api/user/documents/2'
       query = '2, altered'
       id = '2'
     }

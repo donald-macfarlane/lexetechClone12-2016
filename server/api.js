@@ -43,6 +43,7 @@ app.use(function(req, res, next) {
 
 app.get("/blocks", function(req, res) {
   var db = app.get("db");
+
   db.listBlocks().then(function(blocks) {
     res.send(blocks);
   });
@@ -217,19 +218,34 @@ app.delete("/user/queries/:queryId", function(req, res) {
   });
 });
 
+function removeHref(document) {
+  delete document.href;
+}
+
+function addDocumentHref(document, req) {
+  document.href = req.baseUrl + "/user/documents/" + document.id;
+  return document;
+}
+
 app.post("/user/documents", function(req, res) {
   var db = app.get("db");
 
-  db.createDocument(req.user.id, req.body).then(function(document) {
-    res.set("location", req.baseUrl + "/user/documents/" + document.id);
+  var doc = req.body;
+  removeHref(doc);
+  db.createDocument(req.user.id, doc).then(function(document) {
+    addDocumentHref(document, req);
+    res.set("location", document.href);
     res.send(document);
   });
 });
 
 app.post("/user/documents/:id", function(req, res) {
   var db = app.get("db");
-  db.writeDocument(req.user.id, req.params.id, req.body).then(function() {
-    res.send({});
+  var document = req.body;
+  removeHref(document);
+  db.writeDocument(req.user.id, req.params.id, document).then(function() {
+    addDocumentHref(document, req);
+    res.send(document);
   });
 });
 
@@ -237,6 +253,7 @@ app.get("/user/documents/last", function(req, res) {
   var db = app.get("db");
   db.lastDocument(req.user.id).then(function(doc) {
     if (doc) {
+      addDocumentHref(doc, req);
       res.send(doc);
     } else {
       res.status(404).send({
@@ -250,6 +267,7 @@ app.get("/user/documents/:id", function(req, res) {
   var db = app.get("db");
   db.readDocument(req.user.id, req.params.id).then(function(doc) {
     if (doc) {
+      addDocumentHref(doc, req);
       res.send(doc);
     } else {
       res.status(404).send({
