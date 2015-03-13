@@ -52,8 +52,14 @@ module.exports() =
 
     collection
 
+  queriesById = {}
+  lastQueryId = 0
+  addQuery(query) =
+    ++lastQueryId
+    query.id = String(lastQueryId)
+    queriesById.(query.id) = query
+
   setupBlockQueries(block) =
-    block.lastQueryId = block.lastQueryId @or 0
     block.queries = block.queries @or []
 
   indexOfQueryIdInBlock(block, queryId) =
@@ -67,21 +73,12 @@ module.exports() =
     -1
 
   router.get '/api/blocks/:blockId/queries/:queryId' @(req)
-    block = blocks.(req.params.blockId - 1)
+    query = queriesById.(req.params.queryId)
 
-    if (block)
-      setupBlockQueries(block)
-
-      query = [q <- block.queries, q.id == req.params.queryId].0
-
-      if (query)
-        {
-          body = query
-        }
-      else
-        {
-          statusCode = 404
-        }
+    if (query)
+      {
+        body = query
+      }
     else
       {
         statusCode = 404
@@ -92,10 +89,19 @@ module.exports() =
 
     if (block)
       setupBlockQueries(block)
-      index = indexOfQueryIdInBlock(block, req.params.queryId)
+      index = block.queries.indexOf(req.params.queryId)
 
-      block.queries.(index) = req.body
+      if (req.body.before)
+        beforeIndex = block.queries.indexOf(req.body.before)
+        block.queries.splice(beforeIndex, 0, block.queries.splice(index, 1).0)
+      else if (req.body.after)
+        afterIndex = block.queries.indexOf(req.body.after)
+        block.queries.splice(afterIndex + 1, 0, block.queries.splice(index, 1).0)
+
+      queriesById.(req.params.queryId) = req.body
+
       {
+        body = req.body
       }
     else
       {
@@ -109,19 +115,18 @@ module.exports() =
       setupBlockQueries(block)
       query = req.body
 
-      ++block.lastQueryId
-      query.id = String(block.lastQueryId)
+      addQuery(query)
 
       if (query.before)
-        before = indexOfQueryIdInBlock(block, query.before)
+        beforeIndex = block.queries.indexOf(query.before)
         delete (query.before)
-        block.queries.splice(before, 0, query)
+        block.queries.splice(beforeIndex, 0, query.id)
       else if (query.after)
-        after = indexOfQueryIdInBlock(block, query.after)
+        afterIndex = block.queries.indexOf(query.after)
         delete (query.after)
-        block.queries.splice(after + 1, 0, query)
+        block.queries.splice(afterIndex + 1, 0, query.id)
       else
-        block.queries.push(query)
+        block.queries.push(query.id)
 
       {
         statusCode = 201
@@ -138,8 +143,13 @@ module.exports() =
     if (block)
       setupBlockQueries(block)
 
+      console.log('block.queries', block.queries)
+      console.log('queriesById', queriesById)
+
       {
-        body = block.queries.filter @(q)
+        body = block.queries.map @(qid)
+          queriesById.(qid)
+        .filter @(q)
           @not q.deleted
       }
     else
@@ -152,9 +162,10 @@ module.exports() =
 
     setupBlockQueries(block)
 
-    index = indexOfQueryIdInBlock(block, req.params.queryId)
+    index = block.queries.indexOf(req.params.queryId)
     if (index >= 0)
       block.queries.splice(index, 1)
+      delete (queriesById.(req.params.queryId))
 
     {
       statusCode = 204
@@ -164,6 +175,18 @@ module.exports() =
     if (documents.length)
       {
         body = documents.0
+      }
+    else
+      {
+        statusCode = 404
+      }
+
+  router.get '/api/queries/:queryId' @(req)
+    query = queriesById.(req.params.queryId)
+
+    if (query)
+      {
+        body = query
       }
     else
       {
@@ -188,4 +211,30 @@ module.exports() =
     userQueries = userQueries
     clipboard = clipboard
     documents = documents
+    setLexicon(lexicon) =
+      lexiconBlocks = lexicon.blocks.map @(b)
+        b.queries.forEach @(q)
+          addQuery(q)
+
+        {
+          id = b.id
+          name = b.name
+          queries = b.queries.map @(q) @{ q.id }
+        }
+
+      blocks.push(lexiconBlocks, ...)
+
+    lexicon() =
+      lexiconBlocks = blocks.map @(b)
+        {
+          id = b.id
+          name = b.name
+
+          queries = b.queries.map @(id)
+            queriesById.(id)
+        }
+
+      {
+        blocks = lexiconBlocks
+      }
   }

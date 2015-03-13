@@ -178,7 +178,7 @@ describe 'authoring'
         page.find('.edit-query button', text = 'Create').click!()
 
         retry!
-          expect(api.blocks.(1).queries).to.eql [
+          expect(api.lexicon().blocks.1.queries).to.eql [
             {
               id = "1"
               name = 'query 1'
@@ -250,36 +250,40 @@ describe 'authoring'
 
     describe 'selecting blocks and queries'
       beforeEach
-        api.blocks.push {
-          id = '1'
-          name = 'one'
-
-          queries = [
+        api.setLexicon({
+          blocks = [
             {
               id = '1'
-              name = 'query 1'
-              text = 'question 1'
-              level = 1
-              predicants = []
-              responses = []
-            }
-          ]
-        }
-        api.blocks.push {
-          id = '2'
-          name = 'two'
+              name = 'one'
 
-          queries = [
+              queries = [
+                {
+                  id = '1'
+                  name = 'query 1'
+                  text = 'question 1'
+                  level = 1
+                  predicants = []
+                  responses = []
+                }
+              ]
+            }
             {
               id = '2'
-              name = 'query 2'
-              text = 'question 2'
-              level = 1
-              predicants = []
-              responses = []
+              name = 'two'
+
+              queries = [
+                {
+                  id = '2'
+                  name = 'query 2'
+                  text = 'question 2'
+                  level = 1
+                  predicants = []
+                  responses = []
+                }
+              ]
             }
           ]
-        }
+        })
 
         startApp()
 
@@ -303,33 +307,37 @@ describe 'authoring'
 
     describe 'updating and inserting queries'
       beforeEach
-        api.blocks.push {
-          id = '1'
-          name = 'one'
-
-          queries = [
+        api.setLexicon {
+          blocks = [
             {
               id = '1'
-              name = 'query 1'
-              text = 'question 1'
-              level = 1
-              predicants = []
-              responses = [
+              name = 'one'
+
+              queries = [
                 {
-                  text = 'response 1'
-                  predicants = ["2"]
-                  styles = {
-                    style1 = '<p>style 1</p>'
-                    style2 = '<p>style 2</p>'
-                  }
-                  actions = [
+                  id = '1'
+                  name = 'query 1'
+                  text = 'question 1'
+                  level = 1
+                  predicants = []
+                  responses = [
                     {
-                      name = 'setBlocks'
-                      arguments = ['1']
+                      text = 'response 1'
+                      predicants = ["2"]
+                      styles = {
+                        style1 = '<p>style 1</p>'
+                        style2 = '<p>style 2</p>'
+                      }
+                      actions = [
+                        {
+                          name = 'setBlocks'
+                          arguments = ['1']
+                        }
+                      ]
+                      id = 10
+                      setLevel = 4
                     }
                   ]
-                  id = 10
-                  setLevel = 4
                 }
               ]
             }
@@ -356,7 +364,7 @@ describe 'authoring'
         page.queryMenuItem('one', 'query 1 (updated)').exists!()
 
         retry!
-          expect([q <- api.blocks.0.queries, q.name]).to.eql ['query 1 (updated)']
+          expect([q <- api.lexicon().blocks.0.queries, q.name]).to.eql ['query 1 (updated)']
       
       it 'can add a response to a query'
         page.queryMenuItem('one', 'query 1').click!()
@@ -367,7 +375,7 @@ describe 'authoring'
         page.query().find('button', text = 'Overwrite').click!()
 
         retry!
-          actual = [r <- api.blocks.0.queries.0.responses, {id = r.id, text = r.text}]
+          actual = [r <- api.lexicon().blocks.0.queries.0.responses, {id = r.id, text = r.text}]
           expect(actual).to.eql [
             {
               id = 10
@@ -388,7 +396,7 @@ describe 'authoring'
         page.queryMenuItem('one', 'query 1').exists!()
 
         retry!
-          expect([q <- api.blocks.0.queries, q.name]).to.eql ['query 2 (before 1)', 'query 1']
+          expect([q <- api.lexicon().blocks.0.queries, q.name]).to.eql ['query 2 (before 1)', 'query 1']
       
       it 'can insert a query after'
         page.queryMenuItem('one', 'query 1').click!()
@@ -399,7 +407,7 @@ describe 'authoring'
         page.queryMenuItem('one', 'query 1').exists!()
 
         retry!
-          expect([q <- api.blocks.0.queries, q.name]).to.eql ['query 1', 'query 2 (after 1)']
+          expect([q <- api.lexicon().blocks.0.queries, q.name]).to.eql ['query 1', 'query 2 (after 1)']
       
       it 'can delete a query'
         page.queryMenuItem('one', 'query 1').click!()
@@ -408,22 +416,26 @@ describe 'authoring'
         page.queryMenuItem('one', 'query 1').doesntExist!()
 
         retry!
-          expect([q <- api.blocks.0.queries, @not q.deleted, q.name]).to.eql []
+          expect([q <- api.lexicon().blocks.0.queries, @not q.deleted, q.name]).to.eql []
 
     describe 'clipboards'
       beforeEach
-        api.blocks.push {
-          id = '1'
-          name = 'one'
-
-          queries = [
+        api.setLexicon {
+          blocks = [
             {
               id = '1'
-              name = 'query 1'
-              text = 'question 1'
-              level = 1
-              predicants = []
-              responses = []
+              name = 'one'
+
+              queries = [
+                {
+                  id = '1'
+                  name = 'query 1'
+                  text = 'question 1'
+                  level = 1
+                  predicants = []
+                  responses = []
+                }
+              ]
             }
           ]
         }

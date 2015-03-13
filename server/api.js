@@ -82,7 +82,7 @@ app.get("/blocks/:id/queries", function(req, res) {
   });
 });
 
-app.get("/blocks/:blockId/queries/:queryId", function(req, res) {
+function getQuery(req, res) {
   var db = app.get("db");
   db.queryById(req.params.queryId).then(function(query) {
     if (query) {
@@ -91,7 +91,10 @@ app.get("/blocks/:blockId/queries/:queryId", function(req, res) {
       res.status(404).send({});
     }
   });
-});
+}
+
+app.get("/blocks/:blockId/queries/:queryId", getQuery);
+app.get("/queries/:queryId", getQuery);
 
 app.post("/blocks/:blockId/queries/:queryId", function(req, res) {
   var db = app.get("db");

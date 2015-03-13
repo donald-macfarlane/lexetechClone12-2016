@@ -31,15 +31,16 @@ module.exports = prototype({
     this.documentsApi.updateDocument({lexemes: lexemes});
   },
 
-  responseForQuery: function (query) {
+  responseIdForQuery: function (query) {
     if (query.query) {
-      return this.responsesByQueryId[query.query.id];
+      var response = this.responsesByQueryId[query.query.id];
+      return response && response.id;
     }
   },
 
   undo: function () {
     var query = this.queryResponses.pop().query;
-    this.emit('query', query);
+    this.emit('query', {blockId: query.query.block, queryId: query.query.id, context: query.context});
   },
 
   back: function (queryResponse) {
@@ -52,7 +53,7 @@ module.exports = prototype({
       }
     }
 
-    this.emit('query', currentQueryResponse.query);
+    this.emit('query', {queryId: currentQueryResponse.query.query.id, context: currentQueryResponse.query.context});
   },
 
   canUndo: function () {

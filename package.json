@@ -38,7 +38,7 @@
     "karma-mocha-reporter": "1.0.0",
     "less": "^2.1.1",
     "lessify": "1.0.0",
-    "mocha": "^2.0.1",
+    "mocha": "2.2.1",
     "mockjax-router": "^1.0.0",
     "mssql": "2.1.0",
     "qo": "^0.3.0",

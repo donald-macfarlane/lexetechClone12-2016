@@ -446,6 +446,12 @@ describe "query api"
           expect(query.id).to.equal(newQuery.id)
           expect(query.name).to.equal('a query')
 
+        it 'can get the query directly'
+          query = api.get! "/api/queries/#(newQuery.id)".body
+
+          expect(query.id).to.equal(newQuery.id)
+          expect(query.name).to.equal('a query')
+
         it 'can update the query'
           api.post! "/api/blocks/#(block.id)/queries/#(newQuery.id)" {
             name = 'a new name'

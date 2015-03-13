@@ -29,7 +29,7 @@ module.exports = prototype({
 
     function master(fn) {
       return function() {
-        return layout(self, fn());
+        return layout(self, fn.apply(this, arguments));
       };
     }
 

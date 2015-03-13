@@ -77,7 +77,7 @@ describe 'report'
 
   context 'with simple lexicon'
     beforeEach
-      api.blocks.push(lexicon.blocks [
+      api.setLexicon (lexicon.blocks [
         {
           id = "1"
           name = "block 1"
@@ -142,7 +142,7 @@ describe 'report'
             }
           ]
         }
-      ].blocks, ...)
+      ])
 
       report = reportComponent {user = { email = 'blah@example.com' } }
       plastiq.attach(div, report.render.bind(report))
@@ -387,7 +387,7 @@ describe 'report'
 
   context 'lexicon with several blocks'
     beforeEach
-      api.blocks.push(lexicon.blocks [
+      api.setLexicon (lexicon.blocks [
         {
           id = "1"
           name = "block 1"
@@ -476,7 +476,7 @@ describe 'report'
             }
           ]
         }
-      ].blocks, ...)
+      ])
 
       api.predicants.push({id = 'end', name = 'end'})
 

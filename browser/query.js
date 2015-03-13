@@ -1,32 +1,65 @@
-var h = require('plastiq').html;
+var plastiq = require('plastiq');
+var h = plastiq.html;
 var buildGraph = require('./buildGraph');
 var prototype = require('prote');
 var http = require('./http');
+
+function loadingTimeout(promise, fn) {
+  var loaded = false;
+  var loading = false;
+
+  function setLoaded(result) {
+    loaded = true;
+    if (loading) {
+      fn(false);
+    }
+    return result;
+  }
+
+  setTimeout(function () {
+    if (!loaded) {
+      loading = true;
+      fn(true);
+    }
+  }, 140);
+
+  return promise.then(setLoaded, setLoaded);
+}
 
 var queryComponent = prototype({
   constructor: function (model) {
     var self = this;
     this.model = model;
+    this.queryGraph = buildGraph();
 
     if (model.user) {
-      buildGraph().firstQueryGraph().then(function (query) {
+      self.queryGraph.firstQueryGraph().then(function (query) {
         self.query = query;
         self.refresh();
       });
     }
 
-    this.model.history.on('query', function (query) {
-      self.query = query;
+    this.model.history.on('query', function (message) {
+      self.queryGraph.query(message.queryId, message.context).then(function (query) {
+        self.query = query;
+        self.refresh();
+      });
     });
   },
 
   selectResponse: function (response) {
     var self = this;
 
-    self.model.history.addQueryResponse(self.query, response);
-    self.refresh();
-
-    response.query().then(function (q) {
+    loadingTimeout(response.query(), function (loading) {
+      if (loading) {
+        self.loadingResponse = response;
+        self.refresh();
+      } else {
+        delete self.loadingResponse;
+        self.refresh();
+      }
+    }).then(function (q) {
+      self.model.history.addQueryResponse(self.query, response);
       self.query = q;
       self.refresh();
     });
@@ -45,17 +78,26 @@ var queryComponent = prototype({
     self.refresh = h.refresh;
 
     if (query) {
-      var responseSelected = self.model.history.responseForQuery(self.query);
+      var selectedResponseId = self.model.history.responseIdForQuery(self.query);
+      var selectedResponse = self.query.responses && self.query.responses.filter(function (r) {
+        return r.id == selectedResponseId;
+      })[0];
 
       return h('.report .query',
         query.query
           ? [
               self.model.history.canUndo()? h('button', {onclick: self.undo.bind(self)}, 'undo'): undefined,
               h('h3.query-text', query.query.text),
-              responseSelected? h('button', {onclick: function () { self.selectResponse(responseSelected); }}, 'accept'): undefined,
+              selectedResponse? h('button', {onclick: function () { self.selectResponse(selectedResponse); }}, 'accept'): undefined,
               h('ul.responses',
                 query.responses.map(function (response) {
-                  return h('li.response', {class: {selected: responseSelected == response}},
+                  return h('li.response',
+                    {
+                      class: {
+                        selected: selectedResponse == response,
+                        loading: self.loadingResponse == response
+                      }
+                    },
                     h('a',
                       {
                         href: '#',
