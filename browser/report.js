@@ -39,7 +39,6 @@ module.exports = prototype({
           return h('div.report',
             self.query.render(),
             self.document.render(),
-            h('button', {onclick: function () { self.debug.show = !self.debug.show; }}, 'debug'),
             self.debug.render()
           );
         })

@@ -3,28 +3,7 @@ var h = plastiq.html;
 var buildGraph = require('./buildGraph');
 var prototype = require('prote');
 var http = require('./http');
-
-function loadingTimeout(promise, fn) {
-  var loaded = false;
-  var loading = false;
-
-  function setLoaded(result) {
-    loaded = true;
-    if (loading) {
-      fn(false);
-    }
-    return result;
-  }
-
-  setTimeout(function () {
-    if (!loaded) {
-      loading = true;
-      fn(true);
-    }
-  }, 140);
-
-  return promise.then(setLoaded, setLoaded);
-}
+var htmlEditor = require('./htmlEditor');
 
 var queryComponent = prototype({
   constructor: function (model) {
@@ -83,7 +62,7 @@ var queryComponent = prototype({
         return r.id == selectedResponseId;
       })[0];
 
-      return h('.report .query',
+      return h(' .query',
         query.query
           ? [
               self.model.history.canUndo()? h('button', {onclick: self.undo.bind(self)}, 'undo'): undefined,
@@ -106,7 +85,23 @@ var queryComponent = prototype({
                           self.selectResponse(response);
                         }
                       },
-                      response.text)
+                      response.text
+                    ),
+                    self.editingResponse == response
+                      ? h('.response-editor',
+                          htmlEditor({class: 'response-text-editor', binding: [self.editingResponse.styles, 'style1']}),
+                          h('button', {onclick: function (ev) { self.selectResponse(self.editingResponse); delete self.editingResponse; }}, 'ok'),
+                          ' ',
+                          h('button', {onclick: function (ev) { delete self.editingResponse; }}, 'cancel')
+                        )
+                      : h('button.edit-response',
+                          {
+                            onclick: function (ev) {
+                              self.editingResponse = response;
+                            }
+                          },
+                          'edit'
+                        )
                   );
                 })
               )
@@ -118,3 +113,25 @@ var queryComponent = prototype({
 });
 
 module.exports = queryComponent;
+
+function loadingTimeout(promise, fn) {
+  var loaded = false;
+  var loading = false;
+
+  function setLoaded(result) {
+    loaded = true;
+    if (loading) {
+      fn(false);
+    }
+    return result;
+  }
+
+  setTimeout(function () {
+    if (!loaded) {
+      loading = true;
+      fn(true);
+    }
+  }, 140);
+
+  return promise.then(setLoaded, setLoaded);
+}

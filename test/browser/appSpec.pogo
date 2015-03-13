@@ -21,10 +21,9 @@ describe 'report'
     acceptButton() = self.find('.query button', text = 'accept')
     debugButton() = self.find('button', text = 'debug')
 
-    response(text) = self.find('.response', text = text)
-    queryText() = self.find('.query .query-text')
-    debug() = debugBrowser(self.find('.query-detail'))
+    debug() = debugBrowser(self.find('.debug'))
     document() = documentBrowser(self.find('.document'))
+    query() = queryElement(self.find '.query')
   }
 
   debugBrowser = prototypeExtending(element) {
@@ -34,6 +33,19 @@ describe 'report'
 
   documentBrowser = prototypeExtending(element) {
     section(text) = self.find('.section', text = text)
+  }
+
+  queryElement = prototypeExtending(element) {
+    response(text) = responseElement(self.find('.response', text = text))
+    queryText() = self.find('.query-text')
+  }
+
+  responseElement = prototypeExtending(element) {
+    link() = self.find('a')
+    editButton() = self.find('button', text = 'edit')
+    responseTextEditor() = self.find('.response-text-editor')
+    okButton() = self.find('button', text = 'ok')
+    cancelButton() = self.find('button', text = 'cancel')
   }
 
   beforeEach
@@ -57,7 +69,7 @@ describe 'report'
       e
 
   shouldHaveQuery(query) =
-    browser.queryText().expect!(element.hasText(query))
+    browser.query().queryText().expect!(element.hasText(query))
 
   shouldBeFinished() =
     retry!
@@ -132,7 +144,7 @@ describe 'report'
               responses = [
                 {
                   id = '1'
-                  text = 'no'
+                  text = 'yes'
 
                   styles = {
                     style1 = ', aching'
@@ -153,7 +165,7 @@ describe 'report'
       shouldHaveQuery 'Is it bleeding?'!
       selectResponse 'yes'!
       shouldHaveQuery 'Is it aching?'!
-      selectResponse 'no'!
+      selectResponse 'yes'!
       shouldBeFinished()!
 
       notesShouldBe! "Complaint
@@ -250,7 +262,7 @@ describe 'report'
           throw (e)
 
       shouldHaveQuery 'Is it aching?'!
-      selectResponse 'no'!
+      selectResponse 'yes'!
       shouldBeFinished()!
 
       retry!
@@ -309,7 +321,7 @@ describe 'report'
                 }
                 response = {
                   id = '1'
-                  text = 'no'
+                  text = 'yes'
                 }
               }
             ]
@@ -336,7 +348,7 @@ describe 'report'
       shouldHaveQuery 'Is it bleeding?'!
       selectResponse 'yes'!
       shouldHaveQuery 'Is it aching?'!
-      selectResponse 'no'!
+      selectResponse 'yes'!
       shouldBeFinished()!
 
       notesShouldBe! "Complaint
@@ -351,12 +363,12 @@ describe 'report'
       shouldHaveQuery 'Is it bleeding?'!
       browser.find('button', text = 'undo').click!()
       shouldHaveQuery 'Where does it hurt?'!
-      browser.response('left leg').expect!(element.is('.selected'))
+      browser.query().response('left leg').expect!(element.is('.selected'))
       browser.acceptButton().click!()
       shouldHaveQuery 'Is it bleeding?'!
       selectResponse 'yes'!
       shouldHaveQuery 'Is it aching?'!
-      selectResponse 'no'!
+      selectResponse 'yes'!
       shouldBeFinished()!
 
       notesShouldBe! "Complaint
@@ -371,17 +383,36 @@ describe 'report'
       shouldHaveQuery 'Is it bleeding?'!
       selectResponse 'yes'!
       shouldHaveQuery 'Is it aching?'!
-      selectResponse 'no'!
+      selectResponse 'yes'!
       browser.document().section('bleeding').click!()
-      browser.response('yes').expect!(element.is('.selected'))
+      browser.query().response('yes').expect!(element.is('.selected'))
       browser.acceptButton().click!()
-      browser.response('no').expect!(element.is('.selected'))
+      shouldHaveQuery 'Is it aching?'!
+      browser.query().response('yes').expect!(element.is('.selected'))
       browser.acceptButton().click!()
       shouldBeFinished()!
 
       notesShouldBe! "Complaint
                       ---------
                       left leg bleeding, aching"
+
+      waitForLexemesToSave!(3)
+
+    it 'can edit the response before accepting it'
+      shouldHaveQuery 'Where does it hurt?'!
+      selectResponse 'left leg'!
+      shouldHaveQuery 'Is it bleeding?'!
+      response = browser.query().response('yes')
+      response.editButton().click!()
+      response.responseTextEditor().typeInHtml!('bleeding badly')
+      response.okButton().click!()
+      shouldHaveQuery 'Is it aching?'!
+      selectResponse 'yes'!
+      shouldBeFinished()!
+
+      notesShouldBe! "Complaint
+                      ---------
+                      left leg bleeding badly, aching"
 
       waitForLexemesToSave!(3)
 

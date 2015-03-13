@@ -143,9 +143,6 @@ module.exports() =
     if (block)
       setupBlockQueries(block)
 
-      console.log('block.queries', block.queries)
-      console.log('queriesById', queriesById)
-
       {
         body = block.queries.map @(qid)
           queriesById.(qid)
