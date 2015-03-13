@@ -11,7 +11,9 @@ module.exports = function (options) {
         this.html = binding.get();
         element.innerHTML = normaliseHtml(this.html);
 
-        var editor = new Medium(element);
+        var editor = new Medium(element, {
+          buttons: ['bold', 'italic', 'header1', 'header2', 'unorderedlist', 'orderedlist']
+        });
 
         element.addEventListener('input', function (ev) {
           binding.set(ev.target.innerHTML);

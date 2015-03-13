@@ -9,23 +9,25 @@ module.exports = prototype({
   render: function () {
     var self = this;
 
-    return h('ol.document',
-      this.model.history.queryResponses.filter(function (queryResponse) {
-        return queryResponse.response.styles;
-      }).map(function (queryResponse) {
-        return h('li',
-          h('a.section',
-            {
-              href: '#',
-              onclick: function (ev) {
-                self.model.history.back(queryResponse);
-                ev.preventDefault();
-              }
-            },
-            h.rawHtml('span', queryResponse.response.styles.style1)
-          )
-        );
-      })
+    return h('.document-outer',
+      h('ol.document',
+        this.model.history.queryResponses.filter(function (queryResponse) {
+          return queryResponse.response.styles;
+        }).map(function (queryResponse) {
+          return h('li',
+            h('a.section',
+              {
+                href: '#',
+                onclick: function (ev) {
+                  self.model.history.back(queryResponse);
+                  ev.preventDefault();
+                }
+              },
+              h.rawHtml('span', queryResponse.response.styles.custom || queryResponse.response.styles.style1)
+            )
+          );
+        })
+      )
     );
   },
 });

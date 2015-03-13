@@ -173,7 +173,14 @@ body {
 }
 
 .report {
+  .left {
+    float: left;
+    width: 285px;
+  }
+
   .query {
+    flex: 1 50%;
+
     ul.responses {
       list-style-type: none;
       padding-left: 0;
@@ -215,40 +222,39 @@ body {
           width: 100%;
           text-align: left;
           font-size: 16px;
-
-          background-color: white;
-        }
-
-        .response-editor {
-          .response-text-editor {
-            padding: 11px;
-            background-color: white;
-            outline: none;
-            border: 1px solid black;
-            margin: 11px;
-          }
         }
       }
     }
   }
 
   .response-editor {
+    .response-text, .response-text-editor {
+      padding: 11px;
+      background-color: white;
+      outline: none;
+      border: 1px solid black;
+      margin: 11px;
+    }
   }
 
-  ol.document {
-    width: 100%;
-    padding-left: 0;
-    list-style-type: none;
+  .document-outer {
+    padding-left: 300px;
 
-    li {
-      display: inline;
+    .document {
+      list-style-type: none;
+      border: 1px solid black;
+      padding: 20px;
 
-      a {
-        text-decoration: none;
-        color: inherit;
+      > li {
+        display: inline;
 
-        &:hover {
-          background-color: yellow;
+        a {
+          text-decoration: none;
+          color: inherit;
+
+          *:hover {
+            background-color: yellow;
+          }
         }
       }
     }

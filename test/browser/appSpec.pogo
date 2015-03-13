@@ -24,6 +24,7 @@ describe 'report'
     debug() = debugBrowser(self.find('.debug'))
     document() = documentBrowser(self.find('.document'))
     query() = queryElement(self.find '.query')
+    responseEditor() = responseEditorElement(self.find('.response-editor'))
   }
 
   debugBrowser = prototypeExtending(element) {
@@ -43,6 +44,9 @@ describe 'report'
   responseElement = prototypeExtending(element) {
     link() = self.find('a')
     editButton() = self.find('button', text = 'edit')
+  }
+
+  responseEditorElement = prototypeExtending(element) {
     responseTextEditor() = self.find('.response-text-editor')
     okButton() = self.find('button', text = 'ok')
     cancelButton() = self.find('button', text = 'cancel')
@@ -404,8 +408,9 @@ describe 'report'
       shouldHaveQuery 'Is it bleeding?'!
       response = browser.query().response('yes')
       response.editButton().click!()
-      response.responseTextEditor().typeInHtml!('bleeding badly')
-      response.okButton().click!()
+      editor = browser.responseEditor()
+      editor.responseTextEditor().typeInHtml!('bleeding badly')
+      editor.okButton().click!()
       shouldHaveQuery 'Is it aching?'!
       selectResponse 'yes'!
       shouldBeFinished()!
