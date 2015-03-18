@@ -1,1 +1,1 @@
-web: pogo server/server.pogo
+web: node server/server.js
