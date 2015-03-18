@@ -201,10 +201,9 @@ var debugComponent = prototype({
 
     this.refresh = h.refresh;
 
-    return h('.debug',
-      h('button', {onclick: function () { self.show = !self.show; }}, 'debug'),
-      this.show && query? self.renderQuery(query): undefined
-    );
+    return this.show && query? h('.debug',
+      self.renderQuery(query)
+    ): undefined;
   }
 });
 

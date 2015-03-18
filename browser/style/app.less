@@ -172,6 +172,8 @@ body {
   }
 }
 
+@accept-color: #2400FF;
+
 .report {
   .left {
     float: left;
@@ -181,22 +183,73 @@ body {
   .query {
     flex: 1 50%;
 
+    .buttons {
+      button, label {
+        outline: none;
+        border: none;
+        font-size: 14px;
+        margin-right: 5px;
+        background-color: rgb(232, 232, 232);
+        color: rgb(187, 187, 187);
+        display: inline-block;
+        padding: 2px 6px 3px 6px;
+
+        &.enabled {
+          background-color: grey;
+          color: white;
+          cursor: pointer;
+
+          &:hover {
+            background-color: darken(grey, 10%);
+          }
+        }
+      }
+
+      button:last-child {
+        margin-right: 0;
+      }
+
+      button.accept.enabled {
+        background-color: fade(@accept-color, 57%);
+
+        &:hover {
+          background-color: darken(fade(@accept-color, 57%), 20%);
+        }
+      }
+    }
+
     ul.responses {
       list-style-type: none;
       padding-left: 0;
 
       li.response {
-        border-top: 1px solid #f0f0f0;
+        border: none;
         position: relative;
         padding: 5px;
-        border-left: 2px solid transparent;
-
-        &:last-child {
-          border-bottom: 1px solid #f0f0f0;
-        }
+        padding-right: 42px;
+        border-left: 3px solid transparent;
 
         &.selected {
-          background-color: yellow;
+          background-color: fade(@accept-color, 12%);
+          border-left: 3px solid fade(@accept-color, 36%);
+
+          &:hover {
+            background-color: fade(@accept-color, 24%);
+          }
+        }
+
+        &.other {
+          background-color: fade(@accept-color, 4%);
+          border-left: 3px solid fade(@accept-color, 36%);
+
+          &:hover {
+            background-color: fade(@accept-color, 8%);
+          }
+
+          a::after {
+            content: '✔';
+            margin-left: 8px;
+          }
         }
 
         &.loading {
@@ -206,12 +259,16 @@ body {
         button.edit-response {
           display: none;
           position: absolute;
-          right: 0;
+          right: 7px;
+          top: 4px;
+          border: none;
+          background-color: fade(@accept-color, 15%);
+          cursor: pointer;
         }
 
         &:hover {
-          background-color: #f8f8f8;
-          border-left: 2px solid #669FEC;
+          background-color: fade(@accept-color, 6%);
+          border-left: 3px solid fade(@accept-color, 36%);
 
           button.edit-response {
             display: inline;
@@ -222,6 +279,7 @@ body {
           width: 100%;
           text-align: left;
           font-size: 16px;
+          text-decoration: none;
         }
       }
     }
@@ -232,8 +290,8 @@ body {
       padding: 11px;
       background-color: white;
       outline: none;
-      border: 1px solid black;
-      margin: 11px;
+      border: 2px solid rgba(25, 0, 255, 0.14);
+      margin: 10px 0;
     }
   }
 
@@ -242,7 +300,7 @@ body {
 
     .document {
       list-style-type: none;
-      border: 1px solid black;
+      border: 2px solid rgba(25, 0, 255, 0.14);
       padding: 20px;
 
       > li {
@@ -261,6 +319,10 @@ body {
   }
 
   .debug {
+    background-color: rgb(245, 244, 254);
+    color: rgb(70, 45, 160);
+    padding: 10px;
+
     .blocks {
       list-style-type: none;
       padding-left: 0;

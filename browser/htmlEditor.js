@@ -19,7 +19,7 @@ module.exports = function (options) {
           binding.set(ev.target.innerHTML);
         });
       },
-      onupdate: function () {
+      onupdate: function (element) {
         var html = binding.get();
 
         if (this.html != html) {

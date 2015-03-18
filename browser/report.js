@@ -37,9 +37,11 @@ module.exports = prototype({
       router.page('/',
         master(function () {
           return h('div.report',
-            self.query.render(),
-            self.document.render(),
-            self.debug.render()
+            h('.left',
+              self.query.render(),
+              self.debug.render()
+            ),
+            self.document.render()
           );
         })
       ),

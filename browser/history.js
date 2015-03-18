@@ -12,7 +12,15 @@ module.exports = prototype({
   },
 
   addQueryResponse: function (query, response) {
-    this.responsesByQueryId[query.query.id] = response;
+    var responseByQueryId = this.responsesByQueryId[query.query.id] = this.responsesByQueryId[query.query.id] || {};
+
+    if (response.repeat) {
+      responseByQueryId.others = responseByQueryId.others || [];
+      responseByQueryId.others.push(response);
+    } else {
+      responseByQueryId.response = response;
+    }
+
     this.queryResponses.push({query: query, response: response});
 
     var lexemes = this.queryResponses.map(function (r) {
@@ -31,10 +39,21 @@ module.exports = prototype({
     this.documentsApi.updateDocument({lexemes: lexemes});
   },
 
-  responseIdForQuery: function (query) {
+  responsesForQuery: function (query) {
     if (query.query) {
-      var response = this.responsesByQueryId[query.query.id];
-      return response && response.id;
+      var responses = this.responsesByQueryId[query.query.id];
+      if (responses) {
+        var others = {};
+
+        responses.others && responses.others.forEach(function (r) {
+          others[r.id] = true;
+        });
+
+        return {
+          previous: responses.response && responses.response.id,
+          others: others
+        };
+      }
     }
   },
 

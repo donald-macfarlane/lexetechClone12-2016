@@ -99,6 +99,7 @@ app.post("/logout", function(req, res) {
 app.use(express.static(__dirname + "/generated"));
 app.use(express.static(__dirname + "/public"));
 app.use("/source", express.static(__dirname + "/../browser/style"));
+app.use("/", express.static(__dirname + "/../semantic/dist"));
 
 function page(req, js) {
   return {

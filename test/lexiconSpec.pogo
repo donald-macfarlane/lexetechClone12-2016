@@ -297,6 +297,14 @@ describe "lexicon"
               }
               {
                 text = 'response 2'
+                actions = [{ name = 'repeatLexeme', arguments = [] }]
+              }
+              {
+                text = 'response 3'
+                actions = [{ name = 'repeatLexeme', arguments = [] }]
+              }
+              {
+                text = 'response 4'
               }
             ]
           }

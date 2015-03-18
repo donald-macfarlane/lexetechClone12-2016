@@ -165,7 +165,8 @@ module.exports = function(options) {
         return {
           id: r.id,
           text: r.text,
-          styles: r.styles,
+          styles: r.styles || {style1: '', style2: ''},
+          repeat: r.actions.filter(function (x) { return x.name == 'repeatLexeme'; }).length > 0,
 
           query: function(options) {
             var self = this;

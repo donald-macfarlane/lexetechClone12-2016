@@ -4,6 +4,7 @@ var buildGraph = require('./buildGraph');
 var prototype = require('prote');
 var http = require('./http');
 var htmlEditor = require('./htmlEditor');
+var tab = require('./semantic-ui/tab');
 
 var queryComponent = prototype({
   constructor: function (model) {
@@ -63,25 +64,51 @@ var queryComponent = prototype({
     self.refresh = h.refresh;
 
     if (query) {
-      var selectedResponseId = self.model.history.responseIdForQuery(self.query);
+      var responsesForQuery = self.model.history.responsesForQuery(self.query) || {others: []};
       var selectedResponse = self.query.responses && self.query.responses.filter(function (r) {
-        return r.id == selectedResponseId;
+        return r.id == responsesForQuery.previous;
       })[0];
 
-      return h('.left',
+      return [
         h('.query',
           query.query
             ? [
-                self.model.history.canUndo()? h('button', {onclick: self.undo.bind(self)}, 'undo'): undefined,
+                h('.buttons',
+                  h('button.undo',
+                    {
+                      class: { enabled: self.model.history.canUndo() },
+                      onclick: self.model.history.canUndo() && self.undo.bind(self)
+                    },
+                    'undo'
+                  ),
+                  h('button.accept',
+                    {
+                      class: {enabled: selectedResponse},
+                      onclick: selectedResponse && function () {
+                        self.selectResponse(selectedResponse);
+                      }
+                    },
+                    'accept'
+                  ),
+                  h('label.debug.enabled',
+                    h('input.debug',
+                      {
+                        binding: [self.model.debug, 'show'],
+                        type: 'checkbox'
+                      }
+                    ),
+                    'debug'
+                  )
+                ),
                 h('h3.query-text', query.query.text),
-                selectedResponse? h('button', {onclick: function () { self.selectResponse(selectedResponse); }}, 'accept'): undefined,
                 h('ul.responses',
                   query.responses.map(function (response) {
                     return h('li.response',
                       {
                         class: {
                           selected: selectedResponse == response,
-                          loading: self.loadingResponse == response
+                          loading: self.loadingResponse == response,
+                          other: responsesForQuery.others[response.id]
                         },
                         onmouseenter: function () {
                           self.showingResponse = response;
@@ -116,18 +143,41 @@ var queryComponent = prototype({
             : h('h3.finished', 'finished')
         ),
         h('.response-editor',
-          self.editingResponse
+           self.showingResponse || self.editingResponse
             ? [
-              htmlEditor({class: 'response-text-editor', binding: [self.editingResponse.styles, 'custom']}),
-              h('button', {onclick: function (ev) { self.selectResponse(self.editingResponse); delete self.editingResponse; }}, 'ok'),
-              ' ',
-              h('button', {onclick: function (ev) { delete self.editingResponse; }}, 'cancel')
+              tab(
+                h('.ui.tabular.menu',
+                  h('a.item.active', {dataset: {tab: 'style1'}}, 'style1'),
+                  h('a.item', {dataset: {tab: 'style2'}}, 'style2')
+                )
+              ),
+              h('.ui.tab.active', {dataset: {tab: 'style1'}},
+                htmlEditor({
+                  class: 'response-text-editor',
+                  binding:
+                    self.editingResponse
+                      ? [self.editingResponse.styles, 'custom']
+                      : [self.showingResponse.styles, 'style1']
+                })
+              ),
+              h('.ui.tab', {dataset: {tab: 'style2'}},
+                htmlEditor({
+                  class: 'response-text-editor',
+                  binding:
+                    self.editingResponse
+                      ? [self.editingResponse.styles, 'custom']
+                      : [self.showingResponse.styles, 'style2']
+                })
+              ),
+              self.editingResponse? [
+                h('button', {onclick: function (ev) { self.selectResponse(self.editingResponse); delete self.editingResponse; }}, 'ok'),
+                ' ',
+                h('button', {onclick: function (ev) { delete self.editingResponse; }}, 'cancel')
+              ]: undefined
             ]
-            : self.showingResponse
-              ? self.showingResponse.styles.style1 && h.rawHtml('.response-text', self.showingResponse.styles.style1)
-              : undefined
+            : undefined
         )
-      );
+      ];
     }
   }
 });
