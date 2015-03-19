@@ -10,7 +10,7 @@ var queryComponent = prototype({
   constructor: function (model) {
     var self = this;
     this.model = model;
-    this.queryGraph = buildGraph();
+    this.queryGraph = buildGraph({cache: false});
 
     if (model.user) {
       self.queryGraph.firstQueryGraph().then(function (query) {
@@ -71,35 +71,35 @@ var queryComponent = prototype({
 
       return [
         h('.query',
+          h('.buttons',
+            h('button.undo',
+              {
+                class: { enabled: self.model.history.canUndo() },
+                onclick: self.model.history.canUndo() && self.undo.bind(self)
+              },
+              'undo'
+            ),
+            h('button.accept',
+              {
+                class: {enabled: selectedResponse},
+                onclick: selectedResponse && function () {
+                  self.selectResponse(selectedResponse);
+                }
+              },
+              'accept'
+            ),
+            h('label.debug.enabled',
+              h('input.debug',
+                {
+                  binding: [self.model.debug, 'show'],
+                  type: 'checkbox'
+                }
+              ),
+              'debug'
+            )
+          ),
           query.query
             ? [
-                h('.buttons',
-                  h('button.undo',
-                    {
-                      class: { enabled: self.model.history.canUndo() },
-                      onclick: self.model.history.canUndo() && self.undo.bind(self)
-                    },
-                    'undo'
-                  ),
-                  h('button.accept',
-                    {
-                      class: {enabled: selectedResponse},
-                      onclick: selectedResponse && function () {
-                        self.selectResponse(selectedResponse);
-                      }
-                    },
-                    'accept'
-                  ),
-                  h('label.debug.enabled',
-                    h('input.debug',
-                      {
-                        binding: [self.model.debug, 'show'],
-                        type: 'checkbox'
-                      }
-                    ),
-                    'debug'
-                  )
-                ),
                 h('h3.query-text', query.query.text),
                 h('ul.responses',
                   query.responses.map(function (response) {
