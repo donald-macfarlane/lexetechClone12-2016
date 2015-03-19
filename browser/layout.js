@@ -1,6 +1,6 @@
 var plastiq = require('plastiq');
 var h = plastiq.html;
-var router = require('plastiq/router');
+var router = require('./router');
 
 module.exports = function (model, contents) {
   if (model.user || model.auth) {
