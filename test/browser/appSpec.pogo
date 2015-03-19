@@ -19,7 +19,7 @@ describe 'report'
   reportBrowser = prototypeExtending(element) {
     undoButton() = self.find('.query button', text = 'undo')
     acceptButton() = self.find('.query button', text = 'accept')
-    debugButton() = self.find('button', text = 'debug')
+    debugButton() = self.find('input.debug')
 
     debug() = debugBrowser(self.find('.debug'))
     document() = documentBrowser(self.find('.document'))
@@ -47,7 +47,7 @@ describe 'report'
   }
 
   responseEditorElement = prototypeExtending(element) {
-    responseTextEditor() = self.find('.response-text-editor')
+    responseTextEditor(style) = self.find(".tab[data-tab=#(JSON.stringify(style))] .response-text-editor")
     okButton() = self.find('button', text = 'ok')
     cancelButton() = self.find('button', text = 'cancel')
   }
@@ -402,14 +402,14 @@ describe 'report'
 
       waitForLexemesToSave!(3)
 
-    it.only 'can edit the response before accepting it'
+    it 'can edit the response before accepting it'
       shouldHaveQuery 'Where does it hurt?'!
       selectResponse 'left leg'!
       shouldHaveQuery 'Is it bleeding?'!
       response = browser.query().response('yes')
       response.editButton().click!()
       editor = browser.responseEditor()
-      editor.responseTextEditor().typeInHtml!('bleeding badly')
+      editor.responseTextEditor('style1').typeInHtml!('bleeding badly')
       editor.okButton().click!()
       shouldHaveQuery 'Is it aching?'!
       selectResponse 'yes'!

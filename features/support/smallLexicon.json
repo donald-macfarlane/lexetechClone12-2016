@@ -14,7 +14,7 @@
               "id": 1,
               "setLevel": 1,
               "predicants": [],
-              "action": { "name":"none", "arguments":[] },
+              "actions": [{ "name":"none", "arguments":[] }],
               "text": "right arm",
               "styles": {
                 "style1": "Complaint\n---------\nright arm"
@@ -24,7 +24,7 @@
               "id": 2,
               "setLevel": 1,
               "predicants": [],
-              "action": { "name":"none", "arguments":[] },
+              "actions": [{ "name":"none", "arguments":[] }],
               "text": "left leg",
               "styles": {
                 "style1": "Complaint\n---------\nleft leg"
