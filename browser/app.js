@@ -3,4 +3,4 @@ var reportComponent = require('./report');
 
 var report = reportComponent(window.lexemeData);
 
-plastiq.attach(document.body, report.render.bind(report));
+plastiq.append(document.body, report.render.bind(report));

@@ -74,7 +74,7 @@
     "passport-http": "^0.2.2",
     "passport-local": "^1.0.0",
     "passport-local-mongoose": "^1.0.0",
-    "plastiq": "1.9.2",
+    "plastiq": "1.9.5",
     "pogo": "^0.9.10",
     "pogoify": "^0.1.1",
     "prote": "^1.1.0",

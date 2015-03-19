@@ -1,5 +1,6 @@
-var h = require('plastiq').html;
-var router = require('plastiq/router');
+var plastiq = require('plastiq');
+var h = plastiq.html;
+var router = plastiq.router();
 var prototype = require('prote');
 
 var queryComponent = require('./query');
