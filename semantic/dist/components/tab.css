@@ -1,0 +1,688 @@
+/*!
+ * # Semantic UI x.x - Tab
+ * http://github.com/semantic-org/semantic-ui/
+ *
+ *
+ * Copyright 2014 Contributors
+ * Released under the MIT license
+ * http://opensource.org/licenses/MIT
+ *
+ */
+
+
+/*******************************
+            Theme
+*******************************/
+
+/*
+
+████████╗██╗  ██╗███████╗███╗   ███╗███████╗███████╗
+╚══██╔══╝██║  ██║██╔════╝████╗ ████║██╔════╝██╔════╝
+   ██║   ███████║█████╗  ██╔████╔██║█████╗  ███████╗
+   ██║   ██╔══██║██╔══╝  ██║╚██╔╝██║██╔══╝  ╚════██║
+   ██║   ██║  ██║███████╗██║ ╚═╝ ██║███████╗███████║
+   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝╚══════╝╚══════╝
+
+*/
+
+
+/*******************************
+        Theme Selection
+*******************************/
+
+
+/* To override a theme for an individual element
+   specify theme name below
+*/
+/* Global */
+
+/* Elements */
+
+/* Collections */
+
+/* Modules */
+
+/* Views */
+
+
+/*******************************
+            Folders
+*******************************/
+
+
+/* Path to theme packages */
+
+/* Path to site override folder */
+
+
+/*******************************
+         Import Theme
+*******************************/
+
+
+
+/*******************************
+        Import Directives
+*******************************/
+
+
+/*------------------
+    Default Theme
+-------------------*/
+
+
+
+/*******************************
+         Site Settings
+*******************************/
+
+
+/*-------------------
+       Fonts
+--------------------*/
+
+
+/*-------------------
+      Base Sizes
+--------------------*/
+
+
+/*--------------
+  Page Heading
+---------------*/
+
+
+/*-------------------
+      Site Colors
+--------------------*/
+
+
+/*---  Colors  ---*/
+
+
+/*---  Light Colors  ---*/
+
+
+/*---   Neutrals  ---*/
+
+
+/*-------------------
+    Brand Colors
+--------------------*/
+
+
+/*-------------------
+        Sizes
+--------------------*/
+
+/*
+  To have sizing resolve to a specified pixel values adjust
+  the numerator to the desired font size and the denominator
+  to the base em size
+*/
+
+/*-------------------
+        Page
+--------------------*/
+
+
+/*-------------------
+      Paragraph
+--------------------*/
+
+
+/*-------------------
+       Links
+--------------------*/
+
+
+/*-------------------
+  Highlighted Text
+--------------------*/
+
+
+/*-------------------
+       Loader
+--------------------*/
+
+
+/*-------------------
+        Grid
+--------------------*/
+
+
+/*-------------------
+     Breakpoints
+--------------------*/
+
+
+/*-------------------
+     Alpha Colors
+--------------------*/
+
+
+/*-------------------
+       Accents
+--------------------*/
+
+
+/* 4px @ default em */
+
+/* Differentiating Neutrals */
+
+/* Differentiating Layers */
+
+
+/*******************************
+           Power-User
+*******************************/
+
+
+/*-------------------
+        Paths
+--------------------*/
+
+
+/* For source only. Modified in gulp for dist */
+
+/*-------------------
+       Em Sizes
+--------------------*/
+
+
+/* Exact pixel values expressed in em */
+
+/*-------------------
+       Icons
+--------------------*/
+
+
+/* Maximum Glyph Width of Icon */
+
+/*-------------------
+       Easing
+--------------------*/
+
+
+/*-------------------
+     All Colors
+--------------------*/
+
+
+/*--- Colored Backgrounds ---*/
+
+
+/*--- Colored Text ---*/
+
+
+/*--- Colored Headers ---*/
+
+
+/*-------------------
+    Emotive Colors
+--------------------*/
+
+
+/* Positive */
+
+/* Negative */
+
+/* Info */
+
+/* Warning */
+
+/*-------------------
+     Neutral Text
+--------------------*/
+
+
+/*-------------------
+     Brand Colors
+--------------------*/
+
+
+/*-------------------
+      Borders
+--------------------*/
+
+
+/*-------------------
+     Transitions
+--------------------*/
+
+
+/*-------------------
+    Derived Values
+--------------------*/
+
+
+/* Rendered Scrollbar Width */
+
+/* Used to match floats with text */
+
+/* Header Spacing */
+
+/* Minimum Mobile Width */
+
+/* Positive / Negative Dupes */
+
+/* Responsive */
+
+/* Columns */
+
+
+/*******************************
+           States
+*******************************/
+
+
+/*-------------------
+      Disabled
+--------------------*/
+
+
+/*-------------------
+        Hover
+--------------------*/
+
+
+/*---  Colors  ---*/
+
+
+/*---  Emotive  ---*/
+
+
+/*---  Neutrals  ---*/
+
+
+/*-------------------
+    Down (:active)
+--------------------*/
+
+
+/*---  Colors  ---*/
+
+
+/*---  Emotive  ---*/
+
+
+/*---  Neutrals  ---*/
+
+
+/*-------------------
+        Active
+--------------------*/
+
+
+/*---  Standard  ---*/
+
+
+/*---  Emotive  ---*/
+
+
+/*---  Neutrals  ---*/
+
+
+
+/*******************************
+              Tab
+*******************************/
+
+
+/* Loading */
+
+/*------------------
+   Packaged Theme
+-------------------*/
+
+
+
+/*******************************
+         Site Settings
+*******************************/
+
+
+/*-------------------
+       Fonts
+--------------------*/
+
+
+/*-------------------
+      Base Sizes
+--------------------*/
+
+
+/*--------------
+  Page Heading
+---------------*/
+
+
+/*-------------------
+      Site Colors
+--------------------*/
+
+
+/*---  Colors  ---*/
+
+
+/*---  Light Colors  ---*/
+
+
+/*---   Neutrals  ---*/
+
+
+/*-------------------
+    Brand Colors
+--------------------*/
+
+
+/*-------------------
+        Sizes
+--------------------*/
+
+/*
+  To have sizing resolve to a specified pixel values adjust
+  the numerator to the desired font size and the denominator
+  to the base em size
+*/
+
+/*-------------------
+        Page
+--------------------*/
+
+
+/*-------------------
+      Paragraph
+--------------------*/
+
+
+/*-------------------
+       Links
+--------------------*/
+
+
+/*-------------------
+  Highlighted Text
+--------------------*/
+
+
+/*-------------------
+       Loader
+--------------------*/
+
+
+/*-------------------
+        Grid
+--------------------*/
+
+
+/*-------------------
+     Breakpoints
+--------------------*/
+
+
+/*-------------------
+     Alpha Colors
+--------------------*/
+
+
+/*-------------------
+       Accents
+--------------------*/
+
+
+/* 4px @ default em */
+
+/* Differentiating Neutrals */
+
+/* Differentiating Layers */
+
+
+/*******************************
+           Power-User
+*******************************/
+
+
+/*-------------------
+        Paths
+--------------------*/
+
+
+/* For source only. Modified in gulp for dist */
+
+/*-------------------
+       Em Sizes
+--------------------*/
+
+
+/* Exact pixel values expressed in em */
+
+/*-------------------
+       Icons
+--------------------*/
+
+
+/* Maximum Glyph Width of Icon */
+
+/*-------------------
+       Easing
+--------------------*/
+
+
+/*-------------------
+     All Colors
+--------------------*/
+
+
+/*--- Colored Backgrounds ---*/
+
+
+/*--- Colored Text ---*/
+
+
+/*--- Colored Headers ---*/
+
+
+/*-------------------
+    Emotive Colors
+--------------------*/
+
+
+/* Positive */
+
+/* Negative */
+
+/* Info */
+
+/* Warning */
+
+/*-------------------
+     Neutral Text
+--------------------*/
+
+
+/*-------------------
+     Brand Colors
+--------------------*/
+
+
+/*-------------------
+      Borders
+--------------------*/
+
+
+/*-------------------
+     Transitions
+--------------------*/
+
+
+/*-------------------
+    Derived Values
+--------------------*/
+
+
+/* Rendered Scrollbar Width */
+
+/* Used to match floats with text */
+
+/* Header Spacing */
+
+/* Minimum Mobile Width */
+
+/* Positive / Negative Dupes */
+
+/* Responsive */
+
+/* Columns */
+
+
+/*******************************
+           States
+*******************************/
+
+
+/*-------------------
+      Disabled
+--------------------*/
+
+
+/*-------------------
+        Hover
+--------------------*/
+
+
+/*---  Colors  ---*/
+
+
+/*---  Emotive  ---*/
+
+
+/*---  Neutrals  ---*/
+
+
+/*-------------------
+    Down (:active)
+--------------------*/
+
+
+/*---  Colors  ---*/
+
+
+/*---  Emotive  ---*/
+
+
+/*---  Neutrals  ---*/
+
+
+/*-------------------
+        Active
+--------------------*/
+
+
+/*---  Standard  ---*/
+
+
+/*---  Emotive  ---*/
+
+
+/*---  Neutrals  ---*/
+
+
+
+/*******************************
+              Tab
+*******************************/
+
+
+/* Loading */
+
+/*------------------
+     Site Theme
+-------------------*/
+
+
+
+/*******************************
+        Import Mix-ins
+*******************************/
+
+
+/*------------------
+       Fonts
+-------------------*/
+
+
+/*------------------
+     Overrides
+-------------------*/
+
+
+
+/*******************************
+           UI Tabs
+*******************************/
+
+.ui.tab {
+  display: none;
+}
+
+
+/*******************************
+             States
+*******************************/
+
+
+/*--------------------
+       Active
+---------------------*/
+
+.ui.tab.active,
+.ui.tab.open {
+  display: block;
+}
+
+/*--------------------
+       Loading
+---------------------*/
+
+.ui.tab.loading {
+  position: relative;
+  overflow: hidden;
+  display: block;
+  min-height: 250px;
+}
+.ui.tab.loading * {
+  position: relative !important;
+  left: -10000px !important;
+}
+.ui.tab.loading:before,
+.ui.tab.loading.segment:before {
+  position: absolute;
+  content: '';
+  top: 100px;
+  left: 50%;
+  margin: -1.25em 0em 0em -1.25em;
+  width: 2.5em;
+  height: 2.5em;
+  border-radius: 500rem;
+  border: 0.2em solid rgba(0, 0, 0, 0.1);
+}
+.ui.tab.loading:after,
+.ui.tab.loading.segment:after {
+  position: absolute;
+  content: '';
+  top: 100px;
+  left: 50%;
+  margin: -1.25em 0em 0em -1.25em;
+  width: 2.5em;
+  height: 2.5em;
+  -webkit-animation: button-spin 0.6s linear;
+          animation: button-spin 0.6s linear;
+  -webkit-animation-iteration-count: infinite;
+          animation-iteration-count: infinite;
+  border-radius: 500rem;
+  border-color: #aaaaaa transparent transparent;
+  border-style: solid;
+  border-width: 0.2em;
+  box-shadow: 0px 0px 0px 1px transparent;
+}
