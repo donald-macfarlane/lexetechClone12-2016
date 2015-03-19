@@ -59,7 +59,7 @@ module.exports = prototype({
 
   undo: function () {
     var query = this.queryResponses.pop().query;
-    this.emit('query', {blockId: query.query.block, queryId: query.query.id, context: query.context});
+    this.emit('query', {blockId: query.query.block, queryId: query.query.id, context: query.nextContext});
   },
 
   back: function (queryResponse) {
