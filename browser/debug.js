@@ -154,19 +154,19 @@ var debugComponent = prototype({
 
     return [
       h('div',
-        h('p', 'coherence index: ', renderContextScalars(previousContext, context, 'coherenceIndex', code)),
-        h('p', 'level: ', renderContextScalars(previousContext, context, 'level', code)),
+        h('p', 'coherence index: ', renderContextScalars(previousContext, nextContext, 'coherenceIndex', code)),
+        h('p', 'level: ', renderContextScalars(previousContext, nextContext, 'level', code)),
         this.predicants
-          ? h('p', 'predicants: ', renderContextArrays(previousContext, context, contextPredicants, code))
+          ? h('p', 'predicants: ', renderContextArrays(previousContext, nextContext, contextPredicants, code))
           : undefined,
-        h('p', 'blocks: ', renderContextArrays(previousContext, context, contextBlocks, code))
+        h('p', 'blocks: ', renderContextArrays(previousContext, nextContext, contextBlocks, code))
       ),
       h('ol.blocks',
         query.loadedBlocks
           ? query.loadedBlocks.map(function (block) {
               return h('li.block',
                 h('h3', 'Block ', renderBlockName(block)),
-                h('ol.block-queries',
+                h('ol.block-queries', {start: '0'},
                   block.queries.map(function (q, index) {
                     var previous = compareWithContext(block.id, index, previousContext);
                     var current = compareWithContext(block.id, index, context);
