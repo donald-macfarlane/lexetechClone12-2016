@@ -11,7 +11,7 @@ module.exports = function (options) {
         this.html = binding.get();
         element.innerHTML = normaliseHtml(this.html);
 
-        var editor = new Medium(element, {
+        this.editor = new Medium(element, {
           buttons: ['bold', 'italic', 'header1', 'header2', 'unorderedlist', 'orderedlist']
         });
 
@@ -26,6 +26,9 @@ module.exports = function (options) {
           this.html = html;
           element.innerHTML = normaliseHtml(html);
         }
+      },
+      onremove: function () {
+        this.editor.deactivate();
       }
     },
     h('div', {class: options.class})
