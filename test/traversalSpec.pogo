@@ -1,5 +1,5 @@
 expect = require 'chai'.expect
-traversal = require '../browser/traversal'
+traversal = require './traversal'
 
 describe 'traversal'
   query = {

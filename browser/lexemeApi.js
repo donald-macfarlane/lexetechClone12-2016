@@ -29,6 +29,10 @@ module.exports = function(options) {
 
     query: function (queryId) {
       return http.get('/api/queries/' + queryId);
+    },
+
+    predicants: function () {
+      return http.get('/api/predicants');
     }
   };
 };

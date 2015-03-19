@@ -1,4 +1,4 @@
-traversal = require '../browser/traversal'
+traversal = require './traversal'
 expect = require 'chai'.expect
 
 module.exports(graph) =

@@ -220,33 +220,39 @@ module.exports = function(options) {
 
   return {
     firstQueryGraph: function() {
+      var predicantsPromise = api.predicants();
+
       return api.block(1).query(0).then(function(query) {
-        var firstPredicants = {};
+        return predicantsPromise.then(function (predicants) {
+          var predicantsByName = _.indexBy(_.values(predicants), 'name');
 
-        query.predicants.forEach(function(p) {
-          return firstPredicants[p] = true;
+          var firstPredicants = {};
+
+          [predicantsByName['H&P'].id, predicantsByName['HemOnc'].id].concat(query.predicants).forEach(function(p) {
+            return firstPredicants[p] = true;
+          });
+
+          var context = createContext({
+            coherenceIndex: 0,
+            block: query.block,
+            blocks: _.range(2, 19).map(String),
+            level: 1,
+            predicants: firstPredicants,
+            blockStack: []
+          });
+
+          var graph = queryGraph({
+            query: query,
+            context: context,
+            nextContext: context
+          }, context);
+
+          if (cache) {
+            preloadQueryGraph(graph, 4);
+          }
+
+          return graph;
         });
-
-        var context = createContext({
-          coherenceIndex: 0,
-          block: query.block,
-          blocks: [],
-          level: 1,
-          predicants: firstPredicants,
-          blockStack: []
-        });
-
-        var graph = queryGraph({
-          query: query,
-          context: context,
-          nextContext: context
-        }, context);
-
-        if (cache) {
-          preloadQueryGraph(graph, 4);
-        }
-
-        return graph;
       });
     },
 

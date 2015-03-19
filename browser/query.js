@@ -95,7 +95,7 @@ var queryComponent = prototype({
                   type: 'checkbox'
                 }
               ),
-              'debug'
+              ' debug'
             )
           ),
           query.query

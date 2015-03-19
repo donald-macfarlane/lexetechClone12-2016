@@ -16,7 +16,8 @@ module.exports(connectionInfo) =
     mains = db.query! 'select *
                        from tblMain main
                          join tblModifier modifier
-                           on main.MainID = modifier.MainID'
+                           on main.MainID = modifier.MainID
+                       where main.MainID not in (929, 910, 913, 912, 896)'
 
     queriesById = group (mains) by @(m) @{
       m.MainID.0

@@ -161,7 +161,7 @@ describe 'report'
       ])
 
       report = reportComponent {user = { email = 'blah@example.com' } }
-      plastiq.attach(div, report.render.bind(report))
+      plastiq.append(div, report.render.bind(report))
 
     it 'can generate notes by answering queries'
       shouldHaveQuery 'Where does it hurt?'!
@@ -517,7 +517,7 @@ describe 'report'
       api.predicants.push({id = 'end', name = 'end'})
 
       report = reportComponent {user = { email = 'blah@example.com' } }
-      plastiq.attach(div, report.render.bind(report))
+      plastiq.append(div, report.render.bind(report))
 
     it 'displays debugging information' =>
       self.timeout 100000
