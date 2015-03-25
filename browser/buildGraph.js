@@ -148,6 +148,7 @@ var nocache = {
 module.exports = function(options) {
   var api = (options && options.hasOwnProperty('api'))? options.api: lexemeApi();
   var cache = (options && options.hasOwnProperty('cache'))? options.cache: true;
+  var hack = (options && options.hasOwnProperty('hack'))? options.hack: false;
 
   var queryCache = cache && createCache() || nocache;
 
@@ -218,24 +219,37 @@ module.exports = function(options) {
     });
   }
 
+  function hackPredicants() {
+    return api.predicants().then(function (predicants) {
+      var predicantsByName = _.indexBy(_.values(predicants), 'name');
+      return ['H&P', 'HemOnc'].map(function (name) {
+        return predicantsByName[name];
+      }).filter(function (pred) {
+        return pred;
+      }).map(function (pred) {
+        return pred.id;
+      });
+    });
+  }
+
   return {
     firstQueryGraph: function() {
-      var predicantsPromise = api.predicants();
+      var hackpredsPromise = hackPredicants();
 
       return api.block(1).query(0).then(function(query) {
-        return predicantsPromise.then(function (predicants) {
-          var predicantsByName = _.indexBy(_.values(predicants), 'name');
-
+        function makeGraph(hackpreds) {
           var firstPredicants = {};
 
-          [predicantsByName['H&P'].id, predicantsByName['HemOnc'].id].concat(query.predicants).forEach(function(p) {
-            return firstPredicants[p] = true;
-          });
+          if (hack) {
+            hackpreds.concat(query.predicants).forEach(function(p) {
+              return firstPredicants[p] = true;
+            });
+          }
 
           var context = createContext({
             coherenceIndex: 0,
             block: query.block,
-            blocks: _.range(2, 19).map(String),
+            blocks: hack? _.range(2, 19).map(String): [],
             level: 1,
             predicants: firstPredicants,
             blockStack: []
@@ -252,7 +266,13 @@ module.exports = function(options) {
           }
 
           return graph;
-        });
+        }
+
+        if (hack) {
+          return hackpredsPromise.then(makeGraph);
+        } else {
+          return makeGraph();
+        }
       });
     },
 

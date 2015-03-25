@@ -12,7 +12,10 @@ module.exports = function () {
       h('button', 'Create')
     ),
     h('div.links',
-      h('a', { href: '/login', onclick: router.push}, 'Login')
+      h('a', { href: '/login', onclick: function (ev) {
+        history.pushState(undefined, undefined, ev.target.href);
+        ev.preventDefault();
+      }}, 'Login')
     )
   );
 };

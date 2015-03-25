@@ -1,24 +1,19 @@
 var plastiq = require('plastiq');
 var h = plastiq.html;
 var prototype = require('prote');
-var router = require('./router');
+var semanticUi = require('plastiq-semantic-ui');
 
 var queryComponent = require('./query');
 var debugComponent = require('./debug');
 var documentComponent = require('./document');
-var layout = require('./layout');
-var login = require('./login');
-var signup = require('./signup');
 var historyComponent = require('./history');
 
 module.exports = prototype({
-  constructor: function (pageData) {
-    this.user = pageData.user;
-    this.flash = pageData.flash;
+  constructor: function (model) {
     this.document = documentComponent(this);
     this.debug = debugComponent(this);
-    this.history = historyComponent();
-    this.query = queryComponent(this);
+    this.history = historyComponent({document: model.document});
+    this.query = queryComponent({user: model.user, history: this.history, debug: this.debug});
   },
 
   currentQuery: function () {
@@ -28,37 +23,27 @@ module.exports = prototype({
   render: function () {
     var self = this;
 
-    function master(fn) {
-      return function() {
-        return layout(self, fn.apply(this, arguments));
-      };
-    }
-
-    return router(
-      router.page('/',
-        master(function () {
-          return h('div.report',
-            h('.left',
-              self.query.render(),
-              self.debug.render()
-            ),
-            self.document.render()
-          );
-        })
+    return h('div.report',
+      h('.left',
+        self.query.render()
       ),
-      router.page('/login',
-        {
-          binding: [self, 'auth'],
-          state: true
-        },
-        master(login)
-      ),
-      router.page('/signup',
-        {
-          binding: [self, 'auth'],
-          state: true
-        },
-        master(signup)
+      h('.right',
+        semanticUi.tabs(
+          h('.ui.top.attached.tabular.menu',
+            h('a.item.active', {dataset: {tab: 'document'}}, 'Document'),
+            h('a.item', {dataset: {tab: 'debug'}}, 'Debug'),
+            h('a.item', {dataset: {tab: 'document-json'}}, 'Document JSON')
+          )
+        ),
+        h('.ui.bottom.attached.tab.segment.active', {dataset: {tab: 'document'}},
+          self.document.render()
+        ),
+        h('.ui.bottom.attached.tab.segment', {dataset: {tab: 'debug'}},
+          self.debug.render()
+        ),
+        h('.ui.bottom.attached.tab.segment', {dataset: {tab: 'document-json'}},
+          h('pre code', JSON.stringify(this.history, null, 2))
+        )
       )
     );
   }

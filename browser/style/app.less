@@ -176,8 +176,15 @@ body {
 
 .report {
   .left {
-    float: left;
+    display: inline-block;
     width: 285px;
+    vertical-align: top;
+  }
+
+  .right {
+    display: inline-block;
+    vertical-align: top;
+    width: calc(~"100% - 285px");
   }
 
   .query {
@@ -295,31 +302,26 @@ body {
     }
   }
 
-  .document-outer {
-    padding-left: 300px;
+  .document {
+    list-style-type: none;
+    border: 2px solid rgba(25, 0, 255, 0.14);
+    padding: 20px;
 
-    .document {
-      list-style-type: none;
-      border: 2px solid rgba(25, 0, 255, 0.14);
-      padding: 20px;
+    > li {
+      display: inline;
 
-      > li {
-        display: inline;
+      a {
+        text-decoration: none;
+        color: inherit;
 
-        a {
-          text-decoration: none;
-          color: inherit;
-
-          *:hover {
-            background-color: yellow;
-          }
+        *:hover {
+          background-color: yellow;
         }
       }
     }
   }
 
   .debug {
-    background-color: rgb(245, 244, 254);
     color: rgb(70, 45, 160);
     padding: 10px;
 

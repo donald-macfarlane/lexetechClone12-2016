@@ -1,30 +1,29 @@
 var http = require('./http');
 var prototype = require('prote');
 
+var documentPrototype = prototype({
+  update: function (doc) {
+    return http.post(this.href, doc);
+  }
+});
+
 module.exports = prototype({
   currentDocument: function () {
-    if (!this.document) {
-      var self = this;
+    return http.get('/api/user/documents/current').then(undefined, function (error) {
+      return http.post('/api/user/documents', {});
+    }).then(documentPrototype);
+  },
 
-      if (!this.last) {
-        this.last = http.get('/api/user/documents/last').then(undefined, function (error) {
-          return http.post('/api/user/documents', {});
-        }).then(function (doc) {
-          self.document = doc;
-          return doc;
-        });
-      }
-
-      return this.last;
+  document: function (id) {
+    if (id instanceof Object) {
+      return documentPrototype(id);
     } else {
-      return Promise.resolve(this.document);
+      return http.get('/api/user/documents/' + id).then(documentPrototype);
     }
   },
 
-  updateDocument: function (doc) {
-    return this.currentDocument().then(function (originalDoc) {
-      return http.post(originalDoc.href, doc);
-    });
+  create: function () {
+    return http.post('/api/user/documents', {lexemes: []}).then(documentPrototype);
   }
 });
 

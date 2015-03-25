@@ -3,7 +3,7 @@ var h = plastiq.html;
 var router = require('./router');
 
 module.exports = function (model, contents) {
-  if (model.user || model.auth) {
+  if (model.user || model.login || model.signup) {
     return h('div.main',
       h('div.top-menu',
         topMenuTabs(model.user),
@@ -17,7 +17,8 @@ module.exports = function (model, contents) {
       h('div.content', contents)
     );
   } else {
-    router.push('/login');
+    model.login = true;
+    h.refresh();
     return h('div', 'redirecting');
   }
 };

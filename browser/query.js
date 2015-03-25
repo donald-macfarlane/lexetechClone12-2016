@@ -9,21 +9,20 @@ var tab = require('./semantic-ui/tab');
 var queryComponent = prototype({
   constructor: function (model) {
     var self = this;
-    this.model = model;
+    this.user = model.user;
+    this.history = model.history;
     this.queryGraph = buildGraph({cache: false});
 
-    if (model.user) {
-      self.queryGraph.firstQueryGraph().then(function (query) {
+    if (this.user) {
+      this.history.currentQuery().then(function (query) {
         self.setQuery(query);
         self.refresh();
       });
     }
 
-    this.model.history.on('query', function (message) {
-      self.queryGraph.query(message.queryId, message.context).then(function (query) {
-        self.setQuery(query);
-        self.refresh();
-      });
+    this.history.on('query', function (query) {
+      self.setQuery(query);
+      self.refresh();
     });
   },
 
@@ -45,7 +44,7 @@ var queryComponent = prototype({
         self.refresh();
       }
     }).then(function (q) {
-      self.model.history.addQueryResponse(self.query, response);
+      self.history.addQueryResponse(self.query.query, response, self.query.nextContext);
       self.setQuery(q);
       self.refresh();
     });
@@ -54,7 +53,7 @@ var queryComponent = prototype({
   refresh: function () {},
 
   undo: function () {
-    this.model.history.undo();
+    this.history.undo();
   },
 
   render: function () {
@@ -64,7 +63,7 @@ var queryComponent = prototype({
     self.refresh = h.refresh;
 
     if (query) {
-      var responsesForQuery = self.model.history.responsesForQuery(self.query) || {others: []};
+      var responsesForQuery = self.history.responsesForQuery(self.query) || {others: []};
       var selectedResponse = self.query.responses && self.query.responses.filter(function (r) {
         return r.id == responsesForQuery.previous;
       })[0];
@@ -74,8 +73,8 @@ var queryComponent = prototype({
           h('.buttons',
             h('button.undo',
               {
-                class: { enabled: self.model.history.canUndo() },
-                onclick: self.model.history.canUndo() && self.undo.bind(self)
+                class: { enabled: self.history.canUndo() },
+                onclick: self.history.canUndo() && self.undo.bind(self)
               },
               'undo'
             ),
@@ -87,15 +86,6 @@ var queryComponent = prototype({
                 }
               },
               'accept'
-            ),
-            h('label.debug.enabled',
-              h('input.debug',
-                {
-                  binding: [self.model.debug, 'show'],
-                  type: 'checkbox'
-                }
-              ),
-              ' debug'
             )
           ),
           query.query

@@ -201,7 +201,7 @@ var debugComponent = prototype({
 
     this.refresh = h.refresh;
 
-    return this.show && query? h('.debug',
+    return query? h('.debug',
       self.renderQuery(query)
     ): undefined;
   }

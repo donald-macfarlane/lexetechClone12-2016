@@ -1,5 +1,4 @@
 var h = require('plastiq').html;
-var router = require('plastiq/router');
 
 module.exports = function () {
   return h('div.login-page',
@@ -12,7 +11,10 @@ module.exports = function () {
       h('button','Log in')
     ),
     h('div.links',
-      h('a', { href: '/signup', onclick: router.push}, 'Sign up')
+      h('a', { href: '/signup', onclick: function (ev) {
+        history.pushState(undefined, undefined, ev.target.href);
+        ev.preventDefault();
+      }}, 'Sign up')
     )
   );
 };

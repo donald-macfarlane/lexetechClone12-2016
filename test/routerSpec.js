@@ -21,6 +21,9 @@ describe('router', function () {
         set: function (state) {
           this.history[this.history.length - 1].state = state;
         }
+      },
+      location: function () {
+        return location(this.history[this.history.length - 1].url);
       }
     };
     routes = router({history: history});
@@ -42,60 +45,56 @@ describe('router', function () {
 
     beforeEach(function () {
       model = {};
-      routes.route('/report/:id', {id: [model, 'documentId']});
+      routes.route('/report/:id', {
+        get: function () {
+          if (model.documentId) {
+            return {
+              id: model.documentId
+            }
+          }
+        },
+        set: function (params) {
+          model.documentId = params.id;
+        }
+      });
       routes.route('/login', [model, 'login']);
       routes.route('/signup', [model, 'signup']);
       routes.route('/');
     });
 
-    it.only('can set the model', function () {
-      routes.location(location('/report/6'));
-      expect(model.documentId).to.equal('6');
-      expect(history.history).to.eql([]);
+    it('can set the model', function () {
+      history.push('/report/6');
 
-      routes.location(location('/report/6'));
-      expect(history.history).to.eql([]);
+      routes.sync();
+      expect(model.documentId).to.equal('6');
+      expect(history.history).to.eql([{url: '/report/6'}]);
+
+      routes.sync();
+      expect(history.history).to.eql([{url: '/report/6'}]);
 
       model.documentId = 7;
-      routes.location(location('/report/6'));
-      expect(history.history).to.eql([{url: '/report/7'}]);
+      routes.sync();
+      expect(history.history).to.eql([
+        {url: '/report/6'},
+        {url: '/report/7'},
+      ]);
 
       delete model.documentId;
-      routes.location(location('/report/7'));
+      routes.sync();
       expect(history.history).to.eql([
+        {url: '/report/6'},
         {url: '/report/7'},
         {url: '/'}
       ]);
 
       model.signup = true;
-      routes.location(location('/'));
+      routes.sync();
       expect(history.history).to.eql([
+        {url: '/report/6'},
         {url: '/report/7'},
         {url: '/'},
         {url: '/signup'}
       ]);
-    });
-
-    it('can set the location', function () {
-      var model = {};
-
-      routes.route('/report/:id', {id: [model, 'documentId']});
-      routes.route('/login', [model, 'login']);
-      routes.route('/signup', [model, 'signup']);
-      routes.route('/');
-
-      expect(routes.location()).to.equal('/');
-
-      model.login = true;
-      expect(routes.location()).to.equal('/login');
-
-      model.login = false;
-      model.signup = true;
-      expect(routes.location()).to.equal('/signup');
-
-      model.signup = false;
-      model.documentId = 6;
-      expect(routes.location()).to.equal('/report/6');
     });
   });
 });
