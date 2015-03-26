@@ -1,4 +1,3 @@
-require('pogo');
 var app = require("./app");
 var express = require("express");
 var morgan = require("morgan");
