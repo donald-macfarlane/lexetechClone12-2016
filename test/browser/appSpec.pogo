@@ -194,6 +194,7 @@ describe 'report'
 
       retry!
         expected = [{
+          id = '1'
           href = '/api/user/documents/1'
           index = 0
           lexemes = [
@@ -234,6 +235,7 @@ describe 'report'
       retry!
         expected = [
           {
+            id = '1'
             href = '/api/user/documents/1'
             index = 1
             lexemes = [
@@ -298,6 +300,7 @@ describe 'report'
       retry!
         expected = [
           {
+            id = '1'
             href = '/api/user/documents/1'
             index = 2
             lexemes = [
