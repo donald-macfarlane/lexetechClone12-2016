@@ -12,7 +12,7 @@ module.exports = prototype({
   constructor: function (model) {
     this.document = documentComponent(this);
     this.debug = debugComponent(this);
-    this.history = historyComponent({document: model.document});
+    this.history = historyComponent({document: model.document, graphHack: model.graphHack});
     this.query = queryComponent({user: model.user, history: this.history, debug: this.debug});
   },
 
@@ -31,7 +31,7 @@ module.exports = prototype({
         semanticUi.tabs(
           h('.ui.top.attached.tabular.menu',
             h('a.item.active', {dataset: {tab: 'document'}}, 'Document'),
-            h('a.item', {dataset: {tab: 'debug'}}, 'Debug'),
+            h('a.item.debug', {dataset: {tab: 'debug'}}, 'Debug'),
             h('a.item', {dataset: {tab: 'document-json'}}, 'Document JSON')
           )
         ),

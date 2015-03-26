@@ -5,7 +5,9 @@ module.exports = prototype({
     if (this._key) {
       return this._key;
     } else {
-      return this._key = this.level + ":" + Object.keys(this.blocks).join(",") + ":" + Object.keys(this.predicants).join(",");
+      var key = this.level + ":" + Object.keys(this.blocks).join(",") + ":" + Object.keys(this.predicants).join(",");
+      Object.defineProperty(this, '_key', { value: key });
+      return key;
     }
   },
 

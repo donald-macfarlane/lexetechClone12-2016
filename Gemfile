@@ -8,3 +8,4 @@ gem 'bson_ext'
 gem 'pry'
 gem "chromedriver-helper"
 gem 'capybara-screenshot', :group => :test
+gem 'capybara-webkit', :group => :test

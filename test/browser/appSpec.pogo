@@ -4,7 +4,7 @@ createTestDiv = require './createTestDiv'
 $ = require 'jquery'
 expect = require 'chai'.expect
 plastiq = require 'plastiq'
-reportComponent = require '../../browser/report'
+rootComponent = require '../../browser/root'
 queryApi = require './queryApi'
 lexiconBuilder = require '../lexiconBuilder'
 element = require './element'
@@ -14,12 +14,18 @@ describe 'report'
   api = nil
   originalLocation = nil
   lexicon = nil
-  browser = nil
+  reportBrowser = nil
+  rootBrowser = nil
 
-  reportBrowser = prototypeExtending(element) {
+  createRootBrowser = prototypeExtending(element) {
+    startNewButton() = self.find('.button', text = 'Start new document')
+    loadPreviousButton() = self.find('.button', text = 'Load previous document')
+  }
+
+  createReportBrowser = prototypeExtending(element) {
     undoButton() = self.find('.query button', text = 'undo')
     acceptButton() = self.find('.query button', text = 'accept')
-    debugButton() = self.find('input.debug')
+    debugTab() = self.find('.tabular .debug')
 
     debug() = debugBrowser(self.find('.debug'))
     document() = documentBrowser(self.find('.document'))
@@ -59,7 +65,11 @@ describe 'report'
     originalLocation := location.pathname + location.search + location.hash
     history.pushState(nil, nil, '/')
 
-    browser := reportBrowser {
+    rootBrowser := createRootBrowser {
+      element = div
+    }
+
+    reportBrowser := createReportBrowser {
       element = div
     }
 
@@ -73,14 +83,14 @@ describe 'report'
       e
 
   shouldHaveQuery(query) =
-    browser.query().queryText().expect!(element.hasText(query))
+    reportBrowser.query().queryText().expect!(element.hasText(query))
 
   shouldBeFinished() =
     retry!
-      expect($('.finished').length).to.eql 1
+      reportBrowser.find('.finished').exists!()
 
   selectResponse(response) =
-    browser.find ".query .response:contains(#(JSON.stringify(response))) a".click!()
+    reportBrowser.find ".query .response:contains(#(JSON.stringify(response))) a".click!()
 
   notesShouldBe(notes) =
     retry!
@@ -160,8 +170,10 @@ describe 'report'
         }
       ])
 
-      report = reportComponent {user = { email = 'blah@example.com' } }
-      plastiq.append(div, report.render.bind(report))
+      root = rootComponent {user = { email = 'blah@example.com' }, graphHack = false}
+      plastiq.append(div, root.render.bind(root))
+
+      rootBrowser.startNewButton().click!()
 
     it 'can generate notes by answering queries'
       shouldHaveQuery 'Where does it hurt?'!
@@ -183,6 +195,7 @@ describe 'report'
       retry!
         expected = [{
           href = '/api/user/documents/1'
+          index = 0
           lexemes = [
             {
               query = {
@@ -200,6 +213,10 @@ describe 'report'
               response = {
                 id = '1'
                 text = 'left leg'
+                repeat = false
+                styles = {
+                  style1 = "Complaint\n---------\nleft leg "
+                }
               }
             }
           ]
@@ -218,6 +235,7 @@ describe 'report'
         expected = [
           {
             href = '/api/user/documents/1'
+            index = 1
             lexemes = [
               {
                 query = {
@@ -235,6 +253,10 @@ describe 'report'
                 response = {
                   id = '1'
                   text = 'left leg'
+                  repeat = false
+                  styles = {
+                    style1 = "Complaint\n---------\nleft leg "
+                  }
                 }
               }
               {
@@ -253,6 +275,10 @@ describe 'report'
                 response = {
                   id = '1'
                   text = 'yes'
+                  repeat = false
+                  styles = {
+                    style1 = 'bleeding'
+                  }
                 }
               }
             ]
@@ -273,6 +299,7 @@ describe 'report'
         expected = [
           {
             href = '/api/user/documents/1'
+            index = 2
             lexemes = [
               {
                 query = {
@@ -290,6 +317,10 @@ describe 'report'
                 response = {
                   id = '1'
                   text = 'left leg'
+                  repeat = false
+                  styles = {
+                    style1 = "Complaint\n---------\nleft leg "
+                  }
                 }
               }
               {
@@ -308,6 +339,10 @@ describe 'report'
                 response = {
                   id = '1'
                   text = 'yes'
+                  repeat = false
+                  styles = {
+                    style1 = 'bleeding'
+                  }
                 }
               }
               {
@@ -326,6 +361,10 @@ describe 'report'
                 response = {
                   id = '1'
                   text = 'yes'
+                  repeat = false
+                  styles = {
+                    style1 = ', aching'
+                  }
                 }
               }
             ]
@@ -346,7 +385,7 @@ describe 'report'
       shouldHaveQuery 'Where does it hurt?'!
       selectResponse 'left leg'!
       shouldHaveQuery 'Is it bleeding?'!
-      browser.find('button', text = 'undo').click!()
+      reportBrowser.find('button', text = 'undo').click!()
       shouldHaveQuery 'Where does it hurt?'!
       selectResponse 'right leg'!
       shouldHaveQuery 'Is it bleeding?'!
@@ -365,10 +404,10 @@ describe 'report'
       shouldHaveQuery 'Where does it hurt?'!
       selectResponse 'left leg'!
       shouldHaveQuery 'Is it bleeding?'!
-      browser.find('button', text = 'undo').click!()
+      reportBrowser.find('button', text = 'undo').click!()
       shouldHaveQuery 'Where does it hurt?'!
-      browser.query().response('left leg').expect!(element.is('.selected'))
-      browser.acceptButton().click!()
+      reportBrowser.query().response('left leg').expect!(element.is('.selected'))
+      reportBrowser.acceptButton().click!()
       shouldHaveQuery 'Is it bleeding?'!
       selectResponse 'yes'!
       shouldHaveQuery 'Is it aching?'!
@@ -388,12 +427,12 @@ describe 'report'
       selectResponse 'yes'!
       shouldHaveQuery 'Is it aching?'!
       selectResponse 'yes'!
-      browser.document().section('bleeding').click!()
-      browser.query().response('yes').expect!(element.is('.selected'))
-      browser.acceptButton().click!()
+      reportBrowser.document().section('bleeding').click!()
+      reportBrowser.query().response('yes').expect!(element.is('.selected'))
+      reportBrowser.acceptButton().click!()
       shouldHaveQuery 'Is it aching?'!
-      browser.query().response('yes').expect!(element.is('.selected'))
-      browser.acceptButton().click!()
+      reportBrowser.query().response('yes').expect!(element.is('.selected'))
+      reportBrowser.acceptButton().click!()
       shouldBeFinished()!
 
       notesShouldBe! "Complaint
@@ -406,9 +445,9 @@ describe 'report'
       shouldHaveQuery 'Where does it hurt?'!
       selectResponse 'left leg'!
       shouldHaveQuery 'Is it bleeding?'!
-      response = browser.query().response('yes')
+      response = reportBrowser.query().response('yes')
       response.editButton().click!()
-      editor = browser.responseEditor()
+      editor = reportBrowser.responseEditor()
       editor.responseTextEditor('style1').typeInHtml!('bleeding badly')
       editor.okButton().click!()
       shouldHaveQuery 'Is it aching?'!
@@ -516,12 +555,14 @@ describe 'report'
 
       api.predicants.push({id = 'end', name = 'end'})
 
-      report = reportComponent {user = { email = 'blah@example.com' } }
-      plastiq.append(div, report.render.bind(report))
+      root = rootComponent {user = { email = 'blah@example.com' }, graphHack = false}
+      plastiq.append(div, root.render.bind(root))
+
+      rootBrowser.startNewButton().click!()
 
     it 'displays debugging information' =>
       self.timeout 100000
-      browser.debugButton().click!()
+      reportBrowser.debugTab().click!()
 
       shouldHaveQuery 'Where does it hurt?'!
       selectResponse 'left leg'!
@@ -529,10 +570,10 @@ describe 'report'
       selectResponse 'yes'!
       shouldHaveQuery 'Is it aching?'!
 
-      browser.debug().blockQuery('Block 1', 'query1').expect!(element.is '.before')
-      browser.debug().blockQuery('Block 1', 'query2').expect!(element.is '.previous')
-      browser.debug().blockQuery('Block 2', 'query3').expect!(element.is '.skipped')
-      browser.debug().blockQuery('Block 3', 'query4').expect!(element.is '.found')
+      reportBrowser.debug().blockQuery('Block 1', 'query1').expect!(element.is '.before')
+      reportBrowser.debug().blockQuery('Block 1', 'query2').expect!(element.is '.previous')
+      reportBrowser.debug().blockQuery('Block 2', 'query3').expect!(element.is '.skipped')
+      reportBrowser.debug().blockQuery('Block 3', 'query4').expect!(element.is '.found')
 
       selectResponse 'yes'!
       shouldBeFinished()!

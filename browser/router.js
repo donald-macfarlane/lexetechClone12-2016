@@ -1,6 +1,5 @@
 var plastiqRouter = require('plastiq-router');
 var router = plastiqRouter();
-var documentApi = 
 
 router.login = router.route('/login', {
   to: function (model) {
@@ -13,10 +12,10 @@ router.login = router.route('/login', {
 
 router.signup = router.route('/signup', {
   to: function (model) {
-    model.login = true;
+    model.signup = true;
   },
   from: function (model) {
-    delete model.login;
+    delete model.signup;
   }
 });
 

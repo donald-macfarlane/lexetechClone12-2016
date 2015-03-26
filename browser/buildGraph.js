@@ -157,7 +157,7 @@ module.exports = function(options) {
       query: next.query,
       context: next.context,
       previousContext: next.previousContext,
-      nextContext: next.nextContext,
+      startingContext: next.startingContext,
       blocksSearched: next.blocksSearched
     };
 
@@ -211,8 +211,8 @@ module.exports = function(options) {
         }
 
         next.previousContext = context;
-        next.context = originalContext;
-        next.nextContext = newContext;
+        next.startingContext = originalContext;
+        next.context = newContext;
 
         return queryGraph(next, newContext);
       });
@@ -258,7 +258,7 @@ module.exports = function(options) {
           var graph = queryGraph({
             query: query,
             context: context,
-            nextContext: context
+            startingContext: context
           }, context);
 
           if (cache) {
@@ -281,7 +281,7 @@ module.exports = function(options) {
         return queryGraph({
           query: query,
           context: context,
-          nextContext: context
+          startingContext: context
         }, context);
       });
     }

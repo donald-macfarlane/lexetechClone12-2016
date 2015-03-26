@@ -58,9 +58,9 @@ var debugComponent = prototype({
 
   renderQuery: function (query) {
     var self = this;
+    var startingContext = query.startingContext;
     var context = query.context;
     var previousContext = query.previousContext;
-    var nextContext = query.nextContext;
 
     this.loadBlocks();
     this.loadPredicants();
@@ -154,12 +154,12 @@ var debugComponent = prototype({
 
     return [
       h('div',
-        h('p', 'coherence index: ', renderContextScalars(previousContext, nextContext, 'coherenceIndex', code)),
-        h('p', 'level: ', renderContextScalars(previousContext, nextContext, 'level', code)),
+        h('p', 'coherence index: ', renderContextScalars(previousContext, context, 'coherenceIndex', code)),
+        h('p', 'level: ', renderContextScalars(previousContext, context, 'level', code)),
         this.predicants
-          ? h('p', 'predicants: ', renderContextArrays(previousContext, nextContext, contextPredicants, code))
+          ? h('p', 'predicants: ', renderContextArrays(previousContext, context, contextPredicants, code))
           : undefined,
-        h('p', 'blocks: ', renderContextArrays(previousContext, nextContext, contextBlocks, code))
+        h('p', 'blocks: ', renderContextArrays(previousContext, context, contextBlocks, code))
       ),
       h('ol.blocks',
         query.loadedBlocks
@@ -169,9 +169,9 @@ var debugComponent = prototype({
                 h('ol.block-queries', {start: '0'},
                   block.queries.map(function (q, index) {
                     var previous = compareWithContext(block.id, index, previousContext);
-                    var current = compareWithContext(block.id, index, context);
+                    var current = compareWithContext(block.id, index, startingContext);
                     var next = query.query
-                      ? compareWithContext(block.id, index, nextContext)
+                      ? compareWithContext(block.id, index, context)
                       : -1;
 
                     return h('li.block-query',

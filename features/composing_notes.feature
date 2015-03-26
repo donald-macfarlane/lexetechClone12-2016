@@ -6,6 +6,7 @@ Feature: Composing Notes
 
   Scenario: Answering questions creates notes
     Given I am at the doctors
+    And the doctor starts a new document
     When the doctor asks me "What hurts?"
     And I answer "left leg"
     And the doctor asks me "Is it bleeding?"

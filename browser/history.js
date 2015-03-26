@@ -10,7 +10,7 @@ module.exports = prototype({
     this.responsesByQueryId = {};
     this.lexemes = [];
     this.index = -1;
-    this.queryGraph = buildGraph({cache: false, hack: true});
+    this.queryGraph = buildGraph({cache: false, hack: model.graphHack !== undefined? model.graphHack: true});
     ee(this);
 
     this.rebuildHistory();
@@ -119,17 +119,17 @@ module.exports = prototype({
 
   back: function (lexeme) {
     var self = this;
-    var currentQueryResponse;
+    var currentLexeme;
 
     while(this.lexemes.length > 0) {
-      currentQueryResponse = this.lexemes.pop();
-      if (currentQueryResponse == queryResponse) {
+      currentLexeme = this.lexemes.pop();
+      if (currentLexeme == lexeme) {
         break;
       }
     }
 
-    var queryId = currentQueryResponse.query.id;
-    var context = currentQueryResponse.context;
+    var queryId = currentLexeme.query.id;
+    var context = currentLexeme.context;
     this.queryGraph.query(queryId, context).then(function (query) {
       self.emit('query', query);
     });

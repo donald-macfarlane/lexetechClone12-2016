@@ -4,6 +4,10 @@ Given(/^I am at the doctors$/) do
   visit '/'
 end
 
+Given(/^the doctor starts a new document$/) do
+  find('.button', text: 'Start new document').click
+end
+
 Given(/^the doctor has signed in with email "(.*?)" and password "(.*?)"$/) do |email, password|
   login(email, password)
 end
@@ -28,6 +32,10 @@ end
 
 Then(/^I can see the first question$/) do
   expect(page).to have_content('What hurts?')
+end
+
+Then(/^I can start a new document$/) do
+  expect(page).to have_content('Start new document')
 end
 
 Given(/^I have created a user previously with email address "(.*?)" and password "(.*?)"$/) do |email, password|

@@ -44,7 +44,7 @@ var queryComponent = prototype({
         self.refresh();
       }
     }).then(function (q) {
-      self.history.addQueryResponse(self.query.query, response, self.query.nextContext);
+      self.history.addQueryResponse(self.query.query, response, self.query.context);
       self.setQuery(q);
       self.refresh();
     });

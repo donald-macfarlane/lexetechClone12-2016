@@ -93,3 +93,7 @@ gulp.task('css', function () {
 gulp.task('server', ['watch-js', 'watch-css'], function(done) {
   shell('node server/server.js').then(done);
 });
+
+gulp.task('server-no-watch', ['js', 'css'], function(done) {
+  shell('node server/server.js').then(done);
+});
