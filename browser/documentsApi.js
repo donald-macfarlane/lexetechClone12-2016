@@ -28,6 +28,12 @@ module.exports = prototype({
 
   create: function () {
     return http.post('/api/user/documents', {lexemes: []}).then(documentPrototype);
+  },
+
+  allDocuments: function () {
+    return http.get('/api/user/documents').then(function (docs) {
+      return docs.map(documentPrototype);
+    });
   }
 });
 

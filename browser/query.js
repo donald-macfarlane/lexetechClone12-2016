@@ -4,7 +4,7 @@ var buildGraph = require('./buildGraph');
 var prototype = require('prote');
 var http = require('./http');
 var htmlEditor = require('./htmlEditor');
-var tab = require('./semantic-ui/tab');
+var semanticUi = require('plastiq-semantic-ui');
 
 var queryComponent = prototype({
   constructor: function (model) {
@@ -135,7 +135,7 @@ var queryComponent = prototype({
         h('.response-editor',
            self.showingResponse || self.editingResponse
             ? [
-              tab(
+              semanticUi.tabs(
                 h('.ui.tabular.menu',
                   h('a.item.active', {dataset: {tab: 'style1'}}, 'style1'),
                   h('a.item', {dataset: {tab: 'style2'}}, 'style2')

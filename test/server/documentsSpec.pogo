@@ -2,6 +2,7 @@ httpism = require 'httpism'
 app = require '../../server/app'
 expect = require 'chai'.expect
 lexiconBuilder = require '../lexiconBuilder'
+_ = require 'underscore'
 
 describe 'documents'
   port = 12345
@@ -28,6 +29,19 @@ describe 'documents'
     expect(response1.body.href).to.equal(response1.headers.location)
     expect(response2.body.href).to.equal(response2.headers.location)
 
+  it 'adds a lastModified field to documents as they are created'
+    response = api.post!('/api/user/documents').body
+
+    now = @new Date().getTime()
+    expect(Date.parse(response.lastModified)).to.be.within(now - 1000, now)
+
+  it 'can list documents'
+    response1 = api.post!('/api/user/documents').body
+    response2 = api.post!('/api/user/documents').body
+    list = api.get!('/api/user/documents').body
+
+    expect(list).to.eql([response2, response1])
+
   it 'can create a document, and put updates to it'
     response = api.post!('/api/user/documents')
     docUrl = response.headers.location
@@ -36,7 +50,7 @@ describe 'documents'
 
     api.post!(docUrl, doc)
 
-    expect(api.get!(docUrl).body).to.eql(doc)
+    expect(removeDate(api.get!(docUrl).body)).to.eql(removeDate(doc))
 
   it 'only the original author can see documents they create'
     user1 = httpism.api "http://user1:password@localhost:#(port)"
@@ -58,6 +72,8 @@ describe 'documents'
 
     expect(user1.get!(docUrl).body.query).to.eql("user 1's")
 
+  removeDate(obj) = _.omit(obj, 'lastModified')
+
   it 'remember the last document written to'
     expect(api.get!('/api/user/documents/current', exceptions = false).statusCode).to.eql 404
 
@@ -65,7 +81,7 @@ describe 'documents'
       query = '1'
     })
 
-    expect(api.get!('/api/user/documents/current').body).to.eql {
+    expect(removeDate(api.get!('/api/user/documents/current').body)).to.eql {
       href = '/api/user/documents/1'
       query = '1'
       id = '1'
@@ -75,7 +91,7 @@ describe 'documents'
       query = '2'
     })
 
-    expect(api.get!('/api/user/documents/current').body).to.eql {
+    expect(removeDate(api.get!('/api/user/documents/current').body)).to.eql {
       href = '/api/user/documents/2'
       query = '2'
       id = '2'
@@ -85,7 +101,7 @@ describe 'documents'
       query = '1, altered'
     })
 
-    expect(api.get!('/api/user/documents/current').body).to.eql {
+    expect(removeDate(api.get!('/api/user/documents/current').body)).to.eql {
       href = '/api/user/documents/1'
       query = '1, altered'
       id = '1'
@@ -95,7 +111,7 @@ describe 'documents'
       query = '2, altered'
     })
 
-    expect(api.get!('/api/user/documents/current').body).to.eql {
+    expect(removeDate(api.get!('/api/user/documents/current').body)).to.eql {
       href = '/api/user/documents/2'
       query = '2, altered'
       id = '2'

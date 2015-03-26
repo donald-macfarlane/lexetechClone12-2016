@@ -9,6 +9,7 @@ var documentsApi = require('./documentsApi')();
 var router = require('./router');
 var buildGraph = require('./buildGraph');
 var lexemeApi = require('./lexemeApi');
+var startReportComponent = require('./startReportComponent');
 
 var rootComponent = prototype({
   constructor: function (pageData) {
@@ -16,6 +17,10 @@ var rootComponent = prototype({
     this.flash = pageData.flash;
     this.graphHack = pageData.graphHack;
     this.documentsApi = documentsApi;
+    this.startReport = startReportComponent({
+      documentsApi: documentsApi,
+      root: {openDocument: this.openDocument.bind(this)}
+    });
   },
 
   openDocumentById: function (docId) {
@@ -52,21 +57,6 @@ var rootComponent = prototype({
     });
   },
 
-  createDocument: function () {
-    var self = this;
-
-    return this.documentsApi.create().then(function (doc) {
-      self.openDocument(doc);
-    });
-  },
-
-  loadPreviousDocument: function () {
-    var self = this;
-
-    return this.documentsApi.currentDocument().then(function (doc) {
-      self.openDocument(doc);
-    });
-  },
 
   render: function () {
     var self = this;
@@ -90,10 +80,7 @@ var rootComponent = prototype({
                   ? self.report.render()
                   : h('h1', 'loading')
               )
-              : h('.app',
-                  h('.ui.basic.button', {onclick: self.createDocument.bind(self)}, 'Start new document'),
-                  h('.ui.basic.button', {onclick: self.loadPreviousDocument.bind(self)}, 'Load previous document')
-                )
+              : router.root(self.startReport.render())
       );
     });
   }

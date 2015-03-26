@@ -225,6 +225,10 @@ function removeHref(document) {
   delete document.href;
 }
 
+function addLastModified(doc) {
+  doc.lastModified = new Date().toISOString();
+}
+
 function addDocumentHref(document, req) {
   document.href = req.baseUrl + "/user/documents/" + document.id;
   return document;
@@ -235,6 +239,7 @@ app.post("/user/documents", function(req, res) {
 
   var doc = req.body;
   removeHref(doc);
+  addLastModified(doc);
   db.createDocument(req.user.id, doc).then(function(document) {
     addDocumentHref(document, req);
     res.set("location", document.href);
@@ -242,10 +247,22 @@ app.post("/user/documents", function(req, res) {
   });
 });
 
+app.get('/user/documents', function (req, res) {
+  var db = app.get("db");
+
+  db.documents(req.user.id).then(function (docs) {
+    docs.forEach(function (doc) {
+      addDocumentHref(doc, req);
+    });
+    res.send(docs);
+  });
+});
+
 app.post("/user/documents/:id", function(req, res) {
   var db = app.get("db");
   var document = req.body;
   removeHref(document);
+  addLastModified(document);
   db.writeDocument(req.user.id, req.params.id, document).then(function() {
     addDocumentHref(document, req);
     res.send(document);

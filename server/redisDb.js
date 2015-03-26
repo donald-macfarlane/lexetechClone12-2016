@@ -498,6 +498,12 @@ module.exports = function() {
       return client.get("last_user_document:" + userId).then(function(id) {
         return domainObject("user_documents:" + userId).get(id);
       });
+    },
+
+    documents: function (userId) {
+      return domainObject("user_documents:" + userId).list().then(function (docs) {
+        return _.sortBy(docs, 'lastModified').reverse();
+      });
     }
   };
 };
