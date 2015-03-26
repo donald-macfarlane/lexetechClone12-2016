@@ -1,4 +1,5 @@
 var cache = require("../common/cache");
+var Promise = require('bluebird');
 
 module.exports = function(options) {
   var http = (options && options.hasOwnProperty('http'))? options.http: require('./http');
