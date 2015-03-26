@@ -328,7 +328,7 @@ module.exports () =
     readDocument(userId, id, document) =
       domainObject("user_documents:#(userId)").get!(id)
 
-    lastDocument(userId) =
+    currentDocument(userId) =
       id = client.get!("last_user_document:#(userId)")
       domainObject("user_documents:#(userId)").get!(id)
   }

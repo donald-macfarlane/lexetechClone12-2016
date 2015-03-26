@@ -55,3 +55,16 @@ describe 'cache'
         ++computed
 
     expect(computed).to.eql 1
+
+  describe 'add'
+    it 'doesnt compute a value for a key if it has already been added'
+      computed = 0
+      c = cache()
+
+      c.add 'key' 'value'
+
+      value = c.cacheBy 'key'
+        ++computed
+        'computed value'
+
+      expect(value).to.equal 'value'

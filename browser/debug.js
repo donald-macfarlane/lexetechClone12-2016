@@ -1,23 +1,22 @@
 var h = require('plastiq').html;
 var _ = require('underscore');
 var Promise = require('bluebird');
-var http = require('./http');
 var lexemeApi = require('./lexemeApi');
 var prototype = require('prote');
 
 var api = lexemeApi();
 
 var debugComponent = prototype({
-  constructor: function (model) {
-    var self = this;
-    self.model = model;
+  constructor: function (options) {
+    this.currentQuery = options.currentQuery;
+    this.lexemeApi = options.lexemeApi;
   },
 
   refresh: function () {},
 
   loadBlocks: function () {
     var self = this;
-    var query = self.model.currentQuery();
+    var query = self.currentQuery();
 
     if (!query.loadedBlocks && query.blocksSearched) {
       return Promise.map(query.blocksSearched.map(function (blockId) {
@@ -49,7 +48,7 @@ var debugComponent = prototype({
     if (!this.predicants) {
       var self = this;
 
-      http.get('/api/predicants').then(function (predicants) {
+      this.lexemeApi.predicants().then(function (predicants) {
         self.predicants = predicants;
         self.refresh();
       });
@@ -197,7 +196,7 @@ var debugComponent = prototype({
 
   render: function () {
     var self = this;
-    var query = this.model.currentQuery();
+    var query = this.currentQuery();
 
     this.refresh = h.refresh;
 

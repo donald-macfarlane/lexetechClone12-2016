@@ -5,12 +5,12 @@ var ee = require('event-emitter');
 var createContext = require('./context');
 
 module.exports = prototype({
-  constructor: function (model) {
-    this.document = model.document;
+  constructor: function (options) {
+    this.document = options.document;
     this.responsesByQueryId = {};
     this.lexemes = [];
     this.index = -1;
-    this.queryGraph = buildGraph({cache: false, hack: model.graphHack !== undefined? model.graphHack: true});
+    this.queryGraph = options.queryGraph;
     ee(this);
 
     this.rebuildHistory();

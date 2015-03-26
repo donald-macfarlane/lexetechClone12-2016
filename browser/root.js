@@ -7,6 +7,8 @@ var signup = require('./signup');
 var layout = require('./layout');
 var documentsApi = require('./documentsApi')();
 var router = require('./router');
+var buildGraph = require('./buildGraph');
+var lexemeApi = require('./lexemeApi');
 
 var rootComponent = prototype({
   constructor: function (pageData) {
@@ -24,16 +26,44 @@ var rootComponent = prototype({
     });
   },
 
+  lexemeApi: function () {
+    return this._lexemeApi || (
+      this._lexemeApi = lexemeApi()
+    );
+  },
+
+  queryGraph: function () {
+    return this._queryGraph || (
+      this._queryGraph = buildGraph({
+        hack: this.graphHack !== undefined? this.graphHack: true,
+        lexemeApi: this.lexemeApi()
+      })
+    );
+  },
+
   openDocument: function (doc) {
     this.document = doc;
     this.documentId = doc.id;
-    this.report = reportComponent({user: this.user, document: doc, graphHack: this.graphHack});
+    this.report = reportComponent({
+      user: this.user,
+      document: doc,
+      queryGraph: this.queryGraph(),
+      lexemeApi: this.lexemeApi()
+    });
   },
 
   createDocument: function () {
     var self = this;
 
     return this.documentsApi.create().then(function (doc) {
+      self.openDocument(doc);
+    });
+  },
+
+  loadPreviousDocument: function () {
+    var self = this;
+
+    return this.documentsApi.currentDocument().then(function (doc) {
       self.openDocument(doc);
     });
   },
@@ -62,7 +92,7 @@ var rootComponent = prototype({
               )
               : h('.app',
                   h('.ui.basic.button', {onclick: self.createDocument.bind(self)}, 'Start new document'),
-                  h('.ui.basic.button', {onclick: self.createDocument.bind(self)}, 'Load previous document')
+                  h('.ui.basic.button', {onclick: self.loadPreviousDocument.bind(self)}, 'Load previous document')
                 )
       );
     });

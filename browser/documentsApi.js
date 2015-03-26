@@ -1,17 +1,21 @@
 var http = require('./http');
 var prototype = require('prote');
+var _ = require('underscore');
 
 var documentPrototype = prototype({
   update: function (doc) {
-    return http.post(this.href, doc);
+    _.extend(this, doc);
+    return http.post(this.href, this);
   }
 });
 
 module.exports = prototype({
   currentDocument: function () {
+    var self = this;
+
     return http.get('/api/user/documents/current').then(undefined, function (error) {
-      return http.post('/api/user/documents', {});
-    }).then(documentPrototype);
+      return self.create();
+    });
   },
 
   document: function (id) {

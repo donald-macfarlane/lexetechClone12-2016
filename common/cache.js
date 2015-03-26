@@ -12,6 +12,10 @@ module.exports = function() {
       }
     },
 
+    add: function (key, value) {
+      cache[key] = value;
+    },
+
     onceBy: function(key, block) {
       var value = cache[key];
 

@@ -252,9 +252,9 @@ app.post("/user/documents/:id", function(req, res) {
   });
 });
 
-app.get("/user/documents/last", function(req, res) {
+app.get("/user/documents/current", function(req, res) {
   var db = app.get("db");
-  db.lastDocument(req.user.id).then(function(doc) {
+  db.currentDocument(req.user.id).then(function(doc) {
     if (doc) {
       addDocumentHref(doc, req);
       res.send(doc);

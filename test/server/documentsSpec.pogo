@@ -59,13 +59,13 @@ describe 'documents'
     expect(user1.get!(docUrl).body.query).to.eql("user 1's")
 
   it 'remember the last document written to'
-    expect(api.get!('/api/user/documents/last', exceptions = false).statusCode).to.eql 404
+    expect(api.get!('/api/user/documents/current', exceptions = false).statusCode).to.eql 404
 
     response1 = api.post!('/api/user/documents', {
       query = '1'
     })
 
-    expect(api.get!('/api/user/documents/last').body).to.eql {
+    expect(api.get!('/api/user/documents/current').body).to.eql {
       href = '/api/user/documents/1'
       query = '1'
       id = '1'
@@ -75,7 +75,7 @@ describe 'documents'
       query = '2'
     })
 
-    expect(api.get!('/api/user/documents/last').body).to.eql {
+    expect(api.get!('/api/user/documents/current').body).to.eql {
       href = '/api/user/documents/2'
       query = '2'
       id = '2'
@@ -85,7 +85,7 @@ describe 'documents'
       query = '1, altered'
     })
 
-    expect(api.get!('/api/user/documents/last').body).to.eql {
+    expect(api.get!('/api/user/documents/current').body).to.eql {
       href = '/api/user/documents/1'
       query = '1, altered'
       id = '1'
@@ -95,7 +95,7 @@ describe 'documents'
       query = '2, altered'
     })
 
-    expect(api.get!('/api/user/documents/last').body).to.eql {
+    expect(api.get!('/api/user/documents/current').body).to.eql {
       href = '/api/user/documents/2'
       query = '2, altered'
       id = '2'
