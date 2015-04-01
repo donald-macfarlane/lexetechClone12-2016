@@ -3,20 +3,19 @@ app = require '../../server/app'
 expect = require 'chai'.expect
 lexiconBuilder = require '../lexiconBuilder'
 _ = require 'underscore'
+Document = require '../../server/models/document'
 
 describe 'documents'
   port = 12345
   api = httpism.api "http://user:password@localhost:#(port)"
   server = nil
-  db = nil
   lexicon = nil
 
   beforeEach
-    db := app.get 'db'
     app.set 'apiUsers' { "user:password" = true }
     server := app.listen (port)
     lexicon := lexiconBuilder()
-    db.clear()!
+    Document.remove {} ^!
 
   afterEach
     server.close()
@@ -78,41 +77,25 @@ describe 'documents'
     expect(api.get!('/api/user/documents/current', exceptions = false).statusCode).to.eql 404
 
     response1 = api.post!('/api/user/documents', {
-      query = '1'
+      query = 'query 1'
     })
 
-    expect(removeDate(api.get!('/api/user/documents/current').body)).to.eql {
-      href = '/api/user/documents/1'
-      query = '1'
-      id = '1'
-    }
+    expect(api.get!('/api/user/documents/current').body.query).to.eql 'query 1'
 
     response2 = api.post!('/api/user/documents', {
-      query = '2'
+      query = 'query 2'
     })
 
-    expect(removeDate(api.get!('/api/user/documents/current').body)).to.eql {
-      href = '/api/user/documents/2'
-      query = '2'
-      id = '2'
-    }
+    expect(api.get!('/api/user/documents/current').body.query).to.eql 'query 2'
 
     api.post!(response1.headers.location, {
-      query = '1, altered'
+      query = 'query 1, altered'
     })
 
-    expect(removeDate(api.get!('/api/user/documents/current').body)).to.eql {
-      href = '/api/user/documents/1'
-      query = '1, altered'
-      id = '1'
-    }
+    expect(api.get!('/api/user/documents/current').body.query).to.eql 'query 1, altered'
 
     api.post!(response2.headers.location, {
-      query = '2, altered'
+      query = 'query 2, altered'
     })
 
-    expect(removeDate(api.get!('/api/user/documents/current').body)).to.eql {
-      href = '/api/user/documents/2'
-      query = '2, altered'
-      id = '2'
-    }
+    expect(api.get!('/api/user/documents/current').body.query).to.eql 'query 2, altered'

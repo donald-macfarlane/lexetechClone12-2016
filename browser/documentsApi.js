@@ -13,7 +13,7 @@ module.exports = prototype({
   currentDocument: function () {
     var self = this;
 
-    return http.get('/api/user/documents/current').then(undefined, function (error) {
+    return http.get('/api/user/documents/current').then(documentPrototype, function (error) {
       return self.create();
     });
   },

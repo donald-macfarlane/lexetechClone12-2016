@@ -3,6 +3,7 @@ var express = require("express");
 var _ = require("underscore");
 var githubContent = require("./githubContent");
 var app = express();
+var mongoDb = require('./mongoDb');
 
 function backup(redisDb, backupHttpism) {
   var github = githubContent(backupHttpism);
@@ -221,6 +222,19 @@ app.delete("/user/queries/:queryId", function(req, res) {
   });
 });
 
+function incomingDocument(document) {
+  removeHref(document);
+  addLastModified(document);
+}
+
+function outgoingDocument(document, req) {
+  document.id = document._id;
+  delete document._id;
+  delete document.__v;
+  delete document.userId;
+  addDocumentHref(document, req);
+}
+
 function removeHref(document) {
   delete document.href;
 }
@@ -235,45 +249,38 @@ function addDocumentHref(document, req) {
 }
 
 app.post("/user/documents", function(req, res) {
-  var db = app.get("db");
-
   var doc = req.body;
-  removeHref(doc);
-  addLastModified(doc);
-  db.createDocument(req.user.id, doc).then(function(document) {
-    addDocumentHref(document, req);
+  incomingDocument(doc);
+  mongoDb.createDocument(req.user.id, doc).then(function(document) {
+    outgoingDocument(document, req);
     res.set("location", document.href);
     res.send(document);
   });
 });
 
 app.get('/user/documents', function (req, res) {
-  var db = app.get("db");
-
-  db.documents(req.user.id).then(function (docs) {
+  mongoDb.documents(req.user.id).then(function (docs) {
     docs.forEach(function (doc) {
-      addDocumentHref(doc, req);
+      outgoingDocument(doc, req);
     });
     res.send(docs);
   });
 });
 
 app.post("/user/documents/:id", function(req, res) {
-  var db = app.get("db");
   var document = req.body;
   removeHref(document);
   addLastModified(document);
-  db.writeDocument(req.user.id, req.params.id, document).then(function() {
-    addDocumentHref(document, req);
+  mongoDb.writeDocument(req.user.id, req.params.id, document).then(function() {
+    outgoingDocument(document, req);
     res.send(document);
   });
 });
 
 app.get("/user/documents/current", function(req, res) {
-  var db = app.get("db");
-  db.currentDocument(req.user.id).then(function(doc) {
+  mongoDb.currentDocument(req.user.id).then(function(doc) {
     if (doc) {
-      addDocumentHref(doc, req);
+      outgoingDocument(doc, req);
       res.send(doc);
     } else {
       res.status(404).send({
@@ -284,10 +291,9 @@ app.get("/user/documents/current", function(req, res) {
 });
 
 app.get("/user/documents/:id", function(req, res) {
-  var db = app.get("db");
-  db.readDocument(req.user.id, req.params.id).then(function(doc) {
+  mongoDb.readDocument(req.user.id, req.params.id).then(function(doc) {
     if (doc) {
-      addDocumentHref(doc, req);
+      outgoingDocument(doc, req);
       res.send(doc);
     } else {
       res.status(404).send({

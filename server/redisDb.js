@@ -472,38 +472,6 @@ module.exports = function() {
 
     blockQueries: function(blockId) {
       return blockQueries.list(blockId);
-    },
-
-    createDocument: function(userId, document) {
-      return domainObject("user_documents:" + userId).add(document).then(function() {
-        return client.set("last_user_document:" + userId, document.id).then(function() {
-          return document;
-        });
-      });
-    },
-
-    writeDocument: function(userId, id, document) {
-      return domainObject("user_documents:" + userId).update(id, document).then(function() {
-        return client.set("last_user_document:" + userId, document.id).then(function() {
-          return document;
-        });
-      });
-    },
-
-    readDocument: function(userId, id, document) {
-      return domainObject("user_documents:" + userId).get(id);
-    },
-
-    currentDocument: function(userId) {
-      return client.get("last_user_document:" + userId).then(function(id) {
-        return domainObject("user_documents:" + userId).get(id);
-      });
-    },
-
-    documents: function (userId) {
-      return domainObject("user_documents:" + userId).list().then(function (docs) {
-        return _.sortBy(docs, 'lastModified').reverse();
-      });
     }
   };
 };
