@@ -1,5 +1,5 @@
 createTestDiv = require './createTestDiv'
-$ = require 'jquery'
+$ = require '../../browser/jquery'
 expect = require 'chai'.expect
 sendclick = require './sendclick'
 

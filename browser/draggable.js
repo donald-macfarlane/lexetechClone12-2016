@@ -1,5 +1,5 @@
 var React = require('react');
-$ = require('jquery')
+$ = require('./jquery')
 
 module.exports = function (options) {
   options = options || {};

@@ -1,4 +1,4 @@
-$ = require 'jquery'
+$ = require '../../browser/jquery'
 
 module.exports(el) =
   event = new (MouseEvent 'click' {

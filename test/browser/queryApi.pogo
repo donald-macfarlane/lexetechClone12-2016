@@ -1,5 +1,3 @@
-$ = window.$ = window.jQuery = require 'jquery'
-require 'jquery-mockjax'
 createRouter = require 'mockjax-router'
 _ = require 'underscore'
 

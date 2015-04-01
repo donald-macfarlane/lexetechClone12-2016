@@ -1,7 +1,7 @@
 retry = require 'trytryagain'
 lexeme = require '../../browser/lexeme'
 createTestDiv = require './createTestDiv'
-$ = require 'jquery'
+$ = require '../../browser/jquery'
 expect = require 'chai'.expect
 plastiq = require 'plastiq'
 rootComponent = require '../../browser/root'
@@ -192,193 +192,44 @@ describe 'report'
       shouldHaveQuery 'Where does it hurt?'!
       selectResponse 'left leg'!
 
-      retry!
-        expected = [{
-          id = '1'
-          href = '/api/user/documents/1'
-          index = 0
-          lexemes = [
+      simplifyDocuments(docs) =
+        docs.map @(doc)
+          doc.lexemes.map @(lexeme)
             {
-              query = {
-                id = '1'
-                name = 'query1'
-              }
-              context = {
-                coherenceIndex = 0
-                block = '1'
-                blocks = []
-                level = 1
-                predicants = {}
-                blockStack = []
-              }
-              response = {
-                id = '1'
-                text = 'left leg'
-                repeat = false
-                styles = {
-                  style1 = "Complaint\n---------\nleft leg "
-                }
-              }
+              query = lexeme.query.id
+              response = lexeme.response.id
             }
+
+      retry!
+        expect(simplifyDocuments(api.documents)).to.eql [
+          [
+            { query = '1', response = '1' }
           ]
-        }]
-        try
-          expect(api.documents).to.eql (expected)
-        catch(e)
-          console.log('expected', JSON.stringify(expected, nil, 2))
-          console.log('actual', JSON.stringify(api.documents, nil, 2))
-          throw (e)
+        ]
 
       shouldHaveQuery 'Is it bleeding?'!
       selectResponse 'yes'!
 
       retry!
-        expected = [
-          {
-            id = '1'
-            href = '/api/user/documents/1'
-            index = 1
-            lexemes = [
-              {
-                query = {
-                  id = '1'
-                  name = 'query1'
-                }
-                context = {
-                  coherenceIndex = 0
-                  block = '1'
-                  blocks = []
-                  level = 1
-                  predicants = {}
-                  blockStack = []
-                }
-                response = {
-                  id = '1'
-                  text = 'left leg'
-                  repeat = false
-                  styles = {
-                    style1 = "Complaint\n---------\nleft leg "
-                  }
-                }
-              }
-              {
-                query = {
-                  id = '2'
-                  name = 'query2'
-                }
-                context = {
-                  coherenceIndex = 1
-                  block = '1'
-                  blocks = []
-                  level = 1
-                  predicants = {}
-                  blockStack = []
-                }
-                response = {
-                  id = '1'
-                  text = 'yes'
-                  repeat = false
-                  styles = {
-                    style1 = 'bleeding'
-                  }
-                }
-              }
-            ]
-          }
+        expect(simplifyDocuments(api.documents)).to.eql [
+          [
+            { query = '1', response = '1' }
+            { query = '2', response = '1' }
+          ]
         ]
-        try
-          expect(api.documents).to.eql (expected)
-        catch(e)
-          console.log('expected', JSON.stringify(expected, nil, 2))
-          console.log('actual', JSON.stringify(api.documents, nil, 2))
-          throw (e)
 
       shouldHaveQuery 'Is it aching?'!
       selectResponse 'yes'!
       shouldBeFinished()!
 
       retry!
-        expected = [
-          {
-            id = '1'
-            href = '/api/user/documents/1'
-            index = 2
-            lexemes = [
-              {
-                query = {
-                  id = '1'
-                  name = 'query1'
-                }
-                context = {
-                  coherenceIndex = 0
-                  block = '1'
-                  blocks = []
-                  level = 1
-                  predicants = {}
-                  blockStack = []
-                }
-                response = {
-                  id = '1'
-                  text = 'left leg'
-                  repeat = false
-                  styles = {
-                    style1 = "Complaint\n---------\nleft leg "
-                  }
-                }
-              }
-              {
-                query = {
-                  id = '2'
-                  name = 'query2'
-                }
-                context = {
-                  coherenceIndex = 1
-                  block = '1'
-                  blocks = []
-                  level = 1
-                  predicants = {}
-                  blockStack = []
-                }
-                response = {
-                  id = '1'
-                  text = 'yes'
-                  repeat = false
-                  styles = {
-                    style1 = 'bleeding'
-                  }
-                }
-              }
-              {
-                query = {
-                  id = '3'
-                  name = 'query3'
-                }
-                context = {
-                  coherenceIndex = 2
-                  block = '1'
-                  blocks = []
-                  level = 1
-                  predicants = {}
-                  blockStack = []
-                }
-                response = {
-                  id = '1'
-                  text = 'yes'
-                  repeat = false
-                  styles = {
-                    style1 = ', aching'
-                  }
-                }
-              }
-            ]
-          }
+        expect(simplifyDocuments(api.documents)).to.eql [
+          [
+            { query = '1', response = '1' }
+            { query = '2', response = '1' }
+            { query = '3', response = '1' }
+          ]
         ]
-        try
-          expect(api.documents).to.eql (expected)
-        catch(e)
-          console.log('expected', JSON.stringify(expected, nil, 2))
-          console.log('actual', JSON.stringify(api.documents, nil, 2))
-          throw (e)
 
       notesShouldBe! "Complaint
                       ---------

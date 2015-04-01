@@ -1,4 +1,4 @@
-jquery = require 'jquery'
+jquery = require './jquery'
 
 send (method, url, body) =
   jquery.ajax! {
