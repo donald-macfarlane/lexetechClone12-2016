@@ -3,7 +3,7 @@ ReactRouter = require 'react-router'
 Link = React.createFactory(ReactRouter.Link)
 r = React.createElement
 
-module.exports = React.createFactory(React.createClass {
+module.exports = React.createClass {
   render() =
     if (self.props.user)
       r 'div' { className = 'tabs' } (
@@ -12,4 +12,4 @@ module.exports = React.createFactory(React.createClass {
       )
     else
       r 'div' { className = 'tabs' }
-})
+}

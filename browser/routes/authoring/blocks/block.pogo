@@ -6,7 +6,6 @@ r = React.createElement
 Navigation = ReactRouter.Navigation
 _ = require 'underscore'
 queryComponent = require './queries/query'
-sortable = require './sortable'
 moveItemInFromTo = require './moveItemInFromTo'
 $ = require '../../../jquery'
 blockName = require './blockName'
@@ -20,7 +19,7 @@ MenuItem = reactBootstrap.MenuItem
 blockPrototype = prototype {
 }
 
-module.exports = React.createFactory(React.createClass {
+module.exports = React.createClass {
   mixins = [State, Navigation]
 
   getInitialState() =
@@ -72,7 +71,7 @@ module.exports = React.createFactory(React.createClass {
     if (block)
       [
         q <- block.queries
-        q.id == self.getParams().queryId
+        q.id == self.context.router.getCurrentParams().queryId
         q
       ].0
 
@@ -140,22 +139,22 @@ module.exports = React.createFactory(React.createClass {
     self.loadClipboard()
 
   loadQuery() =
-    if (self.getParams().queryId)
-      if (self.queryId() != self.getParams().queryId)
+    if (self.context.router.getCurrentParams().queryId)
+      if (self.queryId() != self.context.router.getCurrentParams().queryId)
         query = self.query()
         if (query)
           self.setState { selectedQuery = query }
-    else if (self.getRoutes().(self.getRoutes().length - 1).name == 'create_query')
+    else if (self.context.router.getCurrentRoutes().(self.context.router.getCurrentRoutes().length - 1).name == 'create_query')
       if (@not self.isNewQuery())
         self.setState { selectedQuery = queryComponent.create {} }
     else
       self.setState { selectedQuery = nil }
     
   loadBlock() =
-    if (self.getParams().blockId)
-      if (self.blockId() != self.getParams().blockId)
+    if (self.context.router.getCurrentParams().blockId)
+      if (self.blockId() != self.context.router.getCurrentParams().blockId)
         self.setState { selectedBlock = self.block(), dirty = false }
-    else if (self.getRoutes().(self.getRoutes().length - 1).name == 'create_block')
+    else if (self.context.router.getCurrentRoutes().(self.context.router.getCurrentRoutes().length - 1).name == 'create_block')
       if (@not self.isNewBlock())
         self.setState { selectedBlock = { block = {} } }
     else
@@ -174,10 +173,10 @@ module.exports = React.createFactory(React.createClass {
     self.state.selectedQuery @and @not self.state.selectedQuery.id
     
   block() =
-    [b <- self.state.blocks, b.block.id == self.getParams().blockId, b].0
+    [b <- self.state.blocks, b.block.id == self.context.router.getCurrentParams().blockId, b].0
     
   addQuery () =
-    self.transitionTo('create_query', { blockId = self.blockId() })
+    self.context.router.transitionTo('create_query', { blockId = self.blockId() })
 
   nameChanged(e) =
     self.state.selectedBlock.block.name = e.target.value
@@ -193,13 +192,13 @@ module.exports = React.createFactory(React.createClass {
   create() =
     id = self.props.http.post("/api/blocks", self.state.selectedBlock.block)!.id
     self.loadBlocks()
-    self.replaceWith 'block' { blockId = id }
+    self.context.router.replaceWith 'block' { blockId = id }
 
   delete() =
     self.state.selectedBlock.block.deleted = true
     self.props.http.post("/api/blocks/#(self.blockId())", self.state.selectedBlock.block)!
     self.loadBlocks()
-    self.replaceWith 'authoring'
+    self.context.router.replaceWith 'authoring'
 
   pasteQueryFromClipboard(query) =
     if (query :: Function)
@@ -215,12 +214,12 @@ module.exports = React.createFactory(React.createClass {
         }
 
   cancel() =
-    self.transitionTo('authoring')
+    self.context.router.transitionTo('authoring')
 
   createQuery(q) =
     id = self.props.http.post("/api/blocks/#(self.blockId())/queries", q)!.id
     self.state.selectedBlock.update()
-    self.replaceWith 'query' { blockId = self.blockId(), queryId = id }
+    self.context.router.replaceWith 'query' { blockId = self.blockId(), queryId = id }
 
   updateQuery(q) =
     self.props.http.post("/api/blocks/#(self.blockId())/queries/#(q.id)", q)!
@@ -231,24 +230,24 @@ module.exports = React.createFactory(React.createClass {
     q.id = nil
     query = self.props.http.post("/api/blocks/#(self.blockId())/queries", q)!
     self.state.selectedBlock.update()
-    self.replaceWith 'query' { blockId = self.blockId(), queryId = query.id }
+    self.context.router.replaceWith 'query' { blockId = self.blockId(), queryId = query.id }
 
   insertQueryAfter(q) =
     q.after = q.id
     q.id = nil
     query = self.props.http.post("/api/blocks/#(self.blockId())/queries", q)!
     self.state.selectedBlock.update()
-    self.replaceWith 'query' { blockId = self.blockId(), queryId = query.id }
+    self.context.router.replaceWith 'query' { blockId = self.blockId(), queryId = query.id }
 
   removeQuery(q) =
     q.deleted = true
     self.props.http.post ("/api/blocks/#(self.blockId())/queries/#(q.id)", q)!
     self.setState { selectedQuery = nil }
     self.state.selectedBlock.update()
-    self.replaceWith 'block' { blockId = self.blockId() }
+    self.context.router.replaceWith 'block' { blockId = self.blockId() }
 
   addBlock() =
-    self.transitionTo 'create_block'
+    self.context.router.transitionTo 'create_block'
 
   toggleClipboard(ev) =
     ev.preventDefault()
@@ -287,7 +286,7 @@ module.exports = React.createFactory(React.createClass {
               tree <- queries
 
               selectQuery(ev) =
-                self.replaceWith 'query' { blockId = block.id, queryId = tree.query.id }
+                self.context.router.replaceWith 'query' { blockId = block.id, queryId = tree.query.id }
                 ev.stopPropagation()
 
               show(ev) =
@@ -329,7 +328,7 @@ module.exports = React.createFactory(React.createClass {
               block = blockViewModel.block
 
               selectBlock(ev) =
-                self.replaceWith 'block' { blockId = block.id }
+                self.context.router.replaceWith 'block' { blockId = block.id }
                 ev.stopPropagation()
 
               show(ev) =
@@ -366,7 +365,7 @@ module.exports = React.createFactory(React.createClass {
 
       if (self.state.selectedBlock @and self.state.selectedBlock.block)
         addQuery() =
-          self.transitionTo 'create_query' { blockId = self.blockId() }
+          self.context.router.transitionTo 'create_query' { blockId = self.blockId() }
 
         r 'div' { className = 'edit-block' } (
           r 'h2' {} ('Block')
@@ -401,7 +400,7 @@ module.exports = React.createFactory(React.createClass {
           if (self.state.selectedQuery)
             [
               r 'hr' {}
-              queryComponent {
+              React.createElement(queryComponent, {
                 http = self.props.http
                 query = self.state.selectedQuery
                 removeQuery = self.removeQuery
@@ -411,10 +410,10 @@ module.exports = React.createFactory(React.createClass {
                 insertQueryAfter = self.insertQueryAfter
                 pasteQueryFromClipboard = self.pasteQueryFromClipboard
                 addToClipboard = self.addToClipboard
-              }
+              })
             ]
         )
       else
         r 'div' {}
     )
-})
+}

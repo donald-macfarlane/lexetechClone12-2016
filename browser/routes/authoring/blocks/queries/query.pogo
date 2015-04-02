@@ -14,7 +14,7 @@ MenuItem = reactBootstrap.MenuItem
 
 clone(obj) = JSON.parse(JSON.stringify(obj))
 
-module.exports = React.createFactory(React.createClass {
+module.exports = React.createClass {
   mixins = [ReactRouter.State, Navigation]
 
   getInitialState() =
@@ -131,19 +131,19 @@ module.exports = React.createFactory(React.createClass {
           self.renderAction(action, remove)
         ]
       )
-      DropdownButton {title = 'Add Action'} (
+      r (DropdownButton) {title = 'Add Action'} (
         if (@not hasRepeat @and @not hasSetOrAddBlocks)
-          MenuItem { onClick = addActionClick @{ { name = 'setBlocks', arguments = [] } } } ('Set Blocks')
+          r (MenuItem) { onClick = addActionClick @{ { name = 'setBlocks', arguments = [] } } } ('Set Blocks')
 
         if (@not hasRepeat @and @not hasSetOrAddBlocks)
-          MenuItem { onClick = addActionClick @{ { name = 'addBlocks', arguments = [] } } } ('Add Blocks')
+          r (MenuItem) { onClick = addActionClick @{ { name = 'addBlocks', arguments = [] } } } ('Add Blocks')
 
-        MenuItem { onClick = addActionClick @{ { name = 'email', arguments = [] } } } ('Email')
-        MenuItem { onClick = addActionClick @{ { name = 'repeatLexeme', arguments = [] } } } ('Repeat')
-        MenuItem { onClick = addActionClick @{ { name = 'setVariable', arguments = ['', ''] } } } ('Set Variable')
-        MenuItem { onClick = addActionClick @{ { name = 'suppressPunctuation', arguments = [] } } } ('Suppress Punctuation')
-        MenuItem { onClick = addActionClick @{ { name = 'loadFromFile', arguments = [] } } } ('Load from File')
-        MenuItem { onClick = addActionClick @{ { name = 'setGender', arguments = [] } } } ('Set Gender')
+        r (MenuItem) { onClick = addActionClick @{ { name = 'email', arguments = [] } } } ('Email')
+        r (MenuItem) { onClick = addActionClick @{ { name = 'repeatLexeme', arguments = [] } } } ('Repeat')
+        r (MenuItem) { onClick = addActionClick @{ { name = 'setVariable', arguments = ['', ''] } } } ('Set Variable')
+        r (MenuItem) { onClick = addActionClick @{ { name = 'suppressPunctuation', arguments = [] } } } ('Suppress Punctuation')
+        r (MenuItem) { onClick = addActionClick @{ { name = 'loadFromFile', arguments = [] } } } ('Load from File')
+        r (MenuItem) { onClick = addActionClick @{ { name = 'setGender', arguments = [] } } } ('Set Gender')
       )
     )
 
@@ -190,11 +190,11 @@ module.exports = React.createFactory(React.createClass {
             self.update()
 
           [
-            sortable {
+            React.createElement(sortable, {
               itemMoved = itemMoved
               render = renderArguments
-            }
-            itemSelect({
+            })
+            React.createElement(itemSelect, {
               onAdd = addBlock
               onRemove = removeBlock
               selectedItems = action.arguments
@@ -305,13 +305,13 @@ module.exports = React.createFactory(React.createClass {
           )
         ]
 
-        itemSelect({
+        r (itemSelect) {
           onAdd = addPredicant
           onRemove = removePredicant
           selectedItems = predicants
           items = self.state.predicants
           placeholder = 'add predicant'
-        })
+        }
     )
 
   save() =
@@ -353,7 +353,7 @@ module.exports = React.createFactory(React.createClass {
     }
 
   close() =
-    self.transitionTo('block', { blockId = self.getParams().blockId })
+    self.context.router.transitionTo('block', { blockId = self.getParams().blockId })
 
   addToClipboard() =
     self.props.addToClipboard(self.state.query)
@@ -447,11 +447,11 @@ module.exports = React.createFactory(React.createClass {
                             )
                             r 'li' { className = 'style1' } (
                               r 'label' {} 'Style 1'
-                              editor { onChange = self.bindHtml(response.styles, 'style1'), value = self.textValue(response.styles.style1) }
+                              React.createElement(editor, { onChange = self.bindHtml(response.styles, 'style1'), value = self.textValue(response.styles.style1) })
                             )
                             r 'li' { className = 'style2' } (
                               r 'label' {} 'Style 2'
-                              editor { onChange = self.bindHtml(response.styles, 'style2'), value = self.textValue(response.styles.style2) }
+                              React.createElement(editor, { onChange = self.bindHtml(response.styles, 'style2'), value = self.textValue(response.styles.style2) })
                             )
                             r 'li' { className = 'actions' } (
                               r 'label' {} 'Actions'
@@ -475,7 +475,7 @@ module.exports = React.createFactory(React.createClass {
               self.update()
 
             if (@not self.state.selectedResponse)
-              sortable {
+              r (sortable) {
                 itemMoved = itemMoved
                 render = render
               }
@@ -486,9 +486,9 @@ module.exports = React.createFactory(React.createClass {
         )
       )
     )
-})
+}
 
-itemSelect = React.createFactory(React.createClass {
+itemSelect = React.createClass {
   getInitialState () = { search = '', show = false }
   searchChange(ev) =
     self.setState {
@@ -572,7 +572,7 @@ itemSelect = React.createFactory(React.createClass {
         ]
       )
     )
-})
+}
 
 block(b) =
   b()

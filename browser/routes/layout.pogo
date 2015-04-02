@@ -8,7 +8,7 @@ r = React.createElement
 AuthStatus = require './authStatus'
 TopMenuTabs = require './topMenuTabs'
 
-module.exports = React.createFactory(React.createClass {
+module.exports = React.createClass {
   mixins = [Navigation, State]
 
   getInitialState() =
@@ -24,7 +24,7 @@ module.exports = React.createFactory(React.createClass {
 
   render() =
     signedIn = self.props.user :: Object
-    currentRoutes = self.getRoutes()
+    currentRoutes = self.context.router.getCurrentRoutes()
     routeName = currentRoutes.(currentRoutes.length - 1).name
     isLogin = (routeName == 'login') @or (routeName == 'signup')
     if (!signedIn && !isLogin)
@@ -32,8 +32,8 @@ module.exports = React.createFactory(React.createClass {
     else
       r 'div' { className = 'main' } (
         r 'div' { className = 'top-menu' } (
-          TopMenuTabs(user = self.props.user)
-          AuthStatus(user = self.props.user)
+          React.createElement(TopMenuTabs, {user = self.props.user})
+          React.createElement(AuthStatus, {user = self.props.user})
         )
         if (self.state.showFlash)
           r 'div' { className = 'top-flash warning' } (
@@ -48,4 +48,4 @@ module.exports = React.createFactory(React.createClass {
 
   closeFlash () =
     self.setState({ showFlash = false })
-})
+}

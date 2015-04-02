@@ -2,63 +2,59 @@ module.exports (element, queryApi, pageData, options) =
 
   React = require 'react'
   ReactRouter = require 'react-router'
-  Route = React.createFactory(ReactRouter.Route)
-  DefaultRoute = React.createFactory(ReactRouter.DefaultRoute)
-  NotFoundRoute = React.createFactory(ReactRouter.NotFoundRoute)
-  RouteHandler = React.createFactory(ReactRouter.RouteHandler)
+  Route = ReactRouter.Route
+  DefaultRoute = ReactRouter.DefaultRoute
+  NotFoundRoute = ReactRouter.NotFoundRoute
+  RouteHandler = ReactRouter.RouteHandler
   r = React.createElement
 
-  routes = Route { handler = require './routes/layout' } (
-    DefaultRoute {
-      name = 'reports'
-      handler = require './routes/home'
-    }
-    NotFoundRoute {
+  routes = r (Route) { handler = require './routes/layout' } (
+    r (NotFoundRoute) {
       handler = require './routes/notFound'
     }
-    Route {
+    r (Route) {
       path = '/authoring'
       handler = require './routes/authoring/layout'
     } (
-      DefaultRoute {
+      r (DefaultRoute) {
         name = 'authoring'
         handler = require './routes/authoring/index'
       }
-      NotFoundRoute {
+      r (NotFoundRoute) {
         handler = require './routes/notFound'
       }
-      Route {
+      r (Route) {
         name = 'create_block'
         path = 'blocks/create'
         handler = require './routes/authoring/index'
       }
-      Route {
+      r (Route) {
         name = 'block'
         path = 'blocks/:blockId'
         handler = require './routes/authoring/index'
       }
-      Route {
+      r (Route) {
         name = 'create_query'
         path = 'blocks/:blockId/queries/create'
         handler = require './routes/authoring/index'
       }
-      Route {
+      r (Route) {
         name = 'query'
         path = 'blocks/:blockId/queries/:queryId'
         handler = require './routes/authoring/index'
       }
-      Route {
+      r (Route) {
         name = 'edit_block'
         path = 'blocks/:blockId/edit'
         handler = require './routes/authoring/index'
       }
     )
-    Route {
+    r (Route) {
       name = 'login'
       path = '/login'
       handler = require './routes/login'
     }
-    Route {
+    r (Route) {
       name = 'signup'
       path = '/signup'
       handler = require './routes/signup'
@@ -77,5 +73,5 @@ module.exports (element, queryApi, pageData, options) =
       user = pageData.user
       http = require './http'
     }
-    router = React.createElement(Handler, globalProps)
+    router = r(Handler, globalProps)
     React.render(router, element)

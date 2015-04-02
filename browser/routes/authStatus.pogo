@@ -5,7 +5,7 @@ r = React.createElement
 classes(obj) =
   [k <- Object.keys(obj), obj.(k), k].join ' '
 
-module.exports = React.createFactory(React.createClass {
+module.exports = React.createClass {
   render() =
     r 'div' { className = classes { user = true, 'logged-out' = @not self.props.user, 'logged-in' = self.props.user } } (
       if (self.props.user)
@@ -18,4 +18,4 @@ module.exports = React.createFactory(React.createClass {
       else
         []
     )
-})
+}

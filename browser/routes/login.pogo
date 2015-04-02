@@ -3,7 +3,7 @@ ReactRouter = require 'react-router'
 Link = React.createFactory(ReactRouter.Link)
 r = React.createElement
 
-module.exports = React.createFactory(React.createClass {
+module.exports = React.createClass {
   render() =
     r 'div' { className = 'login-page' } (
       r 'h1' {} 'Login'
@@ -18,4 +18,4 @@ module.exports = React.createFactory(React.createClass {
         Link { to = 'signup' } 'Sign up'
       ]
     )
-})
+}

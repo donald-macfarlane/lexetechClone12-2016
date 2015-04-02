@@ -2,7 +2,7 @@ var React = require('react');
 var r = React.createElement;
 var Medium = require('medium-editor');
 
-module.exports = React.createFactory(React.createClass({
+module.exports = React.createClass({
   componentDidMount: function() {
     var self = this;
     var element = this.getDOMNode();
@@ -28,4 +28,4 @@ module.exports = React.createFactory(React.createClass({
   render: function () {
     return r('div', { className: 'editor' });
   }
-}));
+});

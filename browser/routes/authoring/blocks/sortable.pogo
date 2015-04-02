@@ -1,7 +1,7 @@
 React = require 'react'
 Draggable = require '../../../draggable'
 
-module.exports = React.createFactory(React.createClass {
+module.exports = React.createClass {
   mixins = [Draggable()]
 
   itemDragged(from, to) =
@@ -13,4 +13,4 @@ module.exports = React.createFactory(React.createClass {
       child.props.draggable = true
 
     x
-})
+}

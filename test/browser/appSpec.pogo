@@ -8,6 +8,7 @@ rootComponent = require '../../browser/root'
 queryApi = require './queryApi'
 lexiconBuilder = require '../lexiconBuilder'
 element = require './element'
+router = require 'plastiq-router'
 
 describe 'report'
   div = nil
@@ -143,6 +144,9 @@ describe 'report'
 
   afterEach
     history.pushState(nil, nil, originalLocation)
+
+  after
+    router.historyApi.stop()
 
   singleElement(css) =
     retry!

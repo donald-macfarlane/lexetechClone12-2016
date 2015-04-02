@@ -6,13 +6,13 @@ r = React.createElement
 blockComponent = require './blocks/block'
 State = ReactRouter.State
 
-module.exports = React.createFactory(React.createClass {
+module.exports = React.createClass {
   mixins = [State]
 
   render() =
     r 'div' { className = 'authoring-index edit-lexicon'} (
-      blockComponent {
+      React.createElement(blockComponent, {
         http = self.props.http
-      }
+      })
     )
-})
+}

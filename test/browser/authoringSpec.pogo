@@ -230,13 +230,11 @@ describe 'authoring'
           actions.find('button', text = 'Add Action').click!()
 
           for each @(actionName) in (disallowedActions)
-            console.log "#(actionName) exists"
             page.action(actionName).exists!()
 
           page.action(action).click!()
 
           for each @(actionName) in (disallowedActions)
-            console.log "#(actionName) doesn't exist"
             page.action(actionName).doesntExist!()
 
       describe 'repeat'

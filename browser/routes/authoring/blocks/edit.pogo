@@ -4,14 +4,14 @@ Link = React.createFactory(ReactRouter.Link)
 r = React.createElement
 Navigation = ReactRouter.Navigation
 
-module.exports = React.createFactory(React.createClass {
+module.exports = React.createClass {
   mixins = [ReactRouter.State, Navigation]
 
   getInitialState() =
     { name = '' }
 
   componentDidMount() =
-    path = '/api/blocks/' + self.getParams().blockId
+    path = '/api/blocks/' + self.context.router.getCurrentParams().blockId
     self.props.http.get(path).done @(response)
       self.setState {
         id = response.id
@@ -37,8 +37,8 @@ module.exports = React.createFactory(React.createClass {
 
   submitForm(e) =
     e.preventDefault()
-    id = self.getParams().blockId
+    id = self.context.router.getCurrentParams().blockId
     path = '/api/blocks/' + id
     response = self.props.http.post(path, { name = self.state.name })!
     self.transitionTo('block', blockId: id)
-})
+}
