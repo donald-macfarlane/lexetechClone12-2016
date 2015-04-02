@@ -14,6 +14,7 @@ describe 'report'
   api = nil
   originalLocation = nil
   lexicon = nil
+  simpleLexicon = nil
   reportBrowser = nil
   rootBrowser = nil
 
@@ -65,6 +66,73 @@ describe 'report'
     originalLocation := location.pathname + location.search + location.hash
     history.pushState(nil, nil, '/')
 
+    simpleLexicon := lexicon.blocks [
+      {
+        id = "1"
+        name = "block 1"
+
+        queries = [
+          {
+            name = 'query1'
+            text = 'Where does it hurt?'
+
+            responses = [
+              {
+                id = '1'
+                text = 'left leg'
+
+                styles = {
+                  style1 = 'Complaint
+                            ---------
+                            left leg '
+                }
+              }
+              {
+                id = '2'
+                text = 'right leg'
+
+                styles = {
+                  style1 = 'Complaint
+                            ---------
+                            right leg '
+                }
+              }
+            ]
+          }
+          {
+            name = 'query2'
+            text = 'Is it bleeding?'
+
+            responses = [
+              {
+                id = '1'
+                text = 'yes'
+
+                styles = {
+                  style1 = 'bleeding'
+                }
+              }
+            ]
+          }
+          {
+            name = 'query3'
+            text = 'Is it aching?'
+
+            responses = [
+              {
+                id = '1'
+                text = 'yes'
+
+                styles = {
+                  style1 = ', aching'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+
     rootBrowser := createRootBrowser {
       element = div
     }
@@ -103,72 +171,7 @@ describe 'report'
 
   context 'with simple lexicon'
     beforeEach
-      api.setLexicon (lexicon.blocks [
-        {
-          id = "1"
-          name = "block 1"
-
-          queries = [
-            {
-              name = 'query1'
-              text = 'Where does it hurt?'
-
-              responses = [
-                {
-                  id = '1'
-                  text = 'left leg'
-
-                  styles = {
-                    style1 = 'Complaint
-                              ---------
-                              left leg '
-                  }
-                }
-                {
-                  id = '2'
-                  text = 'right leg'
-
-                  styles = {
-                    style1 = 'Complaint
-                              ---------
-                              right leg '
-                  }
-                }
-              ]
-            }
-            {
-              name = 'query2'
-              text = 'Is it bleeding?'
-
-              responses = [
-                {
-                  id = '1'
-                  text = 'yes'
-
-                  styles = {
-                    style1 = 'bleeding'
-                  }
-                }
-              ]
-            }
-            {
-              name = 'query3'
-              text = 'Is it aching?'
-
-              responses = [
-                {
-                  id = '1'
-                  text = 'yes'
-
-                  styles = {
-                    style1 = ', aching'
-                  }
-                }
-              ]
-            }
-          ]
-        }
-      ])
+      api.setLexicon (simpleLexicon)
 
       root = rootComponent {user = { email = 'blah@example.com' }, graphHack = false}
       plastiq.append(div, root.render.bind(root))
@@ -188,52 +191,56 @@ describe 'report'
                       ---------
                       left leg bleeding, aching"
 
-    it "as each query is answered, history is stored in the user's document"
-      shouldHaveQuery 'Where does it hurt?'!
-      selectResponse 'left leg'!
+    describe 'documents'
+      it "as each query is answered, history is stored in the user's document"
+        shouldHaveQuery 'Where does it hurt?'!
+        selectResponse 'left leg'!
 
-      simplifyDocuments(docs) =
-        docs.map @(doc)
-          doc.lexemes.map @(lexeme)
-            {
-              query = lexeme.query.id
-              response = lexeme.response.id
-            }
+        simplifyDocuments(docs) =
+          docs.map @(doc)
+            doc.lexemes.map @(lexeme)
+              {
+                query = lexeme.query.id
+                response = lexeme.response.id
+              }
 
-      retry!
-        expect(simplifyDocuments(api.documents)).to.eql [
-          [
-            { query = '1', response = '1' }
+        retry!
+          expect(simplifyDocuments(api.documents)).to.eql [
+            [
+              { query = '1', response = '1' }
+            ]
           ]
-        ]
 
-      shouldHaveQuery 'Is it bleeding?'!
-      selectResponse 'yes'!
+        shouldHaveQuery 'Is it bleeding?'!
+        selectResponse 'yes'!
 
-      retry!
-        expect(simplifyDocuments(api.documents)).to.eql [
-          [
-            { query = '1', response = '1' }
-            { query = '2', response = '1' }
+        retry!
+          expect(simplifyDocuments(api.documents)).to.eql [
+            [
+              { query = '1', response = '1' }
+              { query = '2', response = '1' }
+            ]
           ]
-        ]
 
-      shouldHaveQuery 'Is it aching?'!
-      selectResponse 'yes'!
-      shouldBeFinished()!
+        shouldHaveQuery 'Is it aching?'!
+        selectResponse 'yes'!
+        shouldBeFinished()!
 
-      retry!
-        expect(simplifyDocuments(api.documents)).to.eql [
-          [
-            { query = '1', response = '1' }
-            { query = '2', response = '1' }
-            { query = '3', response = '1' }
+        retry!
+          expect(simplifyDocuments(api.documents)).to.eql [
+            [
+              { query = '1', response = '1' }
+              { query = '2', response = '1' }
+              { query = '3', response = '1' }
+            ]
           ]
-        ]
 
-      notesShouldBe! "Complaint
-                      ---------
-                      left leg bleeding, aching"
+        notesShouldBe! "Complaint
+                        ---------
+                        left leg bleeding, aching"
+
+      it 'can create a new document'
+        
 
     it 'can undo a response, choose a different response'
       shouldHaveQuery 'Where does it hurt?'!
