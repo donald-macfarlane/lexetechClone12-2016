@@ -41,8 +41,7 @@ describe "lexicon"
     args.(args.length - 1)
 
   conversation() =
-    query = nil
-    response = nil
+    lastQuery = nil
     qapi = buildGraph (
       api = lexemeApi (
         http = {
@@ -52,25 +51,45 @@ describe "lexicon"
       )
     )
 
+    queryPromise = qapi.firstQueryGraph()
+
     {
       shouldAsk (queryText) thenRespondWith (responseText) =
-        originalQuery = query
-        if (@not query)
-          query := qapi.firstQueryGraph()!
-        else
-          query := response.query()!
+        query = queryPromise!
 
-        message =
-          "expected query to be returned from \"#(response @and "#(originalQuery.text) / #(response.text)" @or 'the start')\""
-          
-        expect(query.query, message).to.exist
+        expect(query.query).to.exist
         expect(query.query.text).to.equal (queryText)
 
-        response := [r <- query.responses, r.text == responseText, r].0
+        response = [r <- query.responses, r.text == responseText, r].0
         expect(response, "response '#(responseText)' not one of #([r <- query.responses, "'#(r.text)'"].join ', ')").to.exist
 
+        lastQuery := query
+        lastResponse = responseText
+        queryPromise := response.query()
+
+      shouldAsk (queryText) thenSkip =
+        query = queryPromise!
+
+        expect(query.query).to.exist
+        expect(query.query.text).to.equal (queryText)
+
+        lastQuery := query
+        lastResponse = 'skip'
+        queryPromise := query.skip()
+
+      shouldAsk (queryText) thenOmit =
+        query = queryPromise!
+
+        expect(query.query).to.exist
+        expect(query.query.text).to.equal (queryText)
+
+        lastQuery := query
+        lastResponse = 'omit'
+        queryPromise := query.omit()
+
       shouldBeFinished() =
-        expect(response.query()!.query).to.be.undefined
+        query = queryPromise!
+        expect(query.query).to.be.undefined
     }
 
   it 'queries are asked in coherence order'
@@ -570,3 +589,78 @@ describe "lexicon"
           c.shouldAsk 'block 3, query 1' thenRespondWith 'response 1, level 1'!
           c.shouldAsk 'block 1, query 3, level 1' thenRespondWith 'response 1'!
           c.shouldBeFinished()!
+
+  describe 'omit + skip'
+    beforeEach
+      withQueries! [
+        {
+          text = 'query 1, level 1'
+          level = 1
+
+          responses = [
+            {
+              text = 'response 1'
+              setLevel = 2
+            }
+          ]
+        }
+        {
+          text = 'query 2, level 1'
+          level = 1
+
+          responses = [
+            {
+              text = 'response 1'
+              setLevel = 2
+            }
+          ]
+        }
+        {
+          text = 'query 3, level 2'
+          level = 2
+
+          responses = [
+            {
+              text = 'response 1'
+              setLevel = 2
+            }
+          ]
+        }
+        {
+          text = 'query 4, level 3'
+          level = 3
+
+          responses = [
+            {
+              text = 'response 1'
+              setLevel = 3
+            }
+          ]
+        }
+        {
+          text = 'query 5, level 1'
+          level = 1
+
+          responses = [
+            {
+              text = 'response 1'
+              setLevel = 1
+            }
+          ]
+        }
+      ]
+
+    it 'can omit a query, moving onto the next one'
+      c = conversation()
+      c.shouldAsk 'query 1, level 1' thenRespondWith 'response 1'!
+      c.shouldAsk 'query 2, level 1' thenOmit!
+      c.shouldAsk 'query 3, level 2' thenRespondWith 'response 1'!
+      c.shouldAsk 'query 5, level 1' thenRespondWith 'response 1'!
+      c.shouldBeFinished()!
+
+    it 'can skip a query, moving onto the next one'
+      c = conversation()
+      c.shouldAsk 'query 1, level 1' thenRespondWith 'response 1'!
+      c.shouldAsk 'query 2, level 1' thenSkip!
+      c.shouldAsk 'query 5, level 1' thenRespondWith 'response 1'!
+      c.shouldBeFinished()!

@@ -158,7 +158,15 @@ module.exports = function(options) {
       context: next.context,
       previousContext: next.previousContext,
       startingContext: next.startingContext,
-      blocksSearched: next.blocksSearched
+      blocksSearched: next.blocksSearched,
+
+      omit: function () {
+        return nextQueryForOmit(context);
+      },
+
+      skip: function () {
+        return nextQueryForSkip(next.query, context);
+      }
     };
 
     if (next.query) {
@@ -201,20 +209,36 @@ module.exports = function(options) {
 
   function nextQueryForResponse(response, context) {
     var newContext = newContextFromResponseContext(response, context);
+    return nextQueryForContext(newContext, context);
+  }
 
-    return queryCache.cacheBy(newContext.coherenceIndex + ":" + newContext.key(), function() {
-      var originalContext = cloneContext(newContext);
+  function nextQueryForOmit(context) {
+    var newContext = cloneContext(context);
+    newContext.coherenceIndex++;
+    return nextQueryForContext(newContext, context);
+  }
 
-      return findNextQuery(api, newContext).then(function(next) {
+  function nextQueryForSkip(query, context) {
+    var newContext = cloneContext(context);
+    newContext.coherenceIndex++;
+    newContext.level = query.level;
+    return nextQueryForContext(newContext, context);
+  }
+
+  function nextQueryForContext(context, previousContext) {
+    return queryCache.cacheBy(context.coherenceIndex + ":" + context.key(), function() {
+      var originalContext = cloneContext(context);
+
+      return findNextQuery(api, context).then(function(next) {
         if (next.query) {
-          newContext.coherenceIndex = next.query.index;
+          context.coherenceIndex = next.query.index;
         }
 
-        next.previousContext = context;
+        next.previousContext = previousContext;
         next.startingContext = originalContext;
-        next.context = newContext;
+        next.context = context;
 
-        return queryGraph(next, newContext);
+        return queryGraph(next, context);
       });
     });
   }
