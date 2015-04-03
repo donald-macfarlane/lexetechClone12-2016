@@ -3,7 +3,9 @@ var router = plastiqRouter();
 
 router.login = router.route('/login', {
   onarrive: function (model) {
-    model.login = true;
+    if (!model.user) {
+      model.login = true;
+    }
   },
   onleave: function (model) {
     delete model.login;
@@ -12,7 +14,9 @@ router.login = router.route('/login', {
 
 router.signup = router.route('/signup', {
   onarrive: function (model) {
-    model.signup = true;
+    if (!model.user) {
+      model.signup = true;
+    }
   },
   onleave: function (model) {
     delete model.signup;

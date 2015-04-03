@@ -15,13 +15,17 @@ var rootComponent = prototype({
   constructor: function (pageData) {
     this.user = pageData.user;
     this.flash = pageData.flash;
-    this.graphHack = pageData.graphHack;
-    this.documentsApi = documentsApi;
-    this.startReport = startReportComponent({
-      documentsApi: documentsApi,
-      root: {openDocument: this.openDocument.bind(this)},
-      user: this.user
-    });
+
+    if (pageData.user) {
+      this.graphHack = pageData.graphHack;
+      this.documentsApi = documentsApi;
+
+      this.startReport = startReportComponent({
+        documentsApi: documentsApi,
+        root: {openDocument: this.openDocument.bind(this)},
+        user: this.user
+      });
+    }
   },
 
   openDocumentById: function (docId) {
@@ -71,17 +75,17 @@ var rootComponent = prototype({
 
     return router.render(this, function () {
       return layout(self,
-        self.login ?
+        self.signup ?
+          router.signup(signup())
+        : self.login || !self.user ?
           router.login(login())
-          : self.signup ?
-            router.signup(signup())
-            : self.documentId ?
-              router.report({documentId: self.documentId}, self.document,
-                self.report
-                  ? self.report.render()
-                  : h('h1', 'loading')
-              )
-              : router.root(self.startReport.render())
+        : self.documentId ?
+          router.report({documentId: self.documentId}, self.document,
+            self.report
+              ? self.report.render()
+              : h('h1', 'loading')
+          )
+        : router.root(self.startReport.render())
       );
     });
   }

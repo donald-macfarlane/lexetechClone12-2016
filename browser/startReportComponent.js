@@ -23,7 +23,7 @@ module.exports = prototype({
 
     this.syncHasCurrentDocument = sync({
       throttle: 5000,
-      condition: function () { return !self.hasCurrentDocument; }
+      condition: function () { return options.user && !self.hasCurrentDocument; }
     }, function () {
       return self.documentsApi.currentDocument().then(function (doc) {
         self.hasCurrentDocument = !!doc;

@@ -46,6 +46,7 @@ describe 'documents'
     docUrl = response.headers.location
     doc = response.body
     doc.query = 'blah'
+    doc.predicants = {}
 
     api.post!(docUrl, doc)
 
