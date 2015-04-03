@@ -13,8 +13,6 @@ var queryComponent = prototype({
     this.history = model.history;
     this.queryGraph = buildGraph({cache: false});
 
-    console.log('initing queryComponent');
-
     if (this.user) {
       this.history.currentQuery().then(function (query) {
         self.setQuery(query);
@@ -29,9 +27,6 @@ var queryComponent = prototype({
   },
 
   setQuery: function (query) {
-    if (query.query) {
-      console.log('presenting query', query.query.text);
-    }
     this.query = query;
     delete this.editingResponse;
     delete this.showingResponse;
@@ -94,10 +89,6 @@ var queryComponent = prototype({
         return r.id == responsesForQuery.previous;
       })[0];
 
-      if (query.query) {
-        console.log('rendering query', query.query.text);
-      }
-
       return [
         h('.query',
           h('.buttons',
@@ -111,9 +102,9 @@ var queryComponent = prototype({
             h('button.accept',
               {
                 class: {enabled: selectedResponse},
-                onclick: selectedResponse && function () {
-                  self.selectResponse(selectedResponse);
-                }
+                onclick: selectedResponse? function () {
+                  return self.selectResponse(selectedResponse);
+                }: undefined
               },
               'accept'
             ),
@@ -154,7 +145,7 @@ var queryComponent = prototype({
                           href: '#',
                           onclick: function (ev) {
                             ev.preventDefault();
-                            self.selectResponse(response);
+                            return self.selectResponse(response);
                           }
                         },
                         response.text
