@@ -23,16 +23,28 @@ router.signup = router.route('/signup', {
   }
 });
 
+function ensureLoggedIn(model, fn) {
+  if (model.user) {
+    if (fn) {
+      return fn();
+    }
+  } else {
+    model.login = true;
+  }
+}
+
 router.report = router.route('/report/:documentId', {
   onarrive: function (model, params, document) {
-    model.documentId = params.documentId;
-    if (document) {
-      model.openDocument(model.documentsApi.document(document));
-    } else {
-      model.openDocumentById(model.documentId).then(function () {
-        model.refresh();
-      });
-    }
+    ensureLoggedIn(model, function () {
+      model.documentId = params.documentId;
+      if (document) {
+        model.openDocument(model.documentsApi.document(document));
+      } else {
+        model.openDocumentById(model.documentId).then(function () {
+          model.refresh();
+        });
+      }
+    });
   },
   onleave: function (model) {
     delete model.documentId;
@@ -40,6 +52,10 @@ router.report = router.route('/report/:documentId', {
   }
 });
 
-router.root = router.route('/');
+router.root = router.route('/', {
+  onarrive: function (model) {
+    ensureLoggedIn(model);
+  }
+});
 
 module.exports = router;

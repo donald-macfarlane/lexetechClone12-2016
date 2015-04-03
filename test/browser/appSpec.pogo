@@ -49,6 +49,8 @@ describe 'report'
 
   queryElement = prototypeExtending(element) {
     response(text) = responseElement(self.find('.response', text = text))
+    skipButton() = self.find('button.skip')
+    omitButton() = self.find('button.omit')
     queryText() = self.find('.query-text')
   }
 
@@ -583,4 +585,88 @@ describe 'report'
       reportBrowser.query().response('A').expect!(element.is('.other'))
       reportBrowser.query().response('C').expect!(element.is('.other'))
       selectResponse 'No More'!
+      shouldBeFinished()!
+
+  context 'logged in with lexicon for omit + skip'
+    beforeEach
+      api.setLexicon (
+        lexicon.queries [
+          {
+            text = 'query 1, level 1'
+            level = 1
+
+            responses = [
+              {
+                text = 'response 1'
+                setLevel = 2
+              }
+            ]
+          }
+          {
+            text = 'query 2, level 1'
+            level = 1
+
+            responses = [
+              {
+                text = 'response 1'
+                setLevel = 2
+              }
+            ]
+          }
+          {
+            text = 'query 3, level 2'
+            level = 2
+
+            responses = [
+              {
+                text = 'response 1'
+                setLevel = 2
+              }
+            ]
+          }
+          {
+            text = 'query 4, level 3'
+            level = 3
+
+            responses = [
+              {
+                text = 'response 1'
+                setLevel = 3
+              }
+            ]
+          }
+          {
+            text = 'query 5, level 1'
+            level = 1
+
+            responses = [
+              {
+                text = 'response 1'
+                setLevel = 1
+              }
+            ]
+          }
+        ]
+      )
+      appendRootComponent()
+      rootBrowser.startNewDocumentButton().click!()
+      
+    it 'can omit'
+      shouldHaveQuery 'query 1, level 1'!
+      selectResponse 'response 1'!
+      shouldHaveQuery 'query 2, level 1'!
+      reportBrowser.query().omitButton().click!()
+      shouldHaveQuery 'query 3, level 2'!
+      selectResponse 'response 1'!
+      shouldHaveQuery 'query 5, level 1'!
+      selectResponse 'response 1'!
+      shouldBeFinished()!
+      
+    it 'can skip'
+      shouldHaveQuery 'query 1, level 1'!
+      selectResponse 'response 1'!
+      shouldHaveQuery 'query 2, level 1'!
+      reportBrowser.query().skipButton().click!()
+      shouldHaveQuery 'query 5, level 1'!
+      selectResponse 'response 1'!
       shouldBeFinished()!

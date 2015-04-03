@@ -20,7 +20,8 @@ module.exports = prototype({
     var self = this;
 
     this.document.lexemes.forEach(function (lexeme) {
-      self.addQueryResponse(lexeme.query, lexeme.response, createContext(lexeme.context), {save: false});
+      lexeme.context = createContext(lexeme.context);
+      self.pushLexeme(lexeme, {save: false});
     });
 
     if (this.document.index !== undefined) {
@@ -34,11 +35,17 @@ module.exports = prototype({
     if (this.document.lexemes.length && this.index >= 0) {
       var lexeme = this.document.lexemes[this.index];
       return self.queryGraph.query(lexeme.query.id, lexeme.context).then(function (query) {
-        var response = query.responses.filter(function (response) {
-          return response.id = lexeme.response.id;
-        })[0];
+        if (lexeme.response) {
+          var response = query.responses.filter(function (response) {
+            return response.id = lexeme.response.id;
+          })[0];
 
-        return response.query();
+          return response.query();
+        } else if (lexeme.skip) {
+          return query.skip();
+        } else if (lexeme.omit) {
+          return query.omit();
+        }
       });
     } else {
       return this.queryGraph.firstQueryGraph();
@@ -46,19 +53,6 @@ module.exports = prototype({
   },
 
   addQueryResponse: function (query, response, context, options) {
-    var save = options && options.hasOwnProperty('save')? options.save: true;
-
-    var responseByQueryId = this.responsesByQueryId[query.id] = this.responsesByQueryId[query.id] || {};
-
-    if (response.repeat) {
-      responseByQueryId.others = responseByQueryId.others || [];
-      responseByQueryId.others.push(response);
-    } else {
-      responseByQueryId.response = response;
-    }
-
-    this.index++;
-
     var lexeme = {
       query: {
         id: query.id,
@@ -73,19 +67,69 @@ module.exports = prototype({
       }
     };
 
+    this.pushLexeme(lexeme, options);
+  },
+
+  pushLexeme: function (lexeme, options) {
+    if (lexeme.response) {
+      var responseByQueryId = this.responsesByQueryId[lexeme.query.id] = this.responsesByQueryId[lexeme.query.id] || {};
+
+      if (lexeme.response.repeat) {
+        responseByQueryId.others = responseByQueryId.others || [];
+        responseByQueryId.others.push(lexeme.response);
+      } else {
+        responseByQueryId.response = lexeme.response;
+      }
+    }
+
+    this.index++;
+
     if (this.index > this.lexemes.length - 1) {
       this.lexemes.push(lexeme);
     } else {
       var lastLexeme = this.lexemes[this.index];
 
-      if (!(lastLexeme.query.id == query.id && lastLexeme.context.key() == context.key() && lastLexeme.response.id == response.id)) {
+      if (!(lastLexeme.query.id == lexeme.query.id
+            && lastLexeme.context.key() == lexeme.context.key()
+            && (
+              (lexeme.response && lastLexeme.response.id == lexeme.response.id)
+              || (lexeme.skip && lastLexeme.skip)
+              || (lexeme.omit && lastLexeme.omit)))) {
         this.lexemes.splice(this.index, this.lexemes.length - this.index, lexeme);
       }
     }
 
+    var save = options && options.hasOwnProperty('save')? options.save: true;
+
     if (save) {
       this.document.update({lexemes: this.lexemes, index: this.index});
     }
+  },
+
+  addQuerySkip: function (query, context, options) {
+    var lexeme = {
+      query: {
+        id: query.id,
+        name: query.name
+      },
+      context: context,
+      skip: true
+    };
+
+    this.pushLexeme(lexeme, options);
+  },
+
+  addQueryOmit: function (query, context, options) {
+    var lexeme = {
+      query: {
+        id: query.id,
+        name: query.name
+      },
+      context: context,
+      omit: true
+    };
+
+    this.pushLexeme(lexeme, options);
   },
 
   responsesForQuery: function (query) {

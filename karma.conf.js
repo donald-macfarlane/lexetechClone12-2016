@@ -40,9 +40,9 @@ module.exports = function(config) {
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
     reporters: ['mocha'],
 
-    client: {
+    // client: {
       // args: ['--grep', 'updating and inserting queries|^report.*']
-    },
+    // },
 
     // web server port
     port: 9876,

@@ -12,7 +12,7 @@ module.exports = prototype({
     return h('.document-outer',
       h('ol.document',
         this.model.history.lexemes.filter(function (lexeme) {
-          return lexeme.response.styles;
+          return lexeme.response && lexeme.response.styles;
         }).map(function (lexeme) {
           return h('li',
             h('a.section',

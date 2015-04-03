@@ -13,6 +13,8 @@ var queryComponent = prototype({
     this.history = model.history;
     this.queryGraph = buildGraph({cache: false});
 
+    console.log('initing queryComponent');
+
     if (this.user) {
       this.history.currentQuery().then(function (query) {
         self.setQuery(query);
@@ -27,15 +29,16 @@ var queryComponent = prototype({
   },
 
   setQuery: function (query) {
+    if (query.query) {
+      console.log('presenting query', query.query.text);
+    }
     this.query = query;
     delete this.editingResponse;
     delete this.showingResponse;
   },
 
-  selectResponse: function (response) {
-    var self = this;
-
-    loadingTimeout(response.query(), function (loading) {
+  loadingQuery: function (queryPromise) {
+    return loadingTimeout(queryPromise, function (loading) {
       if (loading) {
         self.loadingResponse = response;
         self.refresh();
@@ -43,10 +46,33 @@ var queryComponent = prototype({
         delete self.loadingResponse;
         self.refresh();
       }
-    }).then(function (q) {
+    });
+  },
+
+  selectResponse: function (response) {
+    var self = this;
+
+    return this.loadingQuery(response.query()).then(function (q) {
       self.history.addQueryResponse(self.query.query, response, self.query.context);
       self.setQuery(q);
-      self.refresh();
+    });
+  },
+
+  skip: function () {
+    var self = this;
+
+    return this.loadingQuery(self.query.skip()).then(function (q) {
+      self.history.addQuerySkip(self.query.query, self.query.context);
+      self.setQuery(q);
+    });
+  },
+
+  omit: function () {
+    var self = this;
+
+    return this.loadingQuery(self.query.omit()).then(function (q) {
+      self.history.addQueryOmit(self.query.query, self.query.context);
+      self.setQuery(q);
     });
   },
 
@@ -68,6 +94,10 @@ var queryComponent = prototype({
         return r.id == responsesForQuery.previous;
       })[0];
 
+      if (query.query) {
+        console.log('rendering query', query.query.text);
+      }
+
       return [
         h('.query',
           h('.buttons',
@@ -86,6 +116,18 @@ var queryComponent = prototype({
                 }
               },
               'accept'
+            ),
+            h('button.skip.enabled',
+              {
+                onclick: self.skip.bind(self)
+              },
+              'skip'
+            ),
+            h('button.omit.enabled',
+              {
+                onclick: self.omit.bind(self)
+              },
+              'omit'
             )
           ),
           query.query
