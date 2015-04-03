@@ -28,11 +28,18 @@ describe 'documents'
     expect(response1.body.href).to.equal(response1.headers.location)
     expect(response2.body.href).to.equal(response2.headers.location)
 
-  it 'adds a lastModified field to documents as they are created'
-    response = api.post!('/api/user/documents').body
+  it 'adds a created field to documents as they are created, and a lastModified as they are updated'
+    document = api.post!('/api/user/documents').body
 
     now = @new Date().getTime()
-    expect(Date.parse(response.lastModified)).to.be.within(now - 1000, now)
+    expect(Date.parse(document.lastModified)).to.be.within(now - 1000, now)
+    expect(document.created).to.equal(document.lastModified)
+
+    document.query = 'query 1'
+
+    documentUpdate = api.post!(document.href, document).body
+    expect(Date.parse(documentUpdate.lastModified)).to.be.greaterThan(Date.parse(document.lastModified))
+    expect(Date.parse(documentUpdate.created)).to.be.equal(Date.parse(document.created))
 
   it 'can list documents'
     response1 = api.post!('/api/user/documents').body

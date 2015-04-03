@@ -251,6 +251,7 @@ function addDocumentHref(document, req) {
 app.post("/user/documents", function(req, res) {
   var doc = req.body;
   incomingDocument(doc);
+  doc.created = doc.lastModified;
   mongoDb.createDocument(req.user.id, doc).then(function(document) {
     outgoingDocument(document, req);
     res.set("location", document.href);
