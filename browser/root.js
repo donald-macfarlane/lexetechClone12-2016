@@ -19,14 +19,15 @@ var rootComponent = prototype({
     this.documentsApi = documentsApi;
     this.startReport = startReportComponent({
       documentsApi: documentsApi,
-      root: {openDocument: this.openDocument.bind(this)}
+      root: {openDocument: this.openDocument.bind(this)},
+      user: this.user
     });
   },
 
   openDocumentById: function (docId) {
     var self = this;
 
-    return this.documentsApi.document(self.documentId).then(function (doc) {
+    return this.documentsApi.document(docId).then(function (doc) {
       self.openDocument(doc);
     });
   },

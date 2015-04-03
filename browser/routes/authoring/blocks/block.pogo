@@ -68,7 +68,7 @@ module.exports = React.createClass {
 
   query() =
     block = self.block()
-    if (block)
+    if (block @and block.queries)
       [
         q <- block.queries
         q.id == self.context.router.getCurrentParams().queryId
@@ -90,6 +90,7 @@ module.exports = React.createClass {
           update() =
             getQueries() =
               queries = blockSelf.props.http.get! "/api/blocks/#(b.id)/queries"
+              setTimeout ^ 200!
               self.queries = queries
               self.queriesHierarchy = queriesInHierarchyByLevel(queries)
 

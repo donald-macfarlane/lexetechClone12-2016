@@ -3,6 +3,7 @@ var h = plastiq.html;
 var prototype = require('prote');
 var semanticUi = require('plastiq-semantic-ui');
 var moment = require('moment');
+var sync = require('./sync');
 
 module.exports = prototype({
   constructor: function (options) {
@@ -11,14 +12,22 @@ module.exports = prototype({
     this.documentsApi = options.documentsApi;
     this.root = options.root;
 
-    this.documentsApi.allDocuments().then(function (documents) {
-      self.documents = documents;
-      self.refresh();
+    this.syncDocuments = sync({
+      throttle: 5000,
+      condition: function () { return options.user; }
+    }, function () {
+      return self.documentsApi.allDocuments().then(function (documents) {
+        self.documents = documents;
+      });
     });
 
-    this.documentsApi.currentDocument().then(function (doc) {
-      self.currentDocument = doc;
-      self.refresh();
+    this.syncHasCurrentDocument = sync({
+      throttle: 5000,
+      condition: function () { return !self.hasCurrentDocument; }
+    }, function () {
+      return self.documentsApi.currentDocument().then(function (doc) {
+        self.hasCurrentDocument = !!doc;
+      });
     });
   },
 
@@ -33,7 +42,11 @@ module.exports = prototype({
   },
 
   loadCurrentDocument: function () {
-    this.root.openDocument(this.currentDocument);
+    var self = this;
+
+    return self.documentsApi.currentDocument().then(function (doc) {
+      self.root.openDocument(doc);
+    });
   },
 
   loadDocument: function (id) {
@@ -58,8 +71,10 @@ module.exports = prototype({
     this.refresh = h.refresh;
 
     return h('.documents',
+      this.syncHasCurrentDocument(),
+      this.syncDocuments(),
       h('.ui.basic.button', {onclick: self.createDocument.bind(self)}, 'Start new document'),
-      h('.ui.basic.button', { onclick: self.loadCurrentDocument.bind(self) }, 'Load current document'),
+      h('.ui.basic.button', {class: {disabled: !this.hasCurrentDocument}, onclick: self.loadCurrentDocument.bind(self)}, 'Load current document'),
       semanticUi.dropdown(
         {
           onChange: function (value, text) {

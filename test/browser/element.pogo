@@ -6,18 +6,36 @@ assert = chai.assert
 sendkeys = require './sendkeys'
 sendclick = require './sendclick'
 
+cssWithText(css, text = nil) =
+  if (text)
+    css + ":contains(#(JSON.stringify(text)))"
+  else
+    css
+
+
 elementFinder(css, text = nil, ensure = nil, message = nil) =
-  cssContains =
-    if (text)
-      css + ":contains(#(JSON.stringify(text)))"
-    else
-      css
+  cssContains = cssWithText(css, text = text)
 
   {
     find(element) =
       els = $(element).find(cssContains)
 
       if (els.length > 0)
+        if (ensure)
+          ensure(els)
+
+        els
+
+    toString() = message @or cssContains
+  }
+
+elementTester(css, text = nil, ensure = nil, message = nil) =
+  cssContains = cssWithText(css, text = text)
+
+  {
+    find(element) =
+      els = $(element)
+      if (els.has(cssContains))
         if (ensure)
           ensure(els)
 
@@ -103,6 +121,9 @@ module.exports = prototype {
         assertion(element)
         element
     }.exists!()
+
+  has(args, ...) =
+    self.addFinder(elementTester(args, ...))
 
   click() =
     sendclick(self.resolve()!.0)

@@ -9,6 +9,7 @@ queryApi = require './queryApi'
 lexiconBuilder = require '../lexiconBuilder'
 element = require './element'
 router = require 'plastiq-router'
+_ = require 'underscore'
 
 describe 'report'
   div = nil
@@ -16,11 +17,13 @@ describe 'report'
   originalLocation = nil
   lexicon = nil
   simpleLexicon = nil
+  repeatingLexicon = nil
   reportBrowser = nil
   rootBrowser = nil
 
   createRootBrowser = prototypeExtending(element) {
-    startNewButton() = self.find('.button', text = 'Start new document')
+    startNewDocumentButton() = self.find('.button', text = 'Start new document')
+    loadCurrentDocumentButton() = self.find('.button', text = 'Load current document')
     loadPreviousButton() = self.find('.button', text = 'Load previous document')
   }
 
@@ -134,6 +137,71 @@ describe 'report'
       }
     ]
 
+    repeatingLexicon := lexicon.blocks [
+      {
+        id = '1'
+        name = 'one'
+
+        queries = [
+          {
+            name = 'One'
+            text = 'One'
+
+            responses = [
+              {
+                id = '1'
+                text = 'A'
+
+                actions = [
+                  {
+                    name = 'repeatLexeme'
+                    arguments = []
+                  }
+                ]
+              }
+              {
+                id = '2'
+                text = 'B'
+
+                actions = [
+                  {
+                    name = 'repeatLexeme'
+                    arguments = []
+                  }
+                ]
+              }
+              {
+                id = '3'
+                text = 'C'
+
+                actions = [
+                  {
+                    name = 'repeatLexeme'
+                    arguments = []
+                  }
+                ]
+              }
+              {
+                id = '4'
+                text = 'D'
+
+                actions = [
+                  {
+                    name = 'repeatLexeme'
+                    arguments = []
+                  }
+                ]
+              }
+              {
+                id = '5'
+                text = 'No More'
+              }
+            ]
+          }
+        ]
+      }
+    ]
+
     rootBrowser := createRootBrowser {
       element = div
     }
@@ -146,7 +214,7 @@ describe 'report'
     history.pushState(nil, nil, originalLocation)
 
   after
-    router.historyApi.stop()
+    router.stop()
 
   singleElement(css) =
     retry!
@@ -173,14 +241,20 @@ describe 'report'
       expect(api.documents.length).to.eql(1)
       expect(api.documents.0.lexemes.length).to.eql(lexemeCount)
 
+  appendRootComponent (options) =
+    options := _.extend {
+      user = { email = 'blah@example.com' }
+      graphHack = false
+    } (options)
+
+    root = rootComponent(options)
+    plastiq.append(div, root.render.bind(root))
+
   context 'with simple lexicon'
     beforeEach
       api.setLexicon (simpleLexicon)
-
-      root = rootComponent {user = { email = 'blah@example.com' }, graphHack = false}
-      plastiq.append(div, root.render.bind(root))
-
-      rootBrowser.startNewButton().click!()
+      appendRootComponent()
+      rootBrowser.startNewDocumentButton().click!()
 
     it 'can generate notes by answering queries'
       shouldHaveQuery 'Where does it hurt?'!
@@ -242,9 +316,6 @@ describe 'report'
         notesShouldBe! "Complaint
                         ---------
                         left leg bleeding, aching"
-
-      it 'can create a new document'
-        
 
     it 'can undo a response, choose a different response'
       shouldHaveQuery 'Where does it hurt?'!
@@ -423,7 +494,7 @@ describe 'report'
       root = rootComponent {user = { email = 'blah@example.com' }, graphHack = false}
       plastiq.append(div, root.render.bind(root))
 
-      rootBrowser.startNewButton().click!()
+      rootBrowser.startNewDocumentButton().click!()
 
     it 'displays debugging information' =>
       self.timeout 100000
@@ -448,3 +519,68 @@ describe 'report'
                       left leg bleedingaching"
 
       waitForLexemesToSave!(3)
+
+  context 'logged in with simple lexicon'
+    beforeEach
+      api.setLexicon (simpleLexicon)
+      appendRootComponent()
+
+    it 'can create a new document'
+      rootBrowser.loadCurrentDocumentButton().has('.disabled').exists!()
+      rootBrowser.startNewDocumentButton().click!()
+      shouldHaveQuery 'Where does it hurt?'!
+
+    it 'can create a document, make some responses, and come back to it'
+      retry!
+        expect(api.documents.length).to.eql 0
+
+      rootBrowser.startNewDocumentButton().click!()
+      shouldHaveQuery 'Where does it hurt?'!
+      selectResponse 'left leg'!
+      shouldHaveQuery 'Is it bleeding?'!
+
+      retry!
+        expect(api.documents.length).to.eql 1
+
+      window.history.back()
+
+      rootBrowser.loadCurrentDocumentButton().expect! @(element)
+        @not element.has '.disabled'
+
+      rootBrowser.loadCurrentDocumentButton().click!()
+      shouldHaveQuery 'Is it bleeding?'!
+      selectResponse 'yes'!
+      shouldHaveQuery 'Is it aching?'!
+      selectResponse 'yes'!
+      shouldBeFinished()!
+
+  context 'logged in with repeating lexicon'
+    beforeEach
+      api.setLexicon (repeatingLexicon)
+      appendRootComponent()
+
+    it 'can create a document, make some repeating responses, and come back to it'
+      retry!
+        expect(api.documents.length).to.eql 0
+
+      rootBrowser.startNewDocumentButton().click!()
+      shouldHaveQuery 'One'!
+      selectResponse 'A'!
+      shouldHaveQuery 'One'!
+      selectResponse 'C'!
+      shouldHaveQuery 'One'!
+
+      retry!
+        expect(api.documents.length).to.eql 1
+
+      window.history.back()
+
+      rootBrowser.loadCurrentDocumentButton().expect! @(element)
+        @not element.has '.disabled'
+
+      rootBrowser.loadCurrentDocumentButton().click!()
+      shouldHaveQuery 'One'!
+      reportBrowser.query().response('A').expect!(element.is('.other'))
+      reportBrowser.query().response('C').expect!(element.is('.other'))
+      selectResponse 'No More'!
+      shouldBeFinished()!

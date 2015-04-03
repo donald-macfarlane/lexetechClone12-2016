@@ -38,9 +38,15 @@ module.exports() =
 
     router.get(url + '/:id') @(request)
       body = collection.(Number(request.params.id) - 1)
-      {
-        body = body
-      }
+      
+      if (body)
+        {
+          body = body
+        }
+      else
+        {
+          statusCode = 404
+        }
 
     router.delete(url + '/:id') @(request)
       collection.splice(Number(request.params.id) - 1, 1)
@@ -166,7 +172,7 @@ module.exports() =
       statusCode = 204
     }
 
-  router.get '/api/user/documents/last' @(req)
+  router.get '/api/user/documents/current' @(req)
     if (documents.length)
       {
         body = documents.0

@@ -2,25 +2,25 @@ var plastiqRouter = require('plastiq-router');
 var router = plastiqRouter();
 
 router.login = router.route('/login', {
-  to: function (model) {
+  onarrive: function (model) {
     model.login = true;
   },
-  from: function (model) {
+  onleave: function (model) {
     delete model.login;
   }
 });
 
 router.signup = router.route('/signup', {
-  to: function (model) {
+  onarrive: function (model) {
     model.signup = true;
   },
-  from: function (model) {
+  onleave: function (model) {
     delete model.signup;
   }
 });
 
 router.report = router.route('/report/:documentId', {
-  to: function (model, params, document) {
+  onarrive: function (model, params, document) {
     model.documentId = params.documentId;
     if (document) {
       model.openDocument(model.documentsApi.document(document));
@@ -30,7 +30,7 @@ router.report = router.route('/report/:documentId', {
       });
     }
   },
-  from: function (model) {
+  onleave: function (model) {
     delete model.documentId;
     delete model.document;
   }
