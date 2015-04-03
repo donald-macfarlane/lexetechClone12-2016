@@ -175,22 +175,20 @@ var queryComponent = prototype({
                 )
               ),
               h('.ui.tab.active', {dataset: {tab: 'style1'}},
-                htmlEditor({
-                  class: 'response-text-editor',
-                  binding:
-                    self.editingResponse
-                      ? [self.editingResponse.styles, 'custom']
-                      : [self.showingResponse.styles, 'style1']
-                })
+                self.editingResponse
+                ? htmlEditor({
+                    class: 'response-text-editor',
+                    binding: [self.editingResponse.styles, 'custom']
+                  })
+                : h.rawHtml('.response-text', self.showingResponse.styles.style1)
               ),
               h('.ui.tab', {dataset: {tab: 'style2'}},
-                htmlEditor({
-                  class: 'response-text-editor',
-                  binding:
-                    self.editingResponse
-                      ? [self.editingResponse.styles, 'custom']
-                      : [self.showingResponse.styles, 'style2']
-                })
+                self.editingResponse
+                ? htmlEditor({
+                    class: 'response-text-editor',
+                    binding: [self.editingResponse.styles, 'custom']
+                  })
+                : h.rawHtml('.response-text', self.showingResponse.styles.style2)
               ),
               self.editingResponse? [
                 h('button', {onclick: function (ev) { self.selectResponse(self.editingResponse); delete self.editingResponse; }}, 'ok'),
