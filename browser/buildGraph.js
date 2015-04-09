@@ -17,49 +17,70 @@ function cloneContext(c) {
         blocks: c.blocks.slice(0),
         level: c.level,
         predicants: predicants,
-        blockStack: blockStack
+        blockStack: blockStack,
+        loopPredicants: JSON.parse(JSON.stringify(c.loopPredicants)),
+        history: JSON.parse(JSON.stringify(c.history))
     });
 }
 
 var actions = {
-    none: function(response, context) {},
+  none: function(query, response, context) {},
 
-    email: function(response, context) {},
+  email: function(query, response, context) {},
 
-    addBlocks: function(response, context) {
-      var blocks = Array.prototype.slice.call(arguments, 2, arguments.length);
+  addBlocks: function(query, response, context) {
+    var blocks = Array.prototype.slice.call(arguments, 3, arguments.length);
 
-      context.pushBlockStack();
+    context.pushBlockStack();
+    context.coherenceIndex = 0;
+    context.block = blocks.shift();
+
+    context.blocks = blocks;
+  },
+
+  setBlocks: function(query, response, context) {
+    var blocks = Array.prototype.slice.call(arguments, 3, arguments.length);
+
+    var nextBlock;
+    context.blocks = blocks.slice(0);
+    nextBlock = context.blocks.shift();
+
+    if (String(nextBlock) !== String(context.block)) {
+      context.block = nextBlock;
       context.coherenceIndex = 0;
-      context.block = blocks.shift();
+    }
+  },
 
-      context.blocks = blocks;
-    },
+  setVariable: function(query, response, context, variable, value) {},
 
-    setBlocks: function(response, context) {
-      var blocks = Array.prototype.slice.call(arguments, 2, arguments.length);
+  repeatLexeme: function(query, response, context) {
+    --context.coherenceIndex;
+    response.repeating = true;
+  },
 
-      var nextBlock;
-      context.blocks = blocks.slice(0);
-      nextBlock = context.blocks.shift();
+  loopBack: function(query, response, context) {
+    var queryLevel = context.level;
+    var loopHead = findLoopHead(context, queryLevel);
 
-      if (String(nextBlock) !== String(context.block)) {
-        context.block = nextBlock;
-        context.coherenceIndex = 0;
-      }
-    },
+    context.coherenceIndex = loopHead.loopHead.index;
 
-    setVariable: function(response, context, variable, value) {},
-
-    repeatLexeme: function(response, context) {
-      --context.coherenceIndex;
-      response.repeating = true;
-    },
-
-    loopBack: function(response, context) {}
+    context.parkLoopPredicants(queryLevel, loopHead.index);
+  }
 };
 
-function newContextFromResponseContext(response, context) {
+function findLoopHead(context, queryLevel) {
+  for(var n = context.history.length - 1; n >= 0; n--) {
+    var historyItem = context.history[n];
+
+    if (historyItem.level < queryLevel) {
+      return {index: n, loopHead: historyItem};
+    }
+  }
+
+  throw new Error('could not find loop head');
+}
+
+function newContextFromResponseContext(query, response, context) {
   var newContext = cloneContext(context);
   newContext.level = response.setLevel;
   ++newContext.coherenceIndex;
@@ -67,12 +88,12 @@ function newContextFromResponseContext(response, context) {
   if (response.actions) {
     response.actions.forEach(function (responseAction) {
       var action = actions[responseAction.name];
-      action.apply(null, [response, newContext].concat(responseAction.arguments));
+      action.apply(null, [query, response, newContext].concat(responseAction.arguments));
     });
   }
 
   response.predicants.forEach(function (p) {
-    newContext.predicants[p] = true;
+    newContext.predicants[p] = newContext.history.length - 1;
   });
 
   return newContext;
@@ -183,10 +204,10 @@ module.exports = function(options) {
             var preload = (options && options.hasOwnProperty('preload'))? options.preload: true;
 
             if (!cache) {
-              return nextQueryForResponse(r, context);
+              return nextQueryForResponse(next.query, r, context);
             } else {
               if (!self._query) {
-                self._query = nextQueryForResponse(r, context);
+                self._query = nextQueryForResponse(next.query, r, context);
               }
 
               if (preload && !self.preloaded) {
@@ -207,8 +228,8 @@ module.exports = function(options) {
     return graph;
   }
 
-  function nextQueryForResponse(response, context) {
-    var newContext = newContextFromResponseContext(response, context);
+  function nextQueryForResponse(query, response, context) {
+    var newContext = newContextFromResponseContext(query, response, context);
     return nextQueryForContext(newContext, context);
   }
 
@@ -229,16 +250,18 @@ module.exports = function(options) {
     return queryCache.cacheBy(context.coherenceIndex + ":" + context.key(), function() {
       var originalContext = cloneContext(context);
 
-      return findNextQuery(api, context).then(function(next) {
-        if (next.query) {
-          context.coherenceIndex = next.query.index;
+      return findNextQuery(api, context).then(function(query) {
+        if (query.query) {
+          context.coherenceIndex = query.query.index;
+          context.history.push({level: query.query.level, index: query.query.index});
+          context.restoreLoopPredicants(query.query.level);
         }
 
-        next.previousContext = previousContext;
-        next.startingContext = originalContext;
-        next.context = context;
+        query.previousContext = previousContext;
+        query.startingContext = originalContext;
+        query.context = context;
 
-        return queryGraph(next, context);
+        return queryGraph(query, context);
       });
     });
   }
@@ -276,7 +299,9 @@ module.exports = function(options) {
             blocks: hack? _.range(2, 19).map(String): [],
             level: 1,
             predicants: firstPredicants,
-            blockStack: []
+            blockStack: [],
+            history: [{level: query.level, index: 0}],
+            loopPredicants: []
           });
 
           var graph = queryGraph({

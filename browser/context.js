@@ -1,4 +1,5 @@
 var prototype = require('prote');
+var _ = require('underscore');
 
 module.exports = prototype({
   key: function() {
@@ -24,5 +25,35 @@ module.exports = prototype({
     this.coherenceIndex = b.coherenceIndex;
     this.block = b.block;
     this.blocks = b.blocks;
+  },
+
+  parkLoopPredicants: function (queryLevel, loopHeadIndex) {
+    var self = this;
+
+    self.loopPredicants = self.loopPredicants || [];
+    var loopPredicants = self.loopPredicants[queryLevel] = self.loopPredicants[queryLevel] || {};
+
+    Object.keys(self.predicants).map(function (key) {
+      var historyIndex = self.predicants[key];
+
+      if (historyIndex > loopHeadIndex) {
+        delete self.predicants[key];
+        loopPredicants[key] = historyIndex;
+      }
+    });
+
+    self.looping = true;
+  },
+
+  restoreLoopPredicants: function (queryLevel) {
+    if (this.looping) {
+      delete this.looping;
+    } else if (this.loopPredicants) {
+      for(var n = queryLevel + 1; n < this.loopPredicants.length; n++) {
+        _.extend(this.predicants, this.loopPredicants[n]);
+      }
+
+      this.loopPredicants.splice(queryLevel + 1);
+    }
   }
 });
