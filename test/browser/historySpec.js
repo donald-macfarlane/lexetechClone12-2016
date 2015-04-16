@@ -98,6 +98,10 @@ describe('history', function () {
         return reloadHistory(history.undo());
       }
 
+      function back(index) {
+        return reloadHistory(history.back(index));
+      }
+
       function accept() {
         return reloadHistory(history.accept());
       }
@@ -147,6 +151,22 @@ describe('history', function () {
           }).then(function () {
             expectQuery('Where does it hurt?');
             return accept();
+          }).then(function () {
+            expectQuery('Is it bleeding?');
+            return accept();
+          }).then(function () {
+            expectQuery('Is it aching?');
+          });
+        });
+
+        it('can go back several queries', function () {
+          return currentQuery().then(function () {
+            expectQuery('Where does it hurt?');
+            return selectResponseAndExpectQuery('left leg', 'Is it bleeding?');
+          }).then(function () {
+            return selectResponseAndExpectQuery('yes', 'Is it aching?');
+          }).then(function () {
+            return back(0);
           }).then(function () {
             expectQuery('Is it bleeding?');
             return accept();

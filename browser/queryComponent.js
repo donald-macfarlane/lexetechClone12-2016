@@ -22,7 +22,6 @@ var queryComponent = prototype({
   },
 
   setQuery: function (query) {
-    this.query = query;
     delete this.editingResponse;
     delete this.showingResponse;
   },
@@ -74,14 +73,14 @@ var queryComponent = prototype({
   },
 
   render: function () {
-    var query = this.query;
+    var query = this.history.query;
     var self = this;
 
     self.refresh = h.refresh;
 
     if (query) {
-      var responsesForQuery = self.history.responsesForQuery(self.query) || {others: []};
-      var selectedResponse = self.query.responses && self.query.responses.filter(function (r) {
+      var responsesForQuery = self.history.responsesForQuery(query) || {others: []};
+      var selectedResponse = query.responses && query.responses.filter(function (r) {
         return r.id == responsesForQuery.previous;
       })[0];
 

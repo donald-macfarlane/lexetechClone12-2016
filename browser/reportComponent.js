@@ -25,7 +25,7 @@ module.exports = prototype({
 
     this.debug = debugComponent({
       currentQuery: function () {
-        return self.query.query;
+        return self.history.query;
       },
       lexemeApi: options.lexemeApi
     });

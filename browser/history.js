@@ -44,6 +44,10 @@ module.exports = prototype({
     });
   },
 
+  currentLexemes: function () {
+    return this.lexemes.slice(0, this.index + 1);
+  },
+
   currentQuery: function () {
     if (this.document.lexemes.length && this.index >= 0) {
       var lexeme = this.document.lexemes[this.index];
@@ -196,7 +200,6 @@ module.exports = prototype({
   },
 
   undo: function () {
-    var self = this;
     var lexeme = this.lexemes[this.index];
     this.index--;
 
@@ -206,20 +209,22 @@ module.exports = prototype({
     };
   },
 
-  back: function (lexeme) {
-    var self = this;
-    var currentLexeme;
+  back: function (index) {
+    if (this.lexemes.length > index) {
+      if (this.index !== index) {
+        this.index = index;
 
-    while(this.lexemes.length > 0) {
-      currentLexeme = this.lexemes.pop();
-      if (currentLexeme == lexeme) {
-        break;
+        return {
+          query: this.currentQuery(),
+          documentSaved: this.updateDocument()
+        };
+      } else {
+        return {
+          query: Promise.resolve(this.query),
+          documentSaved: Promise.resolve(undefined)
+        };
       }
     }
-
-    var queryId = currentLexeme.query.id;
-    var context = currentLexeme.context;
-    return this.queryGraph.query(queryId, context).then(this.setQuery);
   },
 
   canUndo: function () {
