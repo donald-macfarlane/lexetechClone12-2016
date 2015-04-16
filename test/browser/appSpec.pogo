@@ -11,7 +11,7 @@ element = require './element'
 router = require 'plastiq-router'
 _ = require 'underscore'
 
-describe.only 'report'
+describe 'report'
   div = nil
   api = nil
   originalLocation = nil
@@ -366,6 +366,7 @@ describe.only 'report'
       shouldHaveQuery 'Is it aching?'!
       selectResponse 'yes'!
       reportBrowser.document().section('bleeding').click!()
+      shouldHaveQuery 'Is it bleeding?'!
       reportBrowser.query().response('yes').expect!(element.is('.selected'))
       reportBrowser.acceptButton().click!()
       shouldHaveQuery 'Is it aching?'!

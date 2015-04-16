@@ -11,6 +11,8 @@ module.exports = prototype({
     this.queryGraph = options.queryGraph;
 
     this.rebuildHistory();
+
+    this.setQuery = this.setQuery.bind(this);
   },
 
   rebuildHistory: function () {
@@ -45,26 +47,16 @@ module.exports = prototype({
   currentQuery: function () {
     if (this.document.lexemes.length && this.index >= 0) {
       var lexeme = this.document.lexemes[this.index];
-      return this.acceptLexeme(lexeme);
+      return this.acceptLexeme(lexeme).then(this.setQuery);
     } else {
-      return this.queryGraph.firstQueryGraph();
+      return this.queryGraph.firstQueryGraph().then(this.setQuery);
     }
   },
 
-  selectResponse: function (query, response) {
-    var self = this;
-
-    var savedResult, savedError;
-
-    var saved = new Promise(function (result, error) {
-      savedResult = result;
-      savedError = error;
-    });
-
+  selectResponse: function (response) {
     return {
-      query: response.query(),
-
-      documentSaved: self.addQueryResponse(query.query, response, query.context)
+      query: response.query().then(this.setQuery),
+      documentSaved: this.addQueryResponse(this.query.query, response, this.query.context)
     };
   },
 
@@ -72,17 +64,22 @@ module.exports = prototype({
     var self = this;
 
     return {
-      query: self.query.skip(),
-      documentSaved: self.history.addQuerySkip(self.query.query, self.query.context)
+      query: self.query.skip().then(this.setQuery),
+      documentSaved: self.addQuerySkip(self.query.query, self.query.context)
     };
+  },
+
+  setQuery: function (q) {
+    this.query = q;
+    return q;
   },
 
   omit: function () {
     var self = this;
 
     return {
-      query: self.query.omit(),
-      documentSaved: self.history.addQueryOmit(self.query.query, self.query.context)
+      query: self.query.omit().then(self.setQuery),
+      documentSaved: self.addQueryOmit(self.query.query, self.query.context)
     };
   },
 
@@ -189,7 +186,7 @@ module.exports = prototype({
     var queryPromise = this.acceptLexeme(lexeme);
 
     return {
-      query: queryPromise,
+      query: queryPromise.then(this.setQuery),
       documentSaved: this.updateDocument()
     };
   },
@@ -204,7 +201,7 @@ module.exports = prototype({
     this.index--;
 
     return {
-      query: this.queryGraph.query(lexeme.query.id, lexeme.context),
+      query: this.queryGraph.query(lexeme.query.id, lexeme.context).then(this.setQuery),
       documentSaved: this.updateDocument()
     };
   },
@@ -222,7 +219,7 @@ module.exports = prototype({
 
     var queryId = currentLexeme.query.id;
     var context = currentLexeme.context;
-    this.queryGraph.query(queryId, context);
+    return this.queryGraph.query(queryId, context).then(this.setQuery);
   },
 
   canUndo: function () {

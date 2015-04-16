@@ -17,7 +17,7 @@ module.exports = function(config) {
     files: [
       "node_modules/jquery/dist/jquery.min.js",
       "semantic/dist/semantic.min.js",
-      "test/browser/**/*Spec.js"
+      "test/browser/**/*Spec.{js,pogo}"
     ],
 
     preprocessors: {

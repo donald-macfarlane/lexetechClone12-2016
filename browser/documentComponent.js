@@ -19,8 +19,11 @@ module.exports = prototype({
               {
                 href: '#',
                 onclick: function (ev) {
-                  self.model.history.back(lexeme);
                   ev.preventDefault();
+
+                  return self.model.history.back(lexeme).then(function (query) {
+                    self.model.query.setQuery(query);
+                  });
                 }
               },
               h.rawHtml('span', lexeme.response.styles.custom || lexeme.response.styles.style1)

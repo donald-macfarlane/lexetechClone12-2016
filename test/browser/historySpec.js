@@ -8,7 +8,7 @@ var simpleLexicon = require('../simpleLexicon');
 var loopingLexicon = require('../loopingLexicon');
 var Promise = require('bluebird');
 
-describe.only('history', function () {
+describe('history', function () {
   var documentApi;
   var queryGraph;
   var query;
@@ -49,7 +49,7 @@ describe.only('history', function () {
 
         expect(response, errorMessage).to.exist;
 
-        return reloadHistory(history.selectResponse(query, response));
+        return reloadHistory(history.selectResponse(response));
       }
 
       function reloadHistory(result) {
@@ -166,7 +166,7 @@ describe.only('history', function () {
           });
         });
 
-        only(it)('can loop', function () {
+        it('can loop', function () {
           return currentQuery().then(function () {
             expectQuery('query 1, level 1');
           }).then(function () {

@@ -1,12 +1,13 @@
 var jquery = require("./jquery");
+var Promise = require('bluebird');
 
 function send(method, url, body) {
-  return jquery.ajax({
+  return Promise.resolve(jquery.ajax({
     url: url,
     type: method,
     contentType: "application/json; charset=UTF-8",
     data: body? JSON.stringify(body): undefined
-  });
+  }));
 }
 
 ['get', 'delete'].forEach(function (method) {
@@ -20,3 +21,7 @@ function send(method, url, body) {
     return send(method.toUpperCase(), url, body);
   };
 });
+
+module.exports.onError = function(fn) {
+  jquery(document).ajaxError(fn);
+}
