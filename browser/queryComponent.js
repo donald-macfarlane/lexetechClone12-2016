@@ -19,11 +19,6 @@ var queryComponent = prototype({
         self.refresh();
       });
     }
-
-    this.history.on('query', function (query) {
-      self.setQuery(query);
-      self.refresh();
-    });
   },
 
   setQuery: function (query) {

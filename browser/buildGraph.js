@@ -5,22 +5,22 @@ var createCache = require("../common/cache");
 var lexemeApi = require("../browser/lexemeApi");
 
 function cloneContext(c) {
-    var predicants, blockStack;
-    predicants = {};
-    Object.keys(c.predicants).forEach(function(pk) {
-        return predicants[pk] = true;
-    });
-    blockStack = JSON.parse(JSON.stringify(c.blockStack));
-    return createContext({
-        coherenceIndex: c.coherenceIndex,
-        block: c.block,
-        blocks: c.blocks.slice(0),
-        level: c.level,
-        predicants: predicants,
-        blockStack: blockStack,
-        loopPredicants: JSON.parse(JSON.stringify(c.loopPredicants)),
-        history: JSON.parse(JSON.stringify(c.history))
-    });
+  var predicants, blockStack;
+  predicants = {};
+  Object.keys(c.predicants).forEach(function(pk) {
+    return predicants[pk] = c.predicants[pk];
+  });
+  blockStack = JSON.parse(JSON.stringify(c.blockStack));
+  return createContext({
+    coherenceIndex: c.coherenceIndex,
+    block: c.block,
+    blocks: c.blocks.slice(0),
+    level: c.level,
+    predicants: predicants,
+    blockStack: blockStack,
+    loopPredicants: JSON.parse(JSON.stringify(c.loopPredicants)),
+    history: JSON.parse(JSON.stringify(c.history))
+  });
 }
 
 var actions = {
@@ -102,7 +102,7 @@ function newContextFromResponseContext(query, response, context) {
 function anyPredicantInFoundIn(predicants, currentPredicants) {
   if (predicants.length > 0) {
     return _.any(predicants, function(p) {
-      return currentPredicants[p];
+      return currentPredicants[p] !== undefined;
     });
   } else {
     return true;

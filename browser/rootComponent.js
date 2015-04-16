@@ -1,11 +1,11 @@
 var plastiq = require('plastiq');
 var h = plastiq.html;
-var reportComponent = require('./report');
+var reportComponent = require('./reportComponent');
 var prototype = require('prote');
-var login = require('./login');
-var signup = require('./signup');
-var layout = require('./layout');
-var documentsApi = require('./documentsApi')();
+var loginComponent = require('./loginComponent');
+var signupComponent = require('./signupComponent');
+var layoutComponent = require('./layoutComponent');
+var documentApi = require('./documentApi')();
 var router = require('./router');
 var buildGraph = require('./buildGraph');
 var lexemeApi = require('./lexemeApi');
@@ -18,10 +18,10 @@ var rootComponent = prototype({
 
     if (pageData.user) {
       this.graphHack = pageData.graphHack;
-      this.documentsApi = documentsApi;
+      this.documentApi = documentApi;
 
       this.startReport = startReportComponent({
-        documentsApi: documentsApi,
+        documentApi: documentApi,
         root: {openDocument: this.openDocument.bind(this)},
         user: this.user
       });
@@ -31,7 +31,7 @@ var rootComponent = prototype({
   openDocumentById: function (docId) {
     var self = this;
 
-    return this.documentsApi.document(docId).then(function (doc) {
+    return this.documentApi.document(docId).then(function (doc) {
       self.openDocument(doc);
     });
   },
@@ -67,18 +67,12 @@ var rootComponent = prototype({
     var self = this;
     this.refresh = h.refresh;
 
-    function master(fn) {
-      return function() {
-        return layout(self, fn.apply(this, arguments));
-      };
-    }
-
     return router.render(this, function () {
-      return layout(self,
+      return layoutComponent(self,
         self.signup ?
-          router.signup(signup())
+          router.signup(signupComponent())
         : self.login || !self.user ?
-          router.login(login())
+          router.login(loginComponent())
         : self.documentId ?
           router.report({documentId: self.documentId}, self.document,
             self.report

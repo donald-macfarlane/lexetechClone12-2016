@@ -4,9 +4,9 @@ var prototype = require('prote');
 var semanticUi = require('plastiq-semantic-ui');
 var _ = require('underscore');
 
-var queryComponent = require('./query');
-var debugComponent = require('./debug');
-var documentComponent = require('./document');
+var queryComponent = require('./queryComponent');
+var debugComponent = require('./debugComponent');
+var documentComponent = require('./documentComponent');
 var historyComponent = require('./history');
 
 function dirtyBinding(model, name) {
@@ -30,8 +30,19 @@ module.exports = prototype({
       lexemeApi: options.lexemeApi
     });
 
-    this.history = historyComponent({document: options.document, queryGraph: options.queryGraph});
-    this.query = queryComponent({user: options.user, history: this.history, debug: this.debug});
+    this.history = historyComponent({
+      document: options.document,
+      queryGraph: options.queryGraph,
+      setQuery: function (query) {
+        self.query.setQuery(query);
+      }
+    });
+
+    this.query = queryComponent({
+      user: options.user,
+      history: this.history,
+      debug: this.debug
+    });
   },
 
   currentQuery: function () {

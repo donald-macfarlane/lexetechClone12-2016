@@ -38,7 +38,7 @@ router.report = router.route('/report/:documentId', {
     ensureLoggedIn(model, function () {
       model.documentId = params.documentId;
       if (document) {
-        model.openDocument(model.documentsApi.document(document));
+        model.openDocument(model.documentApi.document(document));
       } else {
         model.openDocumentById(model.documentId).then(function () {
           model.refresh();

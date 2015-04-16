@@ -1,13 +1,7 @@
 var http = require('./http');
 var prototype = require('prote');
-var _ = require('underscore');
 
-var documentPrototype = prototype({
-  update: function (doc) {
-    _.extend(this, doc);
-    return http.post(this.href, this);
-  }
-});
+var documentPrototype = require('./document');
 
 module.exports = prototype({
   currentDocument: function () {

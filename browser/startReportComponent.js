@@ -9,14 +9,14 @@ module.exports = prototype({
   constructor: function (options) {
     var self = this;
 
-    this.documentsApi = options.documentsApi;
+    this.documentApi = options.documentApi;
     this.root = options.root;
 
     this.syncDocuments = sync({
       throttle: 5000,
       condition: function () { return options.user; }
     }, function () {
-      return self.documentsApi.allDocuments().then(function (documents) {
+      return self.documentApi.allDocuments().then(function (documents) {
         self.documents = documents;
       });
     });
@@ -25,7 +25,7 @@ module.exports = prototype({
       throttle: 5000,
       condition: function () { return options.user && !self.hasCurrentDocument; }
     }, function () {
-      return self.documentsApi.currentDocument().then(function (doc) {
+      return self.documentApi.currentDocument().then(function (doc) {
         self.hasCurrentDocument = !!doc;
       });
     });
@@ -36,7 +36,7 @@ module.exports = prototype({
   createDocument: function () {
     var self = this;
 
-    return this.documentsApi.create().then(function (doc) {
+    return this.documentApi.create().then(function (doc) {
       self.root.openDocument(doc);
     });
   },
@@ -44,7 +44,7 @@ module.exports = prototype({
   loadCurrentDocument: function () {
     var self = this;
 
-    return self.documentsApi.currentDocument().then(function (doc) {
+    return self.documentApi.currentDocument().then(function (doc) {
       self.root.openDocument(doc);
     });
   },
@@ -52,7 +52,7 @@ module.exports = prototype({
   loadDocument: function (id) {
     var self = this;
 
-    return this.documentsApi.document(id).then(function (doc) {
+    return this.documentApi.document(id).then(function (doc) {
       self.root.openDocument(doc);
     });
   },
