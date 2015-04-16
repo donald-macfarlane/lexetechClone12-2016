@@ -6,7 +6,16 @@ module.exports = prototype({
     if (this._key) {
       return this._key;
     } else {
-      var key = this.level + ":" + Object.keys(this.blocks).join(",") + ":" + Object.keys(this.predicants).join(",");
+      var key = JSON.stringify({
+        ci: this.coherenceIndex,
+        b: this.block,
+        bs: Object.keys(this.blocks),
+        l: this.level,
+        p: this.predicants,
+        bss: this.blockStack,
+        lp: this.loopPredicants
+      });
+
       Object.defineProperty(this, '_key', { value: key });
       return key;
     }

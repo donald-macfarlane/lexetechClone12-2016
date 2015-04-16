@@ -8,7 +8,7 @@ var simpleLexicon = require('../simpleLexicon');
 var loopingLexicon = require('../loopingLexicon');
 var Promise = require('bluebird');
 
-describe('history', function () {
+describe.only('history', function () {
   var documentApi;
   var queryGraph;
   var query;
@@ -18,7 +18,7 @@ describe('history', function () {
   beforeEach(function () {
     documentApi = createDocumentApi();
     server = createQueryApi();
-    queryGraph = buildGraph({cache: false});
+    queryGraph = buildGraph({cache: true});
   });
 
   itCanRunLexicon({saving: true});
@@ -133,7 +133,7 @@ describe('history', function () {
           });
         });
 
-        only(it)('can undo and accept', function () {
+        it('can undo and accept', function () {
           return currentQuery().then(function () {
             expectQuery('Where does it hurt?');
             return selectResponseAndExpectQuery('left leg', 'Is it bleeding?');
@@ -166,7 +166,7 @@ describe('history', function () {
           });
         });
 
-        it('can loop', function () {
+        only(it)('can loop', function () {
           return currentQuery().then(function () {
             expectQuery('query 1, level 1');
           }).then(function () {

@@ -61,15 +61,13 @@ function watchJs(filename) {
 gulp.task('watch-js', function () {
   watchJs('./browser/app.js');
   watchJs('./browser/authoring.pogo');
-  watchJs('./browser/debug.js');
 });
 
 gulp.task('js',
   rebundle(
     {minify: true},
     browserifyBundle(false, './browser/app.js'),
-    browserifyBundle(false, './browser/authoring.pogo'),
-    browserifyBundle(false, './browser/debug.js')
+    browserifyBundle(false, './browser/authoring.pogo')
   )
 );
 

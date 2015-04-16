@@ -11,7 +11,7 @@ element = require './element'
 router = require 'plastiq-router'
 _ = require 'underscore'
 
-describe 'report'
+describe.only 'report'
   div = nil
   api = nil
   originalLocation = nil

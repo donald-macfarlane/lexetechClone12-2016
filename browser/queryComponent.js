@@ -42,8 +42,7 @@ var queryComponent = prototype({
   selectResponse: function (response) {
     var self = this;
 
-    return this.loadingQuery(response.query()).then(function (q) {
-      self.history.addQueryResponse(self.query.query, response, self.query.context);
+    return this.loadingQuery(this.history.selectResponse(this.query, response).query).then(function (q) {
       self.setQuery(q);
     });
   },
@@ -51,8 +50,7 @@ var queryComponent = prototype({
   skip: function () {
     var self = this;
 
-    return this.loadingQuery(self.query.skip()).then(function (q) {
-      self.history.addQuerySkip(self.query.query, self.query.context);
+    return this.loadingQuery(self.query.skip().query).then(function (q) {
       self.setQuery(q);
     });
   },
@@ -60,8 +58,7 @@ var queryComponent = prototype({
   omit: function () {
     var self = this;
 
-    return this.loadingQuery(self.query.omit()).then(function (q) {
-      self.history.addQueryOmit(self.query.query, self.query.context);
+    return this.loadingQuery(self.history.omit().query).then(function (q) {
       self.setQuery(q);
     });
   },
