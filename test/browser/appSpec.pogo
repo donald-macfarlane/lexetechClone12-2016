@@ -31,6 +31,7 @@ describe 'report'
     undoButton() = self.find('.query button', text = 'undo')
     acceptButton() = self.find('.query button', text = 'accept')
     debugTab() = self.find('.tabular .debug')
+    normalTab() = self.find('.tabular .style-normal')
 
     debug() = debugBrowser(self.find('.debug'))
     document() = documentBrowser(self.find('.document'))
@@ -60,7 +61,7 @@ describe 'report'
   }
 
   responseEditorElement = prototypeExtending(element) {
-    responseTextEditor(style) = self.find(".tab[data-tab=#(JSON.stringify(style))] .response-text-editor")
+    responseTextEditor(style) = self.find(".tab.style-#(style) .response-text-editor")
     okButton() = self.find('button', text = 'ok')
     cancelButton() = self.find('button', text = 'cancel')
   }
@@ -380,7 +381,7 @@ describe 'report'
 
       waitForLexemesToSave!(3)
 
-    it.only 'can edit the response before accepting it'
+    it 'can edit the response before accepting it'
       shouldHaveQuery 'Where does it hurt?'!
       selectResponse 'left leg'!
       shouldHaveQuery 'Is it bleeding?'!
@@ -516,6 +517,8 @@ describe 'report'
 
       selectResponse 'yes'!
       shouldBeFinished()!
+
+      reportBrowser.normalTab().click!()
 
       notesShouldBe! "Complaint
                       ---------

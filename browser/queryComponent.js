@@ -194,7 +194,7 @@ var queryComponent = prototype({
     var self = this;
 
     function styleTabContents(response, id, options) {
-      return h('.ui.tab',
+      return h('.ui.tab', {class: 'style-' + id},
         options.editing
         ? [
             mediumEditor({
@@ -249,7 +249,7 @@ var queryComponent = prototype({
             tabs: tabs.map(function (tab) {
               return {
                 key: tab.id,
-                tab: h('a.item', {class: {edited: styleEdited(tab.id)}}, tab.name),
+                tab: h('a.item.style-' + tab.id, {class: {edited: styleEdited(tab.id)}}, tab.name),
                 content: function () {
                   return styleTabContents(
                     response,
