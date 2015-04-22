@@ -270,6 +270,10 @@ body {
           }
         }
 
+        &.editing {
+          background-color: fade(@accept-color, 4%);
+        }
+
         &.loading {
           .progress();
         }
@@ -304,6 +308,11 @@ body {
   }
 
   .response-editor {
+    .ui.tabular.menu a.edited {
+      background-color: rgb(249, 226, 167);
+      border-color: rgb(219, 198, 144);
+    }
+
     .response-text, .response-text-editor {
       padding: 11px;
       background-color: white;

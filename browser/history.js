@@ -57,10 +57,10 @@ module.exports = prototype({
     }
   },
 
-  selectResponse: function (response) {
+  selectResponse: function (response, styles) {
     return {
       query: response.query().then(this.setQuery),
-      documentSaved: this.addQueryResponse(this.query.query, response, this.query.context)
+      documentSaved: this.addQueryResponse(this.query.query, this.query.context, response, styles)
     };
   },
 
@@ -95,7 +95,7 @@ module.exports = prototype({
     };
   },
 
-  addQueryResponse: function (query, response, context, options) {
+  addQueryResponse: function (query, context, response, styles) {
     var lexeme = {
       query: this.serialiseQuery(query),
       context: context,
@@ -103,16 +103,28 @@ module.exports = prototype({
         text: response.text,
         id: response.id,
         repeat: response.repeat,
-        styles: response.styles
+        styles: styles || response.styles
       }
     };
 
-    return this.pushLexeme(lexeme, options);
+    return this.pushLexeme(lexeme);
+  },
+
+  stylesForQueryResponse: function (response) {
+    var responseByQueryId = this.responsesByQueryId[this.query.query.id];
+
+    if (responseByQueryId) {
+      return responseByQueryId.stylesByResponseId[response.id];
+    }
   },
 
   pushLexeme: function (lexeme, options) {
     if (lexeme.response) {
-      var responseByQueryId = this.responsesByQueryId[lexeme.query.id] = this.responsesByQueryId[lexeme.query.id] || {};
+      var responseByQueryId = this.responsesByQueryId[lexeme.query.id] = this.responsesByQueryId[lexeme.query.id] || {
+        stylesByResponseId: {}
+      };
+
+      responseByQueryId.stylesByResponseId[lexeme.response.id] = lexeme.response.styles;
 
       if (lexeme.response.repeat) {
         responseByQueryId.others = responseByQueryId.others || [];
@@ -136,6 +148,8 @@ module.exports = prototype({
               || (lexeme.skip && lastLexeme.skip)
               || (lexeme.omit && lastLexeme.omit)))) {
         this.lexemes.splice(this.index, this.lexemes.length - this.index, lexeme);
+      } else {
+        this.lexemes[this.index] = lexeme;
       }
     }
 

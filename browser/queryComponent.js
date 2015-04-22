@@ -22,8 +22,32 @@ var queryComponent = prototype({
   },
 
   setQuery: function (query) {
-    delete this.editingResponse;
+    this.stopEditingResponse();
+    this.stopShowingResponse();
+  },
+
+  showResponse: function (response) {
+    this.showingResponse = {
+      response: response,
+      styles: this.history.stylesForQueryResponse(response) || response.styles
+    };
+  },
+
+  stopShowingResponse: function () {
     delete this.showingResponse;
+  },
+
+  editResponse: function (response) {
+    this.editingResponse = {
+      response: response,
+      styles:
+        this.history.stylesForQueryResponse(response)
+          || JSON.parse(JSON.stringify(response.styles))
+    };
+  },
+
+  stopEditingResponse: function () {
+    delete this.editingResponse;
   },
 
   loadingQuery: function (queryPromise) {
@@ -38,10 +62,10 @@ var queryComponent = prototype({
     });
   },
 
-  selectResponse: function (response) {
+  selectResponse: function (response, styles) {
     var self = this;
 
-    return this.loadingQuery(this.history.selectResponse(response).query).then(function (q) {
+    return this.loadingQuery(this.history.selectResponse(response, styles).query).then(function (q) {
       self.setQuery(q);
     });
   },
@@ -98,7 +122,7 @@ var queryComponent = prototype({
               {
                 class: {enabled: selectedResponse},
                 onclick: selectedResponse? function () {
-                  return self.selectResponse(selectedResponse);
+                  return self.history.accept();
                 }: undefined
               },
               'accept'
@@ -126,13 +150,14 @@ var queryComponent = prototype({
                         class: {
                           selected: selectedResponse == response,
                           loading: self.loadingResponse == response,
-                          other: responsesForQuery.others[response.id]
+                          other: responsesForQuery.others[response.id],
+                          editing: self.editingResponse && response == self.editingResponse.response
                         },
                         onmouseenter: function () {
-                          self.showingResponse = response;
+                          self.showResponse(response);
                         },
                         onmouseleave: function () {
-                          delete self.showingResponse;
+                          self.stopShowingResponse();
                         }
                       },
                       h('a',
@@ -140,7 +165,7 @@ var queryComponent = prototype({
                           href: '#',
                           onclick: function (ev) {
                             ev.preventDefault();
-                            return self.selectResponse(response);
+                            return self.selectResponse(response, self.history.stylesForQueryResponse(response));
                           }
                         },
                         response.text
@@ -148,8 +173,7 @@ var queryComponent = prototype({
                       h('button.edit-response',
                         {
                           onclick: function (ev) {
-                            response.styles.custom = response.styles.custom || response.styles.style1;
-                            self.editingResponse = response;
+                            self.editResponse(response);
                           }
                         },
                         'edit'
@@ -160,41 +184,86 @@ var queryComponent = prototype({
               ]
             : h('h3.finished', 'finished')
         ),
-        h('.response-editor',
-           self.showingResponse || self.editingResponse
-            ? [
-              semanticUi.tabs(
-                h('.ui.tabular.menu',
-                  h('a.item.active', {dataset: {tab: 'style1'}}, 'style1'),
-                  h('a.item', {dataset: {tab: 'style2'}}, 'style2')
-                )
-              ),
-              h('.ui.tab.active', {dataset: {tab: 'style1'}},
-                self.editingResponse
-                ? htmlEditor({
-                    class: 'response-text-editor',
-                    binding: [self.editingResponse.styles, 'custom']
-                  })
-                : h.rawHtml('.response-text', self.showingResponse.styles.style1)
-              ),
-              h('.ui.tab', {dataset: {tab: 'style2'}},
-                self.editingResponse
-                ? htmlEditor({
-                    class: 'response-text-editor',
-                    binding: [self.editingResponse.styles, 'custom']
-                  })
-                : h.rawHtml('.response-text', self.showingResponse.styles.style2)
-              ),
-              self.editingResponse? [
-                h('button', {onclick: function (ev) { self.selectResponse(self.editingResponse); delete self.editingResponse; }}, 'ok'),
-                ' ',
-                h('button', {onclick: function (ev) { delete self.editingResponse; }}, 'cancel')
-              ]: undefined
-            ]
-            : undefined
-        )
+        self.renderResponseEditor()
       ];
     }
+  },
+
+  renderResponseEditor: function () {
+    var self = this;
+
+    function styleTabContents(response, id, options) {
+      return h('.ui.tab', {class: {active: options && options.active}, dataset: {tab: id}},
+        options.editing
+        ? [
+            htmlEditor({
+              class: 'response-text-editor',
+              binding: [response.styles, id]
+            }),
+
+            h('button', {
+              onclick: function (ev) {
+                var promise = self.selectResponse(response.response, response.styles);
+                self.stopEditingResponse();
+                return promise;
+              }
+            }, 'ok'),
+            ' ',
+            h('button', {
+              onclick: function (ev) {
+                self.stopEditingResponse();
+              }
+            }, 'cancel'),
+            options.edited
+              ? [
+                  ' ',
+                  h('button', {
+                    onclick: function (ev) {
+                      response.styles[id] = response.response.styles[id];
+                    }
+                  }, 'revert')
+                ]
+              : undefined
+          ]
+        : h.rawHtml('.response-text', response.styles[id])
+      );
+    }
+
+    function styleTabs(tabs) {
+      function styleEdited(id) {
+        return response.response.styles[id] != response.styles[id];
+      }
+
+      var response = self.editingResponse || self.showingResponse;
+
+      return [
+        semanticUi.tabs(
+          h('.ui.tabular.menu',
+            tabs.map(function (tab) {
+              return h('a.item', {class: {active: tab.active, edited: styleEdited(tab.id)}, dataset: {tab: tab.id}}, tab.name);
+            })
+          )
+        ),
+        tabs.map(function (tab) {
+          return styleTabContents(
+                   response,
+                   tab.id,
+                   {active: tab.active, editing: self.editingResponse, edited: styleEdited(tab.id)}
+                 );
+        })
+      ];
+    }
+
+    return h('.response-editor',
+      self.showingResponse || self.editingResponse
+        ? [
+          styleTabs([
+            {name: 'Normal', id: 'style1', active: true},
+            {name: 'Abbreviated', id: 'style2'}
+          ]),
+        ]
+        : undefined
+    )
   }
 });
 

@@ -380,7 +380,7 @@ describe 'report'
 
       waitForLexemesToSave!(3)
 
-    it 'can edit the response before accepting it'
+    it.only 'can edit the response before accepting it'
       shouldHaveQuery 'Where does it hurt?'!
       selectResponse 'left leg'!
       shouldHaveQuery 'Is it bleeding?'!

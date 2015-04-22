@@ -43,13 +43,13 @@ describe('history', function () {
         });
       }
 
-      function selectResponse(text) {
+      function selectResponse(text, styles) {
         var response = query.responses.filter(function (f) { return f.text == text; })[0];
         var errorMessage = 'expected response to be one of ' + query.responses.map(function (r) { return r.text; }).join(', ');
 
         expect(response, errorMessage).to.exist;
 
-        return reloadHistory(history.selectResponse(response));
+        return reloadHistory(history.selectResponse(response, styles));
       }
 
       function reloadHistory(result) {
@@ -88,8 +88,8 @@ describe('history', function () {
         expect(query.query, 'expected to be finished').to.not.exist;
       }
 
-      function selectResponseAndExpectQuery(responseText, queryText) {
-        return selectResponse(responseText).then(function () {
+      function selectResponseAndExpectQuery(responseText, queryText, styles) {
+        return selectResponse(responseText, styles).then(function () {
           expectQuery(queryText);
         });
       }
@@ -118,7 +118,8 @@ describe('history', function () {
 
         it('saves history', function () {
           return currentQuery().then(function (firstQuery) {
-            return selectResponseAndExpectQuery('left leg', 'Is it bleeding?');
+            
+            return selectResponseAndExpectQuery('left leg', 'Is it bleeding?', {style1: 'style1', style2: 'style2'});
           }).then(function (query) {
             expect(server.documents.length).to.equal(1);
             var doc = server.documents[0];
@@ -133,7 +134,8 @@ describe('history', function () {
             expect(lexeme.response.id).to.equal(lexicon.blocks[0].queries[0].responses[0].id);
             expect(lexeme.response.text).to.equal(lexicon.blocks[0].queries[0].responses[0].text);
             expect(lexeme.response.repeat).to.equal(false);
-            expect(lexeme.response.styles.style1).to.equal(lexicon.blocks[0].queries[0].responses[0].styles.style1);
+            expect(lexeme.response.styles.style1).to.equal('style1');
+            expect(lexeme.response.styles.style2).to.equal('style2');
           });
         });
 
