@@ -10,14 +10,15 @@ lexiconBuilder = require '../lexiconBuilder'
 element = require './element'
 router = require 'plastiq-router'
 _ = require 'underscore'
+simpleLexicon = require '../simpleLexicon'
+omitSkipLexicon = require '../omitSkipLexicon'
+repeatingLexicon = require '../repeatingLexicon'
 
 describe 'report'
   div = nil
   api = nil
   originalLocation = nil
   lexicon = nil
-  simpleLexicon = nil
-  repeatingLexicon = nil
   reportBrowser = nil
   rootBrowser = nil
 
@@ -73,138 +74,6 @@ describe 'report'
     originalLocation := location.pathname + location.search + location.hash
     history.pushState(nil, nil, '/')
 
-    simpleLexicon := lexicon.blocks [
-      {
-        id = "1"
-        name = "block 1"
-
-        queries = [
-          {
-            name = 'query1'
-            text = 'Where does it hurt?'
-
-            responses = [
-              {
-                id = '1'
-                text = 'left leg'
-
-                styles = {
-                  style1 = 'Complaint
-                            ---------
-                            left leg '
-                }
-              }
-              {
-                id = '2'
-                text = 'right leg'
-
-                styles = {
-                  style1 = 'Complaint
-                            ---------
-                            right leg '
-                }
-              }
-            ]
-          }
-          {
-            name = 'query2'
-            text = 'Is it bleeding?'
-
-            responses = [
-              {
-                id = '1'
-                text = 'yes'
-
-                styles = {
-                  style1 = 'bleeding'
-                }
-              }
-            ]
-          }
-          {
-            name = 'query3'
-            text = 'Is it aching?'
-
-            responses = [
-              {
-                id = '1'
-                text = 'yes'
-
-                styles = {
-                  style1 = ', aching'
-                }
-              }
-            ]
-          }
-        ]
-      }
-    ]
-
-    repeatingLexicon := lexicon.blocks [
-      {
-        id = '1'
-        name = 'one'
-
-        queries = [
-          {
-            name = 'One'
-            text = 'One'
-
-            responses = [
-              {
-                id = '1'
-                text = 'A'
-
-                actions = [
-                  {
-                    name = 'repeatLexeme'
-                    arguments = []
-                  }
-                ]
-              }
-              {
-                id = '2'
-                text = 'B'
-
-                actions = [
-                  {
-                    name = 'repeatLexeme'
-                    arguments = []
-                  }
-                ]
-              }
-              {
-                id = '3'
-                text = 'C'
-
-                actions = [
-                  {
-                    name = 'repeatLexeme'
-                    arguments = []
-                  }
-                ]
-              }
-              {
-                id = '4'
-                text = 'D'
-
-                actions = [
-                  {
-                    name = 'repeatLexeme'
-                    arguments = []
-                  }
-                ]
-              }
-              {
-                id = '5'
-                text = 'No More'
-              }
-            ]
-          }
-        ]
-      }
-    ]
-
     rootBrowser := createRootBrowser {
       element = div
     }
@@ -255,7 +124,7 @@ describe 'report'
 
   context 'with simple lexicon'
     beforeEach
-      api.setLexicon (simpleLexicon)
+      api.setLexicon (simpleLexicon())
       appendRootComponent()
       rootBrowser.startNewDocumentButton().click!()
 
@@ -528,7 +397,7 @@ describe 'report'
 
   context 'logged in with simple lexicon'
     beforeEach
-      api.setLexicon (simpleLexicon)
+      api.setLexicon (simpleLexicon())
       appendRootComponent()
 
     it 'can create a new document'
@@ -562,7 +431,7 @@ describe 'report'
 
   context 'logged in with repeating lexicon'
     beforeEach
-      api.setLexicon (repeatingLexicon)
+      api.setLexicon (repeatingLexicon())
       appendRootComponent()
 
     it 'can create a document, make some repeating responses, and come back to it'
@@ -593,65 +462,7 @@ describe 'report'
 
   context 'logged in with lexicon for omit + skip'
     beforeEach
-      api.setLexicon (
-        lexicon.queries [
-          {
-            text = 'query 1, level 1'
-            level = 1
-
-            responses = [
-              {
-                text = 'response 1'
-                setLevel = 2
-              }
-            ]
-          }
-          {
-            text = 'query 2, level 1'
-            level = 1
-
-            responses = [
-              {
-                text = 'response 1'
-                setLevel = 2
-              }
-            ]
-          }
-          {
-            text = 'query 3, level 2'
-            level = 2
-
-            responses = [
-              {
-                text = 'response 1'
-                setLevel = 2
-              }
-            ]
-          }
-          {
-            text = 'query 4, level 3'
-            level = 3
-
-            responses = [
-              {
-                text = 'response 1'
-                setLevel = 3
-              }
-            ]
-          }
-          {
-            text = 'query 5, level 1'
-            level = 1
-
-            responses = [
-              {
-                text = 'response 1'
-                setLevel = 1
-              }
-            ]
-          }
-        ]
-      )
+      api.setLexicon (omitSkipLexicon())
       appendRootComponent()
       rootBrowser.startNewDocumentButton().click!()
       
