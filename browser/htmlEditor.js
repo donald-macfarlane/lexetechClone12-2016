@@ -8,6 +8,8 @@ module.exports = function (options) {
   return h.component(
     {
       onadd: function (element) {
+        var self = this;
+
         this.html = binding.get();
         element.innerHTML = normaliseHtml(this.html);
 
@@ -16,7 +18,8 @@ module.exports = function (options) {
         });
 
         element.addEventListener('input', function (ev) {
-          binding.set(ev.target.innerHTML);
+          self.html = ev.target.innerHTML;
+          binding.set(self.html);
         });
       },
       onupdate: function (element) {
@@ -28,7 +31,7 @@ module.exports = function (options) {
         }
       },
       onremove: function () {
-        this.editor.deactivate();
+        this.editor.destroy();
       }
     },
     h('div', {class: options.class})

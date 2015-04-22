@@ -3,15 +3,17 @@ var prototype = require('prote');
 
 module.exports = prototype({
   constructor: function (model) {
-    this.model = model;
+    this.history = model.history;
+    this.setQuery = model.setQuery;
+    this.documentStyle = model.documentStyle;
   },
 
-  render: function () {
+  render: function (style) {
     var self = this;
 
     return h('.document-outer',
       h('ol.document',
-        this.model.history.currentLexemes().map(function (lexeme, index) {
+        this.history.currentLexemes().map(function (lexeme, index) {
           return {
             lexeme: lexeme,
             index: index
@@ -26,12 +28,12 @@ module.exports = prototype({
                 onclick: function (ev) {
                   ev.preventDefault();
 
-                  return self.model.history.back(lexemeIndex.index - 1).query.then(function (query) {
-                    self.model.query.setQuery(query);
+                  return self.history.back(lexemeIndex.index - 1).query.then(function (query) {
+                    self.setQuery(query);
                   });
                 }
               },
-              h.rawHtml('span', lexemeIndex.lexeme.response.styles.custom || lexemeIndex.lexeme.response.styles.style1)
+              h.rawHtml('span', lexemeIndex.lexeme.response.styles[style])
             )
           );
         })

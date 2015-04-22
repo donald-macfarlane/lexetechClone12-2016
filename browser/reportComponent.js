@@ -21,7 +21,6 @@ module.exports = prototype({
     var self = this;
 
     this.document = options.document;
-    this.documentComponent = documentComponent(this);
 
     this.debug = debugComponent({
       currentQuery: function () {
@@ -30,18 +29,32 @@ module.exports = prototype({
       lexemeApi: options.lexemeApi
     });
 
+    function setQuery (query) {
+      self.query.setQuery(query);
+    }
+
     this.history = historyComponent({
       document: options.document,
       queryGraph: options.queryGraph,
-      setQuery: function (query) {
-        self.query.setQuery(query);
-      }
+      setQuery: setQuery
     });
+
+    this.documentStyle = {
+      style: 'style1'
+    };
 
     this.query = queryComponent({
       user: options.user,
       history: this.history,
-      debug: this.debug
+      debug: this.debug,
+      documentStyle: this.documentStyle
+    });
+
+    this.documentComponent = documentComponent({
+      history: this.history,
+      query: this.query,
+      documentStyle: this.documentStyle,
+      setQuery: setQuery
     });
   },
 
@@ -81,16 +94,33 @@ module.exports = prototype({
       ),
       h('.right',
         semanticUi.tabs(
-          h('.ui.top.attached.tabular.menu',
-            h('a.item.active', {dataset: {tab: 'document'}}, 'Document'),
-            h('a.item.debug', {dataset: {tab: 'debug'}}, 'Debug')
-          )
-        ),
-        h('.ui.bottom.attached.tab.segment.active', {dataset: {tab: 'document'}},
-          self.documentComponent.render()
-        ),
-        h('.ui.bottom.attached.tab.segment', {dataset: {tab: 'debug'}},
-          self.debug.render()
+          '.ui.top.attached.tabular.menu',
+          {
+            binding: [self.documentStyle, 'style'],
+            tabs: [
+              {
+                key: 'style1',
+                tab: h('a.item.style-normal', 'Normal'),
+                content: function (key) {
+                  return h('.ui.bottom.attached.tab.segment', self.documentComponent.render(key));
+                }
+              },
+              {
+                key: 'style2',
+                tab: h('a.item.style-abbreviated', 'Abbreviated'),
+                content: function (key) {
+                  return h('.ui.bottom.attached.tab.segment', self.documentComponent.render(key));
+                }
+              },
+              {
+                key: 'debug',
+                tab: h('a.item.debug', 'Debug'),
+                content: function (key) {
+                  return h('.ui.bottom.attached.tab.segment', self.debug.render());
+                }
+              }
+            ]
+          }
         )
       )
     );

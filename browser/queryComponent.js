@@ -3,7 +3,7 @@ var h = plastiq.html;
 var buildGraph = require('./buildGraph');
 var prototype = require('prote');
 var http = require('./http');
-var htmlEditor = require('./htmlEditor');
+var mediumEditor = require('plastiq-medium-editor');
 var semanticUi = require('plastiq-semantic-ui');
 
 var queryComponent = prototype({
@@ -11,6 +11,7 @@ var queryComponent = prototype({
     var self = this;
     this.user = model.user;
     this.history = model.history;
+    this.documentStyle = model.documentStyle;
     this.queryGraph = buildGraph({cache: false});
 
     if (this.user) {
@@ -193,12 +194,16 @@ var queryComponent = prototype({
     var self = this;
 
     function styleTabContents(response, id, options) {
-      return h('.ui.tab', {class: {active: options && options.active}, dataset: {tab: id}},
+      return h('.ui.tab',
         options.editing
         ? [
-            htmlEditor({
+            mediumEditor({
               class: 'response-text-editor',
-              binding: [response.styles, id]
+              binding: [response.styles, id],
+
+              mediumOptions: {
+                buttons: ['bold', 'italic', 'header1', 'header2', 'unorderedlist', 'orderedlist']
+              }
             }),
 
             h('button', {
@@ -238,19 +243,27 @@ var queryComponent = prototype({
 
       return [
         semanticUi.tabs(
-          h('.ui.tabular.menu',
-            tabs.map(function (tab) {
-              return h('a.item', {class: {active: tab.active, edited: styleEdited(tab.id)}, dataset: {tab: tab.id}}, tab.name);
+          '.ui.tabular.menu',
+          {
+            binding: [self.documentStyle, 'style'],
+            tabs: tabs.map(function (tab) {
+              return {
+                key: tab.id,
+                tab: h('a.item', {class: {edited: styleEdited(tab.id)}}, tab.name),
+                content: function () {
+                  return styleTabContents(
+                    response,
+                    tab.id,
+                    {
+                      editing: self.editingResponse,
+                      edited: styleEdited(tab.id)
+                    }
+                  );
+                }
+              }
             })
-          )
-        ),
-        tabs.map(function (tab) {
-          return styleTabContents(
-                   response,
-                   tab.id,
-                   {active: tab.active, editing: self.editingResponse, edited: styleEdited(tab.id)}
-                 );
-        })
+          }
+        )
       ];
     }
 
