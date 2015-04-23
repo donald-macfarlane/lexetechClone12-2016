@@ -1,9 +1,13 @@
 var plastiq = require('plastiq');
 var h = plastiq.html;
 var router = require('./router');
+var http = require('./http');
+var _ = require('underscore');
 
 module.exports = function (model, contents) {
   if (model.user || model.login || model.signup) {
+    listenToHttpErrors(model);
+
     return h('div.main',
       h('div.top-menu',
         topMenuTabs(model.user),
@@ -46,3 +50,18 @@ function authStatus(user) {
       : undefined
   );
 }
+
+function wait(n) {
+  return new Promise(function (result) {
+    setTimeout(result, n);
+  });
+}
+
+var listenToHttpErrors = _.once(function (model) {
+  http.onError(h.refreshify(function (event, jqxhr) {
+    model.flash = [jqxhr.responseText];
+    return wait(3000).then(function () {
+      delete model.flash;
+    });
+  }));
+});
