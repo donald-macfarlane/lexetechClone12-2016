@@ -12,6 +12,7 @@ module.exports = prototype({
     var self = this;
 
     var variables = {};
+    var suppressPunctuation = false;
 
     return h('.document-outer',
       h('ol.document',
@@ -36,6 +37,12 @@ module.exports = prototype({
             return variables[name];
           });
 
+          if (suppressPunctuation) {
+            styleHtml = removePunctuation(styleHtml);
+          }
+
+          suppressPunctuation = lexeme.suppressPunctuation;
+
           return h('li',
             h('a.section',
               {
@@ -56,3 +63,7 @@ module.exports = prototype({
     );
   },
 });
+
+function removePunctuation(html) {
+  return html.replace(/^[.,] /, '');
+}

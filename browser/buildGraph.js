@@ -88,7 +88,9 @@ function newContextFromResponseContext(query, response, context) {
   if (response.actions) {
     response.actions.forEach(function (responseAction) {
       var action = actions[responseAction.name];
-      action.apply(null, [query, response, newContext].concat(responseAction.arguments));
+      if (action) {
+        action.apply(null, [query, response, newContext].concat(responseAction.arguments));
+      }
     });
   }
 
@@ -192,14 +194,19 @@ module.exports = function(options) {
 
     if (next.query) {
       graph.responses = next.query.responses.map(function (r) {
+        function hasAction(name) {
+          return r.actions.filter(function (x) { return x.name == name; }).length > 0;
+        }
+
         return {
           id: r.id,
           text: r.text,
           styles: r.styles || {style1: '', style2: ''},
-          repeat: r.actions.filter(function (x) { return x.name == 'repeatLexeme'; }).length > 0,
+          repeat: hasAction('repeatLexeme'),
           variables: r.actions.filter(function (x) { return x.name == 'setVariable'; }).map(function (action) {
             return {name: action.arguments[0], value: action.arguments[1]};
           }),
+          suppressPunctuation: hasAction('suppressPunctuation'),
 
           query: function(options) {
             var self = this;

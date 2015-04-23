@@ -100,6 +100,7 @@ module.exports = prototype({
       query: this.serialiseQuery(query),
       context: context,
       variables: response.variables,
+      suppressPunctuation: response.suppressPunctuation,
       response: {
         text: response.text,
         id: response.id,

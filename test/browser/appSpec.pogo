@@ -14,6 +14,7 @@ simpleLexicon = require '../simpleLexicon'
 omitSkipLexicon = require '../omitSkipLexicon'
 repeatingLexicon = require '../repeatingLexicon'
 substitutingLexicon = require '../substitutingLexicon'
+punctuationLexicon = require '../punctuationLexicon'
 
 describe 'report'
   div = nil
@@ -310,6 +311,23 @@ describe 'report'
       notesShouldBe! "bleeding left leg, aching"
 
       waitForLexemesToSave!(3)
+
+  context 'lexicon that suppresses punctuation'
+    beforeEach
+      api.setLexicon (punctuationLexicon())
+      appendRootComponent()
+      rootBrowser.startNewDocumentButton().click!()
+
+    it 'outputs the document with variables substituted'
+      shouldHaveQuery 'Heading'!
+      selectResponse 'One'!
+      shouldHaveQuery 'Sentence'!
+      selectResponse 'One'!
+      shouldBeFinished()!
+
+      notesShouldBe! "Heading OneThis is the beginning of a sentence"
+
+      waitForLexemesToSave!(2)
 
   context 'lexicon with several blocks'
     beforeEach
