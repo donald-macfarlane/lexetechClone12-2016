@@ -9,10 +9,16 @@ var debugComponent = require('./debugComponent');
 var documentComponent = require('./documentComponent');
 var historyComponent = require('./history');
 
-function dirtyBinding(model, name) {
+function dirtyBinding(model, name, component) {
   return {
-    get: function () { return model[name]; },
-    set: function (value) { model[name] = value; model.dirty = true; }
+    get: function () {
+      return model[name];
+    },
+    set: function (value) {
+      model[name] = value;
+      model.dirty = true;
+      return component;
+    }
   };
 }
 
@@ -75,21 +81,9 @@ module.exports = prototype({
     var self = this;
     this.refresh = h.refresh;
 
-    if (this.document.dirty) {
-      this.throttledSaveDocument();
-    }
-
     return h('div.report',
       h('.left',
-        h('.report-header.ui.form',
-          h('.field',
-            h('label', 'Report Identifier'),
-            h('.ui.icon.input', {class: {loading: this.document.dirty}},
-              h('input', {type: 'text', placeholder: 'Name', binding: dirtyBinding(this.document, 'name')}),
-              h('i.icon')
-            )
-          )
-        ),
+        self.renderReportName(),
         self.query.render()
       ),
       h('.right',
@@ -124,5 +118,27 @@ module.exports = prototype({
         )
       )
     );
+  },
+
+  renderReportName: function () {
+    var self = this;
+
+    if (this.document.dirty) {
+      this.throttledSaveDocument();
+    }
+
+    var reportNameComponent = h.component(function () {
+      return h('.report-header.ui.form',
+        h('.field',
+          h('label', 'Report Identifier'),
+          h('.ui.icon.input', {class: {loading: self.document.dirty}},
+            h('input', {type: 'text', placeholder: 'Name', binding: dirtyBinding(self.document, 'name', reportNameComponent)}),
+            h('i.icon')
+          )
+        )
+      )
+    });
+
+    return reportNameComponent;
   }
 });
