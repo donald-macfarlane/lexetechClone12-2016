@@ -74,31 +74,6 @@ describe 'authoring'
   div = nil
   api = nil
 
-  foundElement = prototype {
-    click() = sendclick(self.element)
-    typeIn(text) = sendkeys(self.element, text)
-
-    find(css, predicate = nil, text = nil, contains = nil) =
-      retry!
-        cssContains =
-          if (text)
-            css + ":contains(#(JSON.stringify(text)))"
-          else
-            css
-
-        els = $(self.element).find(cssContains)
-        expect(els.length).to.eql 1 "expected to find exactly one element `#(cssContains)'"
-        found = els.(els.length - 1)
-
-        if (predicate)
-          predicate(found)
-
-        if (contains)
-          expect($(found).find(contains).length).to.be.greaterThan(0)
-
-        foundElement { element = found }
-  }
-
   context 'when authoring'
     page = nil
 

@@ -197,6 +197,9 @@ module.exports = function(options) {
           text: r.text,
           styles: r.styles || {style1: '', style2: ''},
           repeat: r.actions.filter(function (x) { return x.name == 'repeatLexeme'; }).length > 0,
+          variables: r.actions.filter(function (x) { return x.name == 'setVariable'; }).map(function (action) {
+            return {name: action.arguments[0], value: action.arguments[1]};
+          }),
 
           query: function(options) {
             var self = this;

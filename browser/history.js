@@ -99,6 +99,7 @@ module.exports = prototype({
     var lexeme = {
       query: this.serialiseQuery(query),
       context: context,
+      variables: response.variables,
       response: {
         text: response.text,
         id: response.id,

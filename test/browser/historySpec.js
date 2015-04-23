@@ -6,6 +6,7 @@ var retry = require('trytryagain');
 var buildGraph = require('../../browser/buildGraph');
 var simpleLexicon = require('../simpleLexicon');
 var loopingLexicon = require('../loopingLexicon');
+var substitutingLexicon = require('../substitutingLexicon');
 var Promise = require('bluebird');
 
 describe('history', function () {
@@ -106,7 +107,7 @@ describe('history', function () {
         return reloadHistory(history.accept());
       }
 
-      context('with a new document', function () {
+      context('with a simple lexicon', function () {
         beforeEach(function () {
           lexicon = simpleLexicon();
           server.setLexicon(lexicon);
@@ -174,6 +175,30 @@ describe('history', function () {
             return accept();
           }).then(function () {
             expectQuery('Is it aching?');
+          });
+        });
+      });
+
+      context('with a substituting lexicon', function () {
+        beforeEach(function () {
+          lexicon = substitutingLexicon();
+          server.setLexicon(lexicon);
+          return documentApi.create().then(function (doc) {
+            historyWithDocument(doc);
+          });
+        });
+
+        it('saves the variables set', function () {
+          return currentQuery().then(function () {
+            expectQuery('Where does it hurt?');
+            return selectResponseAndExpectQuery('left leg', 'Is it bleeding?');
+          }).then(function () {
+            expect(history.document.lexemes.length).to.equal(1);
+            var lexeme = history.document.lexemes[0];
+
+            expect(lexeme.variables).to.eql([
+              {name: 'leg', value: 'left'}
+            ]);
           });
         });
       });

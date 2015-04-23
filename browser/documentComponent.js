@@ -11,6 +11,8 @@ module.exports = prototype({
   render: function (style) {
     var self = this;
 
+    var variables = {};
+
     return h('.document-outer',
       h('ol.document',
         this.history.currentLexemes().map(function (lexeme, index) {
@@ -21,6 +23,19 @@ module.exports = prototype({
         }).filter(function (lexemeIndex) {
           return lexemeIndex.lexeme.response && lexemeIndex.lexeme.response.styles;
         }).map(function (lexemeIndex) {
+          var lexeme = lexemeIndex.lexeme;
+          var index = lexemeIndex.index;
+
+          if (lexeme.variables) {
+            lexeme.variables.forEach(function (variable) {
+              variables[variable.name] = variable.value;
+            });
+          }
+
+          var styleHtml = lexeme.response.styles[style].replace(/!([a-z_][a-z0-9_]*)/g, function (m, name) {
+            return variables[name];
+          });
+
           return h('li',
             h('a.section',
               {
@@ -28,12 +43,12 @@ module.exports = prototype({
                 onclick: function (ev) {
                   ev.preventDefault();
 
-                  return self.history.back(lexemeIndex.index - 1).query.then(function (query) {
+                  return self.history.back(index - 1).query.then(function (query) {
                     self.setQuery(query);
                   });
                 }
               },
-              h.rawHtml('span', lexemeIndex.lexeme.response.styles[style])
+              h.rawHtml('span', styleHtml)
             )
           );
         })

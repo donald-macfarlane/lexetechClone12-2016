@@ -17,19 +17,17 @@ module.exports = function simpleLexicon() {
               id: '1',
               text: 'left leg',
 
-              styles: {
-                style1: 'Complaint\n---------\nleft leg ',
-                style2: 'lft leg'
-              }
+              actions: [
+                {name: 'setVariable', arguments: ['leg', 'left']}
+              ],
             },
             {
               id: '2',
               text: 'right leg',
 
-              styles: {
-                style1: 'Complaint\n---------\nright leg ',
-                style2: 'rght leg'
-              }
+              actions: [
+                {name: 'setVariable', arguments: ['leg', 'right']}
+              ],
             }
           ]
         },
@@ -43,7 +41,7 @@ module.exports = function simpleLexicon() {
               text: 'yes',
 
               styles: {
-                style1: 'bleeding',
+                style1: 'bleeding !leg leg',
                 style2: ', bleed'
               }
             }
