@@ -10,7 +10,7 @@ module.exports = function (model, contents) {
 
     return h('div.main',
       h('div.top-menu',
-        topMenuTabs(model.user),
+        topMenuTabs(model.user, model.query()),
         authStatus(model.user)
       ),
       model.flash && model.flash.length > 0
@@ -27,12 +27,14 @@ module.exports = function (model, contents) {
   }
 };
 
-function topMenuTabs(user) {
+function topMenuTabs(user, query) {
   return h('div.tabs',
     user
       ? [
-          h('a.active', {href: '/'}, 'Report'),
-          h('a', {href: '/authoring'}, 'Authoring')
+          h('a.active', {href: '/', onclick: router.push}, 'Report'),
+          query
+            ? h('a', {href: '/authoring/blocks/' + query.query.block + '/queries/' + query.query.id}, 'Author ' + (query? query.query.text: ''))
+            : h('a', {href: '/authoring'}, 'Authoring ' + (query? query.query.text: ''))
       ]
       : undefined
   );

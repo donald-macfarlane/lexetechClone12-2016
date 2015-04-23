@@ -36,6 +36,10 @@ var rootComponent = prototype({
     });
   },
 
+  query: function () {
+    return this.report && this.report.history.query;
+  },
+
   lexemeApi: function () {
     return this._lexemeApi || (
       this._lexemeApi = lexemeApi()
@@ -74,7 +78,7 @@ var rootComponent = prototype({
         : self.login || !self.user ?
           router.login(loginComponent())
         : self.documentId ?
-          router.report({documentId: self.documentId}, self.document,
+          router.report({documentId: self.documentId},
             self.report
               ? self.report.render()
               : h('h1', 'loading')

@@ -49,6 +49,7 @@ router.report = router.route('/report/:documentId', {
   onleave: function (model) {
     delete model.documentId;
     delete model.document;
+    delete model.report;
   }
 });
 
