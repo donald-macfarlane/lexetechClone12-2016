@@ -32,9 +32,9 @@ function topMenuTabs(user, query) {
     user
       ? [
           h('a.active', {href: '/', onclick: router.push}, 'Report'),
-          query
-            ? h('a', {href: '/authoring/blocks/' + query.query.block + '/queries/' + query.query.id}, 'Author ' + (query? query.query.text: ''))
-            : h('a', {href: '/authoring'}, 'Authoring ' + (query? query.query.text: ''))
+          query && query.query
+            ? h('a', {href: '/authoring/blocks/' + query.query.block + '/queries/' + query.query.id}, 'Author ' + query.query.text)
+            : h('a', {href: '/authoring'}, 'Authoring')
       ]
       : undefined
   );
