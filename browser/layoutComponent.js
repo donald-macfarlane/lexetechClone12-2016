@@ -13,8 +13,8 @@ module.exports = function (model, contents) {
         topMenuTabs(model),
         authStatus(model.user)
       ),
-      model.flash && model.flash.length > 0
-        ? h('div.top-flash.warning', model.flash,
+      model.flash && (!(model.flash instanceof Array) || (model.flash.length > 0))
+        ? h('div.top-flash.warning', renderFlash(model.flash),
             h('a.close', {onclick: function () { delete model.flash; }})
           )
         : undefined,
@@ -26,6 +26,21 @@ module.exports = function (model, contents) {
     return h('div', 'redirecting');
   }
 };
+
+function renderFlash(flash) {
+  if (flash instanceof Array) {
+    return flash.map(function (text) {
+      return h('.message', text);
+    });
+  } else if (flash instanceof Object) {
+    return [
+      h('.message', flash.message),
+      h('.detail', flash.detail)
+    ];
+  } else if (flash) {
+    return h('.message', flash);
+  }
+}
 
 function topMenuTabs(model) {
   var query = model.query();
@@ -67,10 +82,20 @@ function wait(n) {
 }
 
 var listenToHttpErrors = _.once(function (model) {
-  http.onError(h.refreshify(function (event, jqxhr) {
-    model.flash = [jqxhr.responseText];
-    return wait(3000).then(function () {
-      delete model.flash;
-    });
+  http.onError(h.refreshify(function (event, jqxhr, settings) {
+    if (!settings.suppressErrors) {
+      var errorMessage = jqxhr.statusText + (
+        jqxhr.responseJSON && jqxhr.responseJSON.message
+        ? ': ' + jqxhr.responseJSON.message
+        : jqxhr.responseText
+          ? ': ' + jqxhr.responseText
+          : ''
+      );
+
+      model.flash = {message: 'Network Error', detail: errorMessage};
+      return wait(3000).then(function () {
+        delete model.flash;
+      });
+    }
   }));
 });

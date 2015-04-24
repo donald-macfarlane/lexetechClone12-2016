@@ -103,10 +103,29 @@ body {
 }
 
 .top-flash {
-  height: 34px;
   line-height: 34px;
   padding: 0 10px;
   border-bottom: 1px solid #efefef;
+
+  .message {
+    display: inline;
+  }
+
+  .detail {
+    display: inline;
+    font-size: 10px;
+    line-height: normal;
+    margin-bottom: 3px;
+    margin-left: 5px;
+
+    &::before {
+      content: '(';
+    }
+
+    &::after {
+      content: ')';
+    }
+  }
 
   .close {
     float: right;

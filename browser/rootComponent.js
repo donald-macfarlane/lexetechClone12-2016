@@ -78,7 +78,9 @@ var rootComponent = prototype({
         condition: function () { return self.user && !self._currentDocument; }
       }, function () {
         return self.documentApi.currentDocument().then(function (doc) {
-          self.setCurrentDocument(doc);
+          if (!self._currentDocument) {
+            self.setCurrentDocument(doc);
+          }
         });
       });
     }

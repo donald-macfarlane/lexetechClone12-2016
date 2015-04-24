@@ -59,6 +59,10 @@ describe 'documents'
 
     expect(removeDate(api.get!(docUrl).body)).to.eql(removeDate(doc))
 
+  it 'returns no documents when there no documents'
+    response = api.get!('/api/user/documents').body
+    expect(response).to.eql []
+
   it 'only the original author can see documents they create'
     user1 = httpism.api "http://user1:password@localhost:#(port)"
     user2 = httpism.api "http://user2:password@localhost:#(port)"
