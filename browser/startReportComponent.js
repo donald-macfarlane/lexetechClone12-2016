@@ -68,8 +68,8 @@ module.exports = prototype({
     return h('.documents',
       h('.ui.basic.button', {onclick: self.createDocument.bind(self)}, 'Start new document'),
       currentDocument
-        ? h('.ui.basic.button', {onclick: self.loadCurrentDocument.bind(self)}, currentDocument.name? 'Load: ' + currentDocument.name: 'Load current document')
-        : h('.ui.basic.button.disabled', 'No current document'),
+        ? h('.ui.basic.button.load-current-document', {onclick: self.loadCurrentDocument.bind(self)}, currentDocument.name? 'Load: ' + currentDocument.name: 'Load current document')
+        : h('.ui.basic.button.load-current-document.disabled', 'No current document'),
       semanticUi.dropdown(
         {
           onChange: function (value, text) {

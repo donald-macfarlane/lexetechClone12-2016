@@ -26,7 +26,7 @@ describe 'report'
 
   createRootBrowser = prototypeExtending(element) {
     startNewDocumentButton() = self.find('.button', text = 'Start new document')
-    loadCurrentDocumentButton() = self.find('.button', text = 'Load current document')
+    loadCurrentDocumentButton() = self.find('.button.load-current-document')
     loadPreviousButton() = self.find('.button', text = 'Load previous document')
   }
 
