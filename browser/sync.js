@@ -29,8 +29,6 @@ function sync(options, fn) {
 
       refreshifiedFn();
     }
-
-    return '';
   }
 }
 

@@ -11,6 +11,7 @@ module.exports = prototype({
 
     this.documentApi = options.documentApi;
     this.root = options.root;
+    this.currentDocument = options.currentDocument;
 
     this.syncDocuments = sync({
       throttle: 5000,
@@ -18,15 +19,6 @@ module.exports = prototype({
     }, function () {
       return self.documentApi.allDocuments().then(function (documents) {
         self.documents = documents;
-      });
-    });
-
-    this.syncHasCurrentDocument = sync({
-      throttle: 5000,
-      condition: function () { return options.user && !self.hasCurrentDocument; }
-    }, function () {
-      return self.documentApi.currentDocument().then(function (doc) {
-        self.hasCurrentDocument = !!doc;
       });
     });
   },
@@ -69,12 +61,15 @@ module.exports = prototype({
     var self = this;
 
     this.refresh = h.refresh;
+    this.syncDocuments();
+
+    var currentDocument = this.currentDocument();
 
     return h('.documents',
-      this.syncHasCurrentDocument(),
-      this.syncDocuments(),
       h('.ui.basic.button', {onclick: self.createDocument.bind(self)}, 'Start new document'),
-      h('.ui.basic.button', {class: {disabled: !this.hasCurrentDocument}, onclick: self.loadCurrentDocument.bind(self)}, 'Load current document'),
+      currentDocument
+        ? h('.ui.basic.button', {onclick: self.loadCurrentDocument.bind(self)}, currentDocument.name? 'Load: ' + currentDocument.name: 'Load current document')
+        : h('.ui.basic.button.disabled', 'No current document'),
       semanticUi.dropdown(
         {
           onChange: function (value, text) {

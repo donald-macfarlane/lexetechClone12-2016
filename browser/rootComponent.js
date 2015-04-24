@@ -10,6 +10,7 @@ var router = require('./router');
 var buildGraph = require('./buildGraph');
 var lexemeApi = require('./lexemeApi');
 var startReportComponent = require('./startReportComponent');
+var sync = require('./sync');
 
 var rootComponent = prototype({
   constructor: function (pageData) {
@@ -23,7 +24,8 @@ var rootComponent = prototype({
       this.startReport = startReportComponent({
         documentApi: documentApi,
         root: {openDocument: this.openDocument.bind(this)},
-        user: this.user
+        user: this.user,
+        currentDocument: this.currentDocument.bind(this)
       });
     }
   },
@@ -57,6 +59,7 @@ var rootComponent = prototype({
 
   openDocument: function (doc) {
     this.document = doc;
+    this.setCurrentDocument(doc);
     this.documentId = doc.id;
     this.report = reportComponent({
       user: this.user,
@@ -66,6 +69,28 @@ var rootComponent = prototype({
     });
   },
 
+  currentDocument: function () {
+    var self = this;
+
+    if (!this.syncHasCurrentDocument) {
+      this.syncHasCurrentDocument = sync({
+        throttle: 5000,
+        condition: function () { return self.user && !self._currentDocument; }
+      }, function () {
+        return self.documentApi.currentDocument().then(function (doc) {
+          self.setCurrentDocument(doc);
+        });
+      });
+    }
+
+    this.syncHasCurrentDocument();
+
+    return self._currentDocument;
+  },
+
+  setCurrentDocument: function (doc) {
+    this._currentDocument = doc;
+  },
 
   render: function () {
     var self = this;

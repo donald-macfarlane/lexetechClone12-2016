@@ -1,7 +1,8 @@
-module.exports (element, queryApi, pageData, options) =
+React = require 'react'
+ReactRouter = require 'react-router'
+documentApi = require './documentApi'
 
-  React = require 'react'
-  ReactRouter = require 'react-router'
+module.exports (element, queryApi, pageData, options) =
   Route = ReactRouter.Route
   DefaultRoute = ReactRouter.DefaultRoute
   NotFoundRoute = ReactRouter.NotFoundRoute
@@ -72,6 +73,7 @@ module.exports (element, queryApi, pageData, options) =
       queryApi = queryApi
       user = pageData.user
       http = require './http'
+      documentApi = documentApi()
     }
     router = r(Handler, globalProps)
     React.render(router, element)

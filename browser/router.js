@@ -33,7 +33,7 @@ function ensureLoggedIn(model, fn) {
   }
 }
 
-router.report = router.route('/report/:documentId', {
+router.report = router.route('/reports/:documentId', {
   onarrive: function (model, params, document) {
     ensureLoggedIn(model, function () {
       model.documentId = params.documentId;

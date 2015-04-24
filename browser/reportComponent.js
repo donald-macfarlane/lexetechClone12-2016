@@ -123,11 +123,11 @@ module.exports = prototype({
   renderReportName: function () {
     var self = this;
 
-    if (this.document.dirty) {
-      this.throttledSaveDocument();
-    }
-
     var reportNameComponent = h.component(function () {
+      if (self.document.dirty) {
+        self.throttledSaveDocument();
+      }
+
       return h('.report-header.ui.form',
         h('.field',
           h('label', 'Report Identifier'),

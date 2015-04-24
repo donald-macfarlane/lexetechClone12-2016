@@ -32,7 +32,7 @@ module.exports = React.createClass {
     else
       r 'div' { className = 'main' } (
         r 'div' { className = 'top-menu' } (
-          React.createElement(TopMenuTabs, {user = self.props.user})
+          React.createElement(TopMenuTabs, {user = self.props.user, documentApi = self.props.documentApi})
           React.createElement(AuthStatus, {user = self.props.user})
         )
         if (self.state.showFlash)

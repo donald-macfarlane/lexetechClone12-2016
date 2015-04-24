@@ -10,7 +10,7 @@ module.exports = function (model, contents) {
 
     return h('div.main',
       h('div.top-menu',
-        topMenuTabs(model.user, model.query()),
+        topMenuTabs(model),
         authStatus(model.user)
       ),
       model.flash && model.flash.length > 0
@@ -27,13 +27,20 @@ module.exports = function (model, contents) {
   }
 };
 
-function topMenuTabs(user, query) {
+function topMenuTabs(model) {
+  var query = model.query();
+  var currentDocument = model.currentDocument();
+  var document = model.document;
+
   return h('div.tabs',
-    user
+    model.user
       ? [
-          h('a.active', {href: '/', onclick: router.push}, 'Report'),
+          h('a', {class: {active: !document}, href: '/', onclick: router.push}, 'Home'),
+          currentDocument
+            ? h('a', {class: {active: document}, href: '/reports/' + currentDocument.id, onclick: router.push}, currentDocument.name? 'Report: ' + currentDocument.name: 'Report')
+            : undefined,
           query && query.query
-            ? h('a', {href: '/authoring/blocks/' + query.query.block + '/queries/' + query.query.id}, 'Author ' + query.query.text)
+            ? h('a', {href: '/authoring/blocks/' + query.query.block + '/queries/' + query.query.id}, 'Authoring: ' + query.query.text)
             : h('a', {href: '/authoring'}, 'Authoring')
       ]
       : undefined
