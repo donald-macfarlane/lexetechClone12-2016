@@ -105,21 +105,27 @@ app.use("/", express.static(__dirname + "/../node_modules/jquery/dist"));
 function page(req, js) {
   return {
     script: js,
-    user: function() {
-      if (req.user) {
-        return _.pick(req.user, "email");
-      }
-    }(),
+    user: req.user
+      ? _.pick(req.user, "email", "authoring")
+      : undefined,
     flash: req.flash("error")
   };
+};
+
+function authoringAuthorised(req, res, next) {
+  if (req.user.authoring) {
+    next();
+  } else {
+    res.status(401).render('notauthorised.html');
+  }
 };
 
 function authoring(req, res) {
   res.render("index.html", page(req, "/authoring.js"));
 };
 
-app.get("/authoring/*", authoring);
-app.get("/authoring", authoring);
+app.get("/authoring/*", authoringAuthorised, authoring);
+app.get("/authoring", authoringAuthorised, authoring);
 
 app.get("*", function(req, res) {
   res.render("index.html", page(req, "/app.js"));

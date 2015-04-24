@@ -54,9 +54,11 @@ function topMenuTabs(model) {
           currentDocument
             ? h('a', {class: {active: document}, href: '/reports/' + currentDocument.id, onclick: router.push}, currentDocument.name? 'Report: ' + currentDocument.name: 'Report')
             : undefined,
-          query && query.query
-            ? h('a', {href: '/authoring/blocks/' + query.query.block + '/queries/' + query.query.id}, 'Authoring: ' + query.query.text)
-            : h('a', {href: '/authoring'}, 'Authoring')
+          model.user.authoring
+            ? query && query.query
+                ? h('a', {href: '/authoring/blocks/' + query.query.block + '/queries/' + query.query.id}, 'Authoring: ' + query.query.text)
+                : h('a', {href: '/authoring'}, 'Authoring')
+            : undefined
       ]
       : undefined
   );
