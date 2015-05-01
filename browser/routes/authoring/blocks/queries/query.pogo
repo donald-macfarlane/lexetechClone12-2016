@@ -144,6 +144,7 @@ module.exports = React.createClass {
         r (MenuItem) { onClick = addActionClick @{ { name = 'suppressPunctuation', arguments = [] } } } ('Suppress Punctuation')
         r (MenuItem) { onClick = addActionClick @{ { name = 'loadFromFile', arguments = [] } } } ('Load from File')
         r (MenuItem) { onClick = addActionClick @{ { name = 'setGender', arguments = [] } } } ('Set Gender')
+        r (MenuItem) { onClick = addActionClick @{ { name = 'loopBack', arguments = [] } } } ('Loop Back')
       )
     )
 

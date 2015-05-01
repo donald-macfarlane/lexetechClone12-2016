@@ -1,11 +1,13 @@
 var mongoose = require("mongoose");
 var Document = require('./models/document');
+var User = require('./models/user');
+var escapeRegexp = require('escape-regexp');
 
 mongoose.set("debug", process.env.MONGO_DEBUG === "true");
 
 var connected = false;
 
-module.exports.connect = function() {
+exports.connect = function() {
   if (!connected) {
     var url = process.env.MONGOLAB_URI || "mongodb://localhost/lexeme";
     mongoose.connect(url);
@@ -15,29 +17,60 @@ module.exports.connect = function() {
 
 function objectify(doc) {
   if (doc) {
-    return doc.toObject();
+    var object = doc.toObject();
+    object.id = object._id;
+    delete object._id;
+    delete object.__v;
+    return object;
   }
 }
 
-module.exports.writeDocument = function (userId, docId, doc) {
+exports.writeDocument = function (userId, docId, doc) {
   return Document.update({_id: docId, userId: userId}, {$set: doc}, {overwrite: true}).exec();
 };
 
-module.exports.createDocument = function (userId, doc) {
+exports.createDocument = function (userId, doc) {
   doc.userId = userId;
   return new Document(doc).save().then(objectify);
 };
 
-module.exports.readDocument = function (userId, docId) {
+exports.readDocument = function (userId, docId) {
   return Document.findOne({_id: docId, userId: userId}).then(objectify);
 };
 
-module.exports.currentDocument = function (userId) {
+exports.currentDocument = function (userId) {
   return Document.findOne({userId: userId}).sort('-lastModified').then(objectify);
 };
 
-module.exports.documents = function (userId) {
+exports.documents = function (userId) {
   return Document.find({userId: userId}).sort('-lastModified').exec().then(function (docs) {
     return docs.map(objectify);
+  });
+};
+
+exports.allUsers = function () {
+  return User.find().exec().then(function (users) {
+    var u = users.map(objectify);
+    return u;
+  });
+};
+
+exports.addUser = function (user) {
+  return new User(user).save().then(objectify);
+};
+
+exports.user = function (userId) {
+  return User.findOne({_id: userId}).then(objectify);
+};
+
+exports.updateUser = function (userId, user) {
+  return User.update({_id: userId}, {$set: user}, {overwrite: true}).exec();
+};
+
+exports.searchUsers = function (query) {
+  var escapedQuery = query.split(/ +/).map(function (q) { return new RegExp(escapeRegexp(q), 'i'); });
+
+  return User.find({$or: [{firstName: {$in: escapedQuery}}, {familyName: {$in: escapedQuery}}, {email: {$in: escapedQuery}}, ]}).exec().then(function (users) {
+    return users.map(objectify);
   });
 };

@@ -6,11 +6,12 @@ var loginComponent = require('./loginComponent');
 var signupComponent = require('./signupComponent');
 var layoutComponent = require('./layoutComponent');
 var documentApi = require('./documentApi')();
-var router = require('./router');
+var routes = require('./routes');
 var buildGraph = require('./buildGraph');
 var lexemeApi = require('./lexemeApi');
 var startReportComponent = require('./startReportComponent');
 var sync = require('./sync');
+var adminComponent = require('./adminComponent');
 
 var rootComponent = prototype({
   constructor: function (pageData) {
@@ -20,6 +21,7 @@ var rootComponent = prototype({
     if (pageData.user) {
       this.graphHack = pageData.graphHack;
       this.documentApi = documentApi;
+      this.admin = adminComponent();
 
       this.startReport = startReportComponent({
         documentApi: documentApi,
@@ -33,9 +35,11 @@ var rootComponent = prototype({
   openDocumentById: function (docId) {
     var self = this;
 
-    return this.documentApi.document(docId).then(function (doc) {
-      self.openDocument(doc);
-    });
+    if (docId != this.documentId) {
+      return this.documentApi.document(docId).then(function (doc) {
+        self.openDocument(doc);
+      });
+    }
   },
 
   query: function () {
@@ -67,6 +71,7 @@ var rootComponent = prototype({
       queryGraph: this.queryGraph(),
       lexemeApi: this.lexemeApi()
     });
+    routes.report({documentId: doc.id}).push();
   },
 
   currentDocument: function () {
@@ -81,6 +86,8 @@ var rootComponent = prototype({
           if (!self._currentDocument) {
             self.setCurrentDocument(doc);
           }
+
+          return doc? undefined: h.norefresh;
         });
       });
     }
@@ -98,21 +105,39 @@ var rootComponent = prototype({
     var self = this;
     this.refresh = h.refresh;
 
-    return router.render(this, function () {
-      return layoutComponent(self,
-        self.signup ?
-          router.signup(signupComponent())
-        : self.login || !self.user ?
-          router.login(loginComponent())
-        : self.documentId ?
-          router.report({documentId: self.documentId},
-            self.report
-              ? self.report.render()
-              : h('h1', 'loading')
-          )
-        : router.root(self.startReport.render())
-      );
-    });
+    if (!self.user && (!routes.signup().active && !routes.login().active)) {
+      routes.login().push();
+    }
+
+    return layoutComponent(self, [
+      routes.signup(signupComponent),
+      routes.login(loginComponent),
+      routes.report(
+        {
+          documentId: {
+            set: function (docId) {
+              return self.openDocumentById(docId);
+            }
+          },
+        },
+        function (params) {
+          if (self.report) {
+            return self.report.render();
+          } else {
+            return h('h1', 'loading');
+          }
+        }
+      ),
+      routes.root(function () {
+        return self.startReport.render();
+      }),
+      routes.admin(function () {
+        return self.admin.render();
+      }),
+      routes.adminUser(function (params) {
+        return self.admin.render(params.userId);
+      })
+    ]);
   }
 });
 

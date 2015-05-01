@@ -1,7 +1,6 @@
 httpism = require 'httpism'
 app = require '../../server/app'
 expect = require 'chai'.expect
-lexiconBuilder = require '../lexiconBuilder'
 _ = require 'underscore'
 Document = require '../../server/models/document'
 
@@ -9,12 +8,10 @@ describe 'documents'
   port = 12345
   api = httpism.api "http://user:password@localhost:#(port)"
   server = nil
-  lexicon = nil
 
   beforeEach
     app.set 'apiUsers' { "user:password" = true }
     server := app.listen (port)
-    lexicon := lexiconBuilder()
     Document.remove {} ^!
 
   afterEach

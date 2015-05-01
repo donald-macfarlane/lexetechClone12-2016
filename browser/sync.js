@@ -18,7 +18,7 @@ function sync(options, fn) {
   var refreshifiedFn;
 
   return function() {
-    if (condition()) {
+    if (!condition || condition()) {
       if (!refreshifiedFn) {
         if (throttle) {
           refreshifiedFn = _throttle(h.refreshify(fn), throttle);
@@ -27,7 +27,7 @@ function sync(options, fn) {
         }
       }
 
-      refreshifiedFn();
+      refreshifiedFn.apply(undefined, arguments);
     }
   }
 }

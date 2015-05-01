@@ -1,5 +1,4 @@
 var h = require('plastiq').html;
-var router = require('plastiq/router');
 
 module.exports = function () {
   return h('div.signup-page',

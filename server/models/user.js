@@ -1,13 +1,25 @@
 var mongoose = require("mongoose");
+var textSearch = require('mongoose-text-search');
 var passportPlugin = require("passport-local-mongoose");
 
 var Schema = mongoose.Schema;
 var User = new Schema({
-  authoring: Boolean
+  username: String,
+  firstName: String,
+  familyName: String,
+  author: Boolean,
+  admin: Boolean,
+  officePhoneNumber: String,
+  cellPhoneNumber: String,
+  address: String
 });
 
 User.plugin(passportPlugin, {
     usernameField: "email"
 });
+
+User.plugin(textSearch);
+
+User.index({firstName: 'text', familyName: 'text', email: 'text'});
 
 module.exports = mongoose.model("User", User);

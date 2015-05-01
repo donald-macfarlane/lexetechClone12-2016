@@ -1,6 +1,6 @@
 var plastiq = require('plastiq');
 var h = plastiq.html;
-var router = require('./router');
+var routes = require('./routes');
 var http = require('./http');
 var _ = require('underscore');
 
@@ -47,18 +47,45 @@ function topMenuTabs(model) {
   var currentDocument = model.currentDocument();
   var document = model.document;
 
+  function routeTab(route, title) {
+    return route.a({class: {active: route.active}}, title);
+  }
+
+  function authoringTab() {
+    if (model.user.author) {
+      if (query && query.query) {
+        return h('a',
+          {href: '/authoring/blocks/' + query.query.block + '/queries/' + query.query.id},
+          'Authoring: ' + query.query.text
+        );
+      } else {
+        return h('a', {href: '/authoring'}, 'Authoring')
+      }
+    }
+  }
+
+  function reportTab() {
+    if (currentDocument) {
+      var title = currentDocument.name? 'Report: ' + currentDocument.name: 'Report';
+      return routeTab(routes.report({documentId: currentDocument.id}), title);
+    }
+  }
+
+  function adminTab() {
+    if (true || model.user.admin) {
+      return routeTab(routes.admin(), 'Admin');
+    }
+  }
+
+  var root = routes.root();
+
   return h('div.tabs',
     model.user
       ? [
-          h('a', {class: {active: !document}, href: '/', onclick: router.push}, 'Home'),
-          currentDocument
-            ? h('a', {class: {active: document}, href: '/reports/' + currentDocument.id, onclick: router.push}, currentDocument.name? 'Report: ' + currentDocument.name: 'Report')
-            : undefined,
-          model.user.authoring
-            ? query && query.query
-                ? h('a', {href: '/authoring/blocks/' + query.query.block + '/queries/' + query.query.id}, 'Authoring: ' + query.query.text)
-                : h('a', {href: '/authoring'}, 'Authoring')
-            : undefined
+        routeTab(routes.root(), 'Home'),
+        reportTab(),
+        authoringTab(),
+        adminTab()
       ]
       : undefined
   );
