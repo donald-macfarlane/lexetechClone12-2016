@@ -18,8 +18,6 @@ User.plugin(passportPlugin, {
     usernameField: "email"
 });
 
-User.plugin(textSearch);
-
 User.index({firstName: 'text', familyName: 'text', email: 'text'});
 
 module.exports = mongoose.model("User", User);
