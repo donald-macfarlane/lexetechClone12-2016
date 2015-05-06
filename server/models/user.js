@@ -11,7 +11,8 @@ var User = new Schema({
   admin: Boolean,
   officePhoneNumber: String,
   cellPhoneNumber: String,
-  address: String
+  address: String,
+  created: Date
 });
 
 User.plugin(passportPlugin, {

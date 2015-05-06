@@ -1,4 +1,5 @@
 var mongoose = require("mongoose");
+var promisify = require('./promisify');
 var Document = require('./models/document');
 var User = require('./models/user');
 var escapeRegexp = require('escape-regexp');
@@ -56,7 +57,13 @@ exports.allUsers = function () {
 };
 
 exports.addUser = function (user) {
-  return new User(user).save().then(objectify);
+  var password = user.password;
+  delete user.password;
+  user.created = Date.now();
+
+  return promisify(function(cb) {
+    return User.register(new User(user), password, cb);
+  }).then(objectify);
 };
 
 exports.user = function (userId) {
@@ -70,7 +77,7 @@ exports.updateUser = function (userId, user) {
 exports.searchUsers = function (query) {
   var escapedQuery = query.split(/ +/).map(function (q) { return new RegExp(escapeRegexp(q), 'i'); });
 
-  return User.find({$or: [{firstName: {$in: escapedQuery}}, {familyName: {$in: escapedQuery}}, {email: {$in: escapedQuery}}, ]}).exec().then(function (users) {
+  return User.find({$or: [{firstName: {$in: escapedQuery}}, {familyName: {$in: escapedQuery}}, {email: {$in: escapedQuery}}, ]}).sort('created').exec().then(function (users) {
     return users.map(objectify);
   });
 };

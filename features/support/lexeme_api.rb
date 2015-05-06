@@ -10,7 +10,7 @@ class LexemeApi
   end
 
   def sign_up(email, password)
-    post "/signup", email: email, password: password
+    post_json "/api/users", email: email, password: password, author: true
   rescue RestClient::Found
   end
 

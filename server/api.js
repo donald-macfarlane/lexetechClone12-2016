@@ -38,15 +38,20 @@ app.use('/user', function (req, res, next) {
   next();
 });
 
-app.use(function (req, res, next) {
-  if (methodIsWrite(req.method) && !req.user.author && !req.isUserRoute) {
+app.use('/users', function (req, res, next) {
+  req.isUsersRoute = true;
+  next();
+});
+
+app.use('/', function (req, res, next) {
+  if (methodIsWrite(req.method) && !req.user.author && !req.isUsersRoute && !req.isUserRoute) {
     res.status(403).send({message: 'not authorised'});
   } else {
     next();
   }
 });
 
-app.use(function(req, res, next) {
+app.use('/', function(req, res, next) {
   if (methodIsWrite(req.method)) {
     var backupHttpism = app.get("backupHttpism");
 

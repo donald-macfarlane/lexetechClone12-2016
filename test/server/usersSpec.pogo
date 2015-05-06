@@ -41,6 +41,7 @@ describe 'users'
     it 'can add a user and list it'
       postedUser = api.post! '/api/users' {
         email = 'joe@example.com'
+        password = 'password1'
       }.body
 
       userList = api.get! '/api/users'.body
@@ -51,17 +52,27 @@ describe 'users'
       ]
       expect(user).to.eql(postedUser)
 
+    it 'can add a user and authenticate it'
+      postedUser = api.post! '/api/users' {
+        email = 'joe@example.com'
+        password = 'blahblah'
+      }.body
+
+      users.authenticate! 'joe@example.com' 'blahblah'
+
     context 'given an existing user'
       postedUser = nil
 
       beforeEach
         postedUser := api.post! '/api/users' {
           email = 'joe@example.com'
+          password = 'password1'
         }.body
 
       it 'can update an existing user'
         api.put! (postedUser.href) {
           email = 'jack@example.com'
+          password = 'password1'
         }
 
         user = api.get! (postedUser.href).body
@@ -78,18 +89,21 @@ describe 'users'
           firstName = 'Joe'
           familyName = 'Heart'
           email = 'joe@example.com'
+          password = 'password1'
         }.body
 
         bob := api.post! '/api/users' {
           firstName = 'Bob'
           familyName = 'Spade'
           email = 'bob@example.com'
+          password = 'password1'
         }.body
 
         jane := api.post! '/api/users' {
           firstName = 'Jane'
           familyName = 'Diamond'
           email = 'jane@example.com'
+          password = 'password1'
         }.body
       
       it 'can find just one person'
