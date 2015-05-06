@@ -45,7 +45,6 @@
     "mssql": "2.1.0",
     "qo": "^0.3.0",
     "require-dot-file": "0.4.0",
-    "semantic-ui": "1.11.4",
     "sworm": "^0.4.0",
     "trytryagain": "^0.1.0"
   },
@@ -56,6 +55,7 @@
     "cookie-session": "1.1.0",
     "ejs": "2.3.1",
     "errorhandler": "1.3.5",
+    "escape-regexp": "0.0.1",
     "express": "^4.10.4",
     "express-session": "^1.9.3",
     "glob": "^4.3.1",
