@@ -29,8 +29,25 @@ function delayBackup(wait) {
   }
 }
 
+function methodIsWrite(method) {
+  return method === 'PUT' || method === 'POST' || method === 'DELETE' || method == 'PATCH';
+}
+
+app.use('/user', function (req, res, next) {
+  req.isUserRoute = true;
+  next();
+});
+
+app.use(function (req, res, next) {
+  if (methodIsWrite(req.method) && !req.user.author && !req.isUserRoute) {
+    res.status(403).send({message: 'not authorised'});
+  } else {
+    next();
+  }
+});
+
 app.use(function(req, res, next) {
-  if (req.method === "PUT" || req.method === "POST" || req.method === "DELETE") {
+  if (methodIsWrite(req.method)) {
     var backupHttpism = app.get("backupHttpism");
 
     if (backupHttpism) {
@@ -235,6 +252,14 @@ function incomingUser(user) {
   delete user.href;
   return user;
 }
+
+app.use('/users', function (req, res, next) {
+  if (req.user.admin) {
+    next();
+  } else {
+    res.status(403).send({message: 'not authorised'});
+  }
+});
 
 app.post('/users', function (req, res) {
   mongoDb.addUser(req.body).then(function (user) {

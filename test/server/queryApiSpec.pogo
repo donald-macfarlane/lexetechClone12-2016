@@ -15,7 +15,7 @@ describe "query api"
 
   beforeEach
     db := app.get 'db'
-    app.set 'apiUsers' { "user:password" = true }
+    app.set 'apiUsers' { "user:password" = { author = true } }
     server := app.listen (port)
     lexicon := lexiconBuilder()
     db.clear()!
@@ -700,3 +700,15 @@ describe "query api"
 
           user2Queries = user2.get!('/api/user/queries').body
           expect([q <- user2Queries, q.text]).to.eql ['query 2']
+
+  describe 'authorisation'
+    beforeEach
+      app.set 'apiUsers' { "user:password" = true }
+
+    expectUnauthorised(response) =
+      expect(response.statusCode).to.equal 403
+
+    it 'cannot write to api without author authorisation'
+      expectUnauthorised(api.post!('/api/blocks', {}, exceptions = false))
+      expectUnauthorised(api.post!('/api/predicants', {}, exceptions = false))
+      expectUnauthorised(api.post!('/api/lexicon', {}, exceptions = false))

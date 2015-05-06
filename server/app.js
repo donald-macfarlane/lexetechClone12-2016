@@ -43,11 +43,14 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 passport.use(new BasicStrategy(function(username, password, done) {
-  if (app.get("apiUsers")[username + ":" + password]) {
-    done(undefined, {
-      id: username,
-      username: username
-    });
+  var user = app.get("apiUsers")[username + ":" + password];
+
+  if (user) {
+    var userClone = user.constructor === Object? JSON.parse(JSON.stringify(user)): {};
+    userClone.id = username;
+    userClone.username = username;
+
+    done(undefined, userClone);
   } else {
     done();
   }
@@ -116,7 +119,7 @@ function authoringAuthorised(req, res, next) {
   if (req.user.author) {
     next();
   } else {
-    res.status(401).render('notauthorised.html');
+    res.status(403).render('notauthorised.html');
   }
 };
 

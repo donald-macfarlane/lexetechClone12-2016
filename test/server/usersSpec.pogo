@@ -32,7 +32,7 @@ describe 'users'
     server = nil
 
     beforeEach
-      app.set 'apiUsers' { "user:password" = true }
+      app.set 'apiUsers' { "user:password" = {admin = true} }
       server := app.listen (port)
 
     afterEach
@@ -69,16 +69,26 @@ describe 'users'
         expect(user.email).to.eql 'jack@example.com'
 
     describe 'search'
+      joe = nil
+      bob = nil
+      jane = nil
+
       beforeEach
-        api.post! '/api/users' {
+        joe := api.post! '/api/users' {
+          firstName = 'Joe'
+          familyName = 'Heart'
           email = 'joe@example.com'
         }.body
 
-        api.post! '/api/users' {
+        bob := api.post! '/api/users' {
+          firstName = 'Bob'
+          familyName = 'Spade'
           email = 'bob@example.com'
         }.body
 
-        api.post! '/api/users' {
+        jane := api.post! '/api/users' {
+          firstName = 'Jane'
+          familyName = 'Diamond'
           email = 'jane@example.com'
         }.body
       
@@ -87,7 +97,7 @@ describe 'users'
 
         expect(results).to.eql {
           results = [
-            { title = 'jane@example.com' }
+            { title = 'Jane Diamond', description = 'jane@example.com', id = jane.id, href = jane.href }
           ]
         }
       
@@ -96,8 +106,17 @@ describe 'users'
 
         expect(results).to.eql {
           results = [
-            { title = 'joe@example.com' }
-            { title = 'bob@example.com' }
-            { title = 'jane@example.com' }
+            { title = 'Joe Heart', description = 'joe@example.com', id = joe.id, href = joe.href }
+            { title = 'Bob Spade', description = 'bob@example.com', id = bob.id, href = bob.href }
+            { title = 'Jane Diamond', description = 'jane@example.com', id = jane.id, href = jane.href }
           ]
         }
+
+    describe 'authorisation'
+      beforeEach
+        app.set 'apiUsers' { "user:password" = { admin = false } }
+
+
+      it 'refuses access to users without admin role'
+        response = api.get!('/api/users', exceptions = false)
+        expect(response.statusCode).to.equal 403
