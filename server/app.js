@@ -106,14 +106,14 @@ function page(req, js) {
   return {
     script: js,
     user: req.user
-      ? _.pick(req.user, "email", "authoring")
+      ? _.pick(req.user, "email", "author", "admin")
       : undefined,
     flash: req.flash("error")
   };
 };
 
 function authoringAuthorised(req, res, next) {
-  if (req.user.authoring) {
+  if (req.user.author) {
     next();
   } else {
     res.status(401).render('notauthorised.html');

@@ -72,7 +72,7 @@ function topMenuTabs(model) {
   }
 
   function adminTab() {
-    if (true || model.user.admin) {
+    if (model.user.admin) {
       return routeTab(routes.admin(), 'Admin');
     }
   }

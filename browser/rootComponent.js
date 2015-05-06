@@ -109,6 +109,14 @@ var rootComponent = prototype({
       routes.login().push();
     }
 
+    function adminAuth(fn) {
+      return function () {
+        if (self.user.admin) {
+          return fn.apply(this, arguments);
+        }
+      }
+    }
+
     return layoutComponent(self, [
       routes.signup(signupComponent),
       routes.login(loginComponent),
@@ -131,12 +139,12 @@ var rootComponent = prototype({
       routes.root(function () {
         return self.startReport.render();
       }),
-      routes.admin(function () {
+      routes.admin(adminAuth(function () {
         return self.admin.render();
-      }),
-      routes.adminUser(function (params) {
+      })),
+      routes.adminUser(adminAuth(function (params) {
         return self.admin.render(params.userId);
-      })
+      }))
     ]);
   }
 });
