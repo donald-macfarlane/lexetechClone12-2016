@@ -1,5 +1,4 @@
 var mongoose = require("mongoose");
-var textSearch = require('mongoose-text-search');
 var passportPlugin = require("passport-local-mongoose");
 
 var Schema = mongoose.Schema;
