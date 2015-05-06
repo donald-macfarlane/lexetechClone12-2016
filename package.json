@@ -79,7 +79,7 @@
     "passport-http": "^0.2.2",
     "passport-local": "^1.0.0",
     "passport-local-mongoose": "^1.0.0",
-    "plastiq": "1.11.0",
+    "plastiq": "1.13.0",
     "plastiq-medium-editor": "1.0.3",
     "plastiq-router": "2.0.0",
     "plastiq-semantic-ui": "1.0.2",
