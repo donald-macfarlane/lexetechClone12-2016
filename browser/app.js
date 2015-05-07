@@ -1,3 +1,4 @@
+window.lexemeDebug = require('debug');
 var plastiq = require('plastiq');
 
 var root = require('./rootComponent')(window.lexemeData);

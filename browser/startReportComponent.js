@@ -3,7 +3,8 @@ var h = plastiq.html;
 var prototype = require('prote');
 var semanticUi = require('plastiq-semantic-ui');
 var moment = require('moment');
-var sync = require('./sync');
+var throttle = require('plastiq-throttle');
+var debug = require('debug')('start-report');
 
 module.exports = prototype({
   constructor: function (options) {
@@ -13,13 +14,13 @@ module.exports = prototype({
     this.root = options.root;
     this.currentDocument = options.currentDocument;
 
-    this.syncDocuments = sync({
-      throttle: 5000,
-      condition: function () { return options.user; }
-    }, function () {
-      return self.documentApi.allDocuments().then(function (documents) {
-        self.documents = documents;
-      });
+    this.loadDocuments = throttle({throttle: 5000}, function () {
+      if (options.user) {
+        debug('loading documents');
+        return self.documentApi.allDocuments().then(function (documents) {
+          self.documents = documents;
+        });
+      }
     });
   },
 
@@ -61,7 +62,7 @@ module.exports = prototype({
     var self = this;
 
     this.refresh = h.refresh;
-    this.syncDocuments();
+    this.loadDocuments();
 
     var currentDocument = this.currentDocument();
 

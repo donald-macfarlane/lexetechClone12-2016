@@ -10,7 +10,7 @@ var routes = require('./routes');
 var buildGraph = require('./buildGraph');
 var lexemeApi = require('./lexemeApi');
 var startReportComponent = require('./startReportComponent');
-var sync = require('./sync');
+var throttle = require('plastiq-throttle');
 var adminComponent = require('./adminComponent');
 
 var rootComponent = prototype({
@@ -77,24 +77,18 @@ var rootComponent = prototype({
   currentDocument: function () {
     var self = this;
 
-    if (!this.syncHasCurrentDocument) {
-      this.syncHasCurrentDocument = sync({
-        throttle: 5000,
-        condition: function () { return self.user && !self._currentDocument; }
-      }, function () {
-        return self.documentApi.currentDocument().then(function (doc) {
-          if (!self._currentDocument) {
-            self.setCurrentDocument(doc);
-          }
+    if (!this._loadedCurrentDocument && this.user) {
+      this._loadedCurrentDocument = true;
 
-          return doc? undefined: h.norefresh;
-        });
+      self.documentApi.currentDocument().then(function (doc) {
+        if (!self._currentDocument) {
+          self.setCurrentDocument(doc);
+          self.refresh();
+        }
       });
     }
 
-    this.syncHasCurrentDocument();
-
-    return self._currentDocument;
+    return this._currentDocument;
   },
 
   setCurrentDocument: function (doc) {

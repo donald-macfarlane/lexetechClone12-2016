@@ -1,5 +1,5 @@
 var prototype = require('prote');
-var sync = require('./sync');
+var throttle = require('plastiq-throttle');
 var userApi = require('./userApi');
 var h = require('plastiq').html;
 var routes = require('./routes');
@@ -13,11 +13,9 @@ module.exports = prototype({
 
     this.userApi = userApi();
 
-    this.syncUser = sync({
-      watch: function () { return self.userId; }
-    }, function () {
-      if (self.userId) {
-        return self.userApi.user(self.userId).then(function (user) {
+    this.loadUser = throttle(function (userId) {
+      if (userId) {
+        return self.userApi.user(userId).then(function (user) {
           self.user = userComponent(user.edit());
         });
       } else {
@@ -29,8 +27,7 @@ module.exports = prototype({
   render: function (userId) {
     var self = this;
 
-    this.userId = userId;
-    this.syncUser();
+    this.loadUser(userId);
 
     return h('.admin',
       semanticUi.search(
