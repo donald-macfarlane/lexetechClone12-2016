@@ -84,7 +84,9 @@ describe 'users'
       bob = nil
       jane = nil
 
-      beforeEach
+      beforeEach =>
+        self.timeout 5000
+
         joe := api.post! '/api/users' {
           firstName = 'Joe'
           familyName = 'Heart'
