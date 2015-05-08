@@ -1,6 +1,7 @@
 shell = require './tools/ps'
 loadQueriesFromSql = require './tools/loadQueriesFromSql'
 fs = require 'fs-promise'
+httpism = require 'httpism'
 
 runAllThenThrow(args, ...) =
   firstError = nil
@@ -34,27 +35,24 @@ task 'cucumber'
 task 'karma'
   karma()!
 
+envs = {
+  prod = 'http://api:squidandeels@lexetech.herokuapp.com/api/lexicon'
+  dev = 'http://api:squidandeels@localhost:8000/api/lexicon'
+}
+
 task 'load-from-file' @(args, env = 'dev')
   file = args.0
 
-  httpism = require 'httpism'
-
-  connectionInfoLive = {
-    user = 'lexeme'
-    password = 'password'
-    server = 'windows'
-    database = 'dbLexemeLive'
-  }
-
   queries = JSON.parse(fs.readFile (file, 'utf-8')!)
 
-  envs = {
-    prod = 'http://api:squidandeels@lexetech.herokuapp.com/api/lexicon'
-    dev = 'http://api:squidandeels@localhost:8000/api/lexicon'
-  }
-
-  body = httpism.post (envs.(env)) (queries)!.body
+  url = envs.(env)
+  body = httpism.post (url, queries)!.body
   console.log(body)
+
+task 'download-lexicon' @(args, env = 'dev')
+  url = envs.(env)
+  body = httpism.get (url)!.body
+  console.log(JSON.stringify(body, null, 2))
 
 task 'sqldump' @(args, env = 'local.json')
   creds = JSON.parse(fs.readFile(env, 'utf-8')!)
