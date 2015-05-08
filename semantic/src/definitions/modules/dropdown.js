@@ -31,7 +31,7 @@ $.fn.dropdown = function(parameters) {
   ;
 
   $allModules
-    .each(function(index) {
+    .each(function() {
       var
         settings          = ( $.isPlainObject(parameters) )
           ? $.extend(true, {}, $.fn.dropdown.settings, parameters)
@@ -210,21 +210,27 @@ $.fn.dropdown = function(parameters) {
                 .prependTo($module)
               ;
             }
-            module.setup.reference();
+            module.refresh();
           },
           reference: function() {
             var
+              index = $allModules.index($module),
               $firstModules,
               $lastModules
             ;
             module.debug('Dropdown behavior was called on select, replacing with closest dropdown');
             // replace module reference
-            $module = $module.closest(selector.dropdown);
+            $module = $module.parent(selector.dropdown);
             module.refresh();
             // adjust all modules
             $firstModules = $allModules.slice(0, index);
-            $lastModules = $allModules.slice(index + 1);
-            $allModules = $firstModules.add($module).add($lastModules);
+            $lastModules  = $allModules.slice(index + 1);
+            $allModules   = $firstModules.add($module).add($lastModules);
+            // invoke method in context of current instance
+            if(methodInvoked) {
+              instance = module;
+              module.invoke(query);
+            }
           }
         },
 
@@ -471,6 +477,9 @@ $.fn.dropdown = function(parameters) {
             module.event.item.click.call($selectedItem);
             module.remove.filteredItem();
           }
+          else {
+            module.hide();
+          }
         },
 
         event: {
@@ -576,8 +585,8 @@ $.fn.dropdown = function(parameters) {
                     .closest(selector.item)
                       .addClass(className.selected)
                   ;
+                  event.preventDefault();
                 }
-                event.preventDefault();
               }
               // right arrow (show sub-menu)
               if(pressedKey == keys.rightArrow) {
@@ -591,8 +600,8 @@ $.fn.dropdown = function(parameters) {
                     .find(selector.item).eq(0)
                       .addClass(className.selected)
                   ;
+                  event.preventDefault();
                 }
-                event.preventDefault();
               }
               // up arrow (traverse menu up)
               if(pressedKey == keys.upArrow) {
@@ -964,19 +973,23 @@ $.fn.dropdown = function(parameters) {
                     module.verbose('Ambiguous dropdown value using strict type check', $choice, value);
                     if( optionValue === value ) {
                       $selectedItem = $(this);
+                      return true;
                     }
                     else if( !$selectedItem && optionText === value ) {
                       $selectedItem = $(this);
+                      return true;
                     }
                   }
                   else {
                     if( optionValue == value ) {
                       module.verbose('Found select item by value', optionValue, value);
                       $selectedItem = $(this);
+                      return true;
                     }
                     else if( !$selectedItem && optionText == value ) {
                       module.verbose('Found select item by text', optionText, value);
                       $selectedItem = $(this);
+                      return true;
                     }
                   }
                 })
@@ -1179,7 +1192,7 @@ $.fn.dropdown = function(parameters) {
               selectedText,
               selectedValue
             ;
-            if($selectedItem) {
+            if($selectedItem && !$selectedItem.hasClass(className.active) ) {
               module.debug('Setting selected menu item to', $selectedItem);
               module.remove.activeItem();
               module.remove.selectedItem();
@@ -1559,7 +1572,7 @@ $.fn.dropdown = function(parameters) {
               });
             }
             clearTimeout(module.performance.timer);
-            module.performance.timer = setTimeout(module.performance.display, 100);
+            module.performance.timer = setTimeout(module.performance.display, 500);
           },
           display: function() {
             var

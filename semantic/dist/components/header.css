@@ -111,7 +111,7 @@
 ---------------*/
 
 .ui.header .ui.label {
-  font-size: 1.28em;
+  font-size: '';
   margin: 0em 0em 0em 0.5rem;
   vertical-align: middle;
 }
