@@ -34,6 +34,11 @@ var queryComponent = prototype({
     };
   },
 
+  selectedResponse: function () {
+    return (this.editingResponse && this.editingResponse.response)
+      || (this.showingResponse && this.showingResponse.response);
+  },
+
   stopShowingResponse: function () {
     delete this.showingResponse;
   },
@@ -51,22 +56,10 @@ var queryComponent = prototype({
     delete this.editingResponse;
   },
 
-  loadingQuery: function (queryPromise) {
-    return loadingTimeout(queryPromise, function (loading) {
-      if (loading) {
-        self.loadingResponse = response;
-        self.refresh();
-      } else {
-        delete self.loadingResponse;
-        self.refresh();
-      }
-    });
-  },
-
   selectResponse: function (response, styles) {
     var self = this;
 
-    return this.loadingQuery(this.history.selectResponse(response, styles).query).then(function (q) {
+    return this.history.selectResponse(response, styles).query.then(function (q) {
       self.setQuery(q);
     });
   },
@@ -74,7 +67,7 @@ var queryComponent = prototype({
   skip: function () {
     var self = this;
 
-    return this.loadingQuery(self.history.skip().query).then(function (q) {
+    return self.history.skip().query.then(function (q) {
       self.setQuery(q);
     });
   },
@@ -82,7 +75,7 @@ var queryComponent = prototype({
   omit: function () {
     var self = this;
 
-    return this.loadingQuery(self.history.omit().query).then(function (q) {
+    return self.history.omit().query.then(function (q) {
       self.setQuery(q);
     });
   },
@@ -281,25 +274,3 @@ var queryComponent = prototype({
 });
 
 module.exports = queryComponent;
-
-function loadingTimeout(promise, fn) {
-  var loaded = false;
-  var loading = false;
-
-  function setLoaded(result) {
-    loaded = true;
-    if (loading) {
-      fn(false);
-    }
-    return result;
-  }
-
-  setTimeout(function () {
-    if (!loaded) {
-      loading = true;
-      fn(true);
-    }
-  }, 140);
-
-  return promise.then(setLoaded, setLoaded);
-}

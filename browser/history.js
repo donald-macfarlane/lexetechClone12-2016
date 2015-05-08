@@ -1,5 +1,4 @@
 var prototype = require('prote');
-var buildGraph = require('./buildGraph');
 var createContext = require('./context');
 
 module.exports = prototype({

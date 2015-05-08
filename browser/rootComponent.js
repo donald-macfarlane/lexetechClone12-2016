@@ -56,7 +56,8 @@ var rootComponent = prototype({
     return this._queryGraph || (
       this._queryGraph = buildGraph({
         hack: this.graphHack !== undefined? this.graphHack: true,
-        lexemeApi: this.lexemeApi()
+        lexemeApi: this.lexemeApi(),
+        cache: false
       })
     );
   },

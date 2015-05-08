@@ -85,7 +85,7 @@ describe("context", function() {
       });
     });
 
-    context('simple context', function () {
+    context('context with loop predicants', function () {
       beforeEach(function () {
         baseContext = createContext({
           blocks: {

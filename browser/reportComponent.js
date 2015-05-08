@@ -32,7 +32,10 @@ module.exports = prototype({
       currentQuery: function () {
         return self.history.query;
       },
-      lexemeApi: options.lexemeApi
+      lexemeApi: options.lexemeApi,
+      selectedResponse: function () {
+        return self.query.selectedResponse();
+      }
     });
 
     function setQuery (query) {

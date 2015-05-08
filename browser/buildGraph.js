@@ -59,7 +59,7 @@ var actions = {
   },
 
   loopBack: function(query, response, context) {
-    var queryLevel = context.level;
+    var queryLevel = query.level;
     var loopHead = findLoopHead(context, queryLevel);
 
     context.coherenceIndex = loopHead.loopHead.index;
@@ -115,40 +115,48 @@ function blockInActiveBlocks(block, blocks) {
   return blocks[block];
 }
 
-function findNextQuery(api, context) {
+function findNextQuery(api, context, previousContext) {
   var blocksSearched = [];
+  return api.block(previousContext.block).query(previousContext.coherenceIndex).then(function (previousQuery) {
+    var previousQueryLevel = previousQuery.level;
 
-  function findNext(context) {
-    blocksSearched.push(context.block);
+    function findNext(context) {
+      blocksSearched.push(context.block);
 
-    return findNextQueryInCurrentBlock(api, context).then(function(query) {
-      if (!query) {
-        if (context.blocks.length > 0) {
-          context.block = context.blocks.shift();
-          context.coherenceIndex = 0;
-          return findNext(context);
-        } else if (context.blockStack.length > 0) {
-          context.popBlockStack();
-          return findNext(context);
+      return findNextQueryInCurrentBlock(api, context, previousQueryLevel).then(function(query) {
+        if (!query) {
+          if (context.blocks.length > 0) {
+            context.block = context.blocks.shift();
+            context.coherenceIndex = 0;
+            return findNext(context);
+          } else if (context.blockStack.length > 0) {
+            context.popBlockStack();
+            return findNext(context);
+          }
+        } else {
+          return query;
         }
-      } else {
-        return query;
-      }
+      });
+    }
+
+    var result = {};
+
+    return findNext(context).then(function(q) {
+      result.query = q;
+      result.blocksSearched = blocksSearched;
+      return result;
     });
-  }
-
-  var result = {};
-
-  return findNext(context).then(function(q) {
-    result.query = q;
-    result.blocksSearched = blocksSearched;
-    return result;
   });
 }
 
-function findNextQueryInCurrentBlock(api, context) {
+function findNextQueryInCurrentBlock(api, context, previousQueryLevel) {
   return findNextItemInStartingFromMatching(api.block(context.block), context.coherenceIndex, function(query) {
-    return query.level <= context.level && anyPredicantInFoundIn(query.predicants, context.predicants);
+    var predicants =
+      query.level < previousQueryLevel
+        ? context.predicantsForLevel(query.level)
+        : context.predicants;
+
+    return query.level <= context.level && anyPredicantInFoundIn(query.predicants, predicants);
   });
 }
 
@@ -207,6 +215,7 @@ module.exports = function(options) {
             return {name: action.arguments[0], value: action.arguments[1]};
           }),
           suppressPunctuation: hasAction('suppressPunctuation'),
+          actions: r.actions,
 
           query: function(options) {
             var self = this;
@@ -260,7 +269,7 @@ module.exports = function(options) {
     return queryCache.cacheBy(context.coherenceIndex + ":" + context.key(), function() {
       var originalContext = cloneContext(context);
 
-      return findNextQuery(api, context).then(function(query) {
+      return findNextQuery(api, context, previousContext).then(function(query) {
         if (query.query) {
           context.coherenceIndex = query.query.index;
           context.history.push({level: query.query.level, index: query.query.index});
@@ -299,7 +308,7 @@ module.exports = function(options) {
 
           if (hack) {
             hackpreds.concat(query.predicants).forEach(function(p) {
-              return firstPredicants[p] = true;
+              return firstPredicants[p] = 0;
             });
           }
 

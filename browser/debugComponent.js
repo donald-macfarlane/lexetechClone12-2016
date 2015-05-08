@@ -3,6 +3,7 @@ var _ = require('underscore');
 var Promise = require('bluebird');
 var lexemeApi = require('./lexemeApi');
 var prototype = require('prote');
+var renderJson = require('./renderJson');
 
 var api = lexemeApi();
 
@@ -10,6 +11,7 @@ var debugComponent = prototype({
   constructor: function (options) {
     this.currentQuery = options.currentQuery;
     this.lexemeApi = options.lexemeApi;
+    this.selectedResponse = options.selectedResponse;
   },
 
   refresh: function () {},
@@ -99,10 +101,14 @@ var debugComponent = prototype({
       return result;
     }
 
-    function contextPredicants(context) {
-      return Object.keys(context.predicants).map(function (p) {
+    function predicantNames(predicants) {
+      return Object.keys(predicants).map(function (p) {
         return self.predicants[p].name;
       });
+    }
+
+    function contextPredicants(context) {
+      return predicantNames(context.predicants);
     }
 
     function contextBlocks(context) {
@@ -148,6 +154,16 @@ var debugComponent = prototype({
       return h('code', x);
     }
 
+    function loopPredicants(context) {
+      var predicants = [];
+      for (var n = 0; n < context.loopPredicants.length; n++) {
+        predicants.push(context.loopPredicants[n]);
+      }
+      return predicants;
+    }
+
+    var selectedResponse = this.selectedResponse();
+
     return [
       h('div',
         h('p', 'coherence index: ', renderContextScalars(previousContext, context, 'coherenceIndex', code)),
@@ -155,8 +171,22 @@ var debugComponent = prototype({
         this.predicants
           ? h('p', 'predicants: ', renderContextArrays(previousContext, context, contextPredicants, code))
           : undefined,
-        h('p', 'blocks: ', renderContextArrays(previousContext, context, contextBlocks, code))
+        h('p', 'blocks: ', renderContextArrays(previousContext, context, contextBlocks, code)),
+        h('h3', 'loop predicants'),
+        h('ol',
+          loopPredicants(context).map(function (loopPredicant) {
+            return h('li',
+              loopPredicant
+                ? code(predicantNames(loopPredicant).join(', '))
+                : '(none)'
+            );
+          })
+        ),
+        selectedResponse
+          ? h('.actions', renderJson(selectedResponse.actions))
+          : undefined
       ),
+      h('.context', renderJson(context)),
       h('ol.blocks',
         query.loadedBlocks
           ? query.loadedBlocks.map(function (block) {

@@ -4,7 +4,6 @@ var userApi = require('./userApi');
 var h = require('plastiq').html;
 var routes = require('./routes');
 var semanticUi = require('plastiq-semantic-ui');
-var jsonHtml = require('./jsonHtml');
 var userComponent = require('./userComponent');
 
 module.exports = prototype({

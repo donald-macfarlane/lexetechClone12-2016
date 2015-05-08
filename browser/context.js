@@ -29,6 +29,23 @@ module.exports = prototype({
     });
   },
 
+  predicantsForLevel: function (level) {
+    var hasLoopPredicants = this.loopPredicants.filter(function (x) { return x; }).length > 0;
+
+    if (hasLoopPredicants) {
+      var preds = {};
+
+      _.extend(preds, this.predicants);
+      this.loopPredicants.forEach(function (loopPredicants) {
+        _.extend(preds, loopPredicants);
+      });
+
+      return preds;
+    } else {
+      return this.predicants;
+    }
+  },
+
   popBlockStack: function() {
     var b = this.blockStack.shift();
     this.coherenceIndex = b.coherenceIndex;

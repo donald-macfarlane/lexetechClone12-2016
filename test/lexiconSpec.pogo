@@ -687,24 +687,24 @@ describe "lexicon"
           responses = [
             {
               text = 'response 1 (left)'
-              setLevel = 2
+              setLevel = 3
               predicants = ['left']
             }
             {
               text = 'response 2 (right)'
-              setLevel = 2
+              setLevel = 3
               predicants = ['right']
             }
           ]
         }
         {
           text = 'query 3, level 2 (left)'
-          level = 2
+          level = 3
 
           responses = [
             {
               text = 'response 1'
-              setLevel = 2
+              setLevel = 3
             }
           ]
 
@@ -712,12 +712,12 @@ describe "lexicon"
         }
         {
           text = 'query 4, level 2 (right)'
-          level = 2
+          level = 3
 
           responses = [
             {
               text = 'response 1'
-              setLevel = 2
+              setLevel = 3
             }
           ]
 
@@ -730,7 +730,7 @@ describe "lexicon"
           responses = [
             {
               text = 'again'
-              setLevel = 2
+              setLevel = 3
 
               actions = [
                 { name = 'loopBack', arguments = [] }
@@ -738,23 +738,12 @@ describe "lexicon"
             }
             {
               text = 'no more'
-              setLevel = 2
+              setLevel = 3
             }
           ]
         }
         {
-          text = 'query 6, level 1'
-          level = 1
-
-          responses = [
-            {
-              text = 'response 1'
-              setLevel = 1
-            }
-          ]
-        }
-        {
-          text = 'query 7, level 1 (left)'
+          text = 'query 6, level 1 (left)'
           level = 1
 
           responses = [
@@ -767,7 +756,7 @@ describe "lexicon"
           predicants = ['left']
         }
         {
-          text = 'query 8, level 1 (right)'
+          text = 'query 7, level 1 (right)'
           level = 1
 
           responses = [
@@ -791,7 +780,6 @@ describe "lexicon"
       c.shouldAsk 'query 2, level 2' thenRespondWith 'response 2 (right)'!
       c.shouldAsk 'query 4, level 2 (right)' thenRespondWith 'response 1'!
       c.shouldAsk 'query 5, level 2' thenRespondWith 'no more'!
-      c.shouldAsk 'query 6, level 1' thenRespondWith 'response 1'!
-      c.shouldAsk 'query 7, level 1 (left)' thenRespondWith 'response 1'!
-      c.shouldAsk 'query 8, level 1 (right)' thenRespondWith 'response 1'!
+      c.shouldAsk 'query 6, level 1 (left)' thenRespondWith 'response 1'!
+      c.shouldAsk 'query 7, level 1 (right)' thenRespondWith 'response 1'!
       c.shouldBeFinished()!

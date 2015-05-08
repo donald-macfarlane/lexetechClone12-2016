@@ -5,6 +5,17 @@ body {
 }
 
 .debug {
+  display: flex;
+  flex-direction: row;
+
+  > * {
+    flex: 1;
+  }
+
+  .context {
+    font-size: 10px;
+  }
+
   .query {
     margin-top: 10px;
     margin-bottom: 10px;
