@@ -51,7 +51,7 @@ module.exports = prototype {
 
     self.constructor {
       finders = finders
-      element = self.element
+      selector = self.selector
     }
 
   find(args, ...) =
@@ -91,7 +91,7 @@ module.exports = prototype {
 
   resolve() =
     retry!
-      els = self.findElement(self.element)
+      els = self.findElement(self.selector)
       expect(els.length).to.equal 1 "expected to find exactly one element: #(self.printFinders(self.finders))"
       els
 
@@ -102,7 +102,7 @@ module.exports = prototype {
     retry!
       length =
         try
-          self.findElement(self.element).length
+          self.findElement(self.selector).length
         catch (e)
           0
 

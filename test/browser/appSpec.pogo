@@ -1,10 +1,9 @@
 retry = require 'trytryagain'
-lexeme = require '../../browser/lexeme'
 createTestDiv = require './createTestDiv'
 $ = require '../../browser/jquery'
 expect = require 'chai'.expect
 plastiq = require 'plastiq'
-rootComponent = require '../../browser/rootComponent'
+mountApp = require './mountApp'
 queryApi = require './queryApi'
 lexiconBuilder = require '../lexiconBuilder'
 element = require './element'
@@ -79,11 +78,11 @@ describe 'report'
     history.pushState(nil, nil, '/')
 
     rootBrowser := createRootBrowser {
-      element = div
+      selector = '.test'
     }
 
     reportBrowser := createReportBrowser {
-      element = div
+      selector = '.test'
     }
 
   afterEach
@@ -123,8 +122,7 @@ describe 'report'
       graphHack = false
     } (options)
 
-    root = rootComponent(options)
-    plastiq.append(div, root.render.bind(root))
+    mountApp(options)
 
   context 'with simple lexicon'
     beforeEach
@@ -424,8 +422,10 @@ describe 'report'
 
       api.predicants.push({id = 'end', name = 'end'})
 
-      root = rootComponent {user = { email = 'blah@example.com' }, graphHack = false}
-      plastiq.append(div, root.render.bind(root))
+      mountApp {
+        user = { email = 'blah@example.com' }
+        graphHack = false
+      }
 
       rootBrowser.startNewDocumentButton().click!()
 

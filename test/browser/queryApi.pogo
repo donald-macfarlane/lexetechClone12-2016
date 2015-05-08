@@ -194,11 +194,28 @@ module.exports() =
         statusCode = 404
       }
 
+  router.get '/api/users/search' @(req)
+    query = req.params.q
+
+    foundUsers = users.filter @(user)
+      user.email.indexOf(q) >= 0 @or user.firstName.indexOf(q) >= 0 @or user.lastName.indexOf(q)
+
+    {
+      body = {
+        results = foundUsers.map @(user)
+          {
+            title = "#(user.firstName) #(user.familyName)"
+            description = user.email
+          }
+      }
+    }
+
   userQueries = []
 
   blocks = model('/api/blocks')
   clipboard = model('/api/user/queries')
   documents = model('/api/user/documents', hrefs = true)
+  users = model('/api/users', hrefs = true)
   predicants = []
 
   router.get '/api/predicants' @(req)
@@ -212,6 +229,8 @@ module.exports() =
     userQueries = userQueries
     clipboard = clipboard
     documents = documents
+    users = users
+
     setLexicon(lexicon) =
       lexiconBlocks = lexicon.blocks.map @(b)
         b.queries.forEach @(q)
