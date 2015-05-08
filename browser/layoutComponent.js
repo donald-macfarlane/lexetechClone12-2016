@@ -112,7 +112,9 @@ function wait(n) {
 
 var listenToHttpErrors = _.once(function (model) {
   http.onError(h.refreshify(function (event, jqxhr, settings) {
-    if (!settings.suppressErrors) {
+    var ignoreError = settings.suppressErrors || jqxhr.statusText == 'abort';
+
+    if (!ignoreError) {
       var errorMessage = jqxhr.statusText + (
         jqxhr.responseJSON && jqxhr.responseJSON.message
         ? ': ' + jqxhr.responseJSON.message
