@@ -3,14 +3,20 @@ app = require '../../server/app'
 expect = require 'chai'.expect
 _ = require 'underscore'
 Document = require '../../server/models/document'
+startSmtpServer = require './smtpServer'
+retry = require 'trytryagain'
 
 describe 'documents'
   port = 12345
-  api = httpism.api "http://user:password@localhost:#(port)"
+  api = httpism.api "http://bob:password@localhost:#(port)"
   server = nil
 
   beforeEach
-    app.set 'apiUsers' { "user:password" = true }
+    app.set 'apiUsers' {
+      "bob:password" = {
+        email = 'bob@example.com'
+      }
+    }
     server := app.listen (port)
     Document.remove {} ^!
 
@@ -108,3 +114,38 @@ describe 'documents'
     })
 
     expect(api.get!('/api/user/documents/current').body.query).to.eql 'query 2, altered'
+
+  describe 'emailing administrator when changes are made to responses'
+    smtpServer = nil
+    emailsReceived = []
+
+    beforeEach
+      smtpServer := startSmtpServer {
+        emailReceived(email) =
+          emailsReceived.push(email)
+      }
+      app.set 'smtp url' (smtpServer.url)
+
+    afterEach
+      smtpServer.stop()
+      
+    it 'emails the administrator when a change is made to a response when first creating the document'
+      api.post!('/api/user/documents', {
+        lexemes = [
+          {
+            response = {
+              styles {
+                style1 = 'changed'
+                style2 = 'not changed'
+              }
+              stylesChanged = {
+                style1 = true
+                style2 = false
+              }
+            }
+          }
+        ]
+      })
+
+      retry!
+        expect(emailsReceived.length).to.equal 1

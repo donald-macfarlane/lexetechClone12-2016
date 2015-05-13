@@ -104,7 +104,8 @@ module.exports = prototype({
         text: response.text,
         id: response.id,
         repeat: response.repeat,
-        styles: styles || response.styles
+        styles: styles || response.styles,
+        stylesChanged: stylesChanged(styles, response.styles)
       }
     };
 
@@ -246,3 +247,13 @@ module.exports = prototype({
     return this.index >= 0;
   },
 });
+
+function stylesChanged(styles, originalStyles) {
+  var changed = {};
+
+  Object.keys(styles).forEach(function (key) {
+    changed[key] = styles[key] !== originalStyles[key];
+  });
+
+  return changed;
+}

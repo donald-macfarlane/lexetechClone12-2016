@@ -5,6 +5,7 @@ var githubContent = require("./githubContent");
 var app = express();
 var mongoDb = require('./mongoDb');
 var errorhandler = require('errorhandler');
+var sendEmail = require('./sendEmail');
 
 function backup(redisDb, backupHttpism) {
   var github = githubContent(backupHttpism);
@@ -366,6 +367,19 @@ function addDocumentHref(document, req) {
   return document;
 }
 
+function sendResponseChangedEmail() {
+  var smtpUrl = app.get('smtp url');
+
+  if (smtpUrl) {
+    return sendEmail(smtpUrl, {
+      from: 'Lexetech System <system@lexetech.com>',
+      to: 'Lexetech Admin <admin@lexetech.com>',
+      subject: 'response change',
+      text: 'response was changed'
+    });
+  }
+}
+
 app.post("/user/documents", errors, function(req, res) {
   var doc = req.body;
   incomingDocument(doc);
@@ -374,6 +388,7 @@ app.post("/user/documents", errors, function(req, res) {
     outgoingDocument(document, req);
     res.set("location", document.href);
     res.send(document);
+    sendResponseChangedEmail();
   });
 });
 

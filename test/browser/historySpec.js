@@ -8,6 +8,7 @@ var simpleLexicon = require('../simpleLexicon');
 var loopingLexicon = require('../loopingLexicon');
 var substitutingLexicon = require('../substitutingLexicon');
 var Promise = require('bluebird');
+var _ = require('underscore');
 
 describe('history', function () {
   var documentApi;
@@ -117,9 +118,16 @@ describe('history', function () {
           });
         });
 
+        function query(name) {
+          return _.flatten(lexicon.blocks.map(function (b) {
+            return b.queries.filter(function (q) {
+              return q.text == name;
+            });
+          }))[0];
+        }
+
         it('saves history', function () {
           return currentQuery().then(function (firstQuery) {
-            
             return selectResponseAndExpectQuery('left leg', 'Is it bleeding?', {style1: 'style1', style2: 'style2'});
           }).then(function (query) {
             expect(server.documents.length).to.equal(1);
@@ -137,6 +145,20 @@ describe('history', function () {
             expect(lexeme.response.repeat).to.equal(false);
             expect(lexeme.response.styles.style1).to.equal('style1');
             expect(lexeme.response.styles.style2).to.equal('style2');
+          });
+        });
+
+        it('saves which styles were changed', function () {
+          return currentQuery().then(function (firstQuery) {
+            return selectResponseAndExpectQuery('left leg', 'Is it bleeding?', {style1: 'style1', style2: lexicon.blocks[0].queries[0].responses[0].styles.style2});
+          }).then(function () {
+            var doc = server.documents[0];
+            var lexeme = doc.lexemes[0];
+
+            expect(lexeme.response.styles.style1).to.equal('style1');
+            expect(lexeme.response.styles.style2).to.equal('lft leg');
+            expect(lexeme.response.stylesChanged.style1).to.be.true;
+            expect(lexeme.response.stylesChanged.style2).to.be.false;
           });
         });
 
