@@ -26,7 +26,7 @@ module.exports() =
         body = request.body
       }
 
-    router.post(url + '/:id') @(request)
+    postPut(request) =
       collection.(Number(request.params.id) - 1) = request.body
 
       if (hrefs)
@@ -35,6 +35,9 @@ module.exports() =
       {
         statusCode = 200
       }
+
+    router.post(url + '/:id', postPut)
+    router.put(url + '/:id', postPut)
 
     router.get(url + '/:id') @(request)
       body = collection.(Number(request.params.id) - 1)
@@ -198,16 +201,18 @@ module.exports() =
     query = req.params.q
 
     foundUsers = users.filter @(user)
-      user.email.indexOf(q) >= 0 @or user.firstName.indexOf(q) >= 0 @or user.lastName.indexOf(q)
+      user.email.indexOf(query) >= 0 @or user.firstName.indexOf(query) >= 0 @or user.familyName.indexOf(query)
+
+    results = foundUsers.map @(user)
+      {
+        id = user.id
+        href = user.href
+        title = "#(user.firstName) #(user.familyName)"
+        description = user.email
+      }
 
     {
-      body = {
-        results = foundUsers.map @(user)
-          {
-            title = "#(user.firstName) #(user.familyName)"
-            description = user.email
-          }
-      }
+      body = { results = results }
     }
 
   userQueries = []

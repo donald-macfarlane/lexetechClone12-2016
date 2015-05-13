@@ -33,8 +33,9 @@ module.exports = {
   field: function (label, binding, options) {
     var type = options && options.hasOwnProperty('type') && options.type !== undefined? options.type: 'text';
     var placeholder = options && options.hasOwnProperty('placeholder') && options.placeholder !== undefined? options.placeholder: 'text';
+    var _class = options && options.hasOwnProperty('class') && options.class !== undefined? options.class: undefined;
 
-    return h('.field',
+    return h('.field', {class: _class},
       h('label', label),
       h('.ui.input',
         h('input', {type: type, placeholder: placeholder, binding: binding})

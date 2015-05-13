@@ -15,8 +15,14 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      "node_modules/jquery/dist/jquery.min.js",
-      "semantic/dist/semantic.min.js",
+      "server/generated/app.css",
+      "node_modules/medium-editor/dist/css/medium-editor.min.css",
+      "node_modules/medium-editor/dist/css/themes/default.min.css",
+      "node_modules/jquery/dist/jquery.js",
+      // "semantic/dist/themes/default/assets/fonts/icons.woff2",
+      // "semantic/dist/themes/default/assets/fonts/icons.woff",
+      "semantic/dist/semantic.js",
+      "semantic/dist/semantic.min.css",
       "test/browser/**/*Spec.{js,pogo}"
     ],
 

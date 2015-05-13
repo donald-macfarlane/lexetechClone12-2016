@@ -62,7 +62,7 @@ responsesElement = prototypeExtending(element) {
 }
 
 responseElement = prototypeExtending(element) {
-  selector() = self.find('ul li.selector textarea')
+  responseSelector() = self.find('ul li.selector textarea')
   setLevel() = self.find('ul li.set-level input')
   predicantSearch() = self.find('ul li div.predicants input')
   predicant(name) = self.find('ul li div.predicants ol li', text = 'Hemophilia')
@@ -79,7 +79,7 @@ describe 'authoring'
 
     beforeEach
       div := createTestDiv()
-      page := authoringElement { element = div }
+      page := authoringElement { selector = div }
 
       api := queryApi()
 
@@ -138,7 +138,7 @@ describe 'authoring'
         responses = page.responses()
         responses.addResponseButton().click!()
         newResponse = responses.response(1)
-        newResponse.selector().typeIn!('response 1')
+        newResponse.responseSelector().typeIn!('response 1')
         newResponse.setLevel().typeIn!('4')
         newResponse.predicantSearch().typeIn!('hemo')
         newResponse.predicant('Hemophilia').click!()
@@ -344,7 +344,7 @@ describe 'authoring'
         responses = page.responses()
         responses.addResponseButton().click!()
         newResponse = responses.response(2)
-        newResponse.selector().typeIn!('response 2')
+        newResponse.responseSelector().typeIn!('response 2')
         page.query().find('button', text = 'Overwrite').click!()
 
         retry!
