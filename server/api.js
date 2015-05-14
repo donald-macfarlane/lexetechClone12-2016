@@ -6,6 +6,7 @@ var app = express();
 var mongoDb = require('./mongoDb');
 var errorhandler = require('errorhandler');
 var sendEmail = require('./sendEmail');
+var documentHasChangedStyles = require('./documentHasChangedStyles');
 
 function backup(redisDb, backupHttpism) {
   var github = githubContent(backupHttpism);
@@ -111,13 +112,16 @@ app.get("/blocks/:id", function(req, res) {
   });
 });
 
-app.post("/blocks/:id", function(req, res) {
+function putBlock(req, res) {
   var db = app.get("db");
 
   db.updateBlockById(req.params.id, req.body).then(function(block) {
     res.send(block);
   });
-});
+}
+
+app.post("/blocks/:id", putBlock);
+app.put("/blocks/:id", putBlock);
 
 app.get("/blocks/:id/queries", function(req, res) {
   var db = app.get("db");
@@ -141,7 +145,7 @@ function getQuery(req, res) {
 app.get("/blocks/:blockId/queries/:queryId", getQuery);
 app.get("/queries/:queryId", getQuery);
 
-app.post("/blocks/:blockId/queries/:queryId", function(req, res) {
+function putQuery(req, res) {
   var db = app.get("db");
   var query = req.body;
 
@@ -160,7 +164,10 @@ app.post("/blocks/:blockId/queries/:queryId", function(req, res) {
       });
     }
   }
-});
+}
+
+app.post("/blocks/:blockId/queries/:queryId", putQuery);
+app.put("/blocks/:blockId/queries/:queryId", putQuery);
 
 app.delete("/blocks/:blockId/queries/:queryId", function(req, res) {
   var db = app.get("db");
@@ -388,7 +395,9 @@ app.post("/user/documents", errors, function(req, res) {
     outgoingDocument(document, req);
     res.set("location", document.href);
     res.send(document);
-    sendResponseChangedEmail();
+    if (documentHasChangedStyles(document)) {
+      sendResponseChangedEmail();
+    }
   });
 });
 
@@ -401,14 +410,22 @@ app.get('/user/documents', function (req, res) {
   });
 });
 
-app.post("/user/documents/:id", function(req, res) {
+function putDocument(req, res) {
   var document = req.body;
   incomingDocument(document);
-  mongoDb.writeDocument(req.user.id, req.params.id, document).then(function() {
-    outgoingDocument(document, req);
-    res.send(document);
+  mongoDb.readDocument(req.user.id, req.params.id).then(function (originalDocument) {
+    return mongoDb.writeDocument(req.user.id, req.params.id, document).then(function() {
+      outgoingDocument(document, req);
+      res.send(document);
+      if (documentHasChangedStyles(document, originalDocument)) {
+        sendResponseChangedEmail();
+      }
+    });
   });
-});
+}
+
+app.post("/user/documents/:id", putDocument);
+app.put("/user/documents/:id", putDocument);
 
 app.get("/user/documents/current", function(req, res) {
   mongoDb.currentDocument(req.user.id).then(function(doc) {

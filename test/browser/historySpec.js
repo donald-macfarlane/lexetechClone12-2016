@@ -157,8 +157,8 @@ describe('history', function () {
 
             expect(lexeme.response.styles.style1).to.equal('style1');
             expect(lexeme.response.styles.style2).to.equal('lft leg');
-            expect(lexeme.response.stylesChanged.style1).to.be.true;
-            expect(lexeme.response.stylesChanged.style2).to.be.false;
+            expect(lexeme.response.changedStyles.style1).to.be.true;
+            expect(lexeme.response.changedStyles.style2).to.be.false;
           });
         });
 

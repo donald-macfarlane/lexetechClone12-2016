@@ -117,9 +117,10 @@ describe 'documents'
 
   describe 'emailing administrator when changes are made to responses'
     smtpServer = nil
-    emailsReceived = []
+    emailsReceived = nil
 
     beforeEach
+      emailsReceived := []
       smtpServer := startSmtpServer {
         emailReceived(email) =
           emailsReceived.push(email)
@@ -128,24 +129,87 @@ describe 'documents'
 
     afterEach
       smtpServer.stop()
-      
-    it 'emails the administrator when a change is made to a response when first creating the document'
-      api.post!('/api/user/documents', {
-        lexemes = [
-          {
-            response = {
-              styles {
-                style1 = 'changed'
-                style2 = 'not changed'
-              }
-              stylesChanged = {
-                style1 = true
-                style2 = false
-              }
-            }
-          }
-        ]
-      })
 
-      retry!
-        expect(emailsReceived.length).to.equal 1
+    lexemeWithChangedStyles(queryId = 1, responseId = 1) = {
+      query = {
+        id = queryId
+      }
+      response = {
+        id = responseId
+        styles {
+          style1 = 'changed'
+          style2 = 'not changed'
+        }
+        changedStyles = {
+          style1 = true
+          style2 = false
+        }
+      }
+    }
+
+    lexemeWithOriginalStyles(queryId = 1, responseId = 1) = {
+      query = {
+        id = queryId
+      }
+      response = {
+        id = responseId
+        styles {
+          style1 = 'not changed'
+          style2 = 'not changed'
+        }
+        changedStyles = {
+          style1 = false
+          style2 = false
+        }
+      }
+    }
+      
+    describe 'when creating the document'
+      it 'emails the administrator when a change is made to a response when first creating the document'
+        api.post!('/api/user/documents', {
+          lexemes = [
+            lexemeWithChangedStyles()
+          ]
+        })
+
+        retry!
+          expect(emailsReceived.length).to.equal 1
+        
+      it "doesn't email the administrator when no changes are made to the responses"
+        api.post!('/api/user/documents', {
+          lexemes = [
+            lexemeWithOriginalStyles()
+          ]
+        })
+
+        retry.ensuring!
+          expect(emailsReceived.length).to.equal 0
+
+    describe 'when updating a document with changed styles'
+      document = nil
+
+      beforeEach
+        document := api.post!('/api/user/documents', {
+          lexemes = [
+            lexemeWithChangedStyles()
+          ]
+        }).body
+
+        retry!
+          expect(emailsReceived.length).to.equal 1
+          
+        emailsReceived := []
+
+      it 'sends an email when the update contains a changed style'
+        document.lexemes.push(lexemeWithChangedStyles(queryId = 2, responseId = 1))
+        api.put!(document.href, document)
+
+        retry!
+          expect(emailsReceived.length).to.equal 1
+        
+      it "doesn't send an email when the update doesn't contain a changed style"
+        document.lexemes.push(lexemeWithOriginalStyles(queryId = 2, responseId = 1))
+        api.put!(document.href, document)
+
+        retry.ensuring!
+          expect(emailsReceived.length).to.equal 0

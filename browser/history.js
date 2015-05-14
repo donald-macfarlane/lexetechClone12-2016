@@ -105,7 +105,7 @@ module.exports = prototype({
         id: response.id,
         repeat: response.repeat,
         styles: styles || response.styles,
-        stylesChanged: stylesChanged(styles, response.styles)
+        changedStyles: (styles && changedStyles(styles, response.styles)) || {}
       }
     };
 
@@ -248,7 +248,7 @@ module.exports = prototype({
   },
 });
 
-function stylesChanged(styles, originalStyles) {
+function changedStyles(styles, originalStyles) {
   var changed = {};
 
   Object.keys(styles).forEach(function (key) {

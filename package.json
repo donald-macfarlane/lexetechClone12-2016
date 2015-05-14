@@ -48,7 +48,7 @@
     "require-dot-file": "0.4.0",
     "smtp-server": "1.4.0",
     "sworm": "^0.4.0",
-    "trytryagain": "^0.1.0"
+    "trytryagain": "1.0.1"
   },
   "dependencies": {
     "body-parser": "^1.10.0",
