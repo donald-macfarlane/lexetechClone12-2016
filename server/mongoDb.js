@@ -49,8 +49,16 @@ exports.documents = function (userId) {
   });
 };
 
-exports.allUsers = function () {
-  return User.find().exec().then(function (users) {
+exports.allUsers = function (options) {
+  var max = options && options.max;
+
+  var usersCollection = User.find();
+
+  if (max) {
+    usersCollection = usersCollection.limit(max)
+  }
+
+  return usersCollection.exec().then(function (users) {
     var u = users.map(objectify);
     return u;
   });

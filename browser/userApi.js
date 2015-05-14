@@ -63,8 +63,14 @@ module.exports = prototype({
   constructor: function () {
   },
 
-  allUsers: function () {
-    return http.get('/api/users').then(function (users) {
+  users: function (params) {
+    return http.get('/api/users', {params: params}).then(function (users) {
+      return users.map(user);
+    });
+  },
+
+  search: function(query) {
+    return http.get('/api/users/search', {params: {q: query}}).then(function (users) {
       return users.map(user);
     });
   },

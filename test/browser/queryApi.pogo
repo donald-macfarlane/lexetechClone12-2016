@@ -203,16 +203,8 @@ module.exports() =
     foundUsers = users.filter @(user)
       user.email.indexOf(query) >= 0 @or user.firstName.indexOf(query) >= 0 @or user.familyName.indexOf(query)
 
-    results = foundUsers.map @(user)
-      {
-        id = user.id
-        href = user.href
-        title = "#(user.firstName) #(user.familyName)"
-        description = user.email
-      }
-
     {
-      body = { results = results }
+      body = foundUsers
     }
 
   userQueries = []

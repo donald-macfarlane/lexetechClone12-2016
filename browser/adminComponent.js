@@ -11,6 +11,7 @@ module.exports = prototype({
     var self = this;
 
     this.userApi = userApi();
+    this.users = [];
 
     this.loadUser = throttle(function (userId) {
       if (userId) {
@@ -21,29 +22,42 @@ module.exports = prototype({
         delete self.user;
       }
     });
+
+    this.searchUsers = throttle(function (query) {
+      self.usersLoading = true;
+      if (!query) {
+        return self.userApi.users({max: 20}).then(function (users) {
+          self.users = users;
+          delete self.usersLoading;
+        });
+      } else {
+        return self.userApi.search(query).then(function (users) {
+          self.users = users;
+          delete self.usersLoading;
+        });
+      }
+    });
   },
 
   render: function (userId) {
     var self = this;
 
     this.loadUser(userId);
+    this.searchUsers(this.query);
 
     return h('.admin',
-      semanticUi.search(
-        {
-          apiSettings: {
-            url: '/api/users/search?q={query}'
-          },
-          onSelect: function (user) {
-            routes.adminUser({userId: user.id}).push();
-          }
-        },
-        h('.ui.search',
-          h('.ui.icon.input',
-            h('input.prompt', {type: 'text', placeholder: 'user'}),
-            h('i.search.icon')
-          ),
-          h('.results')
+      h('.search',
+        h('.ui.icon.input', {class: {loading: this.usersLoading}},
+          h('input', {type: 'text', placeholder: 'search users', binding: [this, 'query']}),
+          h('i.search.icon')
+        ),
+        h('.ui.vertical.menu.results',
+          self.users.map(function (user) {
+            return routes.adminUser({userId: user.id}).link({class: {item: true, teal: true, active: user.id === userId}},
+              h('h5', user.firstName + ' ' + user.familyName),
+              user.email
+            );
+          })
         )
       ),
       this.user

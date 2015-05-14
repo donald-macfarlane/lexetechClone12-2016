@@ -52,6 +52,18 @@ describe 'users'
       ]
       expect(user).to.eql(postedUser)
 
+    it 'lists only max users'
+      [
+        n <- [1..5]
+        api.post! '/api/users' {
+          email = "joe#(n)@example.com"
+          password = 'password1'
+        }
+      ]
+
+      userList = api.get!('/api/users', querystring = {max = 3}).body
+      expect(userList.length).to.eql 3
+
     it 'can add a user and authenticate it'
       postedUser = api.post! '/api/users' {
         email = 'joe@example.com'
@@ -111,22 +123,18 @@ describe 'users'
       it 'can find just one person'
         results = api.get! '/api/users/search?q=jane'.body
 
-        expect(results).to.eql {
-          results = [
-            { title = 'Jane Diamond', description = 'jane@example.com', id = jane.id, href = jane.href }
-          ]
-        }
+        expect(results).to.eql [
+          jane
+        ]
       
       it 'can find several people'
         results = api.get! '/api/users/search?q=example'.body
 
-        expect(results).to.eql {
-          results = [
-            { title = 'Joe Heart', description = 'joe@example.com', id = joe.id, href = joe.href }
-            { title = 'Bob Spade', description = 'bob@example.com', id = bob.id, href = bob.href }
-            { title = 'Jane Diamond', description = 'jane@example.com', id = jane.id, href = jane.href }
-          ]
-        }
+        expect(results).to.eql [
+          joe
+          bob
+          jane
+        ]
 
     describe 'authorisation'
       beforeEach

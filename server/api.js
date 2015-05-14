@@ -85,7 +85,7 @@ function errors(req, res, next) {
   }
 }
 
-app.use(errorhandler());
+app.use(errors);
 
 app.get("/blocks", function(req, res) {
   var db = app.get("db");
@@ -268,7 +268,7 @@ function incomingUser(user) {
 
 app.use('/users', function (req, res, next) {
   if (req.user.admin) {
-    next();
+    return next();
   } else {
     res.status(403).send({message: 'not authorised'});
   }
@@ -281,7 +281,7 @@ app.post('/users', function (req, res) {
 });
 
 app.get('/users', function (req, res) {
-  mongoDb.allUsers().then(function(u) {
+  return mongoDb.allUsers({max: Number(req.query.max)}).then(function(u) {
     var users = u.map(function (user) {
       return outgoingUser(user, req);
     });
@@ -294,19 +294,10 @@ app.get('/users', function (req, res) {
 
 app.get('/users/search', function (req, res) {
   mongoDb.searchUsers(req.query.q).then(function (users) {
-    res.send(
-      {
-        results: users.map(function (user) {
-          outgoingUser(user, req);
-          return {
-            title: [user.firstName, user.familyName].filter(function (n) { return n; }).join(' '),
-            description: user.email,
-            id: user.id,
-            href: user.href
-          };
-        })
-      }
-    );
+    var users = users.map(function (user) {
+      return outgoingUser(user, req);
+    });
+    res.send(users);
   }).then(undefined, function (error) {
     res.status(500).send({message: error.message});
   });

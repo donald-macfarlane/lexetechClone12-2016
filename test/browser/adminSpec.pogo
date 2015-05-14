@@ -9,9 +9,9 @@ appBrowser = prototypeExtending(element) {
 }
 
 adminBrowser = prototypeExtending(element) {
-  searchTextBox() = self.find('.ui.search input')
-  searchResults() = self.find('.ui.search .results .content')
-  result(name) = self.find('.ui.search .results .content', text = name)
+  searchTextBox() = self.find('.search .ui.input input')
+  searchResults() = self.find('.search .results')
+  result(name) = self.find('.search .results h5', text = name)
 }
 
 userBrowser = prototypeExtending(element) {
@@ -51,7 +51,6 @@ describe 'admin'
     it 'can search for, find and edit a user' =>
       self.timeout 100000
       app.adminTab().click!()
-      admin.searchTextBox().exists!()
       admin.searchTextBox().click!()
 
       admin.searchTextBox().typeIn!('joe')

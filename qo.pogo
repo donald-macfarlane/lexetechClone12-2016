@@ -66,7 +66,7 @@ task 'sqldump' @(args, env = 'local.json')
 modifyUser(userQuery, modify, env = 'dev') =
   api = createApi(env)
   usersResponse = api.get!('users/search', querystring = {q = userQuery})
-  users = usersResponse.body.results
+  users = usersResponse.body
 
   if (users.length > 1)
     console.log "more than one user found:"
@@ -78,6 +78,18 @@ modifyUser(userQuery, modify, env = 'dev') =
     response = api.put!(user.href, user)
 
     console.log("#(response.statusCode) => #(JSON.stringify(response.body, nil, 2))")
+
+task 'add-user' @(args, env = 'dev')
+  if (args.length == 2)
+    api = createApi(env)
+    response = api.post! 'users' {
+      email = args.0
+      password = args.1
+    }.body
+
+    console.log(response)
+  else
+    console.log 'usage: qo add-user email password'
 
 task 'add-admin' @(args, env = 'dev')
   modifyUser(args.0, env = env) @(user)
