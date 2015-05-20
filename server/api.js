@@ -7,6 +7,7 @@ var mongoDb = require('./mongoDb');
 var errorhandler = require('errorhandler');
 var sendEmail = require('./sendEmail');
 var documentHasChangedStyles = require('./documentHasChangedStyles');
+var debug = require('debug')('lexenotes:api');
 
 function backup(redisDb, backupHttpism) {
   var github = githubContent(backupHttpism);
@@ -370,8 +371,8 @@ function sendResponseChangedEmail() {
 
   if (smtpUrl) {
     return sendEmail(smtpUrl, {
-      from: 'Lexetech System <system@lexetech.com>',
-      to: 'Lexetech Admin <admin@lexetech.com>',
+      from: app.get('system email') || 'Lexetech System <system@lexetech.com>',
+      to: app.get('admin email') || 'Lexetech Admin <admin@lexetech.com>',
       subject: 'response change',
       text: 'response was changed'
     });

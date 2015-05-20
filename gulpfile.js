@@ -88,10 +88,22 @@ gulp.task('css', function () {
     .pipe(gulp.dest('server/generated'));
 });
 
-gulp.task('server', ['watch-js', 'watch-css'], function(done) {
-  shell('node server/server.js').then(done);
-});
+var mandrill = {
+  username: 'app32417512@heroku.com',
+  apikey: 'udYXr_wWlBxJDtrKNPTH0w'
+}
 
-gulp.task('server-no-watch', ['js', 'css'], function(done) {
-  shell('node server/server.js').then(done);
-});
+function runServer(done) {
+  var env = {
+    DEBUG: 'lexenotes:*',
+    MANDRILL_USERNAME: mandrill.username,
+    MANDRILL_APIKEY: mandrill.apikey,
+    ADMIN_EMAIL: 'Tim Macfarlane <tim+lexenotes-admin@featurist.co.uk>',
+    SYSTEM_EMAIL: 'Tim Macfarlane <tim+lexenotes-system@featurist.co.uk>'
+  };
+
+  shell('node server/server.js', {env: env}).then(done);
+}
+
+gulp.task('server', ['watch-js', 'watch-css'], runServer);
+gulp.task('server-no-watch', ['js', 'css'], runServer);

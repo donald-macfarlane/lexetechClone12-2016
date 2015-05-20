@@ -2,6 +2,7 @@ var cache = require('../common/cache');
 var nodemailer = require('nodemailer');
 var urlUtils = require('url');
 var promisify = require('./promisify');
+var debug = require('debug')('lexenotes:sendemail');
 
 var connectionCache = cache();
 var connections = [];
@@ -35,6 +36,7 @@ function connection(url) {
 
 module.exports = function (url, email) {
   return promisify(function (cb) {
+    debug('sending email', email);
     connection(url).sendMail(email, cb);
   });
 };

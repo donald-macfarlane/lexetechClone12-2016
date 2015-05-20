@@ -8,6 +8,26 @@ var server = express();
 server.use(morgan("combined"));
 server.use(app);
 server.set("apiUsers", apiUsers);
+server.set("backupDelay", 1000);
+server.set("backupHttpism", githubBackupHttpism());
+server.set('smtp url', smtpUrl());
+server.set('admin email', process.env.ADMIN_EMAIL);
+server.set('system email', process.env.SYSTEM_EMAIL);
+
+var port = process.env.PORT || 8000;
+
+server.listen(port, function () {
+  console.log("http://localhost:" + port + "/");
+});
+
+function smtpUrl() {
+  var mandrillUsername = process.env.MANDRILL_USERNAME;
+  var mandrillApiKey = process.env.MANDRILL_APIKEY;
+
+  if (mandrillUsername && mandrillApiKey) {
+    return 'smtp://' + encodeURIComponent(mandrillUsername) + ':' + encodeURIComponent(mandrillApiKey) + '@smtp.mandrillapp.com:587/';
+  }
+}
 
 function githubBackupHttpism() {
   var token, owner, repo;
@@ -24,12 +44,3 @@ function githubBackupHttpism() {
     }, "https://api.github.com/repos/" + owner + "/" + repo + "/contents/");
   }
 }
-
-server.set("backupDelay", 1000);
-server.set("backupHttpism", githubBackupHttpism());
-
-var port = process.env.PORT || 8000;
-
-server.listen(port, function () {
-  console.log("http://localhost:" + port + "/");
-});
