@@ -143,7 +143,6 @@ module.exports = React.createClass {
         r (MenuItem) { onClick = addActionClick @{ { name = 'setVariable', arguments = ['', ''] } } } ('Set Variable')
         r (MenuItem) { onClick = addActionClick @{ { name = 'suppressPunctuation', arguments = [] } } } ('Suppress Punctuation')
         r (MenuItem) { onClick = addActionClick @{ { name = 'loadFromFile', arguments = [] } } } ('Load from File')
-        r (MenuItem) { onClick = addActionClick @{ { name = 'setGender', arguments = [] } } } ('Set Gender')
         r (MenuItem) { onClick = addActionClick @{ { name = 'loopBack', arguments = [] } } } ('Loop Back')
       )
     )
@@ -250,20 +249,6 @@ module.exports = React.createClass {
       suppressPunctuation(action) =
         r 'li' {} (
           r 'h4' {} 'Suppress Punctuation'
-          removeButton()
-        )
-
-      setGender(action) =
-        r 'li' { className 'action-set-gender' } (
-          r 'h4' {} 'Set Gender'
-          r 'ul' {} (
-            r 'li' {} (
-              r 'form' {} (
-                r 'label' {} ('Male', r 'input' { type = 'radio', name = 'gender' })
-                r 'label' {} ('Female', r 'input' { type = 'radio', name = 'gender' })
-              )
-            )
-          )
           removeButton()
         )
 
