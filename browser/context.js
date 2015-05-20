@@ -36,8 +36,10 @@ module.exports = prototype({
       var preds = {};
 
       _.extend(preds, this.predicants);
-      this.loopPredicants.forEach(function (loopPredicants) {
-        _.extend(preds, loopPredicants);
+      this.loopPredicants.forEach(function (loopPredicants, index) {
+        if (level <= index + 1) {
+          _.extend(preds, loopPredicants);
+        }
       });
 
       return preds;
@@ -56,8 +58,9 @@ module.exports = prototype({
   parkLoopPredicants: function (queryLevel, loopHeadIndex) {
     var self = this;
 
+    var loopHeadLevel = queryLevel - 1;
     self.loopPredicants = self.loopPredicants || [];
-    var loopPredicants = self.loopPredicants[queryLevel] = self.loopPredicants[queryLevel] || {};
+    var loopPredicants = self.loopPredicants[loopHeadLevel - 1] = self.loopPredicants[loopHeadLevel - 1] || {};
 
     Object.keys(self.predicants).map(function (key) {
       var historyIndex = self.predicants[key];
@@ -75,11 +78,11 @@ module.exports = prototype({
     if (this.looping) {
       delete this.looping;
     } else if (this.loopPredicants) {
-      for(var n = queryLevel + 1; n < this.loopPredicants.length; n++) {
+      for(var n = queryLevel - 1; n < this.loopPredicants.length; n++) {
         _.extend(this.predicants, this.loopPredicants[n]);
       }
 
-      this.loopPredicants.splice(queryLevel + 1);
+      this.loopPredicants.splice(queryLevel - 1);
     }
   }
 });
