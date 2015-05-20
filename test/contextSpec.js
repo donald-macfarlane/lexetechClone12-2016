@@ -17,7 +17,6 @@ describe("context", function() {
       it("generates a different key if the " + property + " " + (plural? 'are': 'is') + " different", function() {
         var b = createContext(JSON.parse(JSON.stringify(baseContext)));
         block(b);
-        console.log(b.key());
         expect(baseContext.key()).to.not.eql(b.key());
       });
     }
