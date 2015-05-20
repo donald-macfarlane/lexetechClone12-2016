@@ -8,6 +8,12 @@ module.exports = shell (cmd, args, opts) =
   else
     args := args @or []
     opts := opts @or {}
+    if (opts.env)
+      opts.env = JSON.parse(JSON.stringify(opts.env))
+      
+      Object.keys(process.env).forEach @(key)
+        opts.env.(key) = process.env.(key)
+
     opts.stdio = opts.stdio @or 'inherit'
     p = childProcess.spawn(cmd, args, opts)
 
