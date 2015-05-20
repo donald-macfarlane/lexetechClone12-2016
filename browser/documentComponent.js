@@ -34,7 +34,7 @@ module.exports = prototype({
           }
 
           var styleHtml = lexeme.response.styles[style].replace(/!([a-z_][a-z0-9_]*)/g, function (m, name) {
-            return variables[name];
+            return variables[name] || m;
           });
 
           if (suppressPunctuation) {
