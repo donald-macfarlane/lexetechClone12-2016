@@ -33,7 +33,7 @@ module.exports = prototype({
             });
           }
 
-          var styleHtml = lexeme.response.styles[style].replace(/!([a-z_][a-z0-9_]*)/g, function (m, name) {
+          var styleHtml = lexeme.response.styles[style].replace(/!([a-z_][a-z0-9_]*)/gi, function (m, name) {
             return variables[name] || m;
           });
 

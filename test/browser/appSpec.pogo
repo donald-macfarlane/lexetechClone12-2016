@@ -297,16 +297,16 @@ describe 'report'
       appendRootComponent()
       rootBrowser.startNewDocumentButton().click!()
 
-    it 'outputs the document with variables substituted'
+    it.only 'outputs the document with variables substituted'
+      shouldHaveQuery 'Patient gender'!
+      selectResponse 'Female'!
       shouldHaveQuery 'Where does it hurt?'!
       selectResponse 'left leg'!
       shouldHaveQuery 'Is it bleeding?'!
       selectResponse 'yes'!
-      shouldHaveQuery 'Is it aching?'!
-      selectResponse 'yes'!
       shouldBeFinished()!
 
-      notesShouldBe! "bleeding left leg, aching"
+      notesShouldBe! "She complains that her left leg is bleeding"
 
       waitForLexemesToSave!(3)
 
