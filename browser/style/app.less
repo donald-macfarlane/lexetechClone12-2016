@@ -231,41 +231,6 @@ body {
   .query {
     flex: 1 50%;
 
-    .buttons {
-      button, label {
-        outline: none;
-        border: none;
-        font-size: 14px;
-        margin-right: 5px;
-        background-color: rgb(232, 232, 232);
-        color: rgb(187, 187, 187);
-        display: inline-block;
-        padding: 2px 6px 3px 6px;
-
-        &.enabled {
-          background-color: grey;
-          color: white;
-          cursor: pointer;
-
-          &:hover {
-            background-color: darken(grey, 10%);
-          }
-        }
-      }
-
-      button:last-child {
-        margin-right: 0;
-      }
-
-      button.accept.enabled {
-        background-color: fade(@accept-color, 57%);
-
-        &:hover {
-          background-color: darken(fade(@accept-color, 57%), 20%);
-        }
-      }
-    }
-
     ul.responses {
       list-style-type: none;
       padding-left: 0;

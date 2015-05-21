@@ -212,14 +212,17 @@ describe('history', function () {
 
         it('saves the variables set', function () {
           return currentQuery().then(function () {
-            expectQuery('Where does it hurt?');
-            return selectResponseAndExpectQuery('left leg', 'Is it bleeding?');
+            expectQuery('Patient gender');
+            return selectResponseAndExpectQuery('Female', 'Where does it hurt?');
           }).then(function () {
             expect(history.document.lexemes.length).to.equal(1);
             var lexeme = history.document.lexemes[0];
 
             expect(lexeme.variables).to.eql([
-              {name: 'leg', value: 'left'}
+              {name: 'His', value: 'Her'},
+              {name: 'He', value: 'She'},
+              {name: 'his', value: 'her'},
+              {name: 'he', value: 'she'}
             ]);
           });
         });

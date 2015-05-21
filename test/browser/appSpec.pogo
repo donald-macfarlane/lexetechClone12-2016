@@ -30,8 +30,8 @@ describe 'report'
   }
 
   createReportBrowser = prototypeExtending(element) {
-    undoButton() = self.find('.query button', text = 'undo')
-    acceptButton() = self.find('.query button', text = 'accept')
+    undoButton() = self.find('.query .button', text = 'undo')
+    acceptButton() = self.find('.query .button', text = 'accept')
     debugTab() = self.find('.tabular .debug')
     normalTab() = self.find('.tabular .style-normal')
     abbreviatedTab() = self.find('.tabular .style-abbreviated')
@@ -53,8 +53,8 @@ describe 'report'
 
   queryElement = prototypeExtending(element) {
     response(text) = responseElement(self.find('.response', text = text))
-    skipButton() = self.find('button.skip')
-    omitButton() = self.find('button.omit')
+    skipButton() = self.find('.button.skip')
+    omitButton() = self.find('.button.omit')
     queryText() = self.find('.query-text')
   }
 
@@ -297,7 +297,7 @@ describe 'report'
       appendRootComponent()
       rootBrowser.startNewDocumentButton().click!()
 
-    it.only 'outputs the document with variables substituted'
+    it 'outputs the document with variables substituted'
       shouldHaveQuery 'Patient gender'!
       selectResponse 'Female'!
       shouldHaveQuery 'Where does it hurt?'!
