@@ -12,6 +12,7 @@ var debugComponent = prototype({
     this.currentQuery = options.currentQuery;
     this.lexemeApi = options.lexemeApi;
     this.selectedResponse = options.selectedResponse;
+    this.variables = options.variables;
   },
 
   refresh: function () {},
@@ -162,6 +163,62 @@ var debugComponent = prototype({
       return predicants;
     }
 
+    function renderAction(action) {
+      return h('span', action.name, '(', join(action.arguments.map(code), ', '), ')');
+    }
+
+    function renderActions(response) {
+      var actions = response.actions.filter(function (a) { return a.name !== 'none'; });
+
+      return [
+        h('h4', 'actions'),
+        h('ul.actions', actions.map(function (a) {
+          return h('li', renderAction(a));
+        }))
+      ];
+    }
+
+    function renderLoopPredicants(context) {
+      if (context.loopPredicants.length) {
+        return [
+          h('h3', 'loop predicants'),
+          h('ol',
+            context.loopPredicants.map(function (loopPredicant) {
+              return h('li',
+                loopPredicant
+                  ? code(predicantNames(loopPredicant).join(', '))
+                  : '(none)'
+              );
+            })
+          )
+        ];
+      }
+    }
+
+    function renderResponse(response) {
+      if (response) {
+        return [
+          h('h3', 'response'),
+          renderActions(response)
+        ];
+      }
+    }
+
+    function renderVariables() {
+      var variables = self.variables();
+
+      if (variables.length) {
+        return [
+          h('h3', 'variables'),
+          h('ol',
+            variables.map(function (variable) {
+              return h('li', code(variable.name), ' = ', variable.value);
+            })
+          )
+        ];
+      }
+    }
+
     var selectedResponse = this.selectedResponse();
 
     return [
@@ -172,19 +229,9 @@ var debugComponent = prototype({
           ? h('p', 'predicants: ', renderContextArrays(previousContext, context, contextPredicants, code))
           : undefined,
         h('p', 'blocks: ', renderContextArrays(previousContext, context, contextBlocks, code)),
-        h('h3', 'loop predicants'),
-        h('ol',
-          loopPredicants(context).map(function (loopPredicant) {
-            return h('li',
-              loopPredicant
-                ? code(predicantNames(loopPredicant).join(', '))
-                : '(none)'
-            );
-          })
-        ),
-        selectedResponse
-          ? h('.actions', renderJson(selectedResponse.actions))
-          : undefined
+        renderVariables(),
+        renderLoopPredicants(context),
+        renderResponse(selectedResponse)
       ),
       h('.context', renderJson(context)),
       h('ol.blocks',

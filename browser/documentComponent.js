@@ -11,7 +11,7 @@ module.exports = prototype({
   render: function (style) {
     var self = this;
 
-    var variables = {};
+    var variables = this.history.variables({hash: true});
     var suppressPunctuation = false;
 
     return h('.document-outer',
@@ -26,12 +26,6 @@ module.exports = prototype({
         }).map(function (lexemeIndex) {
           var lexeme = lexemeIndex.lexeme;
           var index = lexemeIndex.index;
-
-          if (lexeme.variables) {
-            lexeme.variables.forEach(function (variable) {
-              variables[variable.name] = variable.value;
-            });
-          }
 
           var styleHtml = lexeme.response.styles[style].replace(/!([a-z_][a-z0-9_]*)/gi, function (m, name) {
             return variables[name] || m;

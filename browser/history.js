@@ -47,6 +47,26 @@ module.exports = prototype({
     return this.lexemes.slice(0, this.index + 1);
   },
 
+  variables: function (options) {
+    var varList = [];
+
+    this.currentLexemes().forEach(function (lexeme) {
+      varList.push.apply(varList, lexeme.variables);
+    });
+
+    if (options && options.hash) {
+      var variables = {};
+
+      varList.forEach(function (variable) {
+        variables[variable.name] = variable.value;
+      });
+
+      return variables;
+    } else {
+      return varList;
+    }
+  },
+
   currentQuery: function () {
     if (this.document.lexemes.length && this.index >= 0) {
       var lexeme = this.document.lexemes[this.index];

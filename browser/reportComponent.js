@@ -35,6 +35,9 @@ module.exports = prototype({
       lexemeApi: options.lexemeApi,
       selectedResponse: function () {
         return self.query.selectedResponse();
+      },
+      variables: function () {
+        return self.history.variables();
       }
     });
 
