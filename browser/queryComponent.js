@@ -5,6 +5,7 @@ var prototype = require('prote');
 var http = require('./http');
 var semanticUi = require('plastiq-semantic-ui');
 var responseEditor = require('./responseEditorComponent');
+var join = require('./join');
 
 var queryComponent = prototype({
   constructor: function (model) {
@@ -95,53 +96,51 @@ var queryComponent = prototype({
       }
 
       return [
+        h('h3.query-text', {key: 'query-text', class: {finished: !query.query}}, query.query? query.query.text: 'finished'),
+        renderButton(join('accept', h('br')), 'accept', self.history.accept.bind(self.history), selectedResponse),
         h('.query',
           query.query
-            ? [
-                h('h3.query-text', query.query.text),
-                h('ul.responses',
-                  query.responses.map(function (response) {
-                    return h('li.response',
+            ? h('ul.responses', {class: {overflow: query.responses.length >= 10}},
+                query.responses.map(function (response) {
+                  return h('li.response',
+                    {
+                      class: {
+                        selected: selectedResponse == response,
+                        loading: self.loadingResponse == response,
+                        other: responsesForQuery.others[response.id],
+                        editing: self.responseEditor.editing() == response
+                      },
+                      onmouseenter: function () {
+                        self.responseEditor.showResponse(response);
+                      },
+                      onmouseleave: function () {
+                        self.responseEditor.stopShowingResponse();
+                      }
+                    },
+                    h('a',
                       {
-                        class: {
-                          selected: selectedResponse == response,
-                          loading: self.loadingResponse == response,
-                          other: responsesForQuery.others[response.id],
-                          editing: self.responseEditor.editing() == response
-                        },
-                        onmouseenter: function () {
-                          self.responseEditor.showResponse(response);
-                        },
-                        onmouseleave: function () {
-                          self.responseEditor.stopShowingResponse();
+                        href: '#',
+                        onclick: function (ev) {
+                          ev.preventDefault();
+                          return self.selectResponse(response, self.history.stylesForQueryResponse(response));
                         }
                       },
-                      h('a',
-                        {
-                          href: '#',
-                          onclick: function (ev) {
-                            ev.preventDefault();
-                            return self.selectResponse(response, self.history.stylesForQueryResponse(response));
-                          }
-                        },
-                        response.text
-                      ),
-                      h('button.edit-response',
-                        {
-                          onclick: function (ev) {
-                            self.responseEditor.editResponse(response);
-                          }
-                        },
-                        'edit'
-                      )
-                    );
-                  })
-                )
-              ]
-            : h('h3.finished', 'finished'),
+                      response.text
+                    ),
+                    h('button.edit-response',
+                      {
+                        onclick: function (ev) {
+                          self.responseEditor.editResponse(response);
+                        }
+                      },
+                      'edit'
+                    )
+                  );
+                })
+              )
+            : undefined,
           h('.buttons',
             renderButton('undo', 'undo', self.undo.bind(self), self.history.canUndo()),
-            renderButton('accept', 'accept', self.history.accept.bind(self.history), selectedResponse),
             renderButton('skip', 'skip', self.skip.bind(self)),
             renderButton('omit', 'omit', self.omit.bind(self))
           )

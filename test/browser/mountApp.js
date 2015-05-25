@@ -1,11 +1,10 @@
 var plastiq = require('plastiq');
-var rootComponent = require('../../browser/rootComponent');
 
 var lastAttachment;
 var lastDiv;
 var originalHistoryLength;
 
-module.exports = function (options) {
+module.exports = function (component) {
   if (lastDiv) {
     lastAttachment.remove();
     if (lastDiv.parentNode) {
@@ -17,7 +16,6 @@ module.exports = function (options) {
     originalHistoryLength = history.length;
   }
 
-  var root = rootComponent(options);
   lastDiv = document.createElement('div');
   lastDiv.classList.add('test');
   document.body.appendChild(lastDiv);
@@ -26,5 +24,5 @@ module.exports = function (options) {
     history.go(history.length - originalHistoryLength);
   }
 
-  return lastAttachment = plastiq.append(lastDiv, root.render.bind(root));
+  return lastAttachment = plastiq.append(lastDiv, component.render.bind(component));
 };

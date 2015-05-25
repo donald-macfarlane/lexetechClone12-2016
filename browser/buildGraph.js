@@ -179,7 +179,6 @@ var nocache = {
 module.exports = function(options) {
   var api = (options && options.hasOwnProperty('api'))? options.api: lexemeApi();
   var cache = (options && options.hasOwnProperty('cache'))? options.cache: true;
-  var hack = (options && options.hasOwnProperty('hack'))? options.hack: false;
 
   var queryCache = cache && createCache() || nocache;
 
@@ -285,62 +284,33 @@ module.exports = function(options) {
     });
   }
 
-  function hackPredicants() {
-    return api.predicants().then(function (predicants) {
-      var predicantsByName = _.indexBy(_.values(predicants), 'name');
-      return ['H&P', 'HemOnc'].map(function (name) {
-        return predicantsByName[name];
-      }).filter(function (pred) {
-        return pred;
-      }).map(function (pred) {
-        return pred.id;
-      });
-    });
-  }
-
   return {
     firstQueryGraph: function() {
-      var hackpredsPromise = hackPredicants();
-
       return api.block(1).query(0).then(function(query) {
-        function makeGraph(hackpreds) {
-          var firstPredicants = {};
+        var firstPredicants = {};
 
-          if (hack) {
-            hackpreds.concat(query.predicants).forEach(function(p) {
-              return firstPredicants[p] = 0;
-            });
-          }
+        var context = createContext({
+          coherenceIndex: 0,
+          block: query.block,
+          blocks: [],
+          level: 1,
+          predicants: firstPredicants,
+          blockStack: [],
+          history: [{level: query.level, index: 0}],
+          loopPredicants: []
+        });
 
-          var context = createContext({
-            coherenceIndex: 0,
-            block: query.block,
-            blocks: hack? _.range(2, 19).map(String): [],
-            level: 1,
-            predicants: firstPredicants,
-            blockStack: [],
-            history: [{level: query.level, index: 0}],
-            loopPredicants: []
-          });
+        var graph = queryGraph({
+          query: query,
+          context: context,
+          startingContext: context
+        }, context);
 
-          var graph = queryGraph({
-            query: query,
-            context: context,
-            startingContext: context
-          }, context);
-
-          if (cache) {
-            preloadQueryGraph(graph, 4);
-          }
-
-          return graph;
+        if (cache) {
+          preloadQueryGraph(graph, 4);
         }
 
-        if (hack) {
-          return hackpredsPromise.then(makeGraph);
-        } else {
-          return makeGraph();
-        }
+        return graph;
       });
     },
 

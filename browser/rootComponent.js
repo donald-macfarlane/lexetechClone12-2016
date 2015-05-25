@@ -19,7 +19,6 @@ var rootComponent = prototype({
     this.flash = pageData.flash;
 
     if (pageData.user) {
-      this.graphHack = pageData.graphHack;
       this.documentApi = documentApi;
       this.admin = adminComponent();
 
@@ -55,7 +54,6 @@ var rootComponent = prototype({
   queryGraph: function () {
     return this._queryGraph || (
       this._queryGraph = buildGraph({
-        hack: this.graphHack !== undefined? this.graphHack: true,
         lexemeApi: this.lexemeApi(),
         cache: false
       })

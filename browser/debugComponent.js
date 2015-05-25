@@ -4,6 +4,7 @@ var Promise = require('bluebird');
 var lexemeApi = require('./lexemeApi');
 var prototype = require('prote');
 var renderJson = require('./renderJson');
+var join = require('./join');
 
 var api = lexemeApi();
 
@@ -87,19 +88,6 @@ var debugComponent = prototype({
       } else {
         return c;
       }
-    }
-
-    function join(array, dom) {
-      var result = [];
-
-      for(var n = 0; n < array.length; n++) {
-        if (n !== 0) {
-          result.push(dom);
-        }
-        result.push(array[n]);
-      }
-
-      return result;
     }
 
     function predicantNames(predicants) {

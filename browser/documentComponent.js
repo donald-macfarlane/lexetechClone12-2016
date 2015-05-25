@@ -22,7 +22,8 @@ module.exports = prototype({
             index: index
           };
         }).filter(function (lexemeIndex) {
-          return lexemeIndex.lexeme.response && lexemeIndex.lexeme.response.styles;
+          var response = lexemeIndex.lexeme.response;
+          return response && response.styles && response.styles[style] && response.styles[style].trim();
         }).map(function (lexemeIndex) {
           var lexeme = lexemeIndex.lexeme;
           var index = lexemeIndex.index;

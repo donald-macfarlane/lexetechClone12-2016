@@ -4,6 +4,7 @@ $ = require '../../browser/jquery'
 expect = require 'chai'.expect
 plastiq = require 'plastiq'
 mountApp = require './mountApp'
+rootComponent = require '../../browser/rootComponent'
 queryApi = require './queryApi'
 lexiconBuilder = require '../lexiconBuilder'
 element = require './element'
@@ -31,7 +32,7 @@ describe 'report'
 
   createReportBrowser = prototypeExtending(element) {
     undoButton() = self.find('.query .button', text = 'undo')
-    acceptButton() = self.find('.query .button', text = 'accept')
+    acceptButton() = self.find('.button.accept')
     debugTab() = self.find('.tabular .debug')
     normalTab() = self.find('.tabular .style-normal')
     abbreviatedTab() = self.find('.tabular .style-abbreviated')
@@ -39,6 +40,7 @@ describe 'report'
     debug() = debugBrowser(self.find('.debug'))
     document() = documentBrowser(self.find('.document'))
     query() = queryElement(self.find '.query')
+    queryText() = self.find('.query-text')
     responseEditor() = responseEditorElement(self.find('.response-editor'))
   }
 
@@ -55,7 +57,6 @@ describe 'report'
     response(text) = responseElement(self.find('.response', text = text))
     skipButton() = self.find('.button.skip')
     omitButton() = self.find('.button.omit')
-    queryText() = self.find('.query-text')
   }
 
   responseElement = prototypeExtending(element) {
@@ -85,9 +86,6 @@ describe 'report'
       selector = '.test'
     }
 
-  afterEach
-    history.pushState(nil, nil, originalLocation)
-
   after
     router.stop()
 
@@ -98,7 +96,7 @@ describe 'report'
       e
 
   shouldHaveQuery(query) =
-    reportBrowser.query().queryText().expect!(element.hasText(query))
+    reportBrowser.queryText().expect!(element.hasText(query))
 
   shouldBeFinished() =
     retry!
@@ -122,7 +120,7 @@ describe 'report'
       graphHack = false
     } (options)
 
-    mountApp(options)
+    mountApp(rootComponent(options))
 
   context 'with simple lexicon'
     beforeEach
@@ -422,10 +420,10 @@ describe 'report'
 
       api.predicants.push({id = 'end', name = 'end'})
 
-      mountApp {
+      mountApp(rootComponent {
         user = { email = 'blah@example.com' }
         graphHack = false
-      }
+      })
 
       rootBrowser.startNewDocumentButton().click!()
 

@@ -3,6 +3,7 @@ expect = require 'chai'.expect
 element = require './element'
 queryApi = require './queryApi'
 retry = require 'trytryagain'
+rootComponent = require '../../browser/rootComponent'
 
 appBrowser = prototypeExtending(element) {
   adminTab() = self.find('.top-menu .tabs a', text = 'Admin')
@@ -30,9 +31,9 @@ describe 'admin'
     self.timeout 100000
     api := queryApi()
     $.mockjaxSettings.logging = false
-    mountApp {
+    mountApp(rootComponent {
       user = { email = 'blah@example.com', admin = true }
-    }
+    })
     app := appBrowser { selector = '.test' }
     admin := adminBrowser { selector = '.test' }
     user := userBrowser { selector = '.test' }

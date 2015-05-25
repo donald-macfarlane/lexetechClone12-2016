@@ -211,171 +211,225 @@ body {
 }
 
 .report {
-  .left {
-    display: inline-block;
-    width: 285px;
-    vertical-align: top;
-    padding-right: 10px;
-  }
+  .query-response-editor {
+    display: flex;
+    flex-flow: row wrap;
 
-  .right {
-    display: inline-block;
-    vertical-align: top;
-    width: calc(~"100% - 285px");
-  }
+    .query-text {
+      flex: 1 100%;
+    }
 
-  .report-header {
-    margin-bottom: 10px;
-  }
+    .button.accept {
+      padding-top: 26px;
+      flex: 0 0 30px;
+    }
 
-  .query {
-    flex: 1 50%;
+    .query, .response-editor {
+      flex: 1;
+      padding-top: 26px;
+    }
 
-    ul.responses {
-      list-style-type: none;
-      padding-left: 0;
+    .query {
+      ul.responses {
+        list-style-type: none;
+        padding-left: 0;
+        height: 300px;
+        overflow-y: scroll;
+        -webkit-box-shadow: inset 0px 0px 11px -3px rgba(189,189,189,1);
+        -moz-box-shadow: inset 0px 0px 11px -3px rgba(189,189,189,1);
+        box-shadow: inset 0px 0px 11px -3px rgba(189,189,189,1);
+        margin: 10px;
 
-      li.response {
-        border: none;
-        position: relative;
-        padding: 5px;
-        padding-right: 42px;
-        border-left: 3px solid transparent;
+        &.overflow {
 
-        &.selected {
-          background-color: fade(@accept-color, 12%);
-          border-left: 3px solid fade(@accept-color, 36%);
+          &::-webkit-scrollbar {
+            -webkit-appearance: none;
+          }
 
-          &:hover {
-            background-color: fade(@accept-color, 24%);
+          &::-webkit-scrollbar:vertical {
+            width: 8px;
+          }
+
+          &::-webkit-scrollbar:horizontal {
+            height: 8px;
+          }
+
+          &::-webkit-scrollbar-thumb {
+            border-radius: 8px;
+            // border: none; /* should match background, can't be transparent */
+            background-color: rgba(0, 0, 0, .2);
           }
         }
 
-        &.other {
-          background-color: fade(@accept-color, 4%);
-          border-left: 3px solid fade(@accept-color, 36%);
-
-          &:hover {
-            background-color: fade(@accept-color, 8%);
-          }
-
-          a::after {
-            content: '✔';
-            margin-left: 8px;
-          }
-        }
-
-        &.editing {
-          background-color: fade(@accept-color, 4%);
-        }
-
-        &.loading {
-          .progress();
-        }
-
-        button.edit-response {
-          display: none;
-          position: absolute;
-          right: 7px;
-          top: 4px;
+        li.response {
           border: none;
-          background-color: fade(@accept-color, 15%);
-          cursor: pointer;
-        }
+          position: relative;
+          padding: 5px;
+          padding-right: 42px;
+          border-left: 3px solid transparent;
 
-        &:hover {
-          background-color: fade(@accept-color, 6%);
-          border-left: 3px solid fade(@accept-color, 36%);
+          &.selected {
+            background-color: fade(@accept-color, 12%);
+            border-left: 3px solid fade(@accept-color, 36%);
+
+            &:hover {
+              background-color: fade(@accept-color, 24%);
+            }
+          }
+
+          &.other {
+            background-color: fade(@accept-color, 4%);
+            border-left: 3px solid fade(@accept-color, 36%);
+
+            &:hover {
+              background-color: fade(@accept-color, 8%);
+            }
+
+            a::after {
+              content: '✔';
+              margin-left: 8px;
+            }
+          }
+
+          &.editing {
+            background-color: fade(@accept-color, 4%);
+          }
+
+          &.loading {
+            .progress();
+          }
 
           button.edit-response {
-            display: inline;
+            display: none;
+            position: absolute;
+            right: 7px;
+            top: 4px;
+            border: none;
+            background-color: fade(@accept-color, 15%);
+            cursor: pointer;
+          }
+
+          &:hover {
+            background-color: fade(@accept-color, 6%);
+            border-left: 3px solid fade(@accept-color, 36%);
+
+            button.edit-response {
+              display: inline;
+            }
+          }
+
+          a {
+            width: 100%;
+            text-align: left;
+            font-size: 16px;
+            text-decoration: none;
           }
         }
+      }
+    }
+
+    .response-editor {
+      position: relative;
+
+      > div {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+      }
+
+      .ui.tabular.menu {
+        flex: 0 0 auto;
+      }
+
+      .ui.tab {
+        flex: 1 100%;
+      }
+
+      .ui.tabular.menu a.edited {
+        background-color: #FAF2E0;
+
+        &.active {
+          background-color: rgb(249, 226, 167);
+        }
+      }
+
+      .response-text, .response-text-editor {
+        background-color: white;
+        outline: none;
+      }
+    }
+  }
+
+  .document-tabs {
+    .document {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+
+      > li {
+        display: inline;
 
         a {
-          width: 100%;
-          text-align: left;
-          font-size: 16px;
           text-decoration: none;
-        }
-      }
-    }
-  }
+          color: inherit;
 
-  .response-editor {
-    .ui.tabular.menu a.edited {
-      background-color: #FAF2E0;
-
-      &.active {
-        background-color: rgb(249, 226, 167);
-      }
-    }
-
-    .response-text, .response-text-editor {
-      padding: 11px;
-      background-color: white;
-      outline: none;
-      border: 2px solid rgba(25, 0, 255, 0.14);
-      margin: 10px 0;
-    }
-  }
-
-  .document {
-    list-style-type: none;
-    border: 2px solid rgba(25, 0, 255, 0.14);
-    padding: 20px;
-
-    > li {
-      display: inline;
-
-      a {
-        text-decoration: none;
-        color: inherit;
-
-        *:hover {
-          background-color: yellow;
-        }
-      }
-    }
-  }
-
-  .debug {
-    color: rgb(70, 45, 160);
-    padding: 10px;
-
-    .blocks {
-      list-style-type: none;
-      padding-left: 0;
-
-      .block {
-        .block-queries {
-          padding-left: 0;
-          margin-left: 5px;
-          border-left: 1px solid lightgray;
-
-          .block-query {
-            padding-left: 5px;
+          *:hover {
+            background-color: yellow;
           }
         }
       }
     }
 
-    .found {
-      font-weight: bold;
+    .debug {
+      color: rgb(70, 45, 160);
+      padding: 10px;
+
+      .blocks {
+        list-style-type: none;
+        padding-left: 0;
+
+        .block {
+          .block-queries {
+            padding-left: 0;
+            margin-left: 5px;
+            border-left: 1px solid lightgray;
+
+            .block-query {
+              padding-left: 5px;
+            }
+          }
+        }
+      }
+
+      .found {
+        font-weight: bold;
+      }
+      .before {
+        color: gray;
+      }
+      .previous {
+        color: gray;
+        font-weight: bold;
+      }
+      .skipped {
+        text-decoration: line-through;
+      }
+      .after {
+        color: gray;
+      }
     }
-    .before {
-      color: gray;
-    }
-    .previous {
-      color: gray;
-      font-weight: bold;
-    }
-    .skipped {
-      text-decoration: line-through;
-    }
-    .after {
-      color: gray;
-    }
+  }
+
+  .ui.tabular.menu {
+    text-align: right;
+  }
+
+  .ui.tab {
+    width: auto !important;
   }
 }
 

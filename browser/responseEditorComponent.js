@@ -45,7 +45,7 @@ module.exports = prototype({
     var self = this;
 
     function styleTabContents(response, id, options) {
-      return h('.ui.tab', {class: 'style-' + id},
+      return h('.ui.tab.bottom.attached.segment', {class: 'style-' + id},
         options.editing
         ? [
             mediumEditor({
@@ -81,20 +81,20 @@ module.exports = prototype({
                 ]
               : undefined
           ]
-        : h.rawHtml('.response-text', response.styles[id])
+        : h.rawHtml('.response-text', response? response.styles[id]: '')
       );
     }
 
     function styleTabs(tabs) {
       function styleEdited(id) {
-        return response.response.styles[id] != response.styles[id];
+        return response && response.response.styles[id] != response.styles[id];
       }
 
       var response = self.editingResponse || self.showingResponse;
 
       return [
         semanticUi.tabs(
-          '.ui.tabular.menu',
+          '.ui.tabular.menu.top.attached',
           {
             binding: [self.documentStyle, 'style'],
             tabs: tabs.map(function (tab) {
@@ -119,14 +119,10 @@ module.exports = prototype({
     }
 
     return h('.response-editor',
-      self.showingResponse || self.editingResponse
-        ? [
-          styleTabs([
-            {name: 'Normal', id: 'style1', active: true},
-            {name: 'Abbreviated', id: 'style2'}
-          ]),
-        ]
-        : undefined
+      styleTabs([
+        {name: 'Normal', id: 'style1', active: true},
+        {name: 'Abbreviated', id: 'style2'}
+      ])
     )
   }
 });

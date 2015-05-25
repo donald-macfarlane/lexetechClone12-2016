@@ -88,11 +88,10 @@ module.exports = prototype({
     this.refresh = h.refresh;
 
     return h('div.report',
-      h('.left',
-        self.renderReportName(),
+      h('.query-response-editor',
         self.query.render()
       ),
-      h('.right',
+      h('.document-tabs',
         semanticUi.tabs(
           '.ui.top.attached.tabular.menu',
           {
