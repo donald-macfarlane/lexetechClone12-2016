@@ -288,6 +288,13 @@ module.exports = React.createClass({
       }
 
       function blocks(name, $class) {
+        function setArguments(blockIds) {
+          console.log('blockIds', blockIds);
+          action.arguments.splice(0, action.arguments.length);
+          action.arguments.push.apply(action.arguments, blockIds.filter(function (id) { return self.state.blocks[id]; }));
+          self.update();
+        }
+
         function addBlock(block) {
           action.arguments.push(block.id);
           self.update();
@@ -332,6 +339,11 @@ module.exports = React.createClass({
           [r('h4', {}, name)].concat(
             self.state.blocks
               ? [
+                  React.createElement(rangeSelect, {
+                    onChange: setArguments,
+                    selectedItems: action.arguments,
+                    items: self.state.blocks
+                  }),
                   React.createElement(sortable,
                     {
                       itemMoved: itemMoved,
@@ -737,6 +749,124 @@ module.exports = React.createClass({
   }
 });
 
+var rangeSelect = React.createClass({
+  getInitialState: function () {
+    return {
+      numbers: []
+    };
+  },
+
+  componentDidMount: function () {
+    this.setState({
+      numbers: this.props.selectedItems.map(function (n) { return Number(n); })
+    });
+  },
+
+  componentWillReceiveProps: function (nextProps) {
+    this.setState({
+      numbers: nextProps.selectedItems.map(function (n) { return Number(n); })
+    });
+  },
+
+  generateRanges: function (numbers) {
+    if (numbers) {
+      var ranges = [];
+      var last;
+      var inRange;
+
+      numbers.forEach(function (n) {
+        if (last !== undefined) {
+          if (n == last + 1) {
+            if (!inRange) {
+              ranges.push('-');
+              inRange = true;
+            }
+          } else {
+            if (inRange) {
+              ranges.push(String(last));
+            }
+            ranges.push(', ' + String(n));
+            inRange = false;
+          }
+        } else {
+          ranges.push(String(n));
+        }
+        last = n;
+      });
+
+      if (inRange) {
+        ranges.push(String(last));
+      }
+
+      return ranges.join('');
+    } else {
+      return '';
+    }
+  },
+
+  parseNumbers: function (text) {
+    return _.flatten(text.split(/\s*,\s*/).filter(function (n) {
+      return n;
+    }).map(function (n) {
+      var r = n.split(/\s*-\s*/);
+
+      if (r.length > 1) {
+        var low = Number(r[0]), high = Number(r[1]);
+        var diff = Math.min(high - low, 1000);
+        high = low + diff;
+        return _.range(low, high + 1);
+      } else {
+        return Number(n);
+      }
+    }));
+  },
+
+  numbersText: function () {
+    var modelValue = this.state.numbers;
+    if (this.state.error) {
+      return this.state.text;
+    } else if (this.state.text === undefined) {
+      var modelText = this.generateRanges(modelValue);
+      this.state.text = modelText;
+      return modelText;
+    } else {
+      var previousValue = this.parseNumbers(this.state.text);
+      var modelText = this.generateRanges(modelValue);
+      var normalisedPreviousText = this.generateRanges(previousValue);
+
+      if (modelText === normalisedPreviousText) {
+        return this.state.text;
+      } else {
+        this.state.text = modelText;
+        return modelText;
+      }
+    }
+  },
+
+  textChange: function (ev) {
+    var text = ev.target.value;
+
+    try {
+      var numbers = this.parseNumbers(text);
+      this.props.onChange(numbers.map(function (x) { return String(x); }));
+      this.setState({
+        error: undefined,
+        text: text,
+        numbers: numbers
+      });
+    } catch (e) {
+      this.setState({
+        error: e,
+        text: text
+      });
+    }
+  },
+
+  render: function () {
+    return r('input', {onChange: this.textChange, type: 'text', value: this.numbersText()});
+  }
+});
+
 var itemSelect = React.createClass({
   getInitialState: function() {
     return {
@@ -788,7 +918,7 @@ var itemSelect = React.createClass({
       } else {
         var terms = _.compact(search.toLowerCase().split(/ +/));
         return _.all(terms, function(t) {
-          return p.name.toLowerCase().indexOf(t) >= 0;
+          return p.name && p.name.toLowerCase().indexOf(t) >= 0;
         });
       }
     }
