@@ -11,7 +11,7 @@ documentBrowser = prototypeExtending(element) {
   document() = self.find('ol.document')
 }
 
-describe 'document'
+describe 'document component'
   browser = nil
 
   beforeEach =>
@@ -47,20 +47,41 @@ describe 'document'
     ]
     browser.document().expect!(element.hasText('onetwo'))
 
-  it 'supresses punctuation between lexemes that have style'
-    withLexemes [
-      {
-        query = { id = '1' }
-        suppressPunctuation = true
-        response = { styles = { style1 = 'one' } }
-      }
-      {
-        query = { id = '1' }
-        response = { styles = { style1 = ' ' } }
-      }
-      {
-        query = { id = '1' }
-        response = { styles = { style1 = ', two' } }
-      }
-    ]
-    browser.document().expect!(element.hasText('onetwo'))
+  describe 'punctuation suppression'
+    it 'supresses punctuation between lexemes that have style'
+      withLexemes [
+        {
+          query = { id = '1' }
+          suppressPunctuation = true
+          response = { styles = { style1 = 'one' } }
+        }
+        {
+          query = { id = '1' }
+          response = { styles = { style1 = ' ' } }
+        }
+        {
+          query = { id = '1' }
+          response = { styles = { style1 = ', two' } }
+        }
+      ]
+      browser.document().expect!(element.hasText('onetwo'))
+
+  describe 'variables'
+    it 'substitutes variables, forward and back'
+      withLexemes [
+        {
+          query = { id = '1' }
+          variables = [
+            { name = 'Var', value = 'upper' }
+          ]
+          response = { styles = { style1 = 'text !var' } }
+        }
+        {
+          query = { id = '1' }
+          variables = [
+            { name = 'var', value = 'lower' }
+          ]
+          response = { styles = { style1 = ', more text !Var' } }
+        }
+      ]
+      browser.document().expect!(element.hasText('text lower, more text upper'))
