@@ -66,12 +66,16 @@ exports.allUsers = function (options) {
 
 exports.addUser = function (user) {
   var password = user.password;
-  delete user.password;
-  user.created = Date.now();
+  if (password) {
+    delete user.password;
+    user.created = Date.now();
 
-  return promisify(function(cb) {
-    return User.register(new User(user), password, cb);
-  }).then(objectify);
+    return promisify(function(cb) {
+      return User.register(new User(user), password, cb);
+    }).then(objectify);
+  } else {
+    return new User(user).save().then(objectify);
+  }
 };
 
 exports.user = function (userId) {

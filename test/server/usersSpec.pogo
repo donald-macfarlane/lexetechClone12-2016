@@ -41,7 +41,6 @@ describe 'users'
     it 'can add a user and list it'
       postedUser = api.post! '/api/users' {
         email = 'joe@example.com'
-        password = 'password1'
       }.body
 
       userList = api.get! '/api/users'.body
@@ -57,7 +56,6 @@ describe 'users'
         n <- [1..5]
         api.post! '/api/users' {
           email = "joe#(n)@example.com"
-          password = 'password1'
         }
       ]
 

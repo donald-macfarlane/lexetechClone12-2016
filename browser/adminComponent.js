@@ -13,8 +13,15 @@ module.exports = prototype({
     this.userApi = userApi();
     this.users = [];
 
+    this.userApi.changed.on(function () {
+      self.searchUsers.reset();
+      self.refresh();
+    });
+
     this.loadUser = throttle(function (userId) {
-      if (userId) {
+      if (userId == 'new') {
+        self.user = userComponent(self.userApi.create());
+      } else if (userId) {
         return self.userApi.user(userId).then(function (user) {
           self.user = userComponent(user.edit());
         });
@@ -39,13 +46,19 @@ module.exports = prototype({
     });
   },
 
+  addUser: function () {
+    routes.adminUser({userId: 'new'}).push();
+  },
+
   render: function (userId) {
     var self = this;
 
+    this.refresh = h.refresh;
     this.loadUser(userId);
     this.searchUsers(this.query);
 
     return h('.admin',
+      h('.ui.button.create', {onclick: this.addUser.bind(this)}, 'add user'),
       h('.search',
         h('.ui.icon.input', {class: {loading: this.usersLoading}},
           h('input', {type: 'text', placeholder: 'search users', binding: [this, 'query']}),

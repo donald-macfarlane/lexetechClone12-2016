@@ -63,21 +63,30 @@ task 'sqldump' @(args, env = 'local.json')
   creds = JSON.parse(fs.readFile(env, 'utf-8')!)
   console.log(JSON.stringify(loadQueriesFromSql(creds)!, nil, 2))
 
-modifyUser(userQuery, modify, env = 'dev') =
+modifyUserByHref(api, href, modify) =
+  user = api.get!(href).body
+  modify(user)
+  response = api.put!(user.href, user)
+
+modifyUser(userQuery, modify, env = 'dev', id = nil) =
   api = createApi(env)
-  usersResponse = api.get!('users/search', querystring = {q = userQuery})
-  users = usersResponse.body
-
-  if (users.length > 1)
-    console.log "more than one user found:"
-    users.forEach @(user)
-      console.log(JSON.stringify(user, nil, 2))
+  if (id)
+    modifyUserByHref!(api, '/api/users/' + id, modify)
   else
-    user = api.get!(users.0.href).body
-    modify(user)
-    response = api.put!(user.href, user)
+    usersResponse = api.get!('users/search', querystring = {q = userQuery})
+    users = usersResponse.body
 
-    console.log("#(response.statusCode) => #(JSON.stringify(response.body, nil, 2))")
+    if (users.length > 1)
+      console.log "more than one user found:"
+      users.forEach @(user)
+        console.log(JSON.stringify(user, nil, 2))
+    else
+      modifyUserByHref!(api, users.0.href, modify)
+      user = api.get!(users.0.href).body
+      modify(user)
+      response = api.put!(user.href, user)
+
+      console.log("#(response.statusCode) => #(JSON.stringify(response.body, nil, 2))")
 
 task 'add-user' @(args, env = 'dev')
   if (args.length == 2)
@@ -91,12 +100,12 @@ task 'add-user' @(args, env = 'dev')
   else
     console.log 'usage: qo add-user email password'
 
-task 'add-admin' @(args, env = 'dev')
-  modifyUser(args.0, env = env) @(user)
+task 'add-admin' @(args, env = 'dev', id = nil)
+  modifyUser(args.0, env = env, id = id) @(user)
     user.admin = true
 
-task 'add-author' @(args, env = 'dev')
-  modifyUser(args.0, env = env) @(user)
+task 'add-author' @(args, env = 'dev', id = nil)
+  modifyUser(args.0, env = env, id = id) @(user)
     user.author = true
 
 compileLess() =

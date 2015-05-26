@@ -1,10 +1,13 @@
 var prototype = require('prote');
 var http = require('./http');
 var cache = require('../common/cache');
+var entity = require('./entity');
+var updateObject = require('./updateObject');
 
 function identityMap(options) {
   var idField = options && options.hasOwnProperty('id') && options.id !== undefined? options.id: 'id';
   var constructor = options && options.hasOwnProperty('constructor') && options.constructor !== undefined? options.constructor: function (x) { return x; };
+  var onChange = options && options.hasOwnProperty('onChange') && options.onChange !== undefined? options.onChange: function () {};
 
   var entities = {};
 
@@ -15,7 +18,13 @@ function identityMap(options) {
       return entity[idField || 'id'];
     }
 
-  return function(entity) {
+  function add(entity) {
+    entities[id(entity)] = entity;
+    onChange();
+    return entity;
+  }
+
+  function create(entity) {
     var entityId = id(entity);
     var existing = entities[entityId];
 
@@ -23,59 +32,69 @@ function identityMap(options) {
       updateObject(existing, entity);
       return existing;
     } else {
-      return entities[entityId] = constructor(entity);
+      return entities[id(entity)] = constructor(entity);
     }
   };
+
+  create.add = add;
+
+  return create;
 }
 
-function updateObject(existing, entity) {
-  Object.keys(existing).forEach(function (k) {
-    delete existing[k];
-  });
+function event() {
+  var listeners = [];
 
-  Object.keys(entity).forEach(function (k) {
-    existing[k] = entity[k];
-  });
-}
-
-var userPrototype = prototype({
-  update: function (update) {
-    if (this.original) {
-      return this.original.update(this);
-    } else {
-      if (update) {
-        updateObject(this, update);
-        delete this.original;
-      }
-      return http.put(this.href, this);
-    }
-  },
-  edit: function () {
-    var clone = userPrototype(JSON.parse(JSON.stringify(this)));
-    clone.original = this;
-    return clone;
+  function emit() {
+    var args = arguments;
+    listeners.forEach(function (listener) {
+      listener.apply(undefined, args);
+    });
   }
-});
 
-var user = identityMap({constructor: userPrototype});
+  emit.on = function (listener) {
+    listeners.push(listener);
+  };
+
+  emit.off = function (listener) {
+    var i = listeners.indexOf(listener);
+    if (i >= 0) {
+      return listeners.splice(i, 1);
+    }
+  };
+
+  return emit;
+}
 
 module.exports = prototype({
   constructor: function () {
+    this.userPrototype = prototype.extending(entity, {
+      collectionHref: '/api/users'
+    });
+    var self = this;
+    this.changed = event();
+    this.mapUser = identityMap({constructor: this.userPrototype, onChange: this.changed});
+    this.userPrototype.prototype.identityMap = this.mapUser;
   },
 
   users: function (params) {
+    var self = this;
     return http.get('/api/users', {params: params}).then(function (users) {
-      return users.map(user);
+      return users.map(self.mapUser);
     });
   },
 
   search: function(query) {
+    var self = this;
     return http.get('/api/users/search', {params: {q: query}}).then(function (users) {
-      return users.map(user);
+      return users.map(self.mapUser);
     });
   },
 
   user: function (userId) {
-    return http.get('/api/users/' + userId).then(user);
+    return http.get('/api/users/' + userId).then(this.mapUser);
+  },
+
+  create: function () {
+    return this.userPrototype.apply(undefined, arguments);
   }
 });
