@@ -11,7 +11,8 @@ var User = new Schema({
   officePhoneNumber: String,
   cellPhoneNumber: String,
   address: String,
-  created: Date
+  created: Date,
+  resetPasswordToken: String
 });
 
 User.plugin(passportPlugin, {

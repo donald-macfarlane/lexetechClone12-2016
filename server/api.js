@@ -14,11 +14,10 @@ function backup(redisDb, backupHttpism) {
 
   redisDb.getLexicon().then(function (lexicon) {
     return github.put("lexicon.json", JSON.stringify(lexicon, void 0, 2)).then(function () {
-      console.log("backed up lexicon");
+      debug("backed up lexicon");
     });
   }).then(void 0, function(e) {
-    console.log("could not backup lexicon");
-    console.log(e);
+    debug("could not backup lexicon", e);
   });
 }
 
@@ -68,25 +67,25 @@ app.use('/', function(req, res, next) {
   }
 });
 
-function errors(req, res, next) {
-  function sendError(error) {
-    console.log(error);
-    res.status(500).send({message: error.message});
-  }
+function errors(next) {
+  return function (req, res) {
+    function sendError(error) {
+      debug(error);
+      res.status(500).send({message: error.message});
+    }
 
-  var result;
-  try {
-    result = next();
-  } catch (error) {
-    sendError(error);
-  }
+    var result;
+    try {
+      result = next(req, res);
+    } catch (error) {
+      sendError(error);
+    }
 
-  if (result && typeof result.then === 'function') {
-    result.then(undefined, sendError);
-  }
+    if (result && typeof result.then === 'function') {
+      result.then(undefined, sendError);
+    }
+  };
 }
-
-app.use(errors);
 
 app.get("/blocks", function(req, res) {
   var db = app.get("db");
@@ -251,10 +250,13 @@ function outgoingUser(user, req) {
   if (user._id) {
     user.id = user._id;
   }
+  user.hasPassword = !!user.hash;
   delete user._id;
   delete user.salt;
   delete user.hash;
   user.href = req.baseUrl + "/users/" + user.id;
+  user.resetPasswordTokenHref = req.baseUrl + '/users/' + user.id + '/resetpasswordtoken';
+  user.resetPasswordHref = req.baseUrl + '/users/' + user.id + '/resetpassword';
   return user;
 }
 
@@ -262,6 +264,7 @@ function incomingUser(user) {
   if (user.id) {
     user._id = user.id;
   }
+  delete user.hasPassword;
   delete user.id;
   delete user.href;
   return user;
@@ -281,7 +284,7 @@ app.post('/users', function (req, res) {
   });
 });
 
-app.get('/users', function (req, res) {
+app.get('/users', errors(function (req, res) {
   return mongoDb.allUsers({max: Number(req.query.max)}).then(function(u) {
     var users = u.map(function (user) {
       return outgoingUser(user, req);
@@ -291,10 +294,10 @@ app.get('/users', function (req, res) {
   }).then(undefined, function (error) {
     res.status(500).send({message: error.message});
   });
-});
+}));
 
-app.get('/users/search', function (req, res) {
-  mongoDb.searchUsers(req.query.q).then(function (users) {
+app.get('/users/search', errors(function (req, res) {
+  return mongoDb.searchUsers(req.query.q).then(function (users) {
     var users = users.map(function (user) {
       return outgoingUser(user, req);
     });
@@ -302,41 +305,65 @@ app.get('/users/search', function (req, res) {
   }).then(undefined, function (error) {
     res.status(500).send({message: error.message});
   });
-});
+}));
 
-app.get('/users/:userId', function (req, res) {
-  mongoDb.user(req.params.userId).then(function (user) {
+app.get('/users/:userId', errors(function (req, res) {
+  return mongoDb.user(req.params.userId).then(function (user) {
     if (user) {
       res.send(outgoingUser(user, req));
     } else {
       res.status(404).send({message: 'no user with id: ' + req.params.userId});
     }
   });
-});
+}));
 
-app.put('/users/:userId', function (req, res) {
-  mongoDb.updateUser(req.params.userId, incomingUser(req.body)).then(function () {
+app.post('/users/:userId/resetpasswordtoken', errors(function (req, res) {
+  return mongoDb.resetPasswordToken(req.params.userId).then(function (token) {
+    res.send({token: token});
+  }, function (error) {
+    if (error.alreadyHasPassword) {
+      res.status(400).send({message: 'already has password'});
+    } else {
+      throw error;
+    }
+  });
+}));
+
+app.post('/users/:userId/resetpassword', errors(function (req, res) {
+  return mongoDb.setPassword(req.params.userId, req.body.token, req.body.password).then(function () {
+    res.send({});
+  }, function (error) {
+    if (error.wrongToken) {
+      res.status(400).send({message: 'wrong token'});
+    } else {
+      throw error;
+    }
+  });
+}));
+
+app.put('/users/:userId', errors(function (req, res) {
+  return mongoDb.updateUser(req.params.userId, incomingUser(req.body)).then(function () {
     res.send(outgoingUser(req.body, req));
   });
-});
+}));
 
-app.post("/user/queries", function(req, res) {
+app.post("/user/queries", errors(function(req, res) {
   var db = app.get("db");
   var query = req.body;
 
-  db.addQueryToUser(req.user.id, query).then(function(q) {
+  return db.addQueryToUser(req.user.id, query).then(function(q) {
     res.send(q);
   });
-});
+}));
 
-app.get("/user/queries", function(req, res) {
+app.get("/user/queries", errors(function(req, res) {
   var db = app.get("db");
   var query = req.body;
 
-  db.userQueries(req.user.id, query).then(function(updatedQuery) {
+  return db.userQueries(req.user.id, query).then(function(updatedQuery) {
     res.send(updatedQuery);
   });
-});
+}));
 
 app.delete("/user/queries/:queryId", function(req, res) {
   var db = app.get("db");
@@ -379,7 +406,7 @@ function sendResponseChangedEmail() {
   }
 }
 
-app.post("/user/documents", errors, function(req, res) {
+app.post("/user/documents", errors(function(req, res) {
   var doc = req.body;
   incomingDocument(doc);
   doc.created = doc.lastModified;
@@ -391,7 +418,7 @@ app.post("/user/documents", errors, function(req, res) {
       sendResponseChangedEmail();
     }
   });
-});
+}));
 
 app.get('/user/documents', function (req, res) {
   mongoDb.documents(req.user.id).then(function (docs) {

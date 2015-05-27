@@ -70,6 +70,69 @@ describe 'users'
 
       users.authenticate! 'joe@example.com' 'blahblah'
 
+    describe 'passwords'
+      it 'can add a user without a password, set the password and authenticate'
+        postedUser = api.post! '/api/users' {
+          email = 'joe@example.com'
+        }.body
+
+        user = api.get!(postedUser.href).body
+        expect(user.hasPassword).to.be.false
+
+        token = api.post!(postedUser.resetPasswordTokenHref).body.token
+        api.post!(user.resetPasswordHref, { password = 'mypassword1', token = token})
+
+        user := api.get!(postedUser.href).body
+        expect(user.hasPassword).to.be.true
+
+        users.authenticate! (user.email, 'mypassword1')
+
+      it 'cannot reset password with wrong token'
+        postedUser = api.post! '/api/users' {
+          email = 'joe@example.com'
+        }.body
+
+        user = api.get!(postedUser.href).body
+        expect(user.hasPassword).to.be.false
+
+        token = api.post!(postedUser.resetPasswordTokenHref).body.token
+        response = api.post!(user.resetPasswordHref, { password = 'mypassword1', token = token + 'x'}, exceptions = false)
+        expect(response.statusCode).to.equal 400
+
+        user := api.get!(postedUser.href).body
+        expect(user.hasPassword).to.be.false
+
+        expect(users.authenticate(user.email, 'mypassword1')).to.be.rejectedWith('Authentication not possible')!
+
+      it 'cannot get a reset token if user has password'
+        postedUser = api.post! '/api/users' {
+          email = 'joe@example.com'
+          password = 'blah'
+        }.body
+
+        user = api.get!(postedUser.href).body
+        expect(user.hasPassword).to.be.true
+
+        response = api.post!(postedUser.resetPasswordTokenHref, {}, exceptions = false)
+        expect(response.statusCode).to.equal 400
+        expect(response.body.token).to.be.undefined
+
+      it 'cannot reset password with no token'
+        postedUser = api.post! '/api/users' {
+          email = 'joe@example.com'
+        }.body
+
+        user = api.get!(postedUser.href).body
+        expect(user.hasPassword).to.be.false
+
+        response = api.post!(user.resetPasswordHref, { password = 'mypassword1' }, exceptions = false)
+        expect(response.statusCode).to.equal 400
+
+        user := api.get!(postedUser.href).body
+        expect(user.hasPassword).to.be.false
+
+        expect(users.authenticate(user.email, 'mypassword1')).to.be.rejectedWith('Authentication not possible')!
+
     context 'given an existing user'
       postedUser = nil
 

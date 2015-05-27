@@ -3,6 +3,7 @@ var promisify = require('./promisify');
 var Document = require('./models/document');
 var User = require('./models/user');
 var escapeRegexp = require('escape-regexp');
+var crypto = require('crypto');
 
 mongoose.set("debug", process.env.MONGO_DEBUG === "true");
 
@@ -83,7 +84,59 @@ exports.user = function (userId) {
 };
 
 exports.updateUser = function (userId, user) {
-  return User.update({_id: userId}, {$set: user}, {overwrite: true}).exec();
+  var password = user.password;
+  return User.update({_id: userId}, {$set: user}, {overwrite: true}).exec().then(function () {
+    if (password) {
+      return User.findOne({_id: userId}).then(function (user) {
+        return promisify(function (cb) {
+          user.setPassword(password, cb);
+        }).then(function () {
+          return user.save();
+        });
+      });
+    }
+  });
+};
+
+function generateResetPasswordToken() {
+  return promisify(function (cb) {
+    crypto.randomBytes(20, cb);
+  }).then(function (buffer) {
+    return buffer.toString('hex');
+  });
+}
+
+exports.resetPasswordToken = function (userId) {
+  return User.findOne({_id: userId}).then(function (user) {
+    if (!user.hash) {
+      return generateResetPasswordToken().then(function (resetPasswordToken) {
+        user.resetPasswordToken = resetPasswordToken;
+        return user.save().then(function () {
+          return resetPasswordToken;
+        });
+      });
+    } else {
+      var error = new Error();
+      error.alreadyHasPassword = true;
+      throw error;
+    }
+  });
+};
+
+exports.setPassword = function (userId, token, password) {
+  return User.findOne({_id: userId}).then(function (user) {
+    if (user.resetPasswordToken && user.resetPasswordToken === token) {
+      return promisify(function (cb) {
+        user.setPassword(password, cb);
+      }).then(function () {
+        return user.save();
+      });
+    } else {
+      var error = new Error();
+      error.wrongToken = true;
+      throw error;
+    }
+  });
 };
 
 exports.searchUsers = function (query) {
