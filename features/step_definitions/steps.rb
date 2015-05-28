@@ -42,7 +42,7 @@ Given(/^I have created a user previously with email address "(.*?)" and password
   create_user(email, password)
 end
 
-Given(/^I have logged out$/) do
+Given(/^(I|they) have logged out$/) do |arg|
   logout
 end
 

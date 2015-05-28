@@ -8,6 +8,7 @@ end
 When(/^I create a new user with email "(.*?)"$/) do |email|
   click_on 'Admin'
   find('.button', text: 'add user').click
+  @new_user_email = email
   find('.user .email input').set(email)
   find('.button', text: 'Create').click
 end
@@ -22,6 +23,11 @@ When(/^that link is used by the new user$/) do
 end
 
 Then(/^they can set their password "(.*?)" and login$/) do |password|
+  @new_user_password = password
   fill_in "Password", with: password
   find('button', text: 'Login').click
+end
+
+Then(/^can log back in with the same password "(.*?)"$/) do |arg1|
+  login(@new_user_password, @new_user_password)
 end

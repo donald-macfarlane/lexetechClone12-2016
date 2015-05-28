@@ -19,3 +19,5 @@ Feature: Authentication
     When that link is used by the new user
     Then they can set their password "password123" and login
     And I can start a new document
+    When they have logged out
+    Then can log back in with the same password "password123"
