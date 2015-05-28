@@ -35,7 +35,7 @@ function stop(options) {
     lastAttachment.remove();
 
     var divs = document.querySelectorAll('body > div.test');
-    divs.forEach(function (div) {
+    Array.prototype.forEach.call(divs, function (div) {
       div.parentNode.removeChild(div);
     });
 
