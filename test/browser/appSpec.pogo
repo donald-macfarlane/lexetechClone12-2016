@@ -87,7 +87,7 @@ describe 'report'
     }
 
   after
-    router.stop()
+    mountApp.stop()
 
   singleElement(css) =
     retry!
@@ -120,7 +120,7 @@ describe 'report'
       graphHack = false
     } (options)
 
-    mountApp(rootComponent(options))
+    mountApp(rootComponent(options), href = '/')
 
   context 'with simple lexicon'
     beforeEach
@@ -423,7 +423,7 @@ describe 'report'
       mountApp(rootComponent {
         user = { email = 'blah@example.com' }
         graphHack = false
-      })
+      }, href = '/')
 
       rootBrowser.startNewDocumentButton().click!()
 
@@ -475,7 +475,7 @@ describe 'report'
       retry!
         expect(api.documents.length).to.eql 1
 
-      window.history.back()
+      history.back()
 
       rootBrowser.loadCurrentDocumentButton().expect! @(element)
         @not element.has '.disabled'
@@ -486,11 +486,6 @@ describe 'report'
       shouldHaveQuery 'Is it aching?'!
       selectResponse 'yes'!
       shouldBeFinished()!
-
-  context 'logged in with simple lexicon'
-    beforeEach
-      api.setLexicon (simpleLexicon())
-      appendRootComponent()
 
     it 'can create a document, make some repeating responses, and come back to it'
       retry!

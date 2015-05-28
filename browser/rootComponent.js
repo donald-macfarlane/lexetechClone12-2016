@@ -2,8 +2,7 @@ var plastiq = require('plastiq');
 var h = plastiq.html;
 var reportComponent = require('./reportComponent');
 var prototype = require('prote');
-var loginComponent = require('./loginComponent');
-var signupComponent = require('./signupComponent');
+var authComponents = require('./authComponents');
 var layoutComponent = require('./layoutComponent');
 var documentApi = require('./documentApi')();
 var routes = require('./routes');
@@ -98,10 +97,6 @@ var rootComponent = prototype({
     var self = this;
     this.refresh = h.refresh;
 
-    if (!self.user && (!routes.signup().active && !routes.login().active)) {
-      routes.login().push();
-    }
-
     function adminAuth(fn) {
       return function () {
         if (self.user.admin) {
@@ -110,35 +105,62 @@ var rootComponent = prototype({
       }
     }
 
-    return layoutComponent(self, [
-      routes.signup(signupComponent),
-      routes.login(loginComponent),
-      routes.report(
-        {
-          documentId: {
-            set: function (docId) {
-              return self.openDocumentById(docId);
-            }
-          },
-        },
-        function (params) {
-          if (self.report) {
-            return self.report.render();
-          } else {
-            return h('h1', 'loading');
-          }
+    function whenLoggedIn(fn) {
+      if (!self.user) {
+        var authPage = first([
+          routes.signup(authComponents.signup),
+          routes.login(authComponents.login),
+          routes.resetPassword(function (params) {
+            return authComponents.resetPassword(params.token);
+          })
+        ]);
+
+        if (authPage) {
+          return authPage;
+        } else {
+          routes.login().push();
         }
-      ),
-      routes.root(function () {
-        return self.startReport.render();
-      }),
-      routes.admin(adminAuth(function () {
-        return self.admin.render();
-      })),
-      routes.adminUser(adminAuth(function (params) {
-        return self.admin.render(params.userId);
-      }))
-    ]);
+      }
+
+      return fn();
+    }
+
+    function first(array) {
+      return array.filter(function (x) { return x; })[0];
+    }
+
+    return layoutComponent(self, whenLoggedIn(function () {
+      return [
+        routes.report(
+          {
+            documentId: {
+              set: function (docId) {
+                return self.openDocumentById(docId);
+              }
+            },
+          },
+          function (params) {
+            if (self.report) {
+              return self.report.render();
+            } else {
+              return h('h1', 'loading');
+            }
+          }
+        ),
+        routes.root(function () {
+          return self.startReport.render();
+        }),
+        routes.admin(adminAuth(function () {
+          return self.admin.render();
+        })),
+        routes.adminUser(adminAuth(function (params) {
+          return self.admin.render(params.userId);
+        })),
+        routes.resetPassword(function () {
+          return h('h1', 'you have already logged in');
+        })
+      ];
+    }));
   }
 });
 

@@ -109,12 +109,16 @@ function generateResetPasswordToken() {
 exports.resetPasswordToken = function (userId) {
   return User.findOne({_id: userId}).then(function (user) {
     if (!user.hash) {
-      return generateResetPasswordToken().then(function (resetPasswordToken) {
-        user.resetPasswordToken = resetPasswordToken;
-        return user.save().then(function () {
-          return resetPasswordToken;
+      if (!user.resetPasswordToken) {
+        return generateResetPasswordToken().then(function (resetPasswordToken) {
+          user.resetPasswordToken = resetPasswordToken;
+          return user.save().then(function () {
+            return resetPasswordToken;
+          });
         });
-      });
+      } else {
+        return user.resetPasswordToken;
+      }
     } else {
       var error = new Error();
       error.alreadyHasPassword = true;
@@ -123,13 +127,18 @@ exports.resetPasswordToken = function (userId) {
   });
 };
 
-exports.setPassword = function (userId, token, password) {
-  return User.findOne({_id: userId}).then(function (user) {
-    if (user.resetPasswordToken && user.resetPasswordToken === token) {
+exports.setPassword = function (token, password) {
+  return User.findOne({resetPasswordToken: token}).then(function (user) {
+    if (user && user.resetPasswordToken) {
+      user.resetPasswordToken = undefined;
       return promisify(function (cb) {
         user.setPassword(password, cb);
       }).then(function () {
-        return user.save();
+        return user.save().then(function () {
+          user.id = user._id;
+          delete user._id;
+          return user;
+        });
       });
     } else {
       var error = new Error();

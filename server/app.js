@@ -13,8 +13,11 @@ var users = require("./users");
 var User = require("./models/user");
 var redisDb = require("./redisDb");
 var promisify = require('./promisify');
+var debug = require('debug')('lexenotes:app');
+var handleErrors = require('./handleErrors');
 
-require("./mongoDb").connect();
+var mongoDb = require("./mongoDb")
+mongoDb.connect();
 
 function days(n) {
   return n * 60 * 60 * 24 * 1e3;
@@ -78,11 +81,27 @@ app.post("/login", passport.authenticate("local", {
   failureFlash: true
 }));
 
+app.post("/resetpassword", handleErrors(function (req, res) {
+  debug('resetting password', req.body.token, req.body.password);
+  return mongoDb.setPassword(req.body.token, req.body.password).then(function (user) {
+    debug('password reset', user);
+    return promisify(function (cb) {
+      debug('logging in', user);
+      req.login(user, cb);
+    }).then(function () {
+      res.redirect("/");
+    });
+  });
+}));
+
 app.post("/signup", function(req, res) {
   var user;
 
+  debug('signing up', req.body.email, req.body.password);
   users.signUp(req.body.email, req.body.password).then(function(user) {
+    debug('signed up', user);
     return promisify(function (cb) {
+      debug('logging in', user);
       req.login(user, cb);
     });
   }).then(function() {
@@ -102,9 +121,11 @@ app.post("/logout", function(req, res) {
 app.use(express.static(__dirname + "/generated"));
 app.use(express.static(__dirname + "/public"));
 app.use("/source", express.static(__dirname + "/../browser/style"));
+
 app.use("/static/semantic-ui", express.static(__dirname + "/../semantic/dist"));
 app.use("/static/jquery", express.static(__dirname + "/../node_modules/jquery/dist"));
 app.use("/static/medium-editor", express.static(__dirname + "/../node_modules/medium-editor/dist"));
+app.use("/static/zeroclipboard", express.static(__dirname + "/../node_modules/zeroclipboard/dist"));
 
 function page(req, js) {
   return {

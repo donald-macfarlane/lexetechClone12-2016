@@ -87,6 +87,16 @@ describe 'users'
 
         users.authenticate! (user.email, 'mypassword1')
 
+      it 'reuses existing token if there is one'
+        postedUser = api.post! '/api/users' {
+          email = 'joe@example.com'
+        }.body
+
+        originalToken = api.post!(postedUser.resetPasswordTokenHref).body.token
+        latestToken = api.post!(postedUser.resetPasswordTokenHref).body.token
+
+        expect(latestToken).to.equal(originalToken)
+
       it 'cannot reset password with wrong token'
         postedUser = api.post! '/api/users' {
           email = 'joe@example.com'
@@ -132,6 +142,16 @@ describe 'users'
         expect(user.hasPassword).to.be.false
 
         expect(users.authenticate(user.email, 'mypassword1')).to.be.rejectedWith('Authentication not possible')!
+
+      it 'cannot reset a password twice'
+        user = api.post! '/api/users' {
+          email = 'joe@example.com'
+        }.body
+
+        token = api.post!(user.resetPasswordTokenHref).body.token
+        api.post!(user.resetPasswordHref, { password = 'mypassword1', token = token})
+        response = api.post!(user.resetPasswordHref, { password = 'myotherpassword', token = token}, exceptions = false)
+        expect(response.statusCode).to.equal 400
 
     context 'given an existing user'
       postedUser = nil

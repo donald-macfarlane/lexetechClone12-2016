@@ -96,5 +96,9 @@ module.exports = prototype({
 
   create: function () {
     return this.userPrototype.apply(undefined, arguments);
+  },
+
+  resetPasswordToken: function (user) {
+    return http.post(user.resetPasswordTokenHref);
   }
 });

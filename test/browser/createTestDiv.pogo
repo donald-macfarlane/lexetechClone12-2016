@@ -1,7 +1,10 @@
 module.exports() =
-  oldDiv = document.querySelector 'body > div.test'
-  if (oldDiv)
-    oldDiv.parentNode.removeChild(oldDiv)
+  oldDivs = document.querySelectorAll 'body > div.test'
+  if (oldDivs.length)
+    [
+      oldDiv <- oldDivs
+      oldDiv.parentNode.removeChild(oldDiv)
+    ]
 
   div = document.createElement('div')
   div.className = 'test'

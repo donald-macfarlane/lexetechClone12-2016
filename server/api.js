@@ -8,6 +8,7 @@ var errorhandler = require('errorhandler');
 var sendEmail = require('./sendEmail');
 var documentHasChangedStyles = require('./documentHasChangedStyles');
 var debug = require('debug')('lexenotes:api');
+var handleErrors = require('./handleErrors');
 
 function backup(redisDb, backupHttpism) {
   var github = githubContent(backupHttpism);
@@ -66,26 +67,6 @@ app.use('/', function(req, res, next) {
     return next();
   }
 });
-
-function errors(next) {
-  return function (req, res) {
-    function sendError(error) {
-      debug(error);
-      res.status(500).send({message: error.message});
-    }
-
-    var result;
-    try {
-      result = next(req, res);
-    } catch (error) {
-      sendError(error);
-    }
-
-    if (result && typeof result.then === 'function') {
-      result.then(undefined, sendError);
-    }
-  };
-}
 
 app.get("/blocks", function(req, res) {
   var db = app.get("db");
@@ -256,7 +237,7 @@ function outgoingUser(user, req) {
   delete user.hash;
   user.href = req.baseUrl + "/users/" + user.id;
   user.resetPasswordTokenHref = req.baseUrl + '/users/' + user.id + '/resetpasswordtoken';
-  user.resetPasswordHref = req.baseUrl + '/users/' + user.id + '/resetpassword';
+  user.resetPasswordHref = req.baseUrl + '/users/resetpassword';
   return user;
 }
 
@@ -284,7 +265,7 @@ app.post('/users', function (req, res) {
   });
 });
 
-app.get('/users', errors(function (req, res) {
+app.get('/users', handleErrors(function (req, res) {
   return mongoDb.allUsers({max: Number(req.query.max)}).then(function(u) {
     var users = u.map(function (user) {
       return outgoingUser(user, req);
@@ -296,7 +277,7 @@ app.get('/users', errors(function (req, res) {
   });
 }));
 
-app.get('/users/search', errors(function (req, res) {
+app.get('/users/search', handleErrors(function (req, res) {
   return mongoDb.searchUsers(req.query.q).then(function (users) {
     var users = users.map(function (user) {
       return outgoingUser(user, req);
@@ -307,7 +288,7 @@ app.get('/users/search', errors(function (req, res) {
   });
 }));
 
-app.get('/users/:userId', errors(function (req, res) {
+app.get('/users/:userId', handleErrors(function (req, res) {
   return mongoDb.user(req.params.userId).then(function (user) {
     if (user) {
       res.send(outgoingUser(user, req));
@@ -317,7 +298,7 @@ app.get('/users/:userId', errors(function (req, res) {
   });
 }));
 
-app.post('/users/:userId/resetpasswordtoken', errors(function (req, res) {
+app.post('/users/:userId/resetpasswordtoken', handleErrors(function (req, res) {
   return mongoDb.resetPasswordToken(req.params.userId).then(function (token) {
     res.send({token: token});
   }, function (error) {
@@ -329,8 +310,8 @@ app.post('/users/:userId/resetpasswordtoken', errors(function (req, res) {
   });
 }));
 
-app.post('/users/:userId/resetpassword', errors(function (req, res) {
-  return mongoDb.setPassword(req.params.userId, req.body.token, req.body.password).then(function () {
+app.post('/users/resetpassword', handleErrors(function (req, res) {
+  return mongoDb.setPassword(req.body.token, req.body.password).then(function () {
     res.send({});
   }, function (error) {
     if (error.wrongToken) {
@@ -341,13 +322,13 @@ app.post('/users/:userId/resetpassword', errors(function (req, res) {
   });
 }));
 
-app.put('/users/:userId', errors(function (req, res) {
+app.put('/users/:userId', handleErrors(function (req, res) {
   return mongoDb.updateUser(req.params.userId, incomingUser(req.body)).then(function () {
     res.send(outgoingUser(req.body, req));
   });
 }));
 
-app.post("/user/queries", errors(function(req, res) {
+app.post("/user/queries", handleErrors(function(req, res) {
   var db = app.get("db");
   var query = req.body;
 
@@ -356,7 +337,7 @@ app.post("/user/queries", errors(function(req, res) {
   });
 }));
 
-app.get("/user/queries", errors(function(req, res) {
+app.get("/user/queries", handleErrors(function(req, res) {
   var db = app.get("db");
   var query = req.body;
 
@@ -406,7 +387,7 @@ function sendResponseChangedEmail() {
   }
 }
 
-app.post("/user/documents", errors(function(req, res) {
+app.post("/user/documents", handleErrors(function(req, res) {
   var doc = req.body;
   incomingDocument(doc);
   doc.created = doc.lastModified;

@@ -88,6 +88,7 @@
     "plastiq-router": "2.2.0",
     "plastiq-semantic-ui": "1.1.0",
     "plastiq-throttle": "1.4.0",
+    "plastiq-zeroclipboard": "1.0.0",
     "pogo": "^0.9.10",
     "pogoify": "^0.1.1",
     "prote": "1.1.0",
@@ -104,6 +105,7 @@
     "vinyl-buffer": "1.0.0",
     "vinyl-source-stream": "^1.0.0",
     "watchify": "3.2.1",
-    "winston": "0.9.0"
+    "winston": "0.9.0",
+    "zeroclipboard": "2.2.0"
   }
 }

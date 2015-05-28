@@ -1,6 +1,8 @@
 createRouter = require 'mockjax-router'
 _ = require 'underscore'
 
+window._debug = require 'debug'
+
 module.exports() =
   router = createRouter()
 
@@ -34,6 +36,7 @@ module.exports() =
 
       {
         statusCode = 200
+        body = request.body
       }
 
     router.post(url + '/:id', postPut)

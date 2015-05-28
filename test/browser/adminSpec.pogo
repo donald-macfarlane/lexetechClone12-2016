@@ -19,8 +19,8 @@ adminBrowser = prototypeExtending(element) {
 userBrowser = prototypeExtending(element) {
   firstName() = self.find('form.user .first-name input')
   familyName() = self.find('form.user .family-name input')
-  saveButton() = self.find('form.user .button', text = 'Save')
-  createButton() = self.find('form.user .button', text = 'Create')
+  saveButton() = self.find('form.user .button:not(.disabled)', text = 'Save')
+  createButton() = self.find('form.user .button:not(.disabled)', text = 'Create')
 }
 
 describe 'admin'
@@ -35,7 +35,7 @@ describe 'admin'
     $.mockjaxSettings.logging = false
     mountApp(rootComponent {
       user = { email = 'blah@example.com', admin = true }
-    })
+    }, href = '/')
     app := appBrowser { selector = '.test' }
     admin := adminBrowser { selector = '.test' }
     user := userBrowser { selector = '.test' }
