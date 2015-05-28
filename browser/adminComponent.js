@@ -58,8 +58,8 @@ module.exports = prototype({
     this.searchUsers(this.query);
 
     return h('.admin',
-      h('.ui.button.create', {onclick: this.addUser.bind(this)}, 'add user'),
       h('.search',
+        h('.ui.button.create', {onclick: this.addUser.bind(this)}, 'add user'),
         h('.ui.icon.input', {class: {loading: this.usersLoading}},
           h('input', {type: 'text', placeholder: 'search users', binding: [this, 'query']}),
           h('i.search.icon')
@@ -67,7 +67,7 @@ module.exports = prototype({
         h('.ui.vertical.menu.results',
           self.users.map(function (user) {
             return routes.adminUser({userId: user.id}).link({class: {item: true, teal: true, active: user.id === userId}},
-              h('h5', user.firstName + ' ' + user.familyName),
+              h('h5', (user.firstName || '') + ' ' + (user.familyName || '')),
               user.email
             );
           })
