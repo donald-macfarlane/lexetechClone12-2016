@@ -12,6 +12,10 @@ module LoginAutomation
     fill_in "Password", with: password
     click_button "Log in"
   end
+
+  def logout
+    click_on 'Logout'
+  end
 end
 
 World(LoginAutomation)

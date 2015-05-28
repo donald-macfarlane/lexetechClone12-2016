@@ -22,7 +22,7 @@ module.exports.resetPassword = function (token) {
     h('h1', 'Welcome'),
     h('p', 'Please think of a password to login'),
     credentialsForm('/resetpassword', h('button', 'Login'), {email: false, token: token}),
-    h('div.links', signupLink(), loginLink())
+    h('div.links', signupLink(), ' | ', loginLink())
   );
 };
 

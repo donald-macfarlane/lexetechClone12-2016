@@ -9,8 +9,10 @@ class LexemeApi
     post_json "/api/lexicon", json
   end
 
-  def sign_up(email, password)
-    post_json "/api/users", email: email, password: password, author: true
+  def sign_up(email, password, options = {})
+    options[:email] = email
+    options[:password] = password
+    post_json "/api/users", options
   rescue RestClient::Found
   end
 

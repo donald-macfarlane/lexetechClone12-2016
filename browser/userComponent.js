@@ -65,7 +65,7 @@ module.exports = prototype({
         form.text('First Name', [this.user, 'firstName', dirtyUser], {class: 'first-name', placeholder: 'first name'}),
         form.text('Family Name', [this.user, 'familyName', dirtyUser], {class: 'family-name', placeholder: 'family name'})
       ),
-      form.text('Email', [this.user, 'email', dirtyUser], {placeholder: 'email'}),
+      form.text('Email', [this.user, 'email', dirtyUser], {class: 'email', placeholder: 'email'}),
       form.textarea('Address', [this.user, 'address', dirtyUser]),
       h('.two.fields',
         form.text('Office Phone Number', [this.user, 'officePhoneNumber', dirtyUser], {placeholder: 'office phone number'}),

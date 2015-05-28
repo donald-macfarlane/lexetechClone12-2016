@@ -21,7 +21,7 @@ end
 Given(/^I am signed in as an author$/) do
   @doctors_email = "author@surgery.com"
   @doctors_password = "omgomgomg"
-  api.sign_up(@doctors_email, @doctors_password)
+  api.sign_up(@doctors_email, @doctors_password, author: true)
   login(@doctors_email, @doctors_password)
 end
 

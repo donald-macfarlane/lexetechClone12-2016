@@ -11,3 +11,11 @@ Feature: Authentication
     And I have logged out
     When I log in with email address "bob@example.com" and password "bobssecret"
     Then I can start a new document
+
+  Scenario: A new user
+    Given I am logged in as an admin
+    When I create a new user with email "jane@example.com"
+    Then I can copy the signup link
+    When that link is used by the new user
+    Then they can set their password "password123" and login
+    And I can start a new document

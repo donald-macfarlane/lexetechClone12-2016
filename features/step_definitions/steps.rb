@@ -43,7 +43,7 @@ Given(/^I have created a user previously with email address "(.*?)" and password
 end
 
 Given(/^I have logged out$/) do
-  click_on 'Logout'
+  logout
 end
 
 When(/^I log in with email address "(.*?)" and password "(.*?)"$/) do |email, password|
