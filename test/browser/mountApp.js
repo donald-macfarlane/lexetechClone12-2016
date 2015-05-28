@@ -2,7 +2,6 @@ var plastiq = require('plastiq');
 var router = require('plastiq-router');
 
 var lastAttachment;
-var lastDiv;
 var firstLocation;
 var started = false;
 
@@ -15,13 +14,13 @@ module.exports = function (component, options) {
 
   started = true;
 
-  lastDiv = appendTestDiv();
+  var div = appendTestDiv();
 
   router.start();
   if (options && options.href) {
     history.pushState(undefined, undefined, options.href);
   }
-  return lastAttachment = plastiq.append(lastDiv, component.render.bind(component), undefined, {requestRender: setTimeout});
+  return lastAttachment = plastiq.append(div, component.render.bind(component), undefined, {requestRender: setTimeout});
 };
 
 function appendTestDiv() {
@@ -35,9 +34,10 @@ function stop(options) {
   if (started) {
     lastAttachment.remove();
 
-    if (lastDiv.parentNode) {
-      lastDiv.parentNode.removeChild(lastDiv);
-    }
+    var divs = document.querySelectorAll('body > div.test');
+    divs.forEach(function (div) {
+      div.parentNode.removeChild(div);
+    });
 
     if (!(options && options.href)) {
       history.pushState(undefined, undefined, firstLocation);
