@@ -15,7 +15,6 @@ describe 'document component'
   browser = nil
 
   beforeEach =>
-    self.timeout 100000
     $.mockjaxSettings.logging = false
 
   withLexemes(lexemes) =
@@ -53,15 +52,15 @@ describe 'document component'
         {
           query = { id = '1' }
           suppressPunctuation = true
-          response = { styles = { style1 = 'one' } }
+          response = { styles = { style1 = '<p>one</p>' } }
         }
         {
           query = { id = '1' }
-          response = { styles = { style1 = ' ' } }
+          response = { styles = { style1 = '<p>&nbsp; &nbsp;</p>' } }
         }
         {
           query = { id = '1' }
-          response = { styles = { style1 = ', two' } }
+          response = { styles = { style1 = '<p>, two</p>' } }
         }
       ]
       browser.document().expect!(element.hasText('onetwo'))

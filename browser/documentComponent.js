@@ -1,6 +1,7 @@
 var h = require('plastiq').html;
 var prototype = require('prote');
 var removePunctuation = require('./removePunctuation');
+var isWhitespaceHtml = require('./isWhitespaceHtml');
 
 module.exports = prototype({
   constructor: function (model) {
@@ -24,7 +25,7 @@ module.exports = prototype({
           };
         }).filter(function (lexemeIndex) {
           var response = lexemeIndex.lexeme.response;
-          return response && response.styles && response.styles[style] && response.styles[style].trim();
+          return response && response.styles && response.styles[style] && !isWhitespaceHtml(response.styles[style]);
         }).map(function (lexemeIndex) {
           var lexeme = lexemeIndex.lexeme;
           var index = lexemeIndex.index;
