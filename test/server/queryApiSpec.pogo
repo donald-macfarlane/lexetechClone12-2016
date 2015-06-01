@@ -399,6 +399,7 @@ describe "query api"
         expect([b <- api.get!('/api/blocks').body, b.id]).to.eql ["2"]
         expect(api.get!('/api/blocks/1').body).to.eql {
           id = "1"
+          href = '/api/blocks/1'
           deleted = true
         }
 

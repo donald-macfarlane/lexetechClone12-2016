@@ -72,6 +72,7 @@ app.get("/blocks", function(req, res) {
   var db = app.get("db");
 
   db.listBlocks().then(function(blocks) {
+    blocks.forEach(function (block) { outgoingBlock(req, block); });
     res.send(blocks);
   });
 });
@@ -81,6 +82,7 @@ app.post("/blocks", function(req, res) {
 
   db.createBlock(req.body).then(function(block) {
     res.set("location", req.baseUrl + "/blocks/" + block.id);
+    outgoingBlock(req, block);
     res.status(201).send(block);
   });
 });
