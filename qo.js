@@ -19,13 +19,10 @@ function runAllThenThrow() {
   var error;
 
   function runThen(index) {
-    console.log('running', index);
     if (tasks.length > index) {
-      tasks[index]().then(function () {
-        console.log('finished', index);
+      return tasks[index]().then(function () {
         return runThen(index + 1);
       }, function (e) {
-        console.log('failed', index);
         if (!error) {
           error = e;
         }
