@@ -316,10 +316,6 @@ module.exports = function() {
         function writeBlockQueries(block) {
           block.id = String(block.id);
           if (block.queries) {
-            block.queries.forEach(function (query) {
-              query.block = block.id;
-            });
-
             return blockQueries.addAll(block.id, block.queries, {keepIds: true});
           }
         }
