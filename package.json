@@ -44,7 +44,7 @@
     "mocha": "2.2.1",
     "mockjax-router": "1.1.0",
     "mssql": "2.1.0",
-    "qo": "1.0.0",
+    "qo": "1.1.0",
     "require-dot-file": "0.4.0",
     "smtp-server": "1.4.0",
     "sworm": "^0.4.0",
