@@ -4,12 +4,11 @@ module.exports () =
   queryId = 0
   responseId = 0
 
-  buildQuery(q, blockId) =
+  buildQuery(q) =
     ++queryId
     query = _.extend {
       id = String(queryId)
       level = 1
-      block = blockId
 
       predicants = []
     } (q)
@@ -39,7 +38,7 @@ module.exports () =
 
           queries = [
             query <- block.queries @or []
-            buildQuery(query, String(block.id))
+            buildQuery(query)
           ]
         }
       ]

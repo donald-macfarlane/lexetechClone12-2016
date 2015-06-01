@@ -291,7 +291,7 @@ module.exports = function(options) {
 
         var context = createContext({
           coherenceIndex: 0,
-          block: query.block,
+          block: "1",
           blocks: [],
           level: 1,
           predicants: firstPredicants,
