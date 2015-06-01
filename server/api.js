@@ -85,10 +85,15 @@ app.post("/blocks", function(req, res) {
   });
 });
 
+function outgoingBlock(req, block) {
+  block.href = req.baseUrl + "/blocks/" + block.id;
+}
+
 app.get("/blocks/:id", function(req, res) {
   var db = app.get("db");
 
   db.blockById(req.params.id).then(function(block) {
+    outgoingBlock(req, block);
     res.send(block);
   });
 });
