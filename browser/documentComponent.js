@@ -1,5 +1,6 @@
 var h = require('plastiq').html;
 var prototype = require('prote');
+var removePunctuation = require('./removePunctuation');
 
 module.exports = prototype({
   constructor: function (model) {
@@ -58,7 +59,3 @@ module.exports = prototype({
     );
   },
 });
-
-function removePunctuation(html) {
-  return html.replace(/^[.,] /, '');
-}
