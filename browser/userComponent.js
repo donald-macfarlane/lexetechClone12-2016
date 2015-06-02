@@ -50,32 +50,63 @@ module.exports = prototype({
     var user = this.user;
     var tokenLink = this.resetPasswordToken? location.origin + routes.resetPassword({token: this.resetPasswordToken}).href: undefined;
 
+    var rules = {
+      email: {
+        identifier: 'email',
+        rules: [{
+          type: 'email',
+          prompt: 'please enter a valid email address'
+        }]
+      },
+      firstName: {
+        identifier: 'first-name',
+        rules: [{
+          type: 'empty',
+          prompt: 'please enter a first name'
+        }]
+      },
+      familyName: {
+        identifier: 'family-name',
+        rules: [{
+          type: 'empty',
+          prompt: 'please enter a family name'
+        }]
+      },
+      officePhoneNumber: {
+        identifier: 'office-phone-number',
+        rules: []
+      },
+      cellPhoneNumber: {
+        identifier: 'cell-phone-number',
+        rules: []
+      },
+      stateLicenseNumber: {
+        identifier: 'state-license-number',
+        rules: []
+      }
+    };
+
+    if (user.author) {
+      rules.officePhoneNumber.rules.push({
+        type: 'empty',
+        prompt: 'please enter a valid office phone number'
+      });
+
+      rules.cellPhoneNumber.rules.push({
+        type: 'empty',
+        prompt: 'please enter a valid cell phone number'
+      });
+
+      rules.stateLicenseNumber.rules.push({
+        type: 'empty',
+        prompt: 'please enter a valid state license number'
+      });
+    }
+
     return form.form(
       {
         key: user.id || 'new',
-        rules: {
-          email: {
-            identifier: 'email',
-            rules: [{
-              type: 'email',
-              prompt: 'please enter a valid email address'
-            }]
-          },
-          firstName: {
-            identifier: 'first-name',
-            rules: [{
-              type: 'empty',
-              prompt: 'please enter a first name'
-            }]
-          },
-          familyName: {
-            identifier: 'family-name',
-            rules: [{
-              type: 'empty',
-              prompt: 'please enter a family name'
-            }]
-          }
-        },
+        rules: rules,
         settings: {
           inline: true
         }
@@ -103,10 +134,10 @@ module.exports = prototype({
           form.text('Email', [self.user, 'email', dirtyUser], {class: 'email', placeholder: 'email', name: 'email'}),
           form.textarea('Address', [self.user, 'address', dirtyUser]),
           h('.two.fields',
-            form.text('Office Phone Number', [self.user, 'officePhoneNumber', dirtyUser], {placeholder: 'office phone number'}),
-            form.text('Cell Phone Number', [self.user, 'cellPhoneNumber', dirtyUser], {placeholder: 'cell phone number'})
+            form.text('Office Phone Number', [self.user, 'officePhoneNumber', dirtyUser], {placeholder: 'office phone number', name: 'office-phone-number'}),
+            form.text('Cell Phone Number', [self.user, 'cellPhoneNumber', dirtyUser], {placeholder: 'cell phone number', name: 'cell-phone-number'})
           ),
-          form.text('State License Number', [self.user, 'stateLicenseNumber', dirtyUser], {placeholder: 'state license number'}),
+          form.text('State License Number', [self.user, 'stateLicenseNumber', dirtyUser], {placeholder: 'state license number', name: 'state-license-number'}),
           form.boolean('Author', [self.user, 'author', dirtyUser]),
           form.boolean('Admin', [self.user, 'admin', dirtyUser]),
           h('.ui.button', {class: {disabled: !self.user.dirty, blue: !newUser, green: newUser}, onclick: function () { return saveUser(component.state); }}, newUser? 'Create': 'Save'),
