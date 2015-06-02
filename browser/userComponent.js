@@ -30,21 +30,14 @@ module.exports = prototype({
 
     this.getResetPasswordToken(this.user);
 
-    function saveUser(formElement) {
-      var promise = self.validation.then(function () {
+    function saveUser(form) {
+      return form.validate().then(function () {
         delete self.user.dirty;
-        delete self.validation;
 
         return self.user.save().then(function (user) {
           routes.adminUser({userId: user.id}).push();
         });
-      }, function () {
-        delete self.validation;
       });
-
-      formElement.form('validate form');
-
-      return promise;
     }
 
     function dirtyUser(v) {
@@ -57,36 +50,37 @@ module.exports = prototype({
     var user = this.user;
     var tokenLink = this.resetPasswordToken? location.origin + routes.resetPassword({token: this.resetPasswordToken}).href: undefined;
 
-    if (!this.validation) {
-      this.validationPromises++;
-      this.validation = new Promise(function (fulfil, reject) {
-        var x = self.validationPromises;
-        self.onSuccess = fulfil;
-        self.onFailure = reject;
-      });
-    }
-
     return form.form(
       {
-        email: {
-          identifier: 'email',
-          rules: [{
-            type: 'email',
-            prompt: 'please enter a valid email address'
-          }]
-        }
-      },
-      {
-        onSuccess: function () {
-          return self.onSuccess.apply(self, arguments);
+        key: user.id || 'new',
+        rules: {
+          email: {
+            identifier: 'email',
+            rules: [{
+              type: 'email',
+              prompt: 'please enter a valid email address'
+            }]
+          },
+          firstName: {
+            identifier: 'first-name',
+            rules: [{
+              type: 'empty',
+              prompt: 'please enter a first name'
+            }]
+          },
+          familyName: {
+            identifier: 'family-name',
+            rules: [{
+              type: 'empty',
+              prompt: 'please enter a family name'
+            }]
+          }
         },
-        onFailure: function () {
-          return self.onFailure.apply(self, arguments);
+        settings: {
+          inline: true
         }
       },
       function (component) {
-        var formElement = component.state.formElement;
-
         return h('form.ui.form.user',
           newUser
             ? h('h2', 'New User')
@@ -103,8 +97,8 @@ module.exports = prototype({
                 : h('span.no-token-link')
             ),
           h('.two.fields',
-            form.text('First Name', [self.user, 'firstName', dirtyUser], {class: 'first-name', placeholder: 'first name'}),
-            form.text('Family Name', [self.user, 'familyName', dirtyUser], {class: 'family-name', placeholder: 'family name'})
+            form.text('First Name', [self.user, 'firstName', dirtyUser], {class: 'first-name', placeholder: 'first name', name: 'first-name'}),
+            form.text('Family Name', [self.user, 'familyName', dirtyUser], {class: 'family-name', placeholder: 'family name', name: 'family-name'})
           ),
           form.text('Email', [self.user, 'email', dirtyUser], {class: 'email', placeholder: 'email', name: 'email'}),
           form.textarea('Address', [self.user, 'address', dirtyUser]),
@@ -115,7 +109,7 @@ module.exports = prototype({
           form.text('State License Number', [self.user, 'stateLicenseNumber', dirtyUser], {placeholder: 'state license number'}),
           form.boolean('Author', [self.user, 'author', dirtyUser]),
           form.boolean('Admin', [self.user, 'admin', dirtyUser]),
-          h('.ui.button', {class: {disabled: !self.user.dirty, blue: !newUser, green: newUser}, onclick: function () { return saveUser(formElement); }}, newUser? 'Create': 'Save'),
+          h('.ui.button', {class: {disabled: !self.user.dirty, blue: !newUser, green: newUser}, onclick: function () { return saveUser(component.state); }}, newUser? 'Create': 'Save'),
           h('.ui.button', {onclick: routes.admin().push}, 'Close')
         );
       }
