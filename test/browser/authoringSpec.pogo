@@ -29,9 +29,9 @@ authoringElement = prototypeExtending (element) {
     self.find('ul.dropdown-menu li a', text = name)
 
   queryMenuItem(blockName, queryName) =
-    self.blockMenuItem(blockName).find('ol li', text = queryName, message = "query  #(JSON.stringify(queryName))")
+    self.blockMenuItem(blockName).find('ol li', message = "query #(JSON.stringify(queryName))").containing('> h4', text = queryName)
 
-  blockMenuItem(blockName, queryName) =
+  blockMenuItem(blockName) =
     self.find('.blocks-queries ol li', text = blockName, message = "block #(JSON.stringify(blockName))")
 
   block() =
@@ -58,7 +58,7 @@ authoringElement = prototypeExtending (element) {
 
 responsesElement = prototypeExtending(element) {
   addResponseButton() = self.find('button', text = 'Add Response')
-  response(n) = responseElement(self.find("ol li:nth-of-type(#(n))"))
+  selectedResponse() = responseElement(self.find('.selected-response'))
 }
 
 responseElement = prototypeExtending(element) {
@@ -137,7 +137,7 @@ describe 'authoring'
 
         responses = page.responses()
         responses.addResponseButton().click!()
-        newResponse = responses.response(1)
+        newResponse = responses.selectedResponse()
         newResponse.responseSelector().typeIn!('response 1')
         newResponse.setLevel().typeIn!('4')
         newResponse.predicantSearch().typeIn!('hemo')
@@ -261,20 +261,20 @@ describe 'authoring'
         startApp()
 
       it 'can select one block after another'
-        page.blockMenuItem('one').click!()
+        page.blockMenuItem('one').find('h3').click!()
         page.blockName().wait! @(element)
           expect(element.val()).to.equal 'one'
 
-        page.blockMenuItem('two').click!()
+        page.blockMenuItem('two').find('h3').click!()
         page.blockName().wait! @(element)
           expect(element.val()).to.equal 'two'
 
       it 'can select one query after another'
-        page.queryMenuItem('one', 'query 1').click!()
+        page.queryMenuItem('one', 'query 1').find('h4').click!()
         page.queryName().wait! @(element)
           expect(element.val()).to.equal 'query 1'
 
-        page.queryMenuItem('two', 'query 2').click!()
+        page.queryMenuItem('two', 'query 2').find('h4').click!()
         page.queryName().wait! @(element)
           expect(element.val()).to.equal 'query 2'
 
@@ -320,7 +320,7 @@ describe 'authoring'
         startApp()
       
       it 'can update a block'
-        page.queryMenuItem('one').click!()
+        page.queryMenuItem('one').find('h4').click!()
         page.blockName().typeIn!('one (updated)')
         page.block().find('button', text = 'Save').click!()
 
@@ -330,7 +330,7 @@ describe 'authoring'
           expect([b <- api.blocks, b.name]).to.eql ['one (updated)']
       
       it 'can update a query'
-        page.queryMenuItem('one', 'query 1').click!()
+        page.queryMenuItem('one', 'query 1').find('h4').click!()
         page.queryName().typeIn!('query 1 (updated)')
         page.query().find('button', text = 'Overwrite').click!()
 
@@ -340,10 +340,10 @@ describe 'authoring'
           expect([q <- api.lexicon().blocks.0.queries, q.name]).to.eql ['query 1 (updated)']
       
       it 'can add a response to a query'
-        page.queryMenuItem('one', 'query 1').click!()
+        page.queryMenuItem('one', 'query 1').find('h4').click!()
         responses = page.responses()
         responses.addResponseButton().click!()
-        newResponse = responses.response(2)
+        newResponse = responses.selectedResponse()
         newResponse.responseSelector().typeIn!('response 2')
         page.query().find('button', text = 'Overwrite').click!()
 
@@ -361,7 +361,7 @@ describe 'authoring'
           ]
       
       it 'can insert a query before'
-        page.queryMenuItem('one', 'query 1').click!()
+        page.queryMenuItem('one', 'query 1').find('h4').click!()
         page.queryName().typeIn!('query 2 (before 1)')
         page.query().find('button', text = 'Insert Before').click!()
 
@@ -372,7 +372,7 @@ describe 'authoring'
           expect([q <- api.lexicon().blocks.0.queries, q.name]).to.eql ['query 2 (before 1)', 'query 1']
       
       it 'can insert a query after'
-        page.queryMenuItem('one', 'query 1').click!()
+        page.queryMenuItem('one', 'query 1').find('h4').click!()
         page.queryName().typeIn!('query 2 (after 1)')
         page.query().find('button', text = 'Insert After').click!()
 
@@ -383,7 +383,7 @@ describe 'authoring'
           expect([q <- api.lexicon().blocks.0.queries, q.name]).to.eql ['query 1', 'query 2 (after 1)']
       
       it 'can delete a query'
-        page.queryMenuItem('one', 'query 1').click!()
+        page.queryMenuItem('one', 'query 1').find('h4').click!()
         page.query().find('button', text = 'Delete').click!()
 
         page.queryMenuItem('one', 'query 1').doesntExist!()
@@ -415,7 +415,7 @@ describe 'authoring'
         startApp()
 
       it 'can add a query to the clipboard'
-        page.queryMenuItem('one', 'query 1').click()!
+        page.queryMenuItem('one', 'query 1').find('h4').click()!
         page.find('button', text = 'Add to Clipboard').click()!
 
         retry!
@@ -446,7 +446,7 @@ describe 'authoring'
           startApp()
 
         it 'can paste the query into a new query, not including level'
-          page.queryMenuItem('one', 'query 1').click()!
+          page.queryMenuItem('one', 'query 1').find('h4').click()!
 
           page.queryName().wait! @(input)
             expect(input.val()).to.equal 'query 1'

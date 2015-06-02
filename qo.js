@@ -49,7 +49,7 @@ task('put-lexicon --env <env=dev> <lexicon.json>', function (args, options) {
   var file = args[0];
   return fs.readFile(file, 'utf-8').then(function (content) {
     var lexicon = JSON.parse(content);
-    var api = createApi(options);
+    var api = createApi(options.env);
     return api.post('lexicon', lexicon).then(function (response) {
       return response.statusCode + ' => ' + JSON.stringify(response.body, null, 2);
     });

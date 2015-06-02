@@ -754,12 +754,15 @@ hr {
       cursor: default;
 
       li {
-        cursor: pointer;
         position: relative;
         margin: 0;
 
-        &.selected {
-          > h3, > h4 {
+        > h3, > h4 {
+          &:not(.no-query) {
+            cursor: pointer;
+          }
+
+          &.selected {
             background-color: rgba(149, 153, 86, 0.16);
           }
         }

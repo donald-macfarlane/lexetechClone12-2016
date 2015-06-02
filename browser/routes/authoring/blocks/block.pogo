@@ -287,7 +287,9 @@ module.exports = React.createClass {
               tree <- queries
 
               selectQuery(ev) =
-                self.context.router.replaceWith 'query' { blockId = block.id, queryId = tree.query.id }
+                if(tree.query)
+                  self.context.router.replaceWith 'query' { blockId = block.id, queryId = tree.query.id }
+
                 ev.stopPropagation()
 
               show(ev) =
@@ -300,19 +302,27 @@ module.exports = React.createClass {
                 self.setState { blocks = self.state.blocks }
                 ev.stopPropagation()
 
-              selectedClass = if (self.queryId() == tree.query.id)
+              selectedClass = if (tree.query @and self.queryId() == tree.query.id)
                 'selected'
 
-              r 'li' { onClick = selectQuery, className = selectedClass } (
-                r 'h4' {} (
-                  if (tree.queries)
-                    if (tree.hideQueries)
-                      r 'button' { className = 'toggle', onClick = show } (r 'span' {} '+')
-                    else
-                      r 'button' { className = 'toggle', onClick = hide } (r 'span' {} '-')
+              toggle = 
+                if (tree.queries)
+                  if (tree.hideQueries)
+                    r 'button' { className = 'toggle', onClick = show } (r 'span' {} '+')
+                  else
+                    r 'button' { className = 'toggle', onClick = hide } (r 'span' {} '-')
 
-                  tree.query.name
-                )
+              r 'li' {} (
+                if (tree.query)
+                  r 'h4' { onClick = selectQuery, className = selectedClass } (
+                    toggle
+                    tree.query.name
+                  )
+                else
+                  r 'h4' { className = 'no-query' } (
+                    toggle
+                    r('span', {dangerouslySetInnerHTML = { __html = '&nbsp;' } })
+                  )
 
                 if (@not tree.hideQueries @and tree.queries)
                   renderQueries(block, tree.queries)
@@ -345,9 +355,8 @@ module.exports = React.createClass {
               selectedClass = if (self.blockId() == block.id)
                 'selected'
 
-              r 'li' { onClick = selectBlock, className = selectedClass } (
-
-                r 'h3' {} (
+              r 'li' {} (
+                r 'h3' { onClick = selectBlock, className = selectedClass } (
                   if (blockViewModel.queries @and blockViewModel.queries.length > 0)
                     if (blockViewModel.hideQueries)
                       r 'button' { className = 'toggle', onClick = show } '+'
