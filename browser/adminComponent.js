@@ -59,7 +59,8 @@ module.exports = prototype({
 
     return h('.admin',
       h('.search',
-        h('.ui.button.create', {onclick: this.addUser.bind(this)}, 'add user'),
+        h('.ui.button.create.green', {onclick: this.addUser.bind(this)}, 'add user'),
+        h('.ui.divider'),
         h('.ui.icon.input', {class: {loading: this.usersLoading}},
           h('input', {type: 'text', placeholder: 'search users', binding: [this, 'query']}),
           h('i.search.icon')

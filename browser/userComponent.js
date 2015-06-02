@@ -31,13 +31,15 @@ module.exports = prototype({
     this.getResetPasswordToken(this.user);
 
     function saveUser(form) {
-      return form.validate().then(function () {
+      var errors = form.validate();
+
+      if (!errors) {
         delete self.user.dirty;
 
         return self.user.save().then(function (user) {
           routes.adminUser({userId: user.id}).push();
         });
-      });
+      }
     }
 
     function dirtyUser(v) {
@@ -116,17 +118,22 @@ module.exports = prototype({
           newUser
             ? h('h2', 'New User')
             : h('h2',
-              self.user.firstName, ' ', self.user.familyName,
-              tokenLink
-                ? [
+              self.user.firstName, ' ', self.user.familyName
+            ),
+          tokenLink
+            ? [
+                h('.field',
+                  h('label', 'Login Link'),
+                  h('.ui.input',
                     h('input.token-link', {type: 'text', value: tokenLink, onclick: function () { this.select(); }}),
                     zeroClipboard(
                       tokenLink,
-                      h('.ui.button.green', 'copy')
+                      h('.ui.button.green.copy-token-link', 'copy login link')
                     )
-                  ]
-                : h('span.no-token-link')
-            ),
+                  )
+                ),
+              ]
+            : h('span.no-token-link'),
           h('.two.fields',
             form.text('First Name', [self.user, 'firstName', dirtyUser], {class: 'first-name', placeholder: 'first name', name: 'first-name'}),
             form.text('Family Name', [self.user, 'familyName', dirtyUser], {class: 'family-name', placeholder: 'family name', name: 'family-name'})
