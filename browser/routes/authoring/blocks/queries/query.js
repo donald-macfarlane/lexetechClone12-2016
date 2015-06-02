@@ -550,6 +550,70 @@ module.exports = React.createClass({
     return this.props.addToClipboard(this.state.query);
   },
 
+  renderResponse: function (response) {
+    var self = this;
+
+    function remove() {
+      self.state.query.responses = _.without(self.state.query.responses, response);
+      return self.update();
+    }
+
+    function select() {
+      return self.setState({
+        selectedResponse: response
+      });
+    }
+
+    function deselect() {
+      return self.setState({
+        selectedResponse: undefined
+      });
+    }
+
+    return r("li", { key: response.id },
+      [
+        self.state.selectedResponse === response
+          ? r("div", {className: "buttons top"},
+              r("button", {className: "close", onClick: deselect}, "Close")
+            )
+          : undefined,
+        r("ul", {},
+          r("li", {className: "selector"},
+            r("label", {}, "Selector"),
+            r("textarea", {onChange: self.bind(response, "text"), value: self.textValue(response.text), onFocus: select})
+          ),
+          self.state.selectedResponse === response
+            ? [
+                r("li", {className: "set-level"},
+                  r("label", {}, "Set Level"),
+                  self.numberInput(response, "setLevel")
+                ),
+                r("li", {className: "style1"},
+                  r("label", {}, "Style 1"),
+                  React.createElement(editor, { onChange: self.bindHtml(response.styles, "style1"), value: self.textValue(response.styles.style1) })
+                ),
+                r("li", {className: "style2"},
+                  r("label", {}, "Style 2"),
+                  React.createElement(editor, { onChange: self.bindHtml(response.styles, "style2"), value: self.textValue(response.styles.style2) })
+                ),
+                r("li", {className: "actions"},
+                  r("label", {}, "Actions"),
+                  self.renderActions(response.actions)
+                ),
+                r("li", {className: "predicants"},
+                  r("label", {}, "Predicants Issued"),
+                  self.renderPredicants(response.predicants)
+                )
+              ]
+            : undefined,
+          r("div", {className: "buttons"},
+            r("button", {className: "remove-response", onClick: remove}, "Remove")
+          )
+        )
+      ]
+    );
+  },
+
   render: function() {
     var self = this;
 
@@ -664,85 +728,23 @@ module.exports = React.createClass({
         ),
         r("li", {className: "responses"},
           r("h3", {}, "Responses"),
-          block(function() {
-            function render() {
-              var responses = self.state.query.responses.map(function (response) {
-                function remove() {
-                  self.state.query.responses = _.without(self.state.query.responses, response);
-                  return self.update();
-                }
-
+          r("button", {className: "add", onClick: self.addResponse}, "Add Response"),
+          r('div', {className: 'response-editor'},
+            r('ol', {className: "responses"},
+              self.state.query.responses.map(function (response) {
                 function select() {
-                  return self.setState({
+                  self.setState({
                     selectedResponse: response
                   });
                 }
 
-                function deselect() {
-                  return self.setState({
-                    selectedResponse: undefined
-                  });
-                }
-
-                return r("li", { key: response.id },
-                  [
-                    self.state.selectedResponse === response
-                      ? r("div", {className: "buttons top"},
-                          r("button", {className: "close", onClick: deselect}, "Close")
-                        )
-                      : undefined,
-                    r("ul", {},
-                      r("li", {className: "selector"},
-                        r("label", {}, "Selector"),
-                        r("textarea", {onChange: self.bind(response, "text"), value: self.textValue(response.text), onFocus: select})
-                      ),
-                      self.state.selectedResponse === response
-                        ? [
-                            r("li", {className: "set-level"},
-                              r("label", {}, "Set Level"),
-                              self.numberInput(response, "setLevel")
-                            ),
-                            r("li", {className: "style1"},
-                              r("label", {}, "Style 1"),
-                              React.createElement(editor, { onChange: self.bindHtml(response.styles, "style1"), value: self.textValue(response.styles.style1) })
-                            ),
-                            r("li", {className: "style2"},
-                              r("label", {}, "Style 2"),
-                              React.createElement(editor, { onChange: self.bindHtml(response.styles, "style2"), value: self.textValue(response.styles.style2) })
-                            ),
-                            r("li", {className: "actions"},
-                              r("label", {}, "Actions"),
-                              self.renderActions(response.actions)
-                            ),
-                            r("li", {className: "predicants"},
-                              r("label", {}, "Predicants Issued"),
-                              self.renderPredicants(response.predicants)
-                            )
-                          ]
-                        : undefined,
-                      r("div", {className: "buttons"},
-                        r("button", {className: "remove-response", onClick: remove}, "Remove")
-                      )
-                    )
-                  ]
-                );
-              });
-
-              return r("ol", {}, responses);
-            }
-
-            function itemMoved(from, to) {
-              moveItemInFromTo(self.state.query.responses, from, to);
-              self.update();
-            }
-
-            if (!self.state.selectedResponse) {
-              return r(sortable, {itemMoved: itemMoved, render: render});
-            } else {
-              return render();
-            }
-          }),
-          r("button", {className: "add", onClick: self.addResponse}, "Add Response")
+                return r('li', {onClick: select, className: self.state.selectedResponse === response? 'selected': undefined}, response.text);
+              })
+            ),
+            self.state && self.state.selectedResponse
+              ? r('div', {className: 'selected-response'}, self.renderResponse(self.state.selectedResponse))
+              : undefined
+          )
         )
       )
     );

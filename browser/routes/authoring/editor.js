@@ -13,7 +13,7 @@ module.exports = React.createClass({
       element.innerHTML = '<p><br></p>';
     }
 
-    var editor = new Medium(element);
+    this.editor = new Medium(element);
 
     element.addEventListener('input', function (ev) {
       if (self.props.onChange) {
@@ -23,6 +23,10 @@ module.exports = React.createClass({
   },
 
   componentDidUpdate: function () {
+  },
+
+  componentWillUnmount: function () {
+    this.editor.destroy();
   },
 
   render: function () {

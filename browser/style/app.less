@@ -683,7 +683,6 @@ hr {
 
   li {
     > .buttons {
-      display: none;
       position: absolute;
       right: 7px;
       bottom: 5px;
@@ -700,12 +699,6 @@ hr {
         border: none;
         padding: 2px 4px;
         cursor: pointer;
-      }
-    }
-
-    &:hover {
-      > .buttons {
-        display: block;
       }
     }
   }
@@ -827,22 +820,45 @@ hr {
   }
 
   .responses {
-    > ol {
-      > li {
-        ul {
-          padding-left: 17px;
+    .response-editor {
+      display: flex;
+      > ol.responses {
+        flex: 0 0 30%;
+        list-style-type: none;
+        padding-left: 0;
+        box-shadow: inset 2px 2px 5px #e7e8d1;
+        background-color: rgba(231, 232, 209, 0.26);
 
-          li {
-            &.selector {
-              textarea {
-                height: 18px;
+        > li {
+          cursor: pointer;
+
+          &.selected {
+            background-color: rgba(149, 153, 86, 0.16);
+          }
+
+          ul {
+            padding-left: 17px;
+
+            li {
+              &.selector {
+                textarea {
+                  height: 18px;
+                }
               }
             }
           }
-        }
 
-        div.response-text {
-          background-color: blue;
+          div.response-text {
+            background-color: blue;
+          }
+        }
+      }
+
+      .selected-response {
+        flex: 1 auto;
+
+        > li {
+          position: relative;
         }
       }
     }
