@@ -14,7 +14,7 @@ Feature: Authentication
 
   Scenario: A new user
     Given I am logged in as an admin
-    When I create a new user with email "jane@example.com"
+    When I create a new user "Jane Thompson" with email "jane@example.com"
     Then I can copy the signup link
     When that link is used by the new user
     Then they can set their password "password123" and login

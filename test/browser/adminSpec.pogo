@@ -19,6 +19,7 @@ adminBrowser = prototypeExtending(element) {
 userBrowser = prototypeExtending(element) {
   firstName() = self.find('form.user .first-name input')
   familyName() = self.find('form.user .family-name input')
+  email() = self.find('form.user .email input')
   saveButton() = self.find('form.user .button:not(.disabled)', text = 'Save')
   createButton() = self.find('form.user .button:not(.disabled)', text = 'Create')
 }
@@ -73,9 +74,10 @@ describe 'admin'
 
       user.firstName().typeIn!('Jane')
       user.familyName().typeIn!('Jones')
+      user.email().typeIn!('janejones@example.com')
       user.createButton().click!()
 
       admin.result('Jane').exists!()
 
       retry!
-        expect([u <- api.users, "#(u.firstName) #(u.familyName)"]).to.eql ['Joe Trimble', 'Jane Jones']
+        expect([u <- api.users, "#(u.firstName) #(u.familyName): #(u.email)"]).to.eql ['Joe Trimble: joe@example.com', 'Jane Jones: janejones@example.com']

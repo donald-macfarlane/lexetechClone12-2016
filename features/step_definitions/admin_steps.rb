@@ -5,10 +5,15 @@ Given(/^I am logged in as an admin$/) do
   login(@admin_email, @admin_password)
 end
 
-When(/^I create a new user with email "(.*?)"$/) do |email|
+When(/^I create a new user "(.*?)" with email "(.*?)"$/) do |name, email|
+  firstName = name.split[0]
+  familyName = name.split[1]
+
   click_on 'Admin'
   find('.button', text: 'add user').click
   @new_user_email = email
+  find('.user .first-name input').set(firstName)
+  find('.user .family-name input').set(familyName)
   find('.user .email input').set(email)
   find('.button', text: 'Create').click
 end
