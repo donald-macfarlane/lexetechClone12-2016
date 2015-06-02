@@ -1,10 +1,8 @@
-var httpism = require('httpism');
 var shell = require('./tools/ps');
-
-var environments = {
-  prod: 'http://api:squidandeels@lexetech.herokuapp.com/api/',
-  dev: 'http://api:squidandeels@localhost:8000/api/'
-};
+var runAllThenThrow = require('./tools/runAllThenThrow');
+var createApi = require('./tools/createApi');
+var findAndModifyUser = require('./tools/findAndModifyUser');
+var fs = require('fs-promise');
 
 function mocha() { return shell('mocha test/*Spec.* test/server/*Spec.*'); }
 function karma() { return shell('karma start --single-run'); }
@@ -14,88 +12,18 @@ task('mocha', mocha);
 task('karma', karma);
 task('cucumber', cucumber);
 
-function runAllThenThrow() {
-  var tasks = arguments;
-  var error;
-
-  function runThen(index) {
-    if (tasks.length > index) {
-      return tasks[index]().then(function () {
-        return runThen(index + 1);
-      }, function (e) {
-        if (!error) {
-          error = e;
-        }
-        return runThen(index + 1);
-      });
-    } else if (error) {
-      return Promise.reject(error);
-    } else {
-      return Promise.resolve();
-    }
-  }
-
-  return runThen(0);
-}
-
 task('test', function () {
   return runAllThenThrow(mocha, karma, cucumber);
 });
 
-function createApi(environment) {
-  var url = environments[environment || 'dev'];
-  return httpism.api(url);
-}
-
-function modifyUser(api, href, modify) {
-  return api.get(href).then(function (response) {
-    var user = response.body;
-    modify(user);
-    return api.put(user.href, user);
-  });
-}
-
-function findUsers(api, query) {
-  return api.get('users/search', {querystring: {q: query}}).then(function (response) {
-    return response.body;
-  });
-}
-
-function findAndModifyUser(query, modify, options) {
-  var id = options && options.id;
-  var env = options && options.env;
-
-  var api = createApi(env);
-
-  if (id) {
-    return modifyUser(api, 'users/' + id, modify);
-  } else {
-    return findUsers(api, query).then(function (users) {
-      if (users.length === 1) {
-        var user = users[0];
-        return modifyUser(api, user.href, modify).then(function (response) {
-          console.log(response.statusCode + ' => ' + JSON.stringify(response.body, null, 2));
-        });
-      } else if (users.length > 1) {
-        console.log('found more than one user');
-        users.forEach(function (user) {
-          console.log(JSON.stringify(user, null, 2));
-        });
-      } else {
-        console.log('no users found');
-      }
-    });
-  }
-}
-
 task('add-author <user-query> [--env <dev|prod>] [--id <user-id>]', function (args, options) {
-  return findAndModifyUser(args[0], function (user) {
+  return findAndModifyUser(createApi(options), args[0], function (user) {
     user.author = true;
   }, options);
 });
 
 task('add-admin <user-query> [--env <dev|prod>] [--id <user-id>]', function (args, options) {
-  return findAndModifyUser(args[0], function (user) {
+  return findAndModifyUser(createApi(options), args[0], function (user) {
     user.admin = true;
   }, options);
 });
@@ -107,5 +35,49 @@ task('undelete <href> [--env <env>]', function (args, options) {
     delete response.body.deleted;
 
     return api.put(response.body.href, response.body);
+  });
+});
+
+task('lexicon --env <env=dev>', function (args, options) {
+  var api = createApi(options.env);
+  return api.get('lexicon').then(function (response) {
+    console.log(JSON.stringify(response.body, null, 2))
+  });
+});
+
+task('put-lexicon --env <env=dev> <lexicon.json>', function (args, options) {
+  var file = args[0];
+  return fs.readFile(file, 'utf-8').then(function (content) {
+    var lexicon = JSON.parse(content);
+    var api = createApi(options);
+    return api.post('lexicon', lexicon).then(function (response) {
+      return response.statusCode + ' => ' + JSON.stringify(response.body, null, 2);
+    });
+  });
+});
+
+var sqlCreds = {
+  prod: {
+    server: "74.208.163.231\\SQLExpress",
+    database: "dbLexeme",
+    user: "LexemeUser",
+    password: "wsi824"
+  },
+  dev: {
+    user: "LexemeUser",
+    password: "wsi824",
+    server: "74.208.222.170",
+    database: "dbLexeme"
+  }
+};
+
+task('sqldump --env <env=dev>', function (args, options) {
+  require('pogo');
+  var loadQueriesFromSql = require('./tools/loadQueriesFromSql');
+
+  var creds = sqlCreds[options.env || 'dev'];
+
+  return loadQueriesFromSql(creds).then(function (lexicon) {
+    console.log(JSON.stringify(lexicon, null, 2));
   });
 });
