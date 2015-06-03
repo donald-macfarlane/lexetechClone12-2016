@@ -9,6 +9,10 @@ gulp
 
 Then go to http://localhost:4000/
 
+# Semantic UI
+
+You can customise the semantic ui by editing the files in `semantic/src/site` in order to compile the changes you need to run the semantic ui gulp file, do this by running `gulp --gulpfile=semantic/gulpfile.js` in the root directory of this repo.
+
 documentation
 -------------
 
