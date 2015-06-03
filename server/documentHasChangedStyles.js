@@ -10,9 +10,24 @@ module.exports = function(document, originalDocument) {
     var changedStyles = lexeme.response.changedStyles;
     var originalStyles = originalLexeme && originalLexeme.response.styles;
 
-    return Object.keys(styles).some(function (key) {
-      return changedStyles[key] && (!originalStyles || originalStyles[key] !== styles[key]);
+    var differentStyles = {};
+    var hasDifferences = false;
+
+    Object.keys(styles).forEach(function (key) {
+      if(changedStyles[key] && (!originalStyles || originalStyles[key] !== styles[key])) {
+        console.log('difference', key, styles[key]);
+        hasDifferences = true;
+        differentStyles[key] = styles[key];
+      }
     });
+
+    if (hasDifferences) {
+      return {
+        queryId: lexeme.query.id,
+        responseId: lexeme.response.id,
+        styles: differentStyles
+      };
+    }
   }
 
   function findOriginalLexeme(queryId, responseId) {
@@ -21,20 +36,26 @@ module.exports = function(document, originalDocument) {
     });
   }
 
-  function stylesAreDifferent(oldStyles, newStyles) {
-    return Object.keys(newStyles).some(function (key) {
-      return newStyles[key] !== oldStyles[key];
-    });
-  }
-
   if (originalDocument) {
-    return document.lexemes.some(function (lexeme) {
+    return prepareDifferences(document.lexemes.map(function (lexeme) {
       var originalLexeme = findOriginalLexeme(lexeme.query.id, lexeme.response.id);
       return lexemeHasChangedStyles(lexeme, originalLexeme);
-    });
+    }));
   } else {
-    return document.lexemes.some(function (lexeme) {
+    return prepareDifferences(document.lexemes.map(function (lexeme) {
       return lexemeHasChangedStyles(lexeme);
-    });
+    }));
   }
 };
+
+function prepareDifferences(allDifferences) {
+  var differences = allDifferences.filter(function (x) { return x; });
+
+  console.log('diffs', differences);
+
+  if (differences.length > 0) {
+    return differences;
+  } else {
+    return false;
+  }
+}
