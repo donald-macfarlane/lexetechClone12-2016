@@ -100,9 +100,9 @@ var queryComponent = prototype({
         renderButton(join('accept', h('br')), 'accept', self.history.accept.bind(self.history), selectedResponse),
         h('.query',
           query.query
-            ? h('ul.responses', {class: {overflow: query.responses.length >= 10}},
+            ? h('div.ui.selection.list.responses', {class: {overflow: query.responses.length >= 10}},
                 query.responses.map(function (response) {
-                  return h('li.response',
+                  return h('div.item.response',
                     {
                       class: {
                         selected: selectedResponse == response,
@@ -117,7 +117,7 @@ var queryComponent = prototype({
                         self.responseEditor.stopShowingResponse();
                       }
                     },
-                    h('a',
+                    h('a.content',
                       {
                         href: '#',
                         onclick: function (ev) {

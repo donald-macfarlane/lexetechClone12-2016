@@ -48,10 +48,6 @@ body {
       text-decoration: none;
       color: inherit;
       padding: 3px;
-
-      &:hover {
-        background-color: rgba(0, 0, 0, 0.10);
-      }
     }
   }
 }
@@ -230,15 +226,10 @@ body {
     }
 
     .query {
-      ul.responses {
-        list-style-type: none;
-        padding-left: 0;
+      .responses {
         height: 300px;
-        overflow-y: scroll;
-        -webkit-box-shadow: inset 0px 0px 11px -3px rgba(189,189,189,1);
-        -moz-box-shadow: inset 0px 0px 11px -3px rgba(189,189,189,1);
-        box-shadow: inset 0px 0px 11px -3px rgba(189,189,189,1);
         margin: 10px;
+        overflow-y: scroll;
 
         &.overflow {
 
@@ -261,35 +252,12 @@ body {
           }
         }
 
-        li.response {
+        .response {
           border: none;
           position: relative;
           padding: 5px;
           padding-right: 42px;
           border-left: 3px solid transparent;
-
-          &.selected {
-            background-color: fade(@accept-color, 12%);
-            border-left: 3px solid fade(@accept-color, 36%);
-
-            &:hover {
-              background-color: fade(@accept-color, 24%);
-            }
-          }
-
-          &.other {
-            background-color: fade(@accept-color, 4%);
-            border-left: 3px solid fade(@accept-color, 36%);
-
-            &:hover {
-              background-color: fade(@accept-color, 8%);
-            }
-
-            a::after {
-              content: '✔';
-              margin-left: 8px;
-            }
-          }
 
           &.editing {
             background-color: fade(@accept-color, 4%);
@@ -309,10 +277,8 @@ body {
             cursor: pointer;
           }
 
-          &:hover {
-            background-color: fade(@accept-color, 6%);
-            border-left: 3px solid fade(@accept-color, 36%);
 
+          &:hover {
             button.edit-response {
               display: inline;
             }
