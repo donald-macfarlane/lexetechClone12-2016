@@ -1,6 +1,14 @@
 lexeme
 ======
 
+# start
+
+```bash
+gulp
+```
+
+Then go to http://localhost:4000/
+
 documentation
 -------------
 
