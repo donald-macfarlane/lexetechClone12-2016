@@ -1,0 +1,14 @@
+A response was changed by {{user.firstName}} {{user.familyName}} ({{user.adminHref}})
+
+{{#lexemes}}
+{{query.name}} ({{query.authoringHref}})
+{{query.text}}
+
+{{response.text}}
+{{#styles}}
+
+{{style}}
+
+| {{#diffs}}{{#added}}+({{/added}}{{#removed}}-({{/removed}}{{{value}}}{{#added}}){{/added}}{{#removed}}){{/removed}}{{/diffs}}
+{{/styles}}
+{{/lexemes}}

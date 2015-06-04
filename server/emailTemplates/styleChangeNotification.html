@@ -1,0 +1,29 @@
+<html>
+  <head>
+    <style>
+      .added {
+        background-color: lightgreen;
+      }
+
+      .removed {
+        background-color: pink;
+        text-decoration: line-through;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>a response was changed by <a href="{{user.adminHref}}">{{user.firstName}} {{user.familyName}}</a></h1>
+
+    {{#lexemes}}
+      <h2><a href="{{query.authoringHref}}">{{query.name}}</a></h2>
+      <p>{{query.text}}</p>
+
+      <h2>{{response.text}}</h2>
+
+      {{#styles}}
+        <h3>{{style}}</h3>
+        {{#diffs}}{{#added}}<span class="added">{{/added}}{{#removed}}<span class="removed">{{/removed}}{{value}}{{#added}}</span>{{/added}}{{#removed}}</span>{{/removed}}{{/diffs}}
+      {{/styles}}
+    {{/lexemes}}
+  </body>
+</html>
