@@ -3388,6 +3388,14 @@ input::selection {
 /*******************************
          Site Overrides
 *******************************/
+
+.ui.button,
+.ui.button:hover {
+  border-radius: 0;
+  text-transform: uppercase;
+  background-color: #155203;
+  color: #ffffff;
+}
 /*!
  * # Semantic UI x.x - Divider
  * http://github.com/semantic-org/semantic-ui/
