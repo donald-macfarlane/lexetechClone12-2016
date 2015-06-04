@@ -5,10 +5,9 @@ var githubContent = require("./githubContent");
 var app = express();
 var mongoDb = require('./mongoDb');
 var errorhandler = require('errorhandler');
-var sendEmail = require('./sendEmail');
-var documentHasChangedStyles = require('./documentHasChangedStyles');
 var debug = require('debug')('lexenotes:api');
 var handleErrors = require('./handleErrors');
+var styleChangeNotifier = require('./styleChangeNotifier');
 
 function backup(redisDb, backupHttpism) {
   var github = githubContent(backupHttpism);
@@ -56,10 +55,10 @@ app.use('/', function (req, res, next) {
 
 app.use('/', function(req, res, next) {
   if (methodIsWrite(req.method)) {
-    var backupHttpism = app.get("backupHttpism");
+    var backupHttpism = app.get('backupHttpism');
 
     if (backupHttpism) {
-      delayBackup(app.get("backupDelay"))(app.get("db"), backupHttpism);
+      delayBackup(app.get('backupDelay'))(app.get('db'), backupHttpism);
     }
 
     return next();
@@ -381,19 +380,6 @@ function addDocumentHref(document, req) {
   return document;
 }
 
-function sendResponseChangedEmail() {
-  var smtpUrl = app.get('smtp url');
-
-  if (smtpUrl) {
-    return sendEmail(smtpUrl, {
-      from: app.get('system email') || 'Lexetech System <system@lexetech.com>',
-      to: app.get('admin email') || 'Lexetech Admin <admin@lexetech.com>',
-      subject: 'response change',
-      text: 'response was changed'
-    });
-  }
-}
-
 app.post("/user/documents", handleErrors(function(req, res) {
   var doc = req.body;
   incomingDocument(doc);
@@ -402,9 +388,7 @@ app.post("/user/documents", handleErrors(function(req, res) {
     outgoingDocument(document, req);
     res.set("location", document.href);
     res.send(document);
-    if (documentHasChangedStyles(document)) {
-      sendResponseChangedEmail();
-    }
+    return createStyleChangeNotifier(req).notifyOnStyleChange(document);
   });
 }));
 
@@ -417,6 +401,16 @@ app.get('/user/documents', function (req, res) {
   });
 });
 
+function createStyleChangeNotifier(req) {
+  return styleChangeNotifier({
+    smtpUrl: app.get('smtp url'),
+    systemEmail: app.get('system email'),
+    adminEmail: app.get('admin email'),
+    db: app.get('db'),
+    user: req.user
+  });
+}
+
 function putDocument(req, res) {
   var document = req.body;
   incomingDocument(document);
@@ -424,9 +418,7 @@ function putDocument(req, res) {
     return mongoDb.writeDocument(req.user.id, req.params.id, document).then(function() {
       outgoingDocument(document, req);
       res.send(document);
-      if (documentHasChangedStyles(document, originalDocument)) {
-        sendResponseChangedEmail();
-      }
+      return createStyleChangeNotifier(req).notifyOnStyleChange(document, originalDocument);
     });
   });
 }

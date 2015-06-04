@@ -7,5 +7,6 @@ module.exports = {
   root: router.route('/'),
   admin: router.route('/admin'),
   adminUser: router.route('/admin/users/:userId'),
-  resetPassword: router.route('/resetpassword/:token')
+  resetPassword: router.route('/resetpassword/:token'),
+  authorQuery: router.route('/authoring/blocks/:blockId/queries/:queryId')
 };

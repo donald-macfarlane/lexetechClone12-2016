@@ -15,7 +15,6 @@ module.exports = function(document, originalDocument) {
 
     Object.keys(styles).forEach(function (key) {
       if(changedStyles[key] && (!originalStyles || originalStyles[key] !== styles[key])) {
-        console.log('difference', key, styles[key]);
         hasDifferences = true;
         differentStyles[key] = styles[key];
       }
@@ -50,8 +49,6 @@ module.exports = function(document, originalDocument) {
 
 function prepareDifferences(allDifferences) {
   var differences = allDifferences.filter(function (x) { return x; });
-
-  console.log('diffs', differences);
 
   if (differences.length > 0) {
     return differences;
