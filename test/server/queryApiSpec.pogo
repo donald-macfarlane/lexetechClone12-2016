@@ -201,6 +201,12 @@ describe "query api"
 
       api.post('/api/lexicon', lexicon1)!
       lexicon2 = api.get('/api/lexicon')!.body
+
+      lexicon1.blocks.0.queries.0.block = '1'
+      lexicon1.blocks.0.queries.1.block = '1'
+      lexicon1.blocks.1.queries.0.block = '2'
+      lexicon1.blocks.1.queries.1.block = '2'
+
       expect(lexicon2).to.eql(lexicon1)
 
     context 'given a single query in the lexicon'
