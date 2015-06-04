@@ -131,7 +131,7 @@ function page(req, js) {
   return {
     script: js,
     user: req.user
-      ? _.pick(req.user, "email", "author", "admin")
+      ? _.pick(req.user, 'email', 'author', 'admin', 'id')
       : undefined,
     flash: req.flash("error")
   };

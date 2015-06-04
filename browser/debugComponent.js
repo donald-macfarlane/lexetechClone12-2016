@@ -92,7 +92,8 @@ var debugComponent = prototype({
 
     function predicantNames(predicants) {
       return Object.keys(predicants).map(function (p) {
-        return self.predicants[p].name;
+        var predicant = self.predicants[p];
+        return predicant? predicant.name: p;
       });
     }
 

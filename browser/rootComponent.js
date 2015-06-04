@@ -53,6 +53,7 @@ var rootComponent = prototype({
   queryGraph: function () {
     return this._queryGraph || (
       this._queryGraph = buildGraph({
+        startingPredicants: ['H&P', 'any-user', 'user:' + this.user.id],
         lexemeApi: this.lexemeApi(),
         cache: false
       })
