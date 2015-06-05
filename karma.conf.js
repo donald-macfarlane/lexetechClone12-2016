@@ -21,6 +21,7 @@ module.exports = function(config) {
       "node_modules/jquery/dist/jquery.js",
       // "semantic/dist/themes/default/assets/fonts/icons.woff2",
       // "semantic/dist/themes/default/assets/fonts/icons.woff",
+      "node_modules/node-ckeditor/ckeditor/ckeditor.js",
       "semantic/dist/semantic.js",
       "semantic/dist/semantic.min.css",
       "test/browser/**/*Spec.{js,pogo}"
