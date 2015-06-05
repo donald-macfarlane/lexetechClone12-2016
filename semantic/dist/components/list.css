@@ -867,12 +867,6 @@ ol.ui.horizontal.list li:before,
 
 
 /*******************************
-         Theme Overrides
-*******************************/
-
-
-
-/*******************************
     User Variable Overrides
 *******************************/
 
@@ -906,3 +900,9 @@ ol.ui.list .item:hover,
   border-radius: 0;
   background-color: #fbcc94 !important;
 }
+
+
+/*******************************
+    User Variable Overrides
+*******************************/
+

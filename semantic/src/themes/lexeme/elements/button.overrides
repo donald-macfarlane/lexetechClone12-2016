@@ -1,0 +1,10 @@
+/*******************************
+         Site Overrides
+*******************************/
+
+.ui.button, .ui.button:hover{
+  border-radius:    0;
+  text-transform:   uppercase;
+  background-color: @buttonBackgroundColor;
+  color:            @buttonTextColor;
+}

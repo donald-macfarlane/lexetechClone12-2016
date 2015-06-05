@@ -22,7 +22,7 @@
   border: none;
   vertical-align: baseline;
   background-color: #e0e0e0;
-  color: rgba(0, 0, 0, 0.6);
+  color: rgba(0, 0, 0, 0.8);
   font-family: 'Lato', 'Helvetica Neue', Arial, Helvetica, sans-serif;
   margin: 0em 0.25em 0em 0em;
   padding: 0.78571em 1.5em 0.78571em;
@@ -137,7 +137,7 @@
   width: 1.2857em;
   height: 1.2857em;
   border-radius: 500rem;
-  border: 0.2em solid rgba(0, 0, 0, 0.15);
+  border: 0.2em solid rgba(255, 255, 255, 0.15);
 }
 .ui.loading.button:after {
   position: absolute;
@@ -638,7 +638,7 @@
 .ui.basic.button {
   background: transparent !important;
   background-image: none;
-  color: rgba(0, 0, 0, 0.6) !important;
+  color: rgba(0, 0, 0, 0.8) !important;
   font-weight: normal;
   border-radius: 0.2857rem;
   text-transform: none;
@@ -1181,7 +1181,7 @@
 .ui.basic.black.buttons .button,
 .ui.basic.black.button {
   box-shadow: 0px 0px 0px 2px rgba(39, 41, 43, 0.15) inset !important;
-  color: rgba(0, 0, 0, 0.6) !important;
+  color: rgba(0, 0, 0, 0.8) !important;
 }
 .ui.basic.black.buttons .button:hover,
 .ui.basic.black.button:hover {
@@ -1262,7 +1262,7 @@
 .ui.blue.buttons .button,
 .ui.blue.button {
   background-color: #3b83c0;
-  color: #ffffff;
+  color: #3b83c0;
   text-shadow: none;
   background-image: none;
 }
@@ -1278,7 +1278,7 @@
 .ui.blue.buttons .button:active,
 .ui.blue.button:active {
   background-color: #3370a5;
-  color: #ffffff;
+  color: #3b83c0;
   text-shadow: none;
 }
 .ui.blue.buttons .active.button,
@@ -1286,7 +1286,7 @@
 .ui.blue.active.button,
 .ui.blue.button .active.button:active {
   background-color: #3576ac;
-  color: #ffffff;
+  color: #3b83c0;
   text-shadow: none;
 }
 
@@ -1294,7 +1294,7 @@
 .ui.basic.blue.buttons .button,
 .ui.basic.blue.button {
   box-shadow: 0px 0px 0px 2px rgba(39, 41, 43, 0.15) inset !important;
-  color: rgba(0, 0, 0, 0.6) !important;
+  color: rgba(0, 0, 0, 0.8) !important;
 }
 .ui.basic.blue.buttons .button:hover,
 .ui.basic.blue.button:hover {
@@ -1375,7 +1375,7 @@
 .ui.green.buttons .button,
 .ui.green.button {
   background-color: #5bbd72;
-  color: #ffffff;
+  color: #1ebc30;
   text-shadow: none;
   background-image: none;
 }
@@ -1391,7 +1391,7 @@
 .ui.green.buttons .button:active,
 .ui.green.button:active {
   background-color: #46ae5f;
-  color: #ffffff;
+  color: #1ebc30;
   text-shadow: none;
 }
 .ui.green.buttons .active.button,
@@ -1399,7 +1399,7 @@
 .ui.green.active.button,
 .ui.green.button .active.button:active {
   background-color: #49b562;
-  color: #ffffff;
+  color: #1ebc30;
   text-shadow: none;
 }
 
@@ -1407,7 +1407,7 @@
 .ui.basic.green.buttons .button,
 .ui.basic.green.button {
   box-shadow: 0px 0px 0px 2px rgba(39, 41, 43, 0.15) inset !important;
-  color: rgba(0, 0, 0, 0.6) !important;
+  color: rgba(0, 0, 0, 0.8) !important;
 }
 .ui.basic.green.buttons .button:hover,
 .ui.basic.green.button:hover {
@@ -1488,7 +1488,7 @@
 .ui.orange.buttons .button,
 .ui.orange.button {
   background-color: #e07b53;
-  color: #ffffff;
+  color: #e07b53;
   text-shadow: none;
   background-image: none;
 }
@@ -1504,7 +1504,7 @@
 .ui.orange.buttons .button:active,
 .ui.orange.button:active {
   background-color: #db6435;
-  color: #ffffff;
+  color: #e07b53;
   text-shadow: none;
 }
 .ui.orange.buttons .active.button,
@@ -1512,7 +1512,7 @@
 .ui.orange.active.button,
 .ui.orange.button .active.button:active {
   background-color: #dc6a3d;
-  color: #ffffff;
+  color: #e07b53;
   text-shadow: none;
 }
 
@@ -1520,7 +1520,7 @@
 .ui.basic.orange.buttons .button,
 .ui.basic.orange.button {
   box-shadow: 0px 0px 0px 2px rgba(39, 41, 43, 0.15) inset !important;
-  color: rgba(0, 0, 0, 0.6) !important;
+  color: rgba(0, 0, 0, 0.8) !important;
 }
 .ui.basic.orange.buttons .button:hover,
 .ui.basic.orange.button:hover {
@@ -1601,7 +1601,7 @@
 .ui.pink.buttons .button,
 .ui.pink.button {
   background-color: #d9499a;
-  color: #ffffff;
+  color: #d9499a;
   text-shadow: none;
   background-image: none;
 }
@@ -1617,7 +1617,7 @@
 .ui.pink.buttons .button:active,
 .ui.pink.button:active {
   background-color: #d22c8a;
-  color: #ffffff;
+  color: #d9499a;
   text-shadow: none;
 }
 .ui.pink.buttons .active.button,
@@ -1625,7 +1625,7 @@
 .ui.pink.active.button,
 .ui.pink.button .active.button:active {
   background-color: #d5348e;
-  color: #ffffff;
+  color: #d9499a;
   text-shadow: none;
 }
 
@@ -1633,7 +1633,7 @@
 .ui.basic.pink.buttons .button,
 .ui.basic.pink.button {
   box-shadow: 0px 0px 0px 2px rgba(39, 41, 43, 0.15) inset !important;
-  color: rgba(0, 0, 0, 0.6) !important;
+  color: rgba(0, 0, 0, 0.8) !important;
 }
 .ui.basic.pink.buttons .button:hover,
 .ui.basic.pink.button:hover {
@@ -1714,7 +1714,7 @@
 .ui.purple.buttons .button,
 .ui.purple.button {
   background-color: #564f8a;
-  color: #ffffff;
+  color: #564f8a;
   text-shadow: none;
   background-image: none;
 }
@@ -1730,7 +1730,7 @@
 .ui.purple.buttons .button:active,
 .ui.purple.button:active {
   background-color: #484273;
-  color: #ffffff;
+  color: #564f8a;
   text-shadow: none;
 }
 .ui.purple.buttons .active.button,
@@ -1738,7 +1738,7 @@
 .ui.purple.active.button,
 .ui.purple.button .active.button:active {
   background-color: #4c467a;
-  color: #ffffff;
+  color: #564f8a;
   text-shadow: none;
 }
 
@@ -1746,7 +1746,7 @@
 .ui.basic.purple.buttons .button,
 .ui.basic.purple.button {
   box-shadow: 0px 0px 0px 2px rgba(39, 41, 43, 0.15) inset !important;
-  color: rgba(0, 0, 0, 0.6) !important;
+  color: rgba(0, 0, 0, 0.8) !important;
 }
 .ui.basic.purple.buttons .button:hover,
 .ui.basic.purple.button:hover {
@@ -1827,7 +1827,7 @@
 .ui.red.buttons .button,
 .ui.red.button {
   background-color: #d95c5c;
-  color: #ffffff;
+  color: #d95c5c;
   text-shadow: none;
   background-image: none;
 }
@@ -1843,7 +1843,7 @@
 .ui.red.buttons .button:active,
 .ui.red.button:active {
   background-color: #d23f3f;
-  color: #ffffff;
+  color: #d95c5c;
   text-shadow: none;
 }
 .ui.red.buttons .active.button,
@@ -1851,7 +1851,7 @@
 .ui.red.active.button,
 .ui.red.button .active.button:active {
   background-color: #d44747;
-  color: #ffffff;
+  color: #d95c5c;
   text-shadow: none;
 }
 
@@ -1859,7 +1859,7 @@
 .ui.basic.red.buttons .button,
 .ui.basic.red.button {
   box-shadow: 0px 0px 0px 2px rgba(39, 41, 43, 0.15) inset !important;
-  color: rgba(0, 0, 0, 0.6) !important;
+  color: rgba(0, 0, 0, 0.8) !important;
 }
 .ui.basic.red.buttons .button:hover,
 .ui.basic.red.button:hover {
@@ -1940,7 +1940,7 @@
 .ui.teal.buttons .button,
 .ui.teal.button {
   background-color: #00b5ad;
-  color: #ffffff;
+  color: #10a3a3;
   text-shadow: none;
   background-image: none;
 }
@@ -1956,7 +1956,7 @@
 .ui.teal.buttons .button:active,
 .ui.teal.button:active {
   background-color: #00918b;
-  color: #ffffff;
+  color: #10a3a3;
   text-shadow: none;
 }
 .ui.teal.buttons .active.button,
@@ -1964,7 +1964,7 @@
 .ui.teal.active.button,
 .ui.teal.button .active.button:active {
   background-color: #009c95;
-  color: #ffffff;
+  color: #10a3a3;
   text-shadow: none;
 }
 
@@ -1972,7 +1972,7 @@
 .ui.basic.teal.buttons .button,
 .ui.basic.teal.button {
   box-shadow: 0px 0px 0px 2px rgba(39, 41, 43, 0.15) inset !important;
-  color: rgba(0, 0, 0, 0.6) !important;
+  color: rgba(0, 0, 0, 0.8) !important;
 }
 .ui.basic.teal.buttons .button:hover,
 .ui.basic.teal.button:hover {
@@ -2053,7 +2053,7 @@
 .ui.yellow.buttons .button,
 .ui.yellow.button {
   background-color: #f2c61f;
-  color: #ffffff;
+  color: #b58105;
   text-shadow: none;
   background-image: none;
 }
@@ -2069,7 +2069,7 @@
 .ui.yellow.buttons .button:active,
 .ui.yellow.button:active {
   background-color: #e0b40d;
-  color: #ffffff;
+  color: #b58105;
   text-shadow: none;
 }
 .ui.yellow.buttons .active.button,
@@ -2077,7 +2077,7 @@
 .ui.yellow.active.button,
 .ui.yellow.button .active.button:active {
   background-color: #eabc0e;
-  color: #ffffff;
+  color: #b58105;
   text-shadow: none;
 }
 
@@ -2085,7 +2085,7 @@
 .ui.basic.yellow.buttons .button,
 .ui.basic.yellow.button {
   box-shadow: 0px 0px 0px 2px rgba(39, 41, 43, 0.15) inset !important;
-  color: rgba(0, 0, 0, 0.6) !important;
+  color: rgba(0, 0, 0, 0.8) !important;
 }
 .ui.basic.yellow.buttons .button:hover,
 .ui.basic.yellow.button:hover {
@@ -2380,12 +2380,6 @@
 
 
 /*******************************
-         Theme Overrides
-*******************************/
-
-
-
-/*******************************
          Site Overrides
 *******************************/
 
@@ -2396,3 +2390,9 @@
   background-color: #155203;
   color: #ffffff;
 }
+
+
+/*******************************
+         Site Overrides
+*******************************/
+

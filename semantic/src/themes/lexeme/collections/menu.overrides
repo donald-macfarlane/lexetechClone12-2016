@@ -1,0 +1,9 @@
+.ui.tabular.menu {
+  .active.item, .item {
+    background-color: @buttonBackgroundColor; 
+    color:            #fff;
+    border:           0;
+    border-radius:    0;
+    text-transform:   uppercase 
+  }
+}
