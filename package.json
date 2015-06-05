@@ -85,6 +85,7 @@
     "passport-local": "^1.0.0",
     "passport-local-mongoose": "^1.0.0",
     "plastiq": "1.16.0",
+    "plastiq-ckeditor": "1.0.1",
     "plastiq-medium-editor": "1.0.3",
     "plastiq-router": "2.5.0",
     "plastiq-semantic-ui": "1.3.0",
