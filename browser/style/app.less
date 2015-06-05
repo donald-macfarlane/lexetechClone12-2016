@@ -4,6 +4,9 @@ body {
   font-family: helvetica;
   margin: 0;
   padding: 0;
+  .main {
+    background: url(/source/background.png);
+  }
 }
 
 .debug {
@@ -55,10 +58,19 @@ body {
 }
 
 .top-menu {
-  background-color: #E7E8D1;
-  height: 50px;
-  line-height: 50px;
+  height: 237px;
   border-bottom: 1px solid #D3CEAA;
+  background: url(/source/header-background.png) repeat-x;
+
+  .logo {
+    width: 302px;
+    height: 151px;
+    background: url(/source/logo.png) no-repeat;
+    position: absolute;
+    left: 147px;
+    top: 29px;
+  }
+
   .tabs {
     display: inline-block;
     position: absolute;
@@ -153,6 +165,9 @@ body {
 .content {
   position: relative;
   padding: 10px;
+  width: 1024px;
+  margin: 0 auto;
+  background: url(/source/content-background.png);
 }
 
 .progress() {
@@ -209,6 +224,7 @@ body {
 }
 
 .report {
+  background-color: #f2f1f1;
   .query-response-editor {
     display: flex;
     flex-flow: row wrap;

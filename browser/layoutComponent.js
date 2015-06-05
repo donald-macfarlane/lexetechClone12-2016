@@ -10,6 +10,7 @@ module.exports = function (model, contents) {
 
     return h('div.main',
       h('div.top-menu',
+        h('div.logo'),
         topMenuTabs(model),
         authStatus(model.user)
       ),
