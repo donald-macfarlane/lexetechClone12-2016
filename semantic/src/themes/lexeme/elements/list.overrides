@@ -4,21 +4,25 @@
 
 ul.ui.list .item,
 ol.ui.list .item,
-.ui.list .item {
-  a, a:hover {
-    color: #094a2b !important;
-  }
+.ui.list, .ui.selection.list {
+  .item {
+    a, a:hover {
+      color: #094a2b !important;
+    }
 
-  &:nth-child(odd) {
-    background-color: #fff;
-  }
+    &:nth-child(odd) {
+      background-color: #fff;
+    }
 
-  &:nth-child(even) {
-    background-color: #f4f3f3;
-  }
+    &:nth-child(even) {
+      background-color: #f4f3f3;
+    }
 
-  &.other, &.selected, &:hover {
     border-radius: 0;
-    background-color: #fbcc94 !important;
+
+    &.other, &.selected, &:hover {
+      border-radius: 0;
+      background-color: #fbcc94 !important;
+    }
   }
 }

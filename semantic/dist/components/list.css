@@ -870,33 +870,46 @@ ol.ui.horizontal.list li:before,
     User Variable Overrides
 *******************************/
 
-ul.ui.list .item a,
-ol.ui.list .item a,
+ul.ui.list .item .item,
+ol.ui.list .item .item,
+.ui.list .item,
+.ui.selection.list .item {
+  border-radius: 0;
+}
+ul.ui.list .item .item a,
+ol.ui.list .item .item a,
 .ui.list .item a,
-ul.ui.list .item a:hover,
-ol.ui.list .item a:hover,
-.ui.list .item a:hover {
+.ui.selection.list .item a,
+ul.ui.list .item .item a:hover,
+ol.ui.list .item .item a:hover,
+.ui.list .item a:hover,
+.ui.selection.list .item a:hover {
   color: #094a2b !important;
 }
-ul.ui.list .item:nth-child(odd),
-ol.ui.list .item:nth-child(odd),
-.ui.list .item:nth-child(odd) {
+ul.ui.list .item .item:nth-child(odd),
+ol.ui.list .item .item:nth-child(odd),
+.ui.list .item:nth-child(odd),
+.ui.selection.list .item:nth-child(odd) {
   background-color: #fff;
 }
-ul.ui.list .item:nth-child(even),
-ol.ui.list .item:nth-child(even),
-.ui.list .item:nth-child(even) {
+ul.ui.list .item .item:nth-child(even),
+ol.ui.list .item .item:nth-child(even),
+.ui.list .item:nth-child(even),
+.ui.selection.list .item:nth-child(even) {
   background-color: #f4f3f3;
 }
-ul.ui.list .item.other,
-ol.ui.list .item.other,
+ul.ui.list .item .item.other,
+ol.ui.list .item .item.other,
 .ui.list .item.other,
-ul.ui.list .item.selected,
-ol.ui.list .item.selected,
+.ui.selection.list .item.other,
+ul.ui.list .item .item.selected,
+ol.ui.list .item .item.selected,
 .ui.list .item.selected,
-ul.ui.list .item:hover,
-ol.ui.list .item:hover,
-.ui.list .item:hover {
+.ui.selection.list .item.selected,
+ul.ui.list .item .item:hover,
+ol.ui.list .item .item:hover,
+.ui.list .item:hover,
+.ui.selection.list .item:hover {
   border-radius: 0;
   background-color: #fbcc94 !important;
 }
