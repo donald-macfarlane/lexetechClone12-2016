@@ -6,6 +6,13 @@ body {
   padding: 0;
   .main {
     background: url(/source/background.png);
+    > .content {
+      position: relative;
+      padding: 10px;
+      width: 1024px;
+      margin: 0 auto;
+      background: url(/source/content-background.png);
+    }
   }
 }
 
@@ -162,13 +169,6 @@ body {
   border-color: #ebccd1;
 }
 
-.content {
-  position: relative;
-  padding: 10px;
-  width: 1024px;
-  margin: 0 auto;
-  background: url(/source/content-background.png);
-}
 
 .progress() {
   background: repeating-linear-gradient(
