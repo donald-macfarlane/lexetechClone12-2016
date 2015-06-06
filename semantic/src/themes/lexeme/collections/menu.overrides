@@ -1,9 +1,10 @@
 .ui.tabular.menu {
-  .active.item, .item {
-    background-color: @buttonBackgroundColor; 
-    color:            #fff;
-    border:           0;
-    border-radius:    0;
-    text-transform:   uppercase 
+  .item {
+    text-transform:   uppercase;
+    &:hover {
+      background-color: @highlightedBackgroundColor;
+      color:            @highlightedTextColor;
+      border-radius:    @tabularBorderRadius @tabularBorderRadius 0px 0px;
+    }
   }
 }

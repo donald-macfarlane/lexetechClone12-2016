@@ -2,9 +2,16 @@
          Site Overrides
 *******************************/
 
-.ui.button, .ui.button:hover{
+.ui.button {
   border-radius:    0;
   text-transform:   uppercase;
-  background-color: @buttonBackgroundColor;
-  color:            @buttonTextColor;
+  border:           1px solid @solidBorderColor;
+  background-color: @primaryBackgroundColor;
+  padding:          0.5em 2em;
 }
+
+.ui.button:hover{
+  background-color: @highlightedBackgroundColor;
+  color:            @highlightedTextColor;
+}
+

@@ -22,7 +22,7 @@
   padding: 0.9285em 1.5em 0.9285em 2.25em;
   background: #ffffff;
   color: rgba(0, 0, 0, 0.8);
-  box-shadow: 0px 0px 0px 1px #d4d4d5;
+  box-shadow: 0px 0px 0px 1px #155203;
   border-radius: 0em;
 }
 .ui.steps .step:after {
@@ -35,8 +35,8 @@
   background-color: #ffffff;
   width: 1.5em;
   height: 1.5em;
-  border-bottom: 1px solid rgba(39, 41, 43, 0.15);
-  border-right: 1px solid rgba(39, 41, 43, 0.15);
+  border-bottom: 1px solid #155203;
+  border-right: 1px solid #155203;
   -webkit-transform: translateY(-50%) translateX(50%) rotate(-45deg);
       -ms-transform: translateY(-50%) translateX(50%) rotate(-45deg);
           transform: translateY(-50%) translateX(50%) rotate(-45deg);

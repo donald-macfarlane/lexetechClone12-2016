@@ -2,4 +2,11 @@
      User Global Variables
 *******************************/
 @buttonBackgroundColor:      #155203;
-@buttonTextColor:            #fff;
+@borderColor:                #155203;
+@solidBorderColor:           @borderColor;
+
+@primaryTextColor:           #155203;
+@primaryBackgroundColor:     #fff;
+
+@highlightedTextColor:       #fff;
+@highlightedBackgroundColor: #155203;
