@@ -92,6 +92,7 @@ module.exports = prototype({
         self.query.render()
       ),
       h('.document-tabs',
+        h('h3', 'Report'),
         semanticUi.tabs(
           '.ui.top.attached.tabular.menu',
           {
@@ -120,7 +121,15 @@ module.exports = prototype({
               }
             ]
           }
-        )
+        ),
+        h('.actions', [
+          h('.ui.button', 'Print'),
+          h('.ui.button', 'Save Work'),
+          h('.ui.button', 'Copy'),
+          h('.ui.button', 'Save to Vault'),
+          h('.ui.button', 'Save as Template'),
+          h('.ui.button', 'Discard')
+        ])
       )
     );
   },

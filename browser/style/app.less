@@ -224,7 +224,12 @@ body {
 }
 
 .report {
-  background-color: #f2f1f1;
+  .query-response-editor, .document-tabs {
+    background-color: #f2f1f1;
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+
   .query-response-editor {
     display: flex;
     flex-flow: row wrap;
@@ -236,6 +241,8 @@ body {
       border-style:   solid;
       padding:        10px;
       text-transform: uppercase;
+      margin:         -15px;
+      margin-bottom:  15px;
     }
 
     .button.accept {
@@ -354,6 +361,9 @@ body {
   }
 
   .document-tabs {
+    .actions {
+      text-align: right;
+    }
     .document {
       list-style-type: none;
       padding: 0;
