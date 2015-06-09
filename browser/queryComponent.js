@@ -142,8 +142,7 @@ var queryComponent = prototype({
           h('.buttons',
             renderButton('undo', 'undo', self.undo.bind(self), self.history.canUndo()),
             renderButton('omit', 'omit', self.omit.bind(self)),
-            renderButton('skip', 'skip', self.skip.bind(self)),
-            renderButton('redo', 'redo', function(){ alert('not yet implemented'); }) 
+            renderButton('skip', 'skip', self.skip.bind(self))
           )
         ),
         self.responseEditor.render()
