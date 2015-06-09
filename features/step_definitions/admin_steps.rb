@@ -10,12 +10,12 @@ When(/^I create a new user "(.*?)" with email "(.*?)"$/) do |name, email|
   familyName = name.split[1]
 
   click_on 'Admin'
-  find('.button', text: 'add user').click
+  find('.button', text: 'ADD USER').click
   @new_user_email = email
   find('.user .first-name input').set(firstName)
   find('.user .family-name input').set(familyName)
   find('.user .email input').set(email)
-  find('.button', text: 'Create').click
+  find('.button', text: 'CREATE').click
 end
 
 Then(/^I can copy the signup link$/) do
