@@ -37,12 +37,14 @@ describe('documentHasChangedStyles', function () {
       var document = {
         lexemes: [
           lexeme(),
-          lexeme({styles: {style1: 'changed style1', style2: 'changed style2'}}),
+          lexeme({queryId: '2', responseId: '1', styles: {style1: 'changed style1', style2: 'changed style2'}}),
           lexeme()
         ]
       };
 
-      expect(documentHasChangedStyles(document)).to.be.true;
+      expect(documentHasChangedStyles(document)).to.eql([
+        {queryId: '2', responseId: '1', styles: {style1: 'changed style1', style2: 'changed style2'}}
+      ]);
     });
 
     it('has changed styles when the document contains lexemes with changed styles', function () {
@@ -70,14 +72,17 @@ describe('documentHasChangedStyles', function () {
 
       var document = {
         lexemes: [
-          lexeme({queryId: 1}),
-          lexeme({queryId: 2, styles: {style1: 'changed style1', style2: 'changed style2'}}),
-          lexeme({queryId: 3}),
-          lexeme({queryId: 4, styles: {style1: 'changed style1', style2: 'changed style2'}}),
+          lexeme({queryId: 1, responseId: '2'}),
+          lexeme({queryId: 2, responseId: '3', styles: {style1: 'changed style1', style2: 'changed style2'}}),
+          lexeme({queryId: 3, responseId: '1'}),
+          lexeme({queryId: 4, responseId: '4', styles: {style1: 'changed style1', style2: 'changed style2'}}),
         ]
       };
 
-      expect(documentHasChangedStyles(document, originalDocument)).to.be.true;
+      expect(documentHasChangedStyles(document, originalDocument)).to.eql([
+        {queryId: 2, responseId: '3', styles: {style1: 'changed style1', style2: 'changed style2'}},
+        {queryId: 4, responseId: '4', styles: {style1: 'changed style1', style2: 'changed style2'}}
+      ]);
     });
 
     it('is not changed when new document has an additional lexeme with original styles', function () {
@@ -105,7 +110,7 @@ describe('documentHasChangedStyles', function () {
       var originalDocument = {
         lexemes: [
           lexeme({queryId: 1}),
-          lexeme({queryId: 2, styles: {style1: 'changed style1', style2: 'changed style2'}}),
+          lexeme({queryId: 2, responseId: 3, styles: {style1: 'changed style1', style2: 'changed style2'}}),
           lexeme({queryId: 3})
         ]
       };
@@ -113,12 +118,14 @@ describe('documentHasChangedStyles', function () {
       var document = {
         lexemes: [
           lexeme({queryId: 1}),
-          lexeme({queryId: 2, styles: {style1: 'changed style1 (new)', style2: 'changed style2'}}),
+          lexeme({queryId: 2, responseId: 3, styles: {style1: 'changed style1 (new)', style2: 'changed style2'}}),
           lexeme({queryId: 3})
         ]
       };
 
-      expect(documentHasChangedStyles(document, originalDocument)).to.be.true;
+      expect(documentHasChangedStyles(document, originalDocument)).to.eql([
+        {queryId: 2, responseId: 3, styles: {style1: 'changed style1 (new)'}}
+      ]);
     });
 
     it('is not changed when new document has reverted an existing lexeme style', function () {

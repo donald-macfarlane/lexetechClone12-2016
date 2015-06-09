@@ -316,6 +316,10 @@ module.exports = function() {
         function writeBlockQueries(block) {
           block.id = String(block.id);
           if (block.queries) {
+            block.queries.forEach(function (query) {
+              query.block = block.id;
+            });
+
             return blockQueries.addAll(block.id, block.queries, {keepIds: true});
           }
         }
@@ -421,14 +425,17 @@ module.exports = function() {
     },
 
     insertQueryBefore: function(blockId, queryId, query) {
+      query.block = blockId;
       return blockQueries.insertBefore(blockId, queryId, query);
     },
 
     insertQueryAfter: function(blockId, queryId, query) {
+      query.block = blockId;
       return blockQueries.insertAfter(blockId, queryId, query);
     },
 
     addQuery: function(blockId, query) {
+      query.block = blockId;
       return blockQueries.add(blockId, query);
     },
 

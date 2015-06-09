@@ -201,6 +201,12 @@ describe "query api"
 
       api.post('/api/lexicon', lexicon1)!
       lexicon2 = api.get('/api/lexicon')!.body
+
+      lexicon1.blocks.0.queries.0.block = '1'
+      lexicon1.blocks.0.queries.1.block = '1'
+      lexicon1.blocks.1.queries.0.block = '2'
+      lexicon1.blocks.1.queries.1.block = '2'
+
       expect(lexicon2).to.eql(lexicon1)
 
     context 'given a single query in the lexicon'
@@ -418,9 +424,9 @@ describe "query api"
 
         queries = api.get! "/api/blocks/#(block.id)/queries".body
 
-        expect(queries.length).to.equal 1
-        expect(queries.0.id).to.equal(query.id)
-        expect(queries.0.name).to.equal('a query')
+        expect([q <- queries, { id = q.id, name = q.name, block = q.block }]).to.eql [
+          { id = '1', name = 'a query', block = '1' }
+        ]
 
       it 'ignores the query id on creation'
         query = api.post!("/api/blocks/#(block.id)/queries", {
@@ -493,8 +499,10 @@ describe "query api"
           expect(queries.length).to.equal 2
           expect(queries.0.id).to.equal(query.id)
           expect(queries.0.name).to.equal('first query')
+          expect(queries.0.block).to.equal('1')
           expect(queries.1.id).to.equal(newQuery.id)
           expect(queries.1.name).to.equal('a query')
+          expect(queries.1.block).to.equal('1')
 
         it 'can insert a query into a block after another query'
           query = api.post!("/api/blocks/#(block.id)/queries", {
@@ -507,8 +515,10 @@ describe "query api"
           expect(queries.length).to.equal 2
           expect(queries.0.id).to.equal(newQuery.id)
           expect(queries.0.name).to.equal('a query')
+          expect(queries.0.block).to.equal('1')
           expect(queries.1.id).to.equal(query.id)
           expect(queries.1.name).to.equal('last query')
+          expect(queries.1.block).to.equal('1')
 
       context 'when there are three queries'
         query1 = nil

@@ -17,13 +17,13 @@ task('test', function () {
 });
 
 task('add-author <user-query> [--env <dev|prod>] [--id <user-id>]', function (args, options) {
-  return findAndModifyUser(createApi(options), args[0], function (user) {
+  return findAndModifyUser(createApi(options.env), args[0], function (user) {
     user.author = true;
   }, options);
 });
 
 task('add-admin <user-query> [--env <dev|prod>] [--id <user-id>]', function (args, options) {
-  return findAndModifyUser(createApi(options), args[0], function (user) {
+  return findAndModifyUser(createApi(options.env), args[0], function (user) {
     user.admin = true;
   }, options);
 });

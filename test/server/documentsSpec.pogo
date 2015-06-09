@@ -5,6 +5,7 @@ _ = require 'underscore'
 Document = require '../../server/models/document'
 startSmtpServer = require './smtpServer'
 retry = require 'trytryagain'
+lexiconBuilder = require '../lexiconBuilder'
 
 describe 'documents'
   port = 12345
@@ -15,6 +16,8 @@ describe 'documents'
     app.set 'apiUsers' {
       "bob:password" = {
         email = 'bob@example.com'
+        firstName = 'Bob'
+        familyName = 'Jacobs'
       }
     }
     server := app.listen (port)
@@ -126,90 +129,234 @@ describe 'documents'
           emailsReceived.push(email)
       }
       app.set 'smtp url' (smtpServer.url)
+      db = app.get 'db'
+      lexicon = lexiconBuilder()
+      db.setLexicon(lexicon.queries [
+        {
+          id = 1
+
+          responses [
+            {
+              id = 1
+
+              styles = {
+                style1 'not changed'
+                style2 'not changed'
+              }
+            }
+          ]
+        }
+        {
+          id = 2
+
+          responses [
+            {
+              id = 1
+
+              styles = {
+                style1 'not changed'
+                style2 'not changed'
+              }
+            }
+          ]
+        }
+      ])!
 
     afterEach
       smtpServer.stop()
 
-    lexemeWithChangedStyles(queryId = 1, responseId = 1) = {
-      query = {
-        id = queryId
-      }
-      response = {
-        id = responseId
-        styles {
-          style1 = 'changed'
-          style2 = 'not changed'
-        }
-        changedStyles = {
-          style1 = true
-          style2 = false
-        }
-      }
-    }
+    describe 'spotting differences'
+      beforeEach
+        db = app.get 'db'
+        lexicon = lexiconBuilder()
+        db.setLexicon(lexicon.queries [
+          {
+            id = 1
 
-    lexemeWithOriginalStyles(queryId = 1, responseId = 1) = {
-      query = {
-        id = queryId
-      }
-      response = {
-        id = responseId
-        styles {
-          style1 = 'not changed'
-          style2 = 'not changed'
-        }
-        changedStyles = {
-          style1 = false
-          style2 = false
-        }
-      }
-    }
-      
-    describe 'when creating the document'
-      it 'emails the administrator when a change is made to a response when first creating the document'
-        api.post!('/api/user/documents', {
-          lexemes = [
-            lexemeWithChangedStyles()
-          ]
-        })
+            responses [
+              {
+                id = 1
 
-        retry!
-          expect(emailsReceived.length).to.equal 1
+                styles = {
+                  style1 'not changed'
+                  style2 'not changed'
+                }
+              }
+            ]
+          }
+          {
+            id = 2
+
+            responses [
+              {
+                id = 1
+
+                styles = {
+                  style1 'not changed'
+                  style2 'not changed'
+                }
+              }
+            ]
+          }
+        ])!
+
+      lexemeWithChangedStyles(queryId = 1, responseId = 1) = {
+        query = {
+          id = queryId
+        }
+        response = {
+          id = responseId
+          styles {
+            style1 = 'changed'
+            style2 = 'not changed'
+          }
+          changedStyles = {
+            style1 = true
+            style2 = false
+          }
+        }
+      }
+
+      lexemeWithOriginalStyles(queryId = 1, responseId = 1) = {
+        query = {
+          id = queryId
+        }
+        response = {
+          id = responseId
+          styles {
+            style1 = 'not changed'
+            style2 = 'not changed'
+          }
+          changedStyles = {
+            style1 = false
+            style2 = false
+          }
+        }
+      }
         
-      it "doesn't email the administrator when no changes are made to the responses"
-        api.post!('/api/user/documents', {
-          lexemes = [
-            lexemeWithOriginalStyles()
-          ]
-        })
+      describe 'when creating the document'
+        it 'emails the administrator when a change is made to a response when first creating the document'
+          api.post!('/api/user/documents', {
+            lexemes = [
+              lexemeWithChangedStyles()
+            ]
+          })
 
-        retry.ensuring!
-          expect(emailsReceived.length).to.equal 0
+          retry!
+            expect(emailsReceived.length).to.equal 1
+          
+        it "doesn't email the administrator when no changes are made to the responses"
+          api.post!('/api/user/documents', {
+            lexemes = [
+              lexemeWithOriginalStyles()
+            ]
+          })
 
-    describe 'when updating a document with changed styles'
-      document = nil
+          retry.ensuring!
+            expect(emailsReceived.length).to.equal 0
+
+      describe 'when updating a document with changed styles'
+        document = nil
+
+        beforeEach
+          document := api.post!('/api/user/documents', {
+            lexemes = [
+              lexemeWithChangedStyles()
+            ]
+          }).body
+
+          retry!
+            expect(emailsReceived.length).to.equal 1
+            
+          emailsReceived := []
+
+        it 'sends an email when the update contains a changed style'
+          document.lexemes.push(lexemeWithChangedStyles(queryId = 2, responseId = 1))
+          api.put!(document.href, document)
+
+          retry!
+            expect(emailsReceived.length).to.equal 1
+          
+        it "doesn't send an email when the update doesn't contain a changed style"
+          document.lexemes.push(lexemeWithOriginalStyles(queryId = 2, responseId = 1))
+          api.put!(document.href, document)
+
+          retry.ensuring!
+            expect(emailsReceived.length).to.equal 0
+
+    describe 'showing differences'
+      fs = require 'fs-promise'
 
       beforeEach
-        document := api.post!('/api/user/documents', {
-          lexemes = [
-            lexemeWithChangedStyles()
-          ]
+        try
+          fs.unlink 'email.html'!
+        catch (e)
+          nil
+
+        db = app.get 'db'
+        lexicon = lexiconBuilder()
+        db.setLexicon(lexicon.queries [
+          {
+            id = 1
+            name = 'query:1'
+            text = 'query 1'
+
+            responses [
+              {
+                id = 1
+
+                text = 'response 1'
+
+                styles = {
+                  style1 '<p>two four five</p>'
+                  style2 '<p>dog cat mouse</p>'
+                  style3 '<p>plane train motorbike</p>'
+                }
+              }
+            ]
+          }
+        ])!
+        
+
+      it 'shows the differences between the original and updated styles, for each lexeme changed'
+        lexemes = [{
+          query = {
+            id = '1'
+          }
+          response = {
+            id = '1'
+            styles {
+              style1 '<p>one two three four six</p>'
+              style2 '<p>dog cat mouse</p>'
+              style3 '<p>walk plane motorbike</p>'
+            }
+            changedStyles = {
+              style1 = true
+              style2 = false
+              style3 = true
+            }
+          }
+        }]
+
+        document = api.post!('/api/user/documents', {
+          lexemes = lexemes
         }).body
 
         retry!
           expect(emailsReceived.length).to.equal 1
-          
-        emailsReceived := []
 
-      it 'sends an email when the update contains a changed style'
-        document.lexemes.push(lexemeWithChangedStyles(queryId = 2, responseId = 1))
-        api.put!(document.href, document)
+        email = emailsReceived.0
 
-        retry!
-          expect(emailsReceived.length).to.equal 1
-        
-      it "doesn't send an email when the update doesn't contain a changed style"
-        document.lexemes.push(lexemeWithOriginalStyles(queryId = 2, responseId = 1))
-        api.put!(document.href, document)
+        (content) hasRelevantInfo =
+          expect(content).to.contain('query 1')
+          expect(content).to.contain('response 1')
+          expect(content).to.contain('walk')
+          expect(content).to.contain('train')
+          expect(content).to.contain('style1')
+          expect(content).to.contain('style3')
+          expect(content).to.not.contain('style2')
+          expect(content).to.contain('http://localhost:8000/admin/users/bob')
+          expect(content).to.contain('http://localhost:8000/authoring/blocks/1/queries/1')
 
-        retry.ensuring!
-          expect(emailsReceived.length).to.equal 0
+        (email.html) hasRelevantInfo
+        (email.text) hasRelevantInfo
