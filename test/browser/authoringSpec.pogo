@@ -65,7 +65,7 @@ responseElement = prototypeExtending(element) {
   responseSelector() = self.find('ul li.selector textarea')
   setLevel() = self.find('ul li.set-level input')
   predicantSearch() = self.find('ul li div.predicants input')
-  predicant(name) = self.find('ul li div.predicants ol li', text = 'Hemophilia')
+  predicant(name) = self.find('ul li div.predicants ol li', text = name)
   style1() = self.find('ul li.style1 .editor')
   style2() = self.find('ul li.style2 .editor')
 }
@@ -182,6 +182,55 @@ describe 'authoring'
           ]
 
         page.queryMenuItem('xyz', 'query 1').exists!()
+      
+      it 'can create a query with a user predicant'
+        api.users.push {
+          id = '1234'
+          email = 'joebloggs@example.com'
+          firstName = 'Joe'
+          familyName = 'Bloggs'
+        }
+
+        page.find('button', text = 'Add Query').click!()
+
+        editQuery = page.find('.edit-query')
+        editQuery.find('ul li.name input').typeIn!('query 1')
+        editQuery.find('ul li.question textarea').typeIn!('question 1')
+        editQuery.find('ul li.level input').typeIn!('3')
+
+        responses = page.responses()
+        responses.addResponseButton().click!()
+        newResponse = responses.selectedResponse()
+        newResponse.responseSelector().typeIn!('response 1')
+        newResponse.setLevel().typeIn!('4')
+        newResponse.predicantSearch().typeIn!('Joe')
+        newResponse.predicant('Joe Bloggs').click!()
+
+        page.find('.edit-query button', text = 'Create').click!()
+
+        retry!
+          expect(api.lexicon().blocks.0.queries).to.eql [
+            {
+              id = "1"
+              name = 'query 1'
+              text = 'question 1'
+              level = 3
+              predicants = []
+              responses = [
+                {
+                  text = 'response 1'
+                  predicants = ["user:1234"]
+                  styles = {
+                    style1 = ''
+                    style2 = ''
+                  }
+                  actions = []
+                  id = 1
+                  setLevel = 4
+                }
+              ]
+            }
+          ]
 
     context 'a query with a response'
       beforeEach

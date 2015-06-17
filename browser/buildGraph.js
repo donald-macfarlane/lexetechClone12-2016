@@ -2,7 +2,8 @@ var Promise = require("bluebird");
 var _ = require("underscore");
 var createContext = require("./context");
 var createCache = require("../common/cache");
-var lexemeApi = require("../browser/lexemeApi");
+var lexemeApi = require("./lexemeApi");
+var predicantByName = require('./predicantByName');
 
 function cloneContext(c) {
   var predicants, blockStack;
@@ -289,7 +290,7 @@ module.exports = function(options) {
     return api.predicants().then(function (predicants) {
       var predicantsByName = _.indexBy(_.values(predicants), 'name');
       return names.map(function (name) {
-        return predicantsByName[name] || {id: name, name: name};
+        return predicantByName(predicantsByName, name);
       }).filter(function (pred) {
         return pred;
       }).map(function (pred) {

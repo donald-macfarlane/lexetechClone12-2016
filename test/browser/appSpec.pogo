@@ -15,6 +15,7 @@ omitSkipLexicon = require '../omitSkipLexicon'
 repeatingLexicon = require '../repeatingLexicon'
 substitutingLexicon = require '../substitutingLexicon'
 punctuationLexicon = require '../punctuationLexicon'
+predicantLexicon = require '../predicantLexicon'
 
 describe 'report'
   div = nil
@@ -525,6 +526,36 @@ describe 'report'
       shouldHaveQuery 'Is it aching?'!
       selectResponse 'yes'!
       shouldBeFinished()!
+
+  context 'logged in with lexicon with user specific queries'
+    beforeEach
+      api.setLexicon (predicantLexicon('user:1234'))
+
+    context 'when the right user is logged in'
+      beforeEach
+        appendRootComponent {
+          user = { email = 'blah@example.com', id = '1234' }
+        }
+        rootBrowser.startNewDocumentButton().click!()
+
+      it "shows the query for the user"
+        shouldHaveQuery 'All Users Query'!
+        selectResponse 'User'!
+        shouldHaveQuery 'User Query'!
+        selectResponse 'Finished'!
+        shouldBeFinished()!
+
+    context "when the user isn't logged in"
+      beforeEach
+        appendRootComponent {
+          user = { email = 'another@example.com', id = '5678' }
+        }
+        rootBrowser.startNewDocumentButton().click!()
+
+      it "doesn't show the query for the other user"
+        shouldHaveQuery 'All Users Query'!
+        selectResponse 'User'!
+        shouldBeFinished()!
 
   context 'logged in with repeating lexicon'
     beforeEach

@@ -5,6 +5,7 @@ var lexemeApi = require('./lexemeApi');
 var prototype = require('prote');
 var renderJson = require('./renderJson');
 var join = require('./join');
+var predicantByName = require('./predicantByName');
 
 var api = lexemeApi();
 
@@ -92,8 +93,7 @@ var debugComponent = prototype({
 
     function predicantNames(predicants) {
       return Object.keys(predicants).map(function (p) {
-        var predicant = self.predicants[p];
-        return predicant? predicant.name: p;
+        return predicantByName(self.predicants, p);
       });
     }
 

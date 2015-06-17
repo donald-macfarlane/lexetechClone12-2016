@@ -7,5 +7,10 @@ var environments = {
 
 module.exports = function(environment) {
   var url = environments[environment || 'dev'];
+
+  if (!url) {
+    throw new Error('no such environment, try one of: ' + Object.keys(environments).join(', '));
+  }
+
   return httpism.api(url);
 };

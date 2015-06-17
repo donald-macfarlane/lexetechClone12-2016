@@ -24,6 +24,7 @@ module.exports = React.createClass({
     return {
       query: module.exports.create(),
       predicants: [],
+      users: [],
       lastResponseId: 0
     };
   },
@@ -32,10 +33,26 @@ module.exports = React.createClass({
     var self = this;
 
     function loadPredicants() {
-      return self.props.http.get("/api/predicants").then(function(predicants) {
+      return Promise.all([
+        self.props.http.get("/api/predicants"),
+        self.props.http.get("/api/users")
+      ]).then(function(results) {
+        var predicants = results[0];
+        var users = results[1];
+
+        users.forEach(function (user) {
+          var id = 'user:' + user.id;
+          var name = user.firstName + ' ' + user.familyName;
+          predicants[id] = {
+            id: id,
+            name: name
+          };
+        });
+
         if (self.isMounted()) {
           return self.setState({
-            predicants: predicants
+            predicants: predicants,
+            users: users
           });
         }
       });
