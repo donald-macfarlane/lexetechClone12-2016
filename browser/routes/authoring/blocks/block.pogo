@@ -139,6 +139,10 @@ module.exports = React.createClass {
     self.props.http.post!("/api/user/queries", query)
     self.loadClipboard()
 
+  removeFromClipboard(query) =
+    self.props.http.delete!(query.href)
+    self.loadClipboard()
+
   loadQuery() =
     if (self.context.router.getCurrentParams().queryId)
       if (self.queryId() != self.context.router.getCurrentParams().queryId)
@@ -274,8 +278,14 @@ module.exports = React.createClass {
                   pasteFromClipboard(ev) =
                     self.pasteQueryFromClipboard(q)
                     ev.preventDefault()
+
+                  removeFromClipboard(ev) =
+                    self.removeFromClipboard(q)
                     
-                  r 'li' { onClick = pasteFromClipboard } (r 'h4' {} (q.name))
+                  r 'li' { onClick = pasteFromClipboard } (
+                    r 'h4' {} (q.name)
+                    r 'button' {className = 'button remove', onClick = removeFromClipboard} 'remove'
+                  )
                 ]
             ]
         )

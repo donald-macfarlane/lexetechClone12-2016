@@ -6,13 +6,13 @@ sendclick = require './sendclick'
 $ = require '../../browser/jquery'
 chai = require 'chai'
 expect = chai.expect
-element = require './element'
+browser = require 'browser-monkey'
 
 createRouter = require 'mockjax-router'
 
 queryApi = require './queryApi'
 
-authoringElement = prototypeExtending (element) {
+authoringElement = browser.component {
   dropdownMenu(name) =
     self.find('.btn-group').containing('button.dropdown-toggle', text = name)
 
@@ -23,7 +23,7 @@ authoringElement = prototypeExtending (element) {
     self.clipboard().find('a', text = 'Clipboard')
 
   clipboardItem(name) =
-    self.clipboard().find('ol li', text = name)
+    clipboardItem.scope(self.clipboard().find('ol li', text = name))
     
   dropdownMenuItem(name) =
     self.find('ul.dropdown-menu li a', text = name)
@@ -47,7 +47,7 @@ authoringElement = prototypeExtending (element) {
     self.find('.edit-query ul li.name input')
 
   responses() =
-    responsesElement(self.query().find('ul li.responses'))
+    responsesElement.scope(self.query().find('ul li.responses'))
   
   actions() =
     self.responses().find('ul li.actions')
@@ -56,12 +56,16 @@ authoringElement = prototypeExtending (element) {
     self.actions().find('ul.dropdown-menu li a', text = name)
 }
 
-responsesElement = prototypeExtending(element) {
-  addResponseButton() = self.find('button', text = 'Add Response')
-  selectedResponse() = responseElement(self.find('.selected-response'))
+clipboardItem = browser.component {
+  removeButton() = self.find('.button.remove')
 }
 
-responseElement = prototypeExtending(element) {
+responsesElement = browser.component {
+  addResponseButton() = self.find('button', text = 'Add Response')
+  selectedResponse() = responseElement.scope(self.find('.selected-response'))
+}
+
+responseElement = browser.component {
   responseSelector() = self.find('ul li.selector textarea')
   setLevel() = self.find('ul li.set-level input')
   predicantSearch() = self.find('ul li div.predicants input')
@@ -79,7 +83,7 @@ describe 'authoring'
 
     beforeEach
       div := createTestDiv()
-      page := authoringElement { selector = div }
+      page := authoringElement.scope(div)
 
       api := queryApi()
 
@@ -254,12 +258,12 @@ describe 'authoring'
           actions.find('button', text = 'Add Action').click!()
 
           for each @(actionName) in (disallowedActions)
-            page.action(actionName).exists!()
+            page.action(actionName).shouldExist!()
 
           page.action(action).click!()
 
           for each @(actionName) in (disallowedActions)
-            page.action(actionName).doesntExist!()
+            page.action(actionName).shouldNotExist!()
 
       describe 'repeat'
         'Repeat' isNotCompatibleWith ['Set Blocks', 'Add Blocks']
@@ -311,21 +315,17 @@ describe 'authoring'
 
       it 'can select one block after another'
         page.blockMenuItem('one').find('h3').click!()
-        page.blockName().wait! @(element)
-          expect(element.val()).to.equal 'one'
+        page.blockName().shouldHave!(value = 'one')
 
         page.blockMenuItem('two').find('h3').click!()
-        page.blockName().wait! @(element)
-          expect(element.val()).to.equal 'two'
+        page.blockName().shouldHave!(value = 'two')
 
       it 'can select one query after another'
         page.queryMenuItem('one', 'query 1').find('h4').click!()
-        page.queryName().wait! @(element)
-          expect(element.val()).to.equal 'query 1'
+        page.queryName().shouldHave!(value = 'query 1')
 
         page.queryMenuItem('two', 'query 2').find('h4').click!()
-        page.queryName().wait! @(element)
-          expect(element.val()).to.equal 'query 2'
+        page.queryName().shouldHave!(value = 'query 2')
 
     describe 'updating and inserting queries'
       beforeEach
@@ -435,7 +435,7 @@ describe 'authoring'
         page.queryMenuItem('one', 'query 1').find('h4').click!()
         page.query().find('button', text = 'Delete').click!()
 
-        page.queryMenuItem('one', 'query 1').doesntExist!()
+        page.queryMenuItem('one', 'query 1').shouldNotExist!()
 
         retry!
           expect([q <- api.lexicon().blocks.0.queries, @not q.deleted, q.name]).to.eql []
@@ -470,6 +470,7 @@ describe 'authoring'
         retry!
           expect(api.clipboard).to.eql [
             {
+              href = '/api/user/queries/1'
               id = '1'
               name = 'query 1'
               text = 'question 1'
@@ -492,22 +493,33 @@ describe 'authoring'
             predicants = []
             responses = []
           }
+          api.clipboard.push {
+            id = '1'
+            name = 'query 3'
+            text = 'question 2'
+            level = 10
+            predicants = []
+            responses = []
+          }
           startApp()
 
         it 'can paste the query into a new query, not including level'
           page.queryMenuItem('one', 'query 1').find('h4').click()!
 
-          page.queryName().wait! @(input)
-            expect(input.val()).to.equal 'query 1'
+          page.queryName().shouldHave!(value: 'query 1')
 
           page.clipboardHeader().click()!
           page.clipboardItem('query 2').click()!
 
-          page.queryName().wait! @(input)
-            expect(input.val()).to.equal 'query 2'
+          page.queryName().shouldHave!(value: 'query 2')
 
-          page.query().find('li.level input').wait! @(input)
-            expect(input.val()).to.equal '1'
+          page.query().find('li.level input').shouldHave!(value: '1')
 
           page.query().find('button', text = 'Overwrite').click!()
           page.queryMenuItem('one', 'query 2').exists!()
+
+        it 'can delete the clipboard query'
+          page.clipboardHeader().click()!
+          page.clipboardItem().shouldHave!(text: ['query 2', 'query 3'])
+          page.clipboardItem('query 2').removeButton().click()!
+          page.clipboardItem().shouldHave!(text: ['query 3'])

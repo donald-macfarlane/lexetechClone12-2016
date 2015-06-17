@@ -8,6 +8,7 @@ rootComponent = require '../../browser/rootComponent'
 queryApi = require './queryApi'
 lexiconBuilder = require '../lexiconBuilder'
 element = require './element'
+browser = require 'browser-monkey'
 router = require 'plastiq-router'
 _ = require 'underscore'
 simpleLexicon = require '../simpleLexicon'
@@ -22,50 +23,50 @@ describe 'report'
   api = nil
   originalLocation = nil
   lexicon = nil
-  reportBrowser = nil
-  rootBrowser = nil
 
-  createRootBrowser = prototypeExtending(element) {
+  testBrowser = browser.find('.test')
+
+  rootBrowser = testBrowser.component {
     startNewDocumentButton() = self.find('.button', text = 'Start new document')
     loadCurrentDocumentButton() = self.find('.button.load-current-document')
     loadPreviousButton() = self.find('.button', text = 'Load previous document')
   }
 
-  createReportBrowser = prototypeExtending(element) {
+  reportBrowser = testBrowser.component {
     undoButton() = self.find('.query .button', text = 'undo')
     acceptButton() = self.find('.button.accept')
     debugTab() = self.find('.tabular .debug')
     normalTab() = self.find('.tabular .style-normal')
     abbreviatedTab() = self.find('.tabular .style-abbreviated')
 
-    debug() = debugBrowser(self.find('.debug'))
-    document() = documentBrowser(self.find('.document'))
-    query() = queryElement(self.find '.query')
+    debug() = debugBrowser.scope(self.find('.debug'))
+    document() = documentBrowser.scope(self.find('.document'))
+    query() = queryElement.scope(self.find '.query')
     queryText() = self.find('.query-text')
-    responseEditor() = responseEditorElement(self.find('.response-editor'))
+    responseEditor() = responseEditorElement.scope(self.find('.response-editor'))
   }
 
-  debugBrowser = prototypeExtending(element) {
+  debugBrowser = testBrowser.component {
     block(name) = self.find('li').containing('h3', text = name)
     blockQuery(block, query) = self.block(block).find('.block-query', text = query)
   }
 
-  documentBrowser = prototypeExtending(element) {
+  documentBrowser = testBrowser.component {
     section(text) = self.find('.section', text = text)
   }
 
-  queryElement = prototypeExtending(element) {
-    response(text) = responseElement(self.find('.response', text = text))
+  queryElement = testBrowser.component {
+    response(text) = responseElement.scope(self.find('.response', text = text))
     skipButton() = self.find('.button.skip')
     omitButton() = self.find('.button.omit')
   }
 
-  responseElement = prototypeExtending(element) {
+  responseElement = testBrowser.component {
     link() = self.find('a')
     editButton() = self.find('button', text = 'edit')
   }
 
-  responseEditorElement = prototypeExtending(element) {
+  responseEditorElement = testBrowser.component {
     tab(style) = self.find(".ui.tabular.menu a.item.style-#(style)")
     responseTextEditor(style) = self.find(".tab.style-#(style) .response-text-editor")
     okButton() = self.find('button', text = 'ok')
@@ -79,14 +80,6 @@ describe 'report'
     originalLocation := location.pathname + location.search + location.hash
     history.pushState(nil, nil, '/')
 
-    rootBrowser := createRootBrowser {
-      selector = '.test'
-    }
-
-    reportBrowser := createReportBrowser {
-      selector = '.test'
-    }
-
   after
     mountApp.stop()
 
@@ -97,7 +90,7 @@ describe 'report'
       e
 
   shouldHaveQuery(query) =
-    reportBrowser.queryText().expect!(element.hasText(query))
+    reportBrowser.queryText().shouldHave!(text: query)
 
   shouldBeFinished() =
     retry!
@@ -215,7 +208,7 @@ describe 'report'
       shouldHaveQuery 'Is it bleeding?'!
       reportBrowser.undoButton().click!()
       shouldHaveQuery 'Where does it hurt?'!
-      reportBrowser.query().response('left leg').expect!(element.is('.selected'))
+      reportBrowser.query().response('left leg').shouldHave!(css = '.selected')
       reportBrowser.acceptButton().click!()
       shouldHaveQuery 'Is it bleeding?'!
       selectResponse 'yes'!
@@ -238,10 +231,10 @@ describe 'report'
       selectResponse 'yes'!
       reportBrowser.document().section('bleeding').click!()
       shouldHaveQuery 'Is it bleeding?'!
-      reportBrowser.query().response('yes').expect!(element.is('.selected'))
+      reportBrowser.query().response('yes').shouldHave!(css: '.selected')
       reportBrowser.acceptButton().click!()
       shouldHaveQuery 'Is it aching?'!
-      reportBrowser.query().response('yes').expect!(element.is('.selected'))
+      reportBrowser.query().response('yes').shouldHave!(css: '.selected')
       reportBrowser.acceptButton().click!()
       shouldBeFinished()!
 
@@ -276,9 +269,8 @@ describe 'report'
       style1Editor = editor.responseTextEditor('style1')
       style1Editor.typeInHtml!('bleeding badly')
       style1Tab = editor.tab('style1')
-      style1Tab.expect! @(el)
-        el.has('.edited')
-        
+      style1Tab.shouldHave!(css: '.edited')
+
       editor.okButton().click!()
       shouldHaveQuery 'Is it aching?'!
       selectResponse 'yes'!
@@ -438,10 +430,10 @@ describe 'report'
       selectResponse 'yes'!
       shouldHaveQuery 'Is it aching?'!
 
-      reportBrowser.debug().blockQuery('Block 1', 'query1').expect!(element.is '.before')
-      reportBrowser.debug().blockQuery('Block 1', 'query2').expect!(element.is '.previous')
-      reportBrowser.debug().blockQuery('Block 2', 'query3').expect!(element.is '.skipped')
-      reportBrowser.debug().blockQuery('Block 3', 'query4').expect!(element.is '.found')
+      reportBrowser.debug().blockQuery('Block 1', 'query1').shouldHave!(css: '.before')
+      reportBrowser.debug().blockQuery('Block 1', 'query2').shouldHave!(css: '.previous')
+      reportBrowser.debug().blockQuery('Block 2', 'query3').shouldHave!(css: '.skipped')
+      reportBrowser.debug().blockQuery('Block 3', 'query4').shouldHave!(css: '.found')
 
       selectResponse 'yes'!
       shouldBeFinished()!
@@ -460,7 +452,7 @@ describe 'report'
       appendRootComponent()
 
     it 'can create a new document'
-      rootBrowser.loadCurrentDocumentButton().has('.disabled').exists!()
+      rootBrowser.loadCurrentDocumentButton().shouldHave!(css: '.disabled')
       rootBrowser.startNewDocumentButton().click!()
       shouldHaveQuery 'Where does it hurt?'!
 
@@ -478,8 +470,7 @@ describe 'report'
 
       history.back()
 
-      rootBrowser.loadCurrentDocumentButton().expect! @(element)
-        @not element.has '.disabled'
+      rootBrowser.loadCurrentDocumentButton().shouldNotHave!(css: '.disabled')
 
       rootBrowser.loadCurrentDocumentButton().click!()
       shouldHaveQuery 'Is it bleeding?'!
@@ -508,8 +499,7 @@ describe 'report'
 
       window.history.back()
 
-      rootBrowser.loadCurrentDocumentButton().expect! @(element)
-        @not element.has '.disabled'
+      rootBrowser.loadCurrentDocumentButton().shouldNotHave!(css: '.disabled')
 
       rootBrowser.loadCurrentDocumentButton().click!()
       shouldHaveQuery 'Is it aching?'!
@@ -518,8 +508,7 @@ describe 'report'
 
       response.editButton().click!()
 
-      editor.responseTextEditor('style1').expect! @(element)
-        element.html() == 'bleeding badly'
+      editor.responseTextEditor('style1').shouldHave!(html: 'bleeding badly')
 
       editor.okButton().click!()
 
@@ -578,13 +567,12 @@ describe 'report'
 
       window.history.back()
 
-      rootBrowser.loadCurrentDocumentButton().expect! @(element)
-        @not element.has '.disabled'
+      rootBrowser.loadCurrentDocumentButton().shouldNotHave!(css: '.disabled')
 
       rootBrowser.loadCurrentDocumentButton().click!()
       shouldHaveQuery 'One'!
-      reportBrowser.query().response('A').expect!(element.is('.other'))
-      reportBrowser.query().response('C').expect!(element.is('.other'))
+      reportBrowser.query().response('A').shouldHave!(css: '.other')
+      reportBrowser.query().response('C').shouldHave!(css: '.other')
       selectResponse 'No More'!
       shouldBeFinished()!
 

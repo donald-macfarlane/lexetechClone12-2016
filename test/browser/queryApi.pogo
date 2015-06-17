@@ -10,10 +10,20 @@ module.exports() =
     collection = []
 
     router.get(url) @(request)
+      notDeleted = collection.filter @(item)
+        @not item.deleted
+
+      withHrefs =
+        if (hrefs)
+          notDeleted.map @(item, index)
+            item.href = "#(url)/#(index + 1)"
+            item
+        else
+          notDeleted
+
       {
         statusCode = 200
-        body = collection.filter @(item)
-          @not item.deleted
+        body = withHrefs
       }
 
     router.post(url) @(request)
@@ -213,7 +223,7 @@ module.exports() =
   userQueries = []
 
   blocks = model('/api/blocks')
-  clipboard = model('/api/user/queries')
+  clipboard = model('/api/user/queries', hrefs = true)
   documents = model('/api/user/documents', hrefs = true)
   users = model('/api/users', hrefs = true)
   predicants = []
