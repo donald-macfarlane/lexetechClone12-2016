@@ -124,7 +124,7 @@ describe 'documents'
 
     beforeEach
       emailsReceived := []
-      smtpServer := startSmtpServer {
+      smtpServer := startSmtpServer! {
         emailReceived(email) =
           emailsReceived.push(email)
       }
