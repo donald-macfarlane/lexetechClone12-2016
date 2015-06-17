@@ -12,7 +12,7 @@ var styleChangeNotifier = require('./styleChangeNotifier');
 function backup(redisDb, backupHttpism) {
   var github = githubContent(backupHttpism);
 
-  redisDb.getLexicon().then(function (lexicon) {
+  return redisDb.getLexicon().then(function (lexicon) {
     return github.put("lexicon.json", JSON.stringify(lexicon, void 0, 2)).then(function () {
       debug("backed up lexicon");
     });

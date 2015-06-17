@@ -267,7 +267,7 @@ describe "query api"
         api.post('/api/blocks/1/queries/1', query1)!
         api.post('/api/blocks/1/queries/1', query1)!
 
-        retry (timeout = 120)!
+        retry (timeout = 500)!
           expect(lexiconBackups.length).to.equal(1)
           expect([l <- lexiconBackups, b <- l.blocks, q <- b.queries, q.text]).to.eql(['query 1 (updated)'])
 
