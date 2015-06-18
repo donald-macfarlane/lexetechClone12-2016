@@ -88,6 +88,20 @@ app.post("/blocks", function(req, res) {
 
 function outgoingBlock(req, block) {
   block.href = req.baseUrl + "/blocks/" + block.id;
+  return block;
+}
+
+function outgoingQuery(req, query, options) {
+  if (options && options.clipboard) {
+    query.href = req.baseUrl + '/user/queries/' + query.id;
+  } else {
+    query.href = req.baseUrl + '/queries/' + query.id;
+  }
+  return query;
+}
+
+function incomingQuery(query) {
+  delete query.href;
 }
 
 app.get("/blocks/:id", function(req, res) {
@@ -114,7 +128,9 @@ app.get("/blocks/:id/queries", function(req, res) {
   var db = app.get("db");
 
   db.blockQueries(req.params.id).then(function(queries) {
-    res.send(queries);
+    res.send(queries.map(function (q) {
+      return outgoingQuery(req, q);
+    }));
   });
 });
 
@@ -166,27 +182,26 @@ app.delete("/blocks/:blockId/queries/:queryId", function(req, res) {
 
 app.post("/blocks/:blockId/queries", function(req, res) {
   var db = app.get("db");
-  var query = req.body;
 
-  if (query.before) {
-    var before = query.before;
-    delete query.before;
-    db.insertQueryBefore(req.params.blockId, before, query).then(function(query) {
-      res.send(query);
-    });
-  } else {
-    if (query.after) {
-      var after = query.after;
-      delete query.after;
-      db.insertQueryAfter(req.params.blockId, after, query).then(function(query) {
-        res.send(query);
-      });
+  function addQuery(query) {
+    if (query.before) {
+      var before = query.before;
+      delete query.before;
+      return db.insertQueryBefore(req.params.blockId, before, query);
     } else {
-      db.addQuery(req.params.blockId, query).then(function(query) {
-        res.send(query);
-      });
+      if (query.after) {
+        var after = query.after;
+        delete query.after;
+        return db.insertQueryAfter(req.params.blockId, after, query);
+      } else {
+        return db.addQuery(req.params.blockId, query);
+      }
     }
   }
+
+  return addQuery(req.body).then(function (query) {
+    res.send(outgoingQuery(req, query));
+  });
 });
 
 app.post("/lexicon", function(req, res) {
@@ -339,7 +354,7 @@ app.post("/user/queries", handleErrors(function(req, res) {
   var query = req.body;
 
   return db.addQueryToUser(req.user.id, query).then(function(q) {
-    res.send(q);
+    res.send(outgoingQuery(req, q, {clipboard: true}));
   });
 }));
 
@@ -347,8 +362,10 @@ app.get("/user/queries", handleErrors(function(req, res) {
   var db = app.get("db");
   var query = req.body;
 
-  return db.userQueries(req.user.id, query).then(function(updatedQuery) {
-    res.send(updatedQuery);
+  return db.userQueries(req.user.id, query).then(function(queries) {
+    res.send(queries.map(function (q) {
+      return outgoingQuery(req, q, {clipboard: true});
+    }));
   });
 }));
 
