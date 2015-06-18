@@ -98,8 +98,9 @@ module.exports = React.createClass({
     });
 
     if (!self.state.dirty && !clipboardPaste) {
-      return self.setState({
-        query: clone(newprops.query)
+      self.setState({
+        query: clone(newprops.query),
+        selectedResponse: undefined
       });
     }
   },
