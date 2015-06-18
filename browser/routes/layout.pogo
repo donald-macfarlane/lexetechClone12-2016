@@ -16,11 +16,12 @@ module.exports = React.createClass {
 
   componentDidMount() =
     self.props.http.onError @(event, jqxhr, settings, thrownError)
-      message = jqxhr.responseText || "Unknown. Are you online?"
-      self.setState({
-        showFlash = true
-        warning = "ERROR: #(message)"
-      })
+      if (@not settings.suppressErrors)
+        message = jqxhr.responseText || "Unknown. Are you online?"
+        self.setState({
+          showFlash = true
+          warning = "ERROR: #(message)"
+        })
 
   render() =
     signedIn = self.props.user :: Object

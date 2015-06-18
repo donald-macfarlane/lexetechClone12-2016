@@ -24,7 +24,6 @@ module.exports = React.createClass({
     return {
       query: module.exports.create(),
       predicants: [],
-      users: [],
       lastResponseId: 0
     };
   },
@@ -35,24 +34,31 @@ module.exports = React.createClass({
     function loadPredicants() {
       return Promise.all([
         self.props.http.get("/api/predicants"),
-        self.props.http.get("/api/users")
+        self.props.http.get("/api/users", {suppressErrors: true}).then(undefined, function (error) {
+          // user doesn't have admin access to see users
+          // don't show users
+          if (error.status != 403) {
+            throw error;
+          }
+        })
       ]).then(function(results) {
         var predicants = results[0];
         var users = results[1];
 
-        users.forEach(function (user) {
-          var id = 'user:' + user.id;
-          var name = user.firstName + ' ' + user.familyName;
-          predicants[id] = {
-            id: id,
-            name: name
-          };
-        });
+        if (users) {
+          users.forEach(function (user) {
+            var id = 'user:' + user.id;
+            var name = user.firstName + ' ' + user.familyName;
+            predicants[id] = {
+              id: id,
+              name: name
+            };
+          });
+        }
 
         if (self.isMounted()) {
           return self.setState({
-            predicants: predicants,
-            users: users
+            predicants: predicants
           });
         }
       });
@@ -646,6 +652,11 @@ module.exports = React.createClass({
     var created = self.state.query.id;
     var activeWhenDirtyAndCreated = activeWhen(dirty && created);
 
+    function responseMoved(from, to) {
+      moveItemInFromTo(self.state.query.responses, from, to);
+      self.update();
+    }
+
     return r("div", {className: "edit-query"},
       r("h2", {}, "Query"),
       r("div", {className: "buttons"},
@@ -747,16 +758,23 @@ module.exports = React.createClass({
           r("h3", {}, "Responses"),
           r("button", {className: "add", onClick: self.addResponse}, "Add Response"),
           r('div', {className: 'response-editor'},
-            r('ol', {className: "responses"},
-              self.state.query.responses.map(function (response) {
-                function select() {
-                  self.setState({
-                    selectedResponse: response
-                  });
-                }
+            React.createElement(sortable,
+              {
+                itemMoved: responseMoved,
+                render: function () {
+                  return r('ol', {className: "responses"},
+                    self.state.query.responses.map(function (response) {
+                      function select() {
+                        self.setState({
+                          selectedResponse: response
+                        });
+                      }
 
-                return r('li', {onClick: select, className: self.state.selectedResponse === response? 'selected': undefined}, response.text);
-              })
+                      return r('li', {onClick: select, className: self.state.selectedResponse === response? 'selected': undefined}, response.text);
+                    })
+                  );
+                }
+              }
             ),
             self.state && self.state.selectedResponse
               ? r('div', {className: 'selected-response'}, self.renderResponse(self.state.selectedResponse))
