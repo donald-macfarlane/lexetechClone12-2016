@@ -313,7 +313,6 @@ module.exports = React.createClass({
 
       function blocks(name, $class) {
         function setArguments(blockIds) {
-          console.log('blockIds', blockIds);
           action.arguments.splice(0, action.arguments.length);
           action.arguments.push.apply(action.arguments, blockIds.filter(function (id) { return self.state.blocks[id]; }));
           self.update();
@@ -606,33 +605,31 @@ module.exports = React.createClass({
             r("label", {}, "Selector"),
             r("textarea", {onChange: self.bind(response, "text"), value: self.textValue(response.text), onFocus: select})
           ),
+          r("li", {className: "set-level"},
+            r("label", {}, "Set Level"),
+            self.numberInput(response, "setLevel")
+          ),
+          r("li", {className: "style1"},
+            r("label", {}, "Style 1"),
+            React.createElement(editor, { onChange: self.bindHtml(response.styles, "style1"), value: self.textValue(response.styles.style1) })
+          ),
+          r("li", {className: "style2"},
+            r("label", {}, "Style 2"),
+            React.createElement(editor, { onChange: self.bindHtml(response.styles, "style2"), value: self.textValue(response.styles.style2) })
+          ),
+          r("li", {className: "actions"},
+            r("label", {}, "Actions"),
+            self.renderActions(response.actions)
+          ),
+          r("li", {className: "predicants"},
+            r("label", {}, "Predicants Issued"),
+            self.renderPredicants(response.predicants)
+          ),
           self.state.selectedResponse === response
-            ? [
-                r("li", {className: "set-level"},
-                  r("label", {}, "Set Level"),
-                  self.numberInput(response, "setLevel")
-                ),
-                r("li", {className: "style1"},
-                  r("label", {}, "Style 1"),
-                  React.createElement(editor, { onChange: self.bindHtml(response.styles, "style1"), value: self.textValue(response.styles.style1) })
-                ),
-                r("li", {className: "style2"},
-                  r("label", {}, "Style 2"),
-                  React.createElement(editor, { onChange: self.bindHtml(response.styles, "style2"), value: self.textValue(response.styles.style2) })
-                ),
-                r("li", {className: "actions"},
-                  r("label", {}, "Actions"),
-                  self.renderActions(response.actions)
-                ),
-                r("li", {className: "predicants"},
-                  r("label", {}, "Predicants Issued"),
-                  self.renderPredicants(response.predicants)
-                )
-              ]
-            : undefined,
-          r("div", {className: "buttons"},
-            r("button", {className: "remove-response", onClick: remove}, "Remove")
-          )
+            ? r("div", {className: "buttons"},
+                r("button", {className: "remove-response", onClick: remove}, "Remove")
+              )
+            : undefined
         )
       ]
     );
@@ -763,6 +760,12 @@ module.exports = React.createClass({
               {
                 itemMoved: responseMoved,
                 render: function () {
+                  function hide() {
+                    self.setState({
+                      highlightedResponse: undefined
+                    });
+                  }
+
                   return r('ol', {className: "responses"},
                     self.state.query.responses.map(function (response) {
                       function select() {
@@ -771,19 +774,34 @@ module.exports = React.createClass({
                         });
                       }
 
-                      return r('li', {onClick: select, className: self.state.selectedResponse === response? 'selected': undefined}, response.text);
+                      function show() {
+                        self.setState({
+                          highlightedResponse: response
+                        });
+                      }
+
+                      return r('li', {
+                        onClick: select,
+                        onMouseEnter: show,
+                        onMouseLeave: hide,
+                        className: self.state.selectedResponse === response? 'selected': undefined
+                      }, response.text);
                     })
                   );
                 }
               }
             ),
-            self.state && self.state.selectedResponse
-              ? r('div', {className: 'selected-response'}, self.renderResponse(self.state.selectedResponse))
+            self.state && self.shownResponse()
+              ? r('div', {className: 'selected-response'}, self.renderResponse(self.shownResponse()))
               : undefined
           )
         )
       )
     );
+  },
+
+  shownResponse: function () {
+    return this.state.selectedResponse || this.state.highlightedResponse;
   }
 });
 
