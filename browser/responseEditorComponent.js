@@ -2,7 +2,6 @@ var plastiq = require('plastiq');
 var h = plastiq.html;
 var prototype = require('prote');
 var semanticUi = require('plastiq-semantic-ui');
-var mediumEditor = require('plastiq-medium-editor');
 var responseHtmlEditor = require('./responseHtmlEditor');
 
 module.exports = prototype({

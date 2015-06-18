@@ -7,7 +7,6 @@ mountApp = require './mountApp'
 rootComponent = require '../../browser/rootComponent'
 queryApi = require './queryApi'
 lexiconBuilder = require '../lexiconBuilder'
-element = require './element'
 browser = require 'browser-monkey'
 router = require 'plastiq-router'
 _ = require 'underscore'
@@ -24,7 +23,19 @@ describe 'report'
   originalLocation = nil
   lexicon = nil
 
-  testBrowser = browser.find('.test')
+  testBrowser = browser.find('.test').component {
+    typeInCkEditorHtml(html) =
+      e = self.is('.cke_editable').element()!
+
+      editor = [
+        key <- Object.keys(CKEDITOR.instances)
+        instance = CKEDITOR.instances.(key)
+        instance.element.$ == e
+        instance
+      ].0
+
+      editor.setData(html, ^)
+  }
 
   rootBrowser = testBrowser.component {
     startNewDocumentButton() = self.find('.button', text = 'Start new document')
@@ -267,7 +278,7 @@ describe 'report'
       response.editButton().click!()
       editor = reportBrowser.responseEditor()
       style1Editor = editor.responseTextEditor('style1')
-      style1Editor.typeInHtml!('bleeding badly')
+      style1Editor.typeInCkEditorHtml!('bleeding badly')
       style1Tab = editor.tab('style1')
       style1Tab.shouldHave!(css: '.edited')
 
@@ -490,7 +501,7 @@ describe 'report'
       response = reportBrowser.query().response('yes')
       response.editButton().click!()
       editor = reportBrowser.responseEditor()
-      editor.responseTextEditor('style1').typeInHtml!('bleeding badly')
+      editor.responseTextEditor('style1').typeInCkEditorHtml!('bleeding badly')
       editor.okButton().click!()
       shouldHaveQuery 'Is it aching?'!
 
