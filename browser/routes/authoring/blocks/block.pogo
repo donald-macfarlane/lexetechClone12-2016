@@ -328,11 +328,6 @@ module.exports = React.createClass {
                     toggle
                     tree.query.name
                   )
-                else
-                  r 'h4' { className = 'no-query' } (
-                    toggle
-                    r('span', {dangerouslySetInnerHTML = { __html = '&nbsp;' } })
-                  )
 
                 if (@not tree.hideQueries @and tree.queries)
                   renderQueries(block, tree.queries)
