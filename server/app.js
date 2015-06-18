@@ -126,6 +126,10 @@ app.use("/static/semantic-ui", express.static(__dirname + "/../semantic/dist"));
 app.use("/static/jquery", express.static(__dirname + "/../node_modules/jquery/dist"));
 app.use("/static/medium-editor", express.static(__dirname + "/../node_modules/medium-editor/dist"));
 app.use("/static/zeroclipboard", express.static(__dirname + "/../node_modules/zeroclipboard/dist"));
+app.use("/static/ckeditor", express.static(__dirname + "/../bower_components/ckeditor"));
+app.use("/static", function (req, res) {
+  res.status(404).send('no such page');
+});
 
 function page(req, js) {
   return {
