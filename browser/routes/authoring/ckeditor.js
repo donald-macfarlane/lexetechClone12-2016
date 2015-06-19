@@ -39,11 +39,9 @@ module.exports = React.createClass({
     this.setHtml(newprops.value);
   },
 
-  /*
   componentWillUnmount: function () {
     this.editor.destroy();
   },
-  */
 
   render: function () {
     if (this.props.inline) {
