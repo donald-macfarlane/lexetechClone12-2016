@@ -106,6 +106,7 @@ task('styles <lexicon.json>', function (args) {
     }));
 
     process.stdout.write('block\tquery\tresponse\tstyle\ttext\n');
+
     styles.forEach(function (style) {
       process.stdout.write(style.block + '\t' + style.query + '\t' + style.response + '\t' + style.style + '\t' + JSON.stringify(style.text) + '\n');
     });
