@@ -3,6 +3,7 @@ var runAllThenThrow = require('./tools/runAllThenThrow');
 var createApi = require('./tools/createApi');
 var findAndModifyUser = require('./tools/findAndModifyUser');
 var fs = require('fs-promise');
+var _ = require('underscore');
 
 function mocha() { return shell('mocha test/*Spec.* test/server/*Spec.*'); }
 function karma() { return shell('karma start --single-run'); }
@@ -88,7 +89,7 @@ task('sql-lexicon --env <env=dev>', function (args, options) {
   });
 });
 
-task('lexicon-styles <lexicon.json>', function (args) {
+task('styles <lexicon.json>', function (args) {
   var filename = args[0];
 
   return fs.readFile(filename, 'utf-8').then(function (content) {
@@ -135,7 +136,6 @@ task('merge-styles styles.tab lexicon.json', function (args) {
         var b = lexicon.blocks.filter(function (b) { return b.id == block; })[0];
         var q = b.queries.filter(function (q) { return q.id == query; })[0];
         var resp = q.responses.filter(function (r) { return r.id == response; })[0];
-        console.log('updating', text);
         resp.styles[style] = JSON.parse(text);
       }
     });
