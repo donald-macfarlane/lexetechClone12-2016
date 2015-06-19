@@ -557,8 +557,18 @@ module.exports = React.createClass({
   },
 
   cancel: function() {
+    var self = this;
+    var copy = clone(this.props.query);
+    var selectedResponse =
+      this.state.selectedResponse
+        ? copy.responses.filter(function (response) {
+          return response.id === self.state.selectedResponse.id;
+        })[0]
+        : undefined;
+
     return this.setState({
-      query: clone(this.props.query),
+      query: copy,
+      selectedResponse: selectedResponse,
       dirty: false
     });
   },
