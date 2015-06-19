@@ -2,7 +2,7 @@ var plastiq = require('plastiq');
 var h = plastiq.html;
 var prototype = require('prote');
 var semanticUi = require('plastiq-semantic-ui');
-var mediumEditor = require('plastiq-medium-editor');
+var responseHtmlEditor = require('./responseHtmlEditor');
 
 module.exports = prototype({
   stopEditingResponse: function () {
@@ -48,13 +48,9 @@ module.exports = prototype({
       return h('.ui.tab.bottom.attached.segment', {class: 'style-' + id},
         options.editing
         ? [
-            mediumEditor({
+            responseHtmlEditor({
               class: 'response-text-editor',
-              binding: [response.styles, id],
-
-              mediumOptions: {
-                buttons: ['bold', 'italic', 'header1', 'header2', 'unorderedlist', 'orderedlist']
-              }
+              binding: [response.styles, id]
             }),
 
             h('button', {

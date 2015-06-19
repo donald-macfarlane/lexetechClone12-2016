@@ -68,16 +68,110 @@ var sqlCreds = {
     password: "wsi824",
     server: "74.208.222.170",
     database: "dbLexeme"
+  },
+  local: {
+    user: "lexeme",
+    password: "password",
+    server: "windows",
+    database: "dbLexeme"
   }
 };
 
-task('sqldump --env <env=dev>', function (args, options) {
+task('sql-lexicon --env <env=dev>', function (args, options) {
   require('pogo');
   var loadQueriesFromSql = require('./tools/loadQueriesFromSql');
 
-  var creds = sqlCreds[options.env || 'dev'];
+  var creds = sqlCreds[options.env || 'local'];
 
   return loadQueriesFromSql(creds).then(function (lexicon) {
     console.log(JSON.stringify(lexicon, null, 2));
+  });
+});
+
+task('lexicon-styles <lexicon.json>', function (args) {
+  var filename = args[0];
+
+  return fs.readFile(filename, 'utf-8').then(function (content) {
+    var lexicon = JSON.parse(content);
+
+    var styles = _.flatten(lexicon.blocks.map(function (block) {
+      return block.queries.map(function (query) {
+        return query.responses.map(function (response) {
+          return Object.keys(response.styles).map(function (styleKey) {
+            return {block: block.id, query: query.id, response: response.id, style: styleKey, text: response.styles[styleKey]};
+          });
+        });
+      });
+    }));
+
+    process.stdout.write('block\tquery\tresponse\tstyle\ttext\n');
+    styles.forEach(function (style) {
+      process.stdout.write(style.block + '\t' + style.query + '\t' + style.response + '\t' + style.style + '\t' + JSON.stringify(style.text) + '\n');
+    });
+  });
+});
+
+task('merge-styles styles.tab lexicon.json', function (args) {
+  var stylesFilename = args[0];
+  var lexiconFilename = args[1];
+
+  return Promise.all([
+    fs.readFile(stylesFilename, 'utf-8'),
+    fs.readFile(lexiconFilename, 'utf-8')
+  ]).then(function (results) {
+    var lines = results[0].split('\n');
+    var lexicon = JSON.parse(results[1]);
+
+    lines.forEach(function (line, index) {
+      if (index !== 0 && line) {
+        var fields = line.split('\t');
+
+        var block = fields[0];
+        var query = fields[1];
+        var response = fields[2];
+        var style = fields[3];
+        var text = fields[4];
+
+        var b = lexicon.blocks.filter(function (b) { return b.id == block; })[0];
+        var q = b.queries.filter(function (q) { return q.id == query; })[0];
+        var resp = q.responses.filter(function (r) { return r.id == response; })[0];
+        console.log('updating', text);
+        resp.styles[style] = JSON.parse(text);
+      }
+    });
+
+    console.log(JSON.stringify(lexicon, null, 2));
+  });
+});
+
+task('api <href> [--env <env>]', {desc: 'show the JSON of an API resource, e.g. blocks/1'}, function (args, options) {
+  var path = args[0];
+
+  return createApi(options.env).get(path).then(function (response) {
+    console.log(JSON.stringify(response.body, null, 2));
+  });
+});
+
+function postPut(method, args, options) {
+  function postJson(content) {
+    var json = JSON.parse(content);
+    return createApi(options.env)[method](href || json.href, json).then(function (response) {
+      console.log(response.statusCode + ' => ' + JSON.stringify(response.body, null, 2));
+    });
+  }
+
+  if (options.d) {
+    var href = args[0];
+    return postJson(options.d);
+  } else {
+    var path = args[0];
+    var href = args[1];
+    return fs.readFile(path, 'utf-8').then(postJson);
+  }
+}
+
+['post', 'put'].forEach(function (method) {
+  task('api-' + method + ' [<file.json>|-d <json>] [<href>] [--env <env>]', {desc: 'put the JSON representation of an API resource. If the JSON has a `href` it will be used.'}, function (args, options) {
+    return postPut(method, args, options);
   });
 });

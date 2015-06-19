@@ -20,14 +20,17 @@ module.exports = function (options) {
       stream.pipe(mailparser);
     }
   });
-  server.listen(port);
 
-  return {
-    stop: function () {
-      return promisify(function (cb) {
-        server.close(cb);
-      });
-    },
-    url: 'smtp://localhost:' + port
-  };
+  return promisify(function (cb) {
+    server.listen(port, cb);
+  }).then(function () {
+    return {
+      stop: function () {
+        return promisify(function (cb) {
+          server.close(cb);
+        });
+      },
+      url: 'smtp://localhost:' + port
+    };
+  });
 };

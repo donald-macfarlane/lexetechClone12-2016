@@ -8,7 +8,7 @@ var _ = require("underscore");
 var sortable = require("../sortable");
 var moveItemInFromTo = require("../moveItemInFromTo");
 var blockName = require("../blockName");
-var editor = require("../../editor");
+var responseHtmlEditor = require("../../responseHtmlEditor");
 var reactBootstrap = require("react-bootstrap");
 var DropdownButton = reactBootstrap.DropdownButton;
 var MenuItem = reactBootstrap.MenuItem;
@@ -32,7 +32,30 @@ module.exports = React.createClass({
     var self = this;
 
     function loadPredicants() {
-      return self.props.http.get("/api/predicants").then(function(predicants) {
+      return Promise.all([
+        self.props.http.get("/api/predicants"),
+        self.props.http.get("/api/users", {suppressErrors: true}).then(undefined, function (error) {
+          // user doesn't have admin access to see users
+          // don't show users
+          if (error.status != 403) {
+            throw error;
+          }
+        })
+      ]).then(function(results) {
+        var predicants = results[0];
+        var users = results[1];
+
+        if (users) {
+          users.forEach(function (user) {
+            var id = 'user:' + user.id;
+            var name = user.firstName + ' ' + user.familyName;
+            predicants[id] = {
+              id: id,
+              name: name
+            };
+          });
+        }
+
         if (self.isMounted()) {
           return self.setState({
             predicants: predicants
@@ -75,8 +98,9 @@ module.exports = React.createClass({
     });
 
     if (!self.state.dirty && !clipboardPaste) {
-      return self.setState({
-        query: clone(newprops.query)
+      self.setState({
+        query: clone(newprops.query),
+        selectedResponse: undefined
       });
     }
   },
@@ -98,11 +122,11 @@ module.exports = React.createClass({
   bindHtml: function(model, field, transform) {
     var self = this;
 
-    return function(ev) {
+    return function(html) {
       if (transform) {
-        model[field] = transform(ev.target.innerHTML);
+        model[field] = transform(html);
       } else {
-        model[field] = ev.target.innerHTML;
+        model[field] = html;
       }
 
       self.update();
@@ -289,7 +313,6 @@ module.exports = React.createClass({
 
       function blocks(name, $class) {
         function setArguments(blockIds) {
-          console.log('blockIds', blockIds);
           action.arguments.splice(0, action.arguments.length);
           action.arguments.push.apply(action.arguments, blockIds.filter(function (id) { return self.state.blocks[id]; }));
           self.update();
@@ -534,8 +557,18 @@ module.exports = React.createClass({
   },
 
   cancel: function() {
+    var self = this;
+    var copy = clone(this.props.query);
+    var selectedResponse =
+      this.state.selectedResponse
+        ? copy.responses.filter(function (response) {
+          return response.id === self.state.selectedResponse.id;
+        })[0]
+        : undefined;
+
     return this.setState({
-      query: clone(this.props.query),
+      query: copy,
+      selectedResponse: selectedResponse,
       dirty: false
     });
   },
@@ -570,9 +603,19 @@ module.exports = React.createClass({
       });
     }
 
+    var editing = self.state.selectedResponse === response;
+
+    function renderStyle(style) {
+      if (editing) {
+        return React.createElement(responseHtmlEditor, { className: 'editor', onChange: self.bindHtml(response.styles, style), value: self.textValue(response.styles[style]) });
+      } else {
+        return r('div', {className: 'editor', dangerouslySetInnerHTML: {__html: response.styles[style] }});
+      }
+    }
+
     return r("li", { key: response.id },
       [
-        self.state.selectedResponse === response
+        editing
           ? r("div", {className: "buttons top"},
               r("button", {className: "close", onClick: deselect}, "Close")
             )
@@ -582,33 +625,31 @@ module.exports = React.createClass({
             r("label", {}, "Selector"),
             r("textarea", {onChange: self.bind(response, "text"), value: self.textValue(response.text), onFocus: select})
           ),
+          r("li", {className: "set-level"},
+            r("label", {}, "Set Level"),
+            self.numberInput(response, "setLevel")
+          ),
+          r("li", {className: "style1"},
+            r("label", {}, "Style 1"),
+            renderStyle('style1')
+          ),
+          r("li", {className: "style2"},
+            r("label", {}, "Style 2"),
+            renderStyle('style2')
+          ),
+          r("li", {className: "actions"},
+            r("label", {}, "Actions"),
+            self.renderActions(response.actions)
+          ),
+          r("li", {className: "predicants"},
+            r("label", {}, "Predicants Issued"),
+            self.renderPredicants(response.predicants)
+          ),
           self.state.selectedResponse === response
-            ? [
-                r("li", {className: "set-level"},
-                  r("label", {}, "Set Level"),
-                  self.numberInput(response, "setLevel")
-                ),
-                r("li", {className: "style1"},
-                  r("label", {}, "Style 1"),
-                  React.createElement(editor, { onChange: self.bindHtml(response.styles, "style1"), value: self.textValue(response.styles.style1) })
-                ),
-                r("li", {className: "style2"},
-                  r("label", {}, "Style 2"),
-                  React.createElement(editor, { onChange: self.bindHtml(response.styles, "style2"), value: self.textValue(response.styles.style2) })
-                ),
-                r("li", {className: "actions"},
-                  r("label", {}, "Actions"),
-                  self.renderActions(response.actions)
-                ),
-                r("li", {className: "predicants"},
-                  r("label", {}, "Predicants Issued"),
-                  self.renderPredicants(response.predicants)
-                )
-              ]
-            : undefined,
-          r("div", {className: "buttons"},
-            r("button", {className: "remove-response", onClick: remove}, "Remove")
-          )
+            ? r("div", {className: "buttons"},
+                r("button", {className: "remove-response", onClick: remove}, "Remove")
+              )
+            : undefined
         )
       ]
     );
@@ -628,6 +669,11 @@ module.exports = React.createClass({
     var dirty = self.state.dirty;
     var created = self.state.query.id;
     var activeWhenDirtyAndCreated = activeWhen(dirty && created);
+
+    function responseMoved(from, to) {
+      moveItemInFromTo(self.state.query.responses, from, to);
+      self.update();
+    }
 
     return r("div", {className: "edit-query"},
       r("h2", {}, "Query"),
@@ -730,24 +776,52 @@ module.exports = React.createClass({
           r("h3", {}, "Responses"),
           r("button", {className: "add", onClick: self.addResponse}, "Add Response"),
           r('div', {className: 'response-editor'},
-            r('ol', {className: "responses"},
-              self.state.query.responses.map(function (response) {
-                function select() {
-                  self.setState({
-                    selectedResponse: response
-                  });
-                }
+            React.createElement(sortable,
+              {
+                itemMoved: responseMoved,
+                render: function () {
+                  function hide() {
+                    self.setState({
+                      highlightedResponse: undefined
+                    });
+                  }
 
-                return r('li', {onClick: select, className: self.state.selectedResponse === response? 'selected': undefined}, response.text);
-              })
+                  return r('ol', {className: "responses"},
+                    self.state.query.responses.map(function (response) {
+                      function select() {
+                        self.setState({
+                          selectedResponse: response
+                        });
+                      }
+
+                      function show() {
+                        self.setState({
+                          highlightedResponse: response
+                        });
+                      }
+
+                      return r('li', {
+                        onClick: select,
+                        onMouseEnter: show,
+                        onMouseLeave: hide,
+                        className: self.state.selectedResponse === response? 'selected': undefined
+                      }, response.text);
+                    })
+                  );
+                }
+              }
             ),
-            self.state && self.state.selectedResponse
-              ? r('div', {className: 'selected-response'}, self.renderResponse(self.state.selectedResponse))
+            self.state && self.shownResponse()
+              ? r('div', {className: 'selected-response'}, self.renderResponse(self.shownResponse()))
               : undefined
           )
         )
       )
     );
+  },
+
+  shownResponse: function () {
+    return this.state.selectedResponse || this.state.highlightedResponse;
   }
 });
 

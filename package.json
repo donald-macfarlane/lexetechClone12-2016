@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "mocha test/*Spec.* test/server/**Spec.*",
-    "postinstall": "gulp build"
+    "postinstall": "bower install && gulp build"
   },
   "repository": {
     "type": "git",
@@ -22,7 +22,7 @@
   "homepage": "https://github.com/featurist/lexeme",
   "devDependencies": {
     "bluebird": "^2.3.11",
-    "bower": "^1.3.12",
+    "browser-monkey": "1.5.1",
     "chai": "2.0.0",
     "chai-as-promised": "4.2.0",
     "chinchilla": "0.0.9",
@@ -50,6 +50,8 @@
   },
   "dependencies": {
     "body-parser": "^1.10.0",
+    "bower": "^1.3.12",
+    "browser-monkey": "1.9.0",
     "browserify": "9.0.3",
     "connect-flash": "^0.1.1",
     "cookie-session": "1.1.0",
@@ -85,6 +87,7 @@
     "passport-local": "^1.0.0",
     "passport-local-mongoose": "^1.0.0",
     "plastiq": "1.16.0",
+    "plastiq-ckeditor": "1.3.0",
     "plastiq-medium-editor": "1.0.3",
     "plastiq-router": "2.5.0",
     "plastiq-semantic-ui": "1.3.0",

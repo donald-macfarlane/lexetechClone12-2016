@@ -2,7 +2,8 @@ var Promise = require("bluebird");
 var _ = require("underscore");
 var createContext = require("./context");
 var createCache = require("../common/cache");
-var lexemeApi = require("../browser/lexemeApi");
+var lexemeApi = require("./lexemeApi");
+var predicantByName = require('./predicantByName');
 
 function cloneContext(c) {
   var predicants, blockStack;
@@ -179,6 +180,7 @@ var nocache = {
 module.exports = function(options) {
   var api = (options && options.hasOwnProperty('api'))? options.api: lexemeApi();
   var cache = (options && options.hasOwnProperty('cache'))? options.cache: true;
+  var startingPredicants = options && options.hasOwnProperty('startingPredicants') && options.startingPredicants !== undefined? options.startingPredicants: [];
 
   var queryCache = cache && createCache() || nocache;
 
@@ -284,10 +286,33 @@ module.exports = function(options) {
     });
   }
 
+  function loadPredicants(names) {
+    return api.predicants().then(function (predicants) {
+      var predicantsByName = _.indexBy(_.values(predicants), 'name');
+      return names.map(function (name) {
+        return predicantByName(predicantsByName, name);
+      }).filter(function (pred) {
+        return pred;
+      }).map(function (pred) {
+        return pred.id;
+      });
+    });
+  }
+
   return {
     firstQueryGraph: function() {
-      return api.block(1).query(0).then(function(query) {
+      return Promise.all([
+        loadPredicants(startingPredicants),
+        api.block(1).query(0)
+      ]).then(function (results) {
+        var predicants = results[0];
+        var query = results[1];
+
         var firstPredicants = {};
+
+        predicants.forEach(function(p) {
+          return firstPredicants[p] = 0;
+        });
 
         var context = createContext({
           coherenceIndex: 0,

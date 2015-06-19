@@ -241,7 +241,7 @@ describe "query api"
         backupServer := backupApp.listen(backupAppPort)
 
         app.set 'backupHttpism' (httpism.api("http://localhost:#(backupAppPort)/content/"))
-        app.set 'backupDelay' (100)
+        app.set 'backupDelay' (300)
 
         l = lexicon.queries [
           {
@@ -267,7 +267,7 @@ describe "query api"
         api.post('/api/blocks/1/queries/1', query1)!
         api.post('/api/blocks/1/queries/1', query1)!
 
-        retry (timeout = 120)!
+        retry (timeout = 500)!
           expect(lexiconBackups.length).to.equal(1)
           expect([l <- lexiconBackups, b <- l.blocks, q <- b.queries, q.text]).to.eql(['query 1 (updated)'])
 
@@ -278,14 +278,14 @@ describe "query api"
         api.post('/api/blocks/1/queries/1', query1)!
         api.post('/api/blocks/1/queries/1', query1)!
 
-        retry (timeout = 120)!
+        retry (timeout = 500)!
           expect(lexiconBackups.length).to.equal(1)
           expect([l <- lexiconBackups, b <- l.blocks, q <- b.queries, q.text]).to.eql(['query 1 (updated)'])
 
         query1.text = 'query 1 (updated, again)'
         api.post('/api/blocks/1/queries/1', query1)!
 
-        retry (timeout = 120)!
+        retry (timeout = 500)!
           expect(lexiconBackups.length).to.equal(2)
           expect([l <- lexiconBackups, b <- l.blocks, q <- b.queries, q.text]).to.eql(['query 1 (updated)', 'query 1 (updated, again)'])
 
@@ -341,6 +341,7 @@ describe "query api"
     queries = api.get('/api/blocks/1/queries')!.body
     expect(queries.length).to.eql 2
     expect [q <- queries, q.text].to.eql ['query 1', 'query 2']
+    expect [q <- queries, q.href].to.eql ["/api/queries/#(queries.0.id)", "/api/queries/#(queries.1.id)"]
 
   it 'returns empty list for non-extant block'
     db.setLexicon(
@@ -424,8 +425,8 @@ describe "query api"
 
         queries = api.get! "/api/blocks/#(block.id)/queries".body
 
-        expect([q <- queries, { id = q.id, name = q.name, block = q.block }]).to.eql [
-          { id = '1', name = 'a query', block = '1' }
+        expect([q <- queries, { id = q.id, name = q.name, block = q.block, href = q.href }]).to.eql [
+          { id = '1', name = 'a query', block = '1', href = '/api/queries/1' }
         ]
 
       it 'ignores the query id on creation'
@@ -642,9 +643,13 @@ describe "query api"
         }
 
         postedQuery = api.post!('/api/user/queries', query).body
+        expect(postedQuery.href).to.equal "/api/user/queries/#(postedQuery.id)"
+
         queries = api.get!('/api/user/queries').body
 
         query.id = postedQuery.id
+        query.href = postedQuery.href
+
         expect(queries).to.eql [
           query
         ]

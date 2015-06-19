@@ -22,18 +22,22 @@ function urlWithParams(url, options) {
   }
 }
 
+var http = {};
+
 ['get', 'delete'].forEach(function (method) {
-  module.exports[method] = function (url, options) {
+  http[method] = function (url, options) {
     return send(method.toUpperCase(), urlWithParams(url, options), undefined, options);
   };
 });
 
 ['put', 'post'].forEach(function (method) {
-  module.exports[method] = function (url, body, options) {
+  http[method] = function (url, body, options) {
     return send(method.toUpperCase(), urlWithParams(url, options), body, options);
   };
 });
 
-module.exports.onError = function(fn) {
+http.onError = function(fn) {
   jquery(document).ajaxError(fn);
-}
+};
+
+module.exports = http;
