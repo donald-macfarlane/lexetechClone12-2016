@@ -8,7 +8,7 @@ var _ = require("underscore");
 var sortable = require("../sortable");
 var moveItemInFromTo = require("../moveItemInFromTo");
 var blockName = require("../blockName");
-var editor = require("../../editor");
+var editor = require("../../ckeditor");
 var reactBootstrap = require("react-bootstrap");
 var DropdownButton = reactBootstrap.DropdownButton;
 var MenuItem = reactBootstrap.MenuItem;
@@ -122,11 +122,11 @@ module.exports = React.createClass({
   bindHtml: function(model, field, transform) {
     var self = this;
 
-    return function(ev) {
+    return function(html) {
       if (transform) {
-        model[field] = transform(ev.target.innerHTML);
+        model[field] = transform(html);
       } else {
-        model[field] = ev.target.innerHTML;
+        model[field] = html;
       }
 
       self.update();
@@ -611,11 +611,11 @@ module.exports = React.createClass({
           ),
           r("li", {className: "style1"},
             r("label", {}, "Style 1"),
-            React.createElement(editor, { onChange: self.bindHtml(response.styles, "style1"), value: self.textValue(response.styles.style1) })
+            React.createElement(editor, { className: 'editor', inline: true, onChange: self.bindHtml(response.styles, "style1"), value: self.textValue(response.styles.style1) })
           ),
           r("li", {className: "style2"},
             r("label", {}, "Style 2"),
-            React.createElement(editor, { onChange: self.bindHtml(response.styles, "style2"), value: self.textValue(response.styles.style2) })
+            React.createElement(editor, { className: 'editor', inline: true, onChange: self.bindHtml(response.styles, "style2"), value: self.textValue(response.styles.style2) })
           ),
           r("li", {className: "actions"},
             r("label", {}, "Actions"),
