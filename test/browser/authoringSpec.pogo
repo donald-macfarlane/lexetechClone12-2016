@@ -7,12 +7,15 @@ $ = require '../../browser/jquery'
 chai = require 'chai'
 expect = chai.expect
 browser = require 'browser-monkey'
+ckeditorMonkey = require './ckeditorMonkey'
 
 createRouter = require 'mockjax-router'
 
 queryApi = require './queryApi'
 
-authoringElement = browser.component {
+testBrowser = browser.component(ckeditorMonkey)
+
+authoringElement = testBrowser.component {
   dropdownMenu(name) =
     self.find('.btn-group').containing('button.dropdown-toggle', text = name)
 
@@ -56,16 +59,16 @@ authoringElement = browser.component {
     self.actions().find('ul.dropdown-menu li a', text = name)
 }
 
-clipboardItem = browser.component {
+clipboardItem = testBrowser.component {
   removeButton() = self.find('.button.remove')
 }
 
-responsesElement = browser.component {
+responsesElement = testBrowser.component {
   addResponseButton() = self.find('button', text = 'Add Response')
   selectedResponse() = responseElement.scope(self.find('.selected-response'))
 }
 
-responseElement = browser.component {
+responseElement = testBrowser.component {
   responseSelector() = self.find('ul li.selector textarea')
   setLevel() = self.find('ul li.set-level input')
   predicantSearch() = self.find('ul li div.predicants input')
@@ -146,8 +149,8 @@ describe 'authoring'
         newResponse.setLevel().typeIn!('4')
         newResponse.predicantSearch().typeIn!('hemo')
         newResponse.predicant('Hemophilia').click!()
-        newResponse.style1().typeInHtml!('<p>style 1</p>')
-        newResponse.style2().typeInHtml!('<p>style 2</p>')
+        newResponse.style1().typeInCkEditorHtml!(' .<br/>style 1')
+        newResponse.style2().typeInCkEditorHtml!(' .<br/>style 2')
 
         actions = responses.find('ul li.actions')
         actions.find('button', text = 'Add Action').click!()
@@ -169,8 +172,8 @@ describe 'authoring'
                   text = 'response 1'
                   predicants = ["2"]
                   styles = {
-                    style1 = '<p>style 1</p>'
-                    style2 = '<p>style 2</p>'
+                    style1 = ".<br />\nstyle 1"
+                    style2 = ".<br />\nstyle 2"
                   }
                   actions = [
                     {

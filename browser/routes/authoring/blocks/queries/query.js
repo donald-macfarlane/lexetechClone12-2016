@@ -8,7 +8,7 @@ var _ = require("underscore");
 var sortable = require("../sortable");
 var moveItemInFromTo = require("../moveItemInFromTo");
 var blockName = require("../blockName");
-var editor = require("../../ckeditor");
+var responseHtmlEditor = require("../../responseHtmlEditor");
 var reactBootstrap = require("react-bootstrap");
 var DropdownButton = reactBootstrap.DropdownButton;
 var MenuItem = reactBootstrap.MenuItem;
@@ -607,7 +607,7 @@ module.exports = React.createClass({
 
     function renderStyle(style) {
       if (editing) {
-        return React.createElement(editor, { className: 'editor', inline: true, onChange: self.bindHtml(response.styles, style), value: self.textValue(response.styles[style]) });
+        return React.createElement(responseHtmlEditor, { className: 'editor', onChange: self.bindHtml(response.styles, style), value: self.textValue(response.styles[style]) });
       } else {
         return r('div', {className: 'editor', dangerouslySetInnerHTML: {__html: response.styles[style] }});
       }

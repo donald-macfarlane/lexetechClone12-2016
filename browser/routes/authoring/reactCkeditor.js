@@ -12,6 +12,10 @@ module.exports = React.createClass({
       this.editor = CKEDITOR.replace(element, this.props.config);
     }
 
+    this.editor.on('instanceReady', function () {
+      self.ready = true;
+    });
+
     this.editor.on('change', function (e) {
       if (!self.settingData) {
         self.html = e.editor.getData();
@@ -40,7 +44,9 @@ module.exports = React.createClass({
   },
 
   componentWillUnmount: function () {
-    this.editor.destroy();
+    if (this.ready) {
+      this.editor.destroy();
+    }
   },
 
   render: function () {

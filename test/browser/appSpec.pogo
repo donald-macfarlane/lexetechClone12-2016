@@ -16,6 +16,7 @@ repeatingLexicon = require '../repeatingLexicon'
 substitutingLexicon = require '../substitutingLexicon'
 punctuationLexicon = require '../punctuationLexicon'
 predicantLexicon = require '../predicantLexicon'
+ckeditorMonkey = require './ckeditorMonkey'
 
 describe 'report'
   div = nil
@@ -23,19 +24,7 @@ describe 'report'
   originalLocation = nil
   lexicon = nil
 
-  testBrowser = browser.find('.test').component {
-    typeInCkEditorHtml(html) =
-      e = self.is('.cke_editable').element()!
-
-      editor = [
-        key <- Object.keys(CKEDITOR.instances)
-        instance = CKEDITOR.instances.(key)
-        instance.element.$ == e
-        instance
-      ].0
-
-      editor.setData(html, ^)
-  }
+  testBrowser = browser.find('.test').component(ckeditorMonkey)
 
   rootBrowser = testBrowser.component {
     startNewDocumentButton() = self.find('.button', text = 'Start new document')
