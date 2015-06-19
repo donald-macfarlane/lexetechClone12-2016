@@ -593,9 +593,19 @@ module.exports = React.createClass({
       });
     }
 
+    var editing = self.state.selectedResponse === response;
+
+    function renderStyle(style) {
+      if (editing) {
+        return React.createElement(editor, { className: 'editor', inline: true, onChange: self.bindHtml(response.styles, style), value: self.textValue(response.styles[style]) });
+      } else {
+        return r('div', {className: 'editor', dangerouslySetInnerHTML: {__html: response.styles[style] }});
+      }
+    }
+
     return r("li", { key: response.id },
       [
-        self.state.selectedResponse === response
+        editing
           ? r("div", {className: "buttons top"},
               r("button", {className: "close", onClick: deselect}, "Close")
             )
@@ -611,11 +621,11 @@ module.exports = React.createClass({
           ),
           r("li", {className: "style1"},
             r("label", {}, "Style 1"),
-            React.createElement(editor, { className: 'editor', inline: true, onChange: self.bindHtml(response.styles, "style1"), value: self.textValue(response.styles.style1) })
+            renderStyle('style1')
           ),
           r("li", {className: "style2"},
             r("label", {}, "Style 2"),
-            React.createElement(editor, { className: 'editor', inline: true, onChange: self.bindHtml(response.styles, "style2"), value: self.textValue(response.styles.style2) })
+            renderStyle('style2')
           ),
           r("li", {className: "actions"},
             r("label", {}, "Actions"),
