@@ -2,6 +2,7 @@ var httpism = require('httpism');
 
 var environments = {
   prod: 'http://api:squidandeels@lexetech.herokuapp.com/api/',
+  design: 'http://api:squidandeels@lexetechdesign.herokuapp.com/api/',
   dev: 'http://api:squidandeels@localhost:8000/api/'
 };
 
