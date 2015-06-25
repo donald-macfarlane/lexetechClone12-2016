@@ -135,8 +135,13 @@ task('merge-styles styles.tab lexicon.json', function (args) {
 
         var b = lexicon.blocks.filter(function (b) { return b.id == block; })[0];
         var q = b.queries.filter(function (q) { return q.id == query; })[0];
-        var resp = q.responses.filter(function (r) { return r.id == response; })[0];
-        resp.styles[style] = JSON.parse(text);
+        
+        if (q) {
+          var resp = q.responses.filter(function (r) { return r.id == response; })[0];
+          resp.styles[style] = JSON.parse(text);
+        } else {
+          process.stderr.write('could not find query with ID: ' + query + '\n');
+        }
       }
     });
 
