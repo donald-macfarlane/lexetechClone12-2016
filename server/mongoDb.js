@@ -98,6 +98,10 @@ exports.updateUser = function (userId, user) {
   });
 };
 
+exports.deleteUser = function (userId) {
+  return User.findOneAndRemove({_id: userId}).exec();
+};
+
 function generateResetPasswordToken() {
   return promisify(function (cb) {
     crypto.randomBytes(20, cb);
