@@ -5,13 +5,32 @@ var r = React.createElement;
 var ReactRouter = require("react-router");
 var Navigation = ReactRouter.Navigation;
 var _ = require("underscore");
-var sortable = require("../sortable");
+var sortableReact = require("../sortable");
 var moveItemInFromTo = require("../moveItemInFromTo");
 var blockName = require("../blockName");
-var responseHtmlEditor = require("../../responseHtmlEditor");
+var responseHtmlEditor = require("../../../../responseHtmlEditor");
 var reactBootstrap = require("react-bootstrap");
 var DropdownButton = reactBootstrap.DropdownButton;
 var MenuItem = reactBootstrap.MenuItem;
+var plastiq = require('plastiq');
+var h = plastiq.html;
+var semanticUi = require('plastiq-semantic-ui');
+
+function sortable(options) {
+  return options.render();
+}
+
+function menuItem() {
+  var args = Array.prototype.slice.call(arguments);
+  args.unshift('.item');
+  return h.apply(undefined, args);
+}
+
+function dropdownButton() {
+  var args = Array.prototype.slice.call(arguments);
+  args.unshift('.drop-down-button');
+  return h.apply(undefined, args);
+}
 
 function clone(obj) {
   return JSON.parse(JSON.stringify(obj));
@@ -82,6 +101,8 @@ module.exports = React.createClass({
 
     loadPredicants();
     loadBlocks();
+
+    plastiq.append(this.getDOMNode(), this.renderPlastiq.bind(this), this.state);
   },
 
   componentWillReceiveProps: function(newprops) {
@@ -207,8 +228,8 @@ module.exports = React.createClass({
       return a.name == 'setBlocks' || a.name == 'addBlocks';
     }).length > 0;
 
-    return r("div", {},
-      r("ol", {},
+    return h("div",
+      h("ol",
         actions.map(function (action) {
           function remove() {
             removeAction(action);
@@ -216,83 +237,88 @@ module.exports = React.createClass({
           return self.renderAction(action, remove);
         })
       ),
-      r(DropdownButton, { title: "Add Action" },
-        !hasRepeat && !hasSetOrAddBlocks
-          ? r(MenuItem, {
-              onClick: addActionClick(function() {
-                return {
-                  name: "setBlocks",
-                  arguments: []
-                };
-              })
-            }, "Set Blocks")
-          : undefined,
+      semanticUi.dropdown(
+        h('.ui.floating.dropdown.icon.button',
+          h('i.dropdown', 'Add Action'),
+          h('.menu',
+            !hasRepeat && !hasSetOrAddBlocks
+              ? menuItem({
+                  onclick: addActionClick(function() {
+                    return {
+                      name: "setBlocks",
+                      arguments: []
+                    };
+                  })
+                }, "Set Blocks")
+              : undefined,
 
-        !hasRepeat && !hasSetOrAddBlocks
-          ? r(MenuItem, {
-              onClick: addActionClick(function() {
-                return {
-                  name: "addBlocks",
-                  arguments: []
-                };
-              })
-            }, "Add Blocks")
-          : undefined,
+            !hasRepeat && !hasSetOrAddBlocks
+              ? menuItem({
+                  onclick: addActionClick(function() {
+                    return {
+                      name: "addBlocks",
+                      arguments: []
+                    };
+                  })
+                }, "Add Blocks")
+              : undefined,
 
-        r(MenuItem,
-          {
-            onClick: addActionClick(function() {
-              return {
-                name: "repeatLexeme",
-                arguments: []
-              };
-            })
-          },
-          "Repeat"
-        ),
-        r(MenuItem,
-          {
-            onClick: addActionClick(function() {
-              return {
-                name: "setVariable",
-                arguments: [ "", "" ]
-              };
-            })
-          },
-          "Set Variable"
-        ),
-        r(MenuItem,
-          {
-            onClick: addActionClick(function() {
-              return {
-                name: "suppressPunctuation",
-                arguments: []
-              };
-            })
-          },
-          "Suppress Punctuation"
-        ),
-        r(MenuItem,
-          {
-            onClick: addActionClick(function() {
-              return {
-                name: "loadFromFile",
-                arguments: []
-              };
-            })
-          },
-          "Load from File"
-        ),
-        r(MenuItem,
-          {
-            onClick: addActionClick(function() {
-              return {
-                name: "loopBack",
-                arguments: []
-              };
-            })
-          },
-          "Loop Back"
+            menuItem(
+              {
+                onclick: addActionClick(function() {
+                  return {
+                    name: "repeatLexeme",
+                    arguments: []
+                  };
+                })
+              },
+              "Repeat"
+            ),
+            menuItem(
+              {
+                onclick: addActionClick(function() {
+                  return {
+                    name: "setVariable",
+                    arguments: [ "", "" ]
+                  };
+                })
+              },
+              "Set Variable"
+            ),
+            menuItem(
+              {
+                onclick: addActionClick(function() {
+                  return {
+                    name: "suppressPunctuation",
+                    arguments: []
+                  };
+                })
+              },
+              "Suppress Punctuation"
+            ),
+            menuItem(
+              {
+                onclick: addActionClick(function() {
+                  return {
+                    name: "loadFromFile",
+                    arguments: []
+                  };
+                })
+              },
+              "Load from File"
+            ),
+            menuItem(
+              {
+                onclick: addActionClick(function() {
+                  return {
+                    name: "loopBack",
+                    arguments: []
+                  };
+                })
+              },
+              "Loop Back"
+            )
+          )
         )
       )
     );
@@ -300,15 +326,13 @@ module.exports = React.createClass({
 
   renderAction: function(action, removeAction) {
       var self = this;
-      var renderAction;
 
       function removeButton() {
-          return r("div", {
-              className: "buttons"
-          }, r("button", {
-              className: "remove-action",
-              onClick: removeAction
-          }, "Remove"));
+        return h("div.buttons",
+          h("button.remove-action", {
+            onclick: removeAction
+          }, "Remove")
+        );
       }
 
       function blocks(name, $class) {
@@ -336,21 +360,16 @@ module.exports = React.createClass({
               removeBlock(b);
             }
 
-            return r("li", {},
-              r("span", {}, blockName(b)),
-              r("button",
-                {
-                  className: "remove-block remove",
-                  onClick: remove,
-                  dangerouslySetInnerHTML: {
-                    __html: "&cross;"
-                  }
-                }
+            return h("li",
+              h("span", blockName(b)),
+              h.rawHtml("button.remove-block.remove",
+                { onclick: remove },
+                "&cross;"
               )
             );
           });
 
-          return r("ol", {}, args);
+          return h("ol", args);
         }
 
         function itemMoved(from, to) {
@@ -358,38 +377,50 @@ module.exports = React.createClass({
           self.update();
         }
 
-        return r('li', {className: $class},
-          [r('h4', {}, name)].concat(
-            self.state.blocks
-              ? [
-                  React.createElement(rangeSelect, {
-                    onChange: setArguments,
-                    selectedItems: action.arguments,
-                    items: self.state.blocks
-                  }),
-                  React.createElement(sortable,
-                    {
-                      itemMoved: itemMoved,
-                      render: renderArguments
-                    }
-                  ),
-                  React.createElement(itemSelect,
-                    {
-                      onAdd: addBlock,
-                      onRemove: removeBlock,
-                      selectedItems: action.arguments,
-                      items: self.state.blocks,
-                      renderItemText: blockName,
-                      placeholder: "add block"
-                    }
-                  )
-                ]
-              : undefined
-          ).concat([removeButton()])
+        var filterBlocksConversion = {
+          text: function (numbers) {
+            return numbers;
+          },
+
+          value: function (numbers) {
+            return numbers.filter(function (n) { return self.state.blocks[n]; });
+          }
+        };
+
+        var numberArray = {
+          text: function (numbers) {
+            return numbers.map(Number);
+          },
+
+          value: function (numbers) {
+            return numbers.map(String);
+          }
+        };
+
+        return h('li', {class: $class},
+          h('h4', name),
+          self.state.blocks
+            ? [
+                h('input', {type: 'text', binding: [action, 'arguments', numberArray, filterBlocksConversion, rangeConversion]}),
+                sortable({
+                  itemMoved: itemMoved,
+                  render: renderArguments
+                }),
+                itemSelect({
+                  onAdd: addBlock,
+                  onRemove: removeBlock,
+                  selectedItems: action.arguments,
+                  items: self.state.blocks,
+                  renderItemText: blockName,
+                  placeholder: "add block"
+                })
+              ]
+            : undefined,
+          removeButton()
         );
       }
 
-      renderAction = {
+      var renderAction = {
         setBlocks: function(action) {
           return blocks("Set Blocks", "action-set-blocks");
         },
@@ -399,28 +430,24 @@ module.exports = React.createClass({
         },
 
         setVariable: function(action) {
-          return r("li", {},
-            r("h4", {},
-              "Set Variable"
-            ),
-            r("ul", {},
-              r("li", {},
-                r("label", {}, "Name"),
-                r("input",
+          return h("li",
+            h("h4", "Set Variable"),
+            h("ul",
+              h("li",
+                h("label", "Name"),
+                h("input",
                   {
                     type: "text",
-                    onChange: self.bind(action.arguments, 0),
-                    value: self.textValue(action.arguments[0])
+                    binding: [action, 0]
                   }
                 )
               ),
-              r("li", {},
-                r("label", {}, "Value"),
-                r("input",
+              h("li",
+                h("label","Value"),
+                h("input",
                   {
                     type: "text",
-                    onChange: self.bind(action.arguments, 1),
-                    value: self.textValue(action.arguments[1])
+                    binding: [action, 1]
                   }
                 )
               )
@@ -430,22 +457,22 @@ module.exports = React.createClass({
         },
 
         repeatLexeme: function(action) {
-          return r("li", {},
-            r("h4", {}, "Repeat Lexeme"),
+          return h("li",
+            h("h4", "Repeat Lexeme"),
             removeButton()
           );
         },
 
         suppressPunctuation: function(action) {
-          return r("li", {},
-            r("h4", {}, "Suppress Punctuation"),
+          return h("li",
+            h("h4", "Suppress Punctuation"),
             removeButton()
           );
         },
 
         loadFromFile: function(action) {
-          return r("li", {},
-            r("h4", {}, "Load from File"),
+          return h("li",
+            h("h4", "Load from File"),
             removeButton()
           );
         }
@@ -477,23 +504,20 @@ module.exports = React.createClass({
           return removePredicant(p);
         }
 
-        return r("li", {},
-          r("span", {}, p.name),
-          r("button",
+        return h("li",
+          h("span", p.name),
+          h.rawHtml("button.remove-predicant.remove",
             {
-              className: "remove-predicant remove",
-              onClick: remove,
-              dangerouslySetInnerHTML: {
-                  __html: "&cross;"
-              }
-            }
+              onclick: remove
+            },
+            "&cross;"
           )
         );
       }
 
-      return r("div", {className: "predicants"},
-        r("ol", {}, predicants.map(renderPredicant)),
-        r(itemSelect, {
+      return h("div.predicants",
+        h("ol", predicants.map(renderPredicant)),
+        itemSelect({
           onAdd: addPredicant,
           onRemove: removePredicant,
           selectedItems: predicants,
@@ -539,17 +563,16 @@ module.exports = React.createClass({
   },
 
   numberInput: function(model, field) {
-    return r("input",
+    return h("input",
       {
         type: "number",
-        onChange: this.bind(model, field, Number),
-        value: model[field],
-        onFocus: function(ev) {
+        binding: [model, field, Number],
+        onfocus: function(ev) {
           return $(ev.target).on("mousewheel.disableScroll", function(ev) {
             ev.preventDefault();
           });
         },
-        onBlur: function(ev) {
+        onblur: function(ev) {
           return $(ev.target).off("mousewheel.disableScroll");
         }
       }
@@ -607,47 +630,47 @@ module.exports = React.createClass({
 
     function renderStyle(style) {
       if (editing) {
-        return React.createElement(responseHtmlEditor, { className: 'editor', onChange: self.bindHtml(response.styles, style), value: self.textValue(response.styles[style]) });
+        return responseHtmlEditor({ class: 'editor', binding: [response.styles, style]});
       } else {
-        return r('div', {className: 'editor', dangerouslySetInnerHTML: {__html: response.styles[style] }});
+        return h.rawHtml('div.editor', response.styles[style]);
       }
     }
 
-    return r("li", { key: response.id },
+    return h("li", { key: response.id },
       [
         editing
-          ? r("div", {className: "buttons top"},
-              r("button", {className: "close", onClick: deselect}, "Close")
+          ? h("div.buttons.top",
+              h("button.close", {onclick: deselect}, "Close")
             )
           : undefined,
-        r("ul", {},
-          r("li", {className: "selector"},
-            r("label", {}, "Selector"),
-            r("textarea", {onChange: self.bind(response, "text"), value: self.textValue(response.text), onFocus: select})
+        h("ul",
+          h("li.selector",
+            h("label", "Selector"),
+            h("textarea", {binding: [response, 'text'], onfocus: select})
           ),
-          r("li", {className: "set-level"},
-            r("label", {}, "Set Level"),
+          h("li.set-level",
+            h("label", "Set Level"),
             self.numberInput(response, "setLevel")
           ),
-          r("li", {className: "style1"},
-            r("label", {}, "Style 1"),
+          h("li.style1",
+            h("label", "Style 1"),
             renderStyle('style1')
           ),
-          r("li", {className: "style2"},
-            r("label", {}, "Style 2"),
+          h("li.style2",
+            h("label", "Style 2"),
             renderStyle('style2')
           ),
-          r("li", {className: "actions"},
-            r("label", {}, "Actions"),
+          h("li.actions",
+            h("label", "Actions"),
             self.renderActions(response.actions)
           ),
-          r("li", {className: "predicants"},
-            r("label", {}, "Predicants Issued"),
+          h("li.predicants",
+            h("label", "Predicants Issued"),
             self.renderPredicants(response.predicants)
           ),
           self.state.selectedResponse === response
-            ? r("div", {className: "buttons"},
-                r("button", {className: "remove-response", onClick: remove}, "Remove")
+            ? h("div.buttons",
+                h("button.remove-response", {onclick: remove}, "Remove")
               )
             : undefined
         )
@@ -655,164 +678,159 @@ module.exports = React.createClass({
     );
   },
 
-  render: function() {
+  render: function () {
+    return r('div', {});
+  },
+
+  renderPlastiq: function() {
     var self = this;
 
     function activeWhen(b) {
-        if (b) {
-            return "";
-        } else {
-            return " disabled";
-        }
+      if (b) {
+        return undefined;
+      } else {
+        return "disabled";
+      }
     }
 
     var dirty = self.state.dirty;
     var created = self.state.query.id;
     var activeWhenDirtyAndCreated = activeWhen(dirty && created);
+    var dirtyAndCreated = dirty && created;
 
     function responseMoved(from, to) {
       moveItemInFromTo(self.state.query.responses, from, to);
       self.update();
     }
 
-    return r("div", {className: "edit-query"},
-      r("h2", {}, "Query"),
-      r("div", {className: "buttons"},
-        r("button", {className: "add-to-clipboard", onClick: self.addToClipboard}, "Add to Clipboard"),
+    return h("div.edit-query",
+      h("h2", "Query"),
+      h("div.buttons",
+        h("button.add-to-clipboard", {onclick: self.addToClipboard}, "Add to Clipboard"),
         created
           ? [
-            r("button",
+            h("button.insert-query-before",
               {
-                className: "insert-query-before" + activeWhenDirtyAndCreated,
-                onClick: self.insertBefore
+                class: activeWhenDirtyAndCreated,
+                onclick: self.insertBefore
               },
               "Insert Before"
             ),
-            r("button",
+            h("button.insert-query-after",
               {
-                className: "insert-query-after" + activeWhenDirtyAndCreated,
-                onClick: self.insertAfter
+                class: activeWhenDirtyAndCreated,
+                onclick: self.insertAfter
               },
               "Insert After"
             ),
-            r("button",
+            h("button.save",
               {
-                className: "save" + activeWhenDirtyAndCreated,
-                onClick: self.save
+                class: activeWhenDirtyAndCreated,
+                onclick: self.save
               },
               "Overwrite"
             ),
-            r("button",
+            h("button.cancel",
               {
-                className: "cancel" + activeWhen(dirty),
-                onClick: self.cancel
+                class: activeWhenDirtyAndCreated,
+                onclick: self.cancel
               },
               "Cancel"
             ),
-            r("button",
+            h("button.delete",
               {
-                className: "delete",
-                onClick: self.delete
+                onclick: self.delete
               },
               "Delete"
             ),
-            r("button",
+            h("button.close",
               {
-                className: "close",
-                onClick: self.close
+                onclick: self.close
               },
               "Close"
             )
           ]
           : [
-            r("button",
+            h("button.create",
               {
-                className: "create" + activeWhen(dirty && !created),
-                onClick: self.create
+                class: activeWhen(dirty && !created),
+                onclick: self.create
               },
               "Create"
             ),
-            r("button",
+            h("button.cancel",
               {
-                className: "cancel" + activeWhen(dirty),
-                onClick: self.cancel
+                class: activeWhen(dirty),
+                onclick: self.cancel
               },
               "Cancel"
             ),
-            r("button",
+            h("button.close",
               {
-                className: "close",
-                onClick: self.close
+                onclick: self.close
               },
               "Close"
             )
           ]
       ),
-      r("ul", {},
-        r("li", { key: "name", className: "name" },
-          r("label", {}, "Name"),
-          r("input", { type: "text", onChange: self.bind(self.state.query, "name"), value: self.textValue(self.state.query.name) })
+      h("ul",
+        h("li.name", { key: "name" },
+          h("label", "Name"),
+          h("input", { type: "text", binding: [self.state.query, 'name'] })
         ),
-        r("li", { key: "qtext", className: "question" },
-          r("label", {}, "Question"),
-          r("textarea", {
-            onChange: self.bind(self.state.query, "text"),
-            value: self.textValue(self.state.query.text)
+        h("li.question", { key: "qtext" },
+          h("label", "Question"),
+          h("textarea", {
+            binding: [self.state.query, 'text']
           })
         ),
-        r("li",
-          {
-            key: "level",
-            className: "level"
-          },
-          r("label", {}, "Level"),
+        h("li.level", { key: "level" },
+          h("label", "Level"),
           self.numberInput(self.state.query, "level")
         ),
-        r("li", {},
-          r("label", {}, "Predicants Needed"),
+        h("li",
+          h("label", "Predicants Needed"),
           self.renderPredicants(self.state.query.predicants)
         ),
-        r("li", {className: "responses"},
-          r("h3", {}, "Responses"),
-          r("button", {className: "add", onClick: self.addResponse}, "Add Response"),
-          r('div', {className: 'response-editor'},
-            React.createElement(sortable,
-              {
-                itemMoved: responseMoved,
-                render: function () {
-                  function hide() {
-                    self.setState({
-                      highlightedResponse: undefined
-                    });
-                  }
-
-                  return r('ol', {className: "responses"},
-                    self.state.query.responses.map(function (response) {
-                      function select() {
-                        self.setState({
-                          selectedResponse: response
-                        });
-                      }
-
-                      function show() {
-                        self.setState({
-                          highlightedResponse: response
-                        });
-                      }
-
-                      return r('li', {
-                        onClick: select,
-                        onMouseEnter: show,
-                        onMouseLeave: hide,
-                        className: self.state.selectedResponse === response? 'selected': undefined
-                      }, response.text);
-                    })
-                  );
+        h("li.responses",
+          h("h3", "Responses"),
+          h("button.add", {onclick: self.addResponse}, "Add Response"),
+          h('div.response-editor',
+            sortable({
+              itemMoved: responseMoved,
+              render: function () {
+                function hide() {
+                  self.setState({
+                    highlightedResponse: undefined
+                  });
                 }
+
+                return h('ol.responses',
+                  self.state.query.responses.map(function (response) {
+                    function select() {
+                      self.setState({
+                        selectedResponse: response
+                      });
+                    }
+
+                    function show() {
+                      self.setState({
+                        highlightedResponse: response
+                      });
+                    }
+
+                    return h('li', {
+                      onclick: select,
+                      onmouseenter: show,
+                      onmouseleave: hide,
+                      class: {selected: self.state.selectedResponse === response}
+                    }, response.text);
+                  })
+                );
               }
-            ),
+            }),
             self.state && self.shownResponse()
-              ? r('div', {className: 'selected-response'}, self.renderResponse(self.shownResponse()))
+              ? h('div.selected-response', self.renderResponse(self.shownResponse()))
               : undefined
           )
         )
@@ -825,32 +843,47 @@ module.exports = React.createClass({
   }
 });
 
-var rangeSelect = React.createClass({
-  getInitialState: function () {
-    return {
-      numbers: []
-    };
+function rangeSelect(options) {
+  var binding = options.binding;
+
+  return h('h1', 'range select');
+}
+
+/*
+ * state:
+ *  numbers
+ *  text
+ *  error
+ *
+ * props:
+ *  selectedItems
+ *  onChange
+ */
+var rangeConversion = {
+  value: function (text) {
+    return _.flatten(text.split(/\s*,\s*/).filter(function (n) {
+      return n;
+    }).map(function (n) {
+      var r = n.split(/\s*-\s*/);
+
+      if (r.length > 1) {
+        var low = Number(r[0]), high = Number(r[1]);
+        var diff = Math.min(high - low, 1000);
+        high = low + diff;
+        return _.range(low, high + 1);
+      } else {
+        return Number(n);
+      }
+    }));
   },
 
-  componentDidMount: function () {
-    this.setState({
-      numbers: this.props.selectedItems.map(function (n) { return Number(n); })
-    });
-  },
-
-  componentWillReceiveProps: function (nextProps) {
-    this.setState({
-      numbers: nextProps.selectedItems.map(function (n) { return Number(n); })
-    });
-  },
-
-  generateRanges: function (numbers) {
-    if (numbers) {
+  text: function (value) {
+    if (value) {
       var ranges = [];
       var last;
       var inRange;
 
-      numbers.forEach(function (n) {
+      value.forEach(function (n) {
         if (last !== undefined) {
           if (n == last + 1) {
             if (!inRange) {
@@ -878,188 +911,117 @@ var rangeSelect = React.createClass({
     } else {
       return '';
     }
-  },
-
-  parseNumbers: function (text) {
-    return _.flatten(text.split(/\s*,\s*/).filter(function (n) {
-      return n;
-    }).map(function (n) {
-      var r = n.split(/\s*-\s*/);
-
-      if (r.length > 1) {
-        var low = Number(r[0]), high = Number(r[1]);
-        var diff = Math.min(high - low, 1000);
-        high = low + diff;
-        return _.range(low, high + 1);
-      } else {
-        return Number(n);
-      }
-    }));
-  },
-
-  numbersText: function () {
-    var modelValue = this.state.numbers;
-    if (this.state.error) {
-      return this.state.text;
-    } else if (this.state.text === undefined) {
-      var modelText = this.generateRanges(modelValue);
-      this.state.text = modelText;
-      return modelText;
-    } else {
-      var previousValue = this.parseNumbers(this.state.text);
-      var modelText = this.generateRanges(modelValue);
-      var normalisedPreviousText = this.generateRanges(previousValue);
-
-      if (modelText === normalisedPreviousText) {
-        return this.state.text;
-      } else {
-        this.state.text = modelText;
-        return modelText;
-      }
-    }
-  },
-
-  textChange: function (ev) {
-    var text = ev.target.value;
-
-    try {
-      var numbers = this.parseNumbers(text);
-      this.props.onChange(numbers.map(function (x) { return String(x); }));
-      this.setState({
-        error: undefined,
-        text: text,
-        numbers: numbers
-      });
-    } catch (e) {
-      this.setState({
-        error: e,
-        text: text
-      });
-    }
-  },
-
-  render: function () {
-    return r('input', {onChange: this.textChange, type: 'text', value: this.numbersText()});
   }
-});
+};
 
-var itemSelect = React.createClass({
-  getInitialState: function() {
-    return {
-      search: "",
-      show: false
-    };
-  },
+function itemSelect(options) {
+  var items = options.items;
+  var selectedItems = options.selectedItems;
+  var renderItemText = options.renderItemText;
+  var placeholder = options.placeholder;
 
-  searchChange: function(ev) {
-    return this.setState({
-      search: ev.target.value
-    });
-  },
+  return h.component(
+    {
+      onadd: function () {
+        this.search = '';
+      }
+    },
+    function (component) {
+      var state = component.state;
 
-  focus: function() {
-    return this.setState({
-      show: true
-    });
-  },
+      state.search = state.search || '';
 
-  blur: function(ev) {
-    if (!this.state.activated) {
-      return this.setState({
-        show: false
+      function focus() {
+        state.show = true;
+      }
+
+      function blur(ev) {
+        if (!state.activated) {
+          state.show = false;
+        } else {
+          ev.target.focus();
+        }
+      }
+
+      function activate() {
+        state.activated = true;
+      }
+
+      function disactivate() {
+        state.activated = false;
+      }
+
+      function searchKeyDown(ev) {
+        if (ev.keyCode === 13) {
+          selectItem(matchingItems[0]);
+        }
+      }
+
+      function selectItem(p) {
+        if (selected[p.id]) {
+          removeFrom(p.id, selectedItems);
+        } else {
+          selectedItems.push(p.id);
+        }
+      }
+
+      function matchesSearch(p, search) {
+        if (search === "") {
+          return true;
+        } else {
+          var terms = _.compact(search.toLowerCase().split(/ +/));
+          return _.all(terms, function(t) {
+            return p.name && p.name.toLowerCase().indexOf(t) >= 0;
+          });
+        }
+      }
+
+      function renderMatchingItem(p) {
+        function select() {
+          return selectItem(p);
+        }
+
+        var text = renderItemText
+          ? renderItemText(p)
+          : p.name;
+
+        return h("li", {onclick: select},
+          h("span", text),
+          selected[p.id]
+            ? h.rawHtml("span.selected", "&#x2713;")
+            : undefined
+        );
+      }
+
+      var selected = index(selectedItems);
+      var matchingItems = Object.keys(items).map(function (k) {
+        return items[k];
+      }).filter(function (p) {
+        return matchesSearch(p, state.search);
       });
-    } else {
-      return ev.target.focus();
-    }
-  },
 
-  activate: function() {
-    return this.setState({
-      activated: true
-    });
-  },
-
-  disactivate: function() {
-    return this.setState({
-      activated: false
-    });
-  },
-
-  render: function() {
-    var self = this;
-
-    function matchesSearch(p, search) {
-      if (self.search === "") {
-        return true;
-      } else {
-        var terms = _.compact(search.toLowerCase().split(/ +/));
-        return _.all(terms, function(t) {
-          return p.name && p.name.toLowerCase().indexOf(t) >= 0;
-        });
-      }
-    }
-
-    var selected = index(self.props.selectedItems);
-    var matchingItems = Object.keys(self.props.items).map(function (k) {
-      return self.props.items[k];
-    }).filter(function (p) {
-      return matchesSearch(p, self.state.search);
-    });
-
-    function selectItem(p) {
-      if (selected[p.id]) {
-        return self.props.onRemove(p);
-      } else {
-        return self.props.onAdd(p);
-      }
-    }
-
-    function searchKeyDown(ev) {
-      if (ev.keyCode === 13) {
-        return selectItem(matchingItems[0]);
-      }
-    }
-
-    function renderMatchingItem(p) {
-      function select() {
-        return selectItem(p);
-      }
-
-      var text = self.props.renderItemText
-        ? self.props.renderItemText(p)
-        : p.name;
-
-      return r("li", {onClick: select},
-        r("span", {}, text),
-        selected[p.id]
-          ? r("span", { className: "selected", dangerouslySetInnerHTML: { __html: "&#x2713;" } })
-          : undefined
+      return h("div.item-select",
+        {
+          onmousedown: activate,
+          onmouseup: disactivate
+        },
+        h("input",
+          {
+            type: "text",
+            placeholder: placeholder,
+            binding: [state, 'search'],
+            onkeydown: searchKeyDown,
+            onblur: blur,
+            onfocus: focus
+          }
+        ),
+        h("div.select-list",
+          h("ol", {class: {show: state.show}}, matchingItems.map(renderMatchingItem))
+        )
       );
     }
-
-    return r("div",
-      {
-        className: "item-select",
-        onMouseDown: self.activate,
-        onMouseUp: self.disactivate,
-        onBlur: self.blur,
-        onFocus: self.focus
-      },
-      r("input",
-        {
-          type: "text",
-          placeholder: self.props.placeholder,
-          onChange: self.searchChange,
-          onKeyDown: searchKeyDown,
-          value: self.state.search
-        }
-      ),
-      r("div", {className: "select-list"},
-        r("ol", {className: self.state.show? "show": ""}, matchingItems.map(renderMatchingItem))
-      )
-    );
-  }
-});
+  );
+}
 
 function block(b) {
   return b();
