@@ -9,6 +9,7 @@ var blockName = require("../blockName");
 var _ = require("underscore");
 var itemSelect = require('./itemSelect');
 var clone = require('./clone');
+var routes = require('../../../../routes');
 var removeFromArray = require('./removeFromArray');
 
 function sortable(options) {
@@ -25,6 +26,7 @@ function QueryComponent(options) {
   this.query = options.query;
   this.originalQuery = options.originalQuery;
   this.props = options.props;
+  this.blockId = options.blockId;
   this.predicants = {};
   this.lastResponseId = 0;
 
@@ -679,9 +681,7 @@ QueryComponent.prototype.cancel = function() {
 };
 
 QueryComponent.prototype.close = function() {
-  return this.context.router.transitionTo("block", {
-    blockId: this.getParams().blockId
-  });
+  routes.authoringBlock({blockId: 6}).push();
 };
 
 QueryComponent.prototype.addToClipboard = function() {

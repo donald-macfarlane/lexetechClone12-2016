@@ -1,6 +1,6 @@
 var Promise = require("bluebird");
 var _ = require("underscore");
-var queryComponent = require("./queries/query");
+var queryComponent = require("./queries/queryComponent");
 var $ = require("../../../jquery");
 var blockName = require("./blockName");
 var queriesInHierarchyByLevel = require("./queriesInHierarchyByLevel");
@@ -8,6 +8,7 @@ var h = require('plastiq').html;
 var throttle = require('plastiq-throttle');
 var http = require('../../../http');
 var routes = require('../../../routes');
+var clone = require('./queries/clone');
 
 _debug = require('debug');
 var debug = _debug('block');
@@ -22,19 +23,23 @@ function BlockComponent() {
     self.selectedBlock = self.block(blockId);
   });
 
-  this.loadQuery = throttle(function (queryId, blocksLoaded) {
-    self.selectedQuery = self.query(queryId);
+  this.loadQuery = throttle(function (blockId, queryId, blocksLoaded) {
+    self.selectedQuery = self.query(blockId, queryId);
 
     if (self.selectedQuery) {
       self.queryComponent = queryComponent({
-        query: self.selectedQuery,
-        removeQuery: self.removeQuery,
-        updateQuery: self.updateQuery,
-        createQuery: self.createQuery,
-        insertQueryBefore: self.insertQueryBefore,
-        insertQueryAfter: self.insertQueryAfter,
-        pasteQueryFromClipboard: self.pasteQueryFromClipboard,
-        addToClipboard: self.addToClipboard
+        query: clone(self.selectedQuery),
+        originalQuery: self.selectedQuery,
+        blockId: self.selectedBlock.id,
+        props: {
+          removeQuery: self.removeQuery,
+          updateQuery: self.updateQuery,
+          createQuery: self.createQuery,
+          insertQueryBefore: self.insertQueryBefore,
+          insertQueryAfter: self.insertQueryAfter,
+          pasteQueryFromClipboard: self.pasteQueryFromClipboard,
+          addToClipboard: self.addToClipboard
+        }
       });
     } else {
       delete self.queryComponent;
@@ -58,25 +63,6 @@ function BlockComponent() {
   };
 }
 
-BlockComponent.prototype.setQuery = function (query) {
-  this.selectedQuery = query;
-
-  if (query) {
-    this.queryComponent = queryComponent({
-      query: this.selectedQuery,
-      removeQuery: this.removeQuery,
-      updateQuery: this.updateQuery,
-      createQuery: this.createQuery,
-      insertQueryBefore: this.insertQueryBefore,
-      insertQueryAfter: this.insertQueryAfter,
-      pasteQueryFromClipboard: this.pasteQueryFromClipboard,
-      addToClipboard: this.addToClipboard
-    });
-  } else {
-    delete this.queryComponent;
-  }
-};
-
 BlockComponent.prototype.repositionQueriesList = function (element) {
   if (this.blocks) {
     function pxNumber(x) {
@@ -97,9 +83,9 @@ BlockComponent.prototype.repositionQueriesList = function (element) {
   }
 };
 
-BlockComponent.prototype.query = function(queryId) {
+BlockComponent.prototype.query = function(blockId, queryId) {
   var self = this;
-  var block = this.block();
+  var block = this.block(blockId);
   if (block && block.queries) {
     return block.queries.filter(function (q) {
       return q.id == queryId;
@@ -140,13 +126,6 @@ BlockComponent.prototype.loadBlocks = function() {
 
             return self.queriesPromise.then(function() {
               blockSelf.refresh();
-
-              if (blockSelf.blockId() === self.block.id) {
-                var query = blockSelf.query();
-                if (query) {
-                  blockSelf.setQuery(query);
-                }
-              }
             });
           }
         };
@@ -160,15 +139,13 @@ BlockComponent.prototype.loadBlocks = function() {
   this.blocksPromise = getBlocks();
 
   return this.blocksPromise.then(function(latestBlocks) {
-    latestBlocks.forEach(function(block) {
+    var allQueries = Promise.all(latestBlocks.map(function(block) {
       return block.update();
+    })).then(function () {
+      self.blocksLoaded = true;
+      self.refresh();
     });
 
-    if (!self._dirty && !self.isNewBlock()) {
-      self.selectedBlock = self.block();
-    }
-
-    self.blocksLoaded = true;
     self.refresh();
     return latestBlocks;
   });
@@ -314,7 +291,6 @@ BlockComponent.prototype.removeQuery = function(q) {
   var self = this;
   q.deleted = true;
   return http.post("/api/blocks/" + self.blockId() + "/queries/" + q.id, q).then(function() {
-    self.setQuery();
     self.selectedBlock.update();
     routes.authoringBlock({blockId: self.blockId()}).replace();
   });
@@ -338,7 +314,7 @@ BlockComponent.prototype.render = function(blockId, queryId) {
   self.refresh = h.refresh;
 
   self.loadBlock(blockId, self.blocksLoaded);
-  self.loadQuery(queryId, self.blocksLoaded);
+  self.loadQuery(blockId, queryId, self.blocksLoaded);
 
   function renderQueries(block, queries) {
     return h("ol", queries.map(function (tree) {
