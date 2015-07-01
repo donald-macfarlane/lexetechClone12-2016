@@ -592,6 +592,23 @@ describe "query api"
         expect(names).to.contain('predicant 2')
         expect(names).to.contain('predicant 3')
 
+      it "can update a predicant's name"
+        predicant = api.post! '/api/predicants' { name = 'predicant 1' }.body
+
+        api.put! (predicant.href) {
+          name = 'predicant 1 (updated)'
+        }
+
+        predicants = api.get! '/api/predicants'.body
+
+        expect(predicants.(predicant.id).name).to.equal 'predicant 1 (updated)'
+        expect(predicants.(predicant.id).href).to.equal (predicant.href)
+
+        updatedPredicant = api.get! (predicant.href).body
+        expect(updatedPredicant.name).to.equal 'predicant 1 (updated)'
+        expect(updatedPredicant.href).to.equal (predicant.href)
+
+
       it 'can delete all predicants'
         api.post '/api/predicants' { name = 'predicant 1' }!
         api.delete '/api/predicants'!

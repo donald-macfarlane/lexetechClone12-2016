@@ -104,6 +104,10 @@ function incomingQuery(query) {
   delete query.href;
 }
 
+function outgoingPredicant(req, predicant) {
+  predicant.href = req.baseUrl + '/predicants/' + predicant.id;
+}
+
 app.get("/blocks/:id", function(req, res) {
   var db = app.get("db");
 
@@ -224,7 +228,11 @@ app.get("/predicants", function(req, res) {
   var db = app.get("db");
 
   db.predicants().then(function(predicants) {
-    res.send(predicants);
+    predicants.forEach(function (predicant) {
+      outgoingPredicant(req, predicant);
+    });
+    var predicantsById = _.indexBy(predicants, "id");
+    res.send(predicantsById);
   });
 });
 
@@ -235,10 +243,34 @@ app.post("/predicants", function(req, res) {
     ? db.addPredicants(req.body)
     : db.addPredicant(req.body)
 
-  added.then(function() {
-    res.status(201).send({});
+  added.then(function(result) {
+    if (result instanceof Array) {
+      result = result.forEach(function (p) {
+        outgoingPredicant(req, p);
+      });
+    } else {
+      outgoingPredicant(req, result);
+    }
+    res.status(201).send(result);
   });
 });
+
+app.put('/predicants/:id', handleErrors(function (req, res) {
+  var db = app.get('db');
+
+  return db.updatePredicantById(req.params.id, req.body).then(function () {
+    res.send(req.body);
+  });
+}));
+
+app.get('/predicants/:id', handleErrors(function (req, res) {
+  var db = app.get('db');
+
+  return db.predicantById(req.params.id).then(function (predicant) {
+    outgoingPredicant(req, predicant);
+    res.send(predicant);
+  });
+}));
 
 app.delete("/predicants", function(req, res) {
   var db = app.get("db");

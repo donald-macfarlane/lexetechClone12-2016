@@ -9,6 +9,7 @@ var throttle = require('plastiq-throttle');
 var http = require('../../../http');
 var routes = require('../../../routes');
 var clone = require('./queries/clone');
+var predicantsComponent = require('./predicantsComponent');
 
 _debug = require('debug');
 var debug = _debug('block');
@@ -300,6 +301,16 @@ BlockComponent.prototype.addBlock = function() {
   routes.authoringCreateBlock().push();
 };
 
+BlockComponent.prototype.showPredicants = function () {
+  var self = this;
+
+  this.predicantsComponent = predicantsComponent({
+    onclose: function () {
+      delete self.predicantsComponent;
+    }
+  });
+};
+
 BlockComponent.prototype.toggleClipboard = function(ev) {
   ev.preventDefault();
   this.showClipboard = !this.showClipboard;
@@ -369,12 +380,15 @@ BlockComponent.prototype.render = function(blockId, queryId) {
     h("div.edit-block-query",
       h.component(
         {
-          scroll: function () {
-            self.repositionQueriesList();
-          },
-
           onadd: function (element) {
-            window.addEventListener('scroll', this.scroll);
+            function scroll() {
+              self.repositionQueriesList(element);
+            }
+
+            this.scroll = scroll;
+
+            window.addEventListener('scroll', scroll);
+            self.repositionQueriesList(element);
             self.resizeQueriesDiv(element);
           },
 
@@ -421,7 +435,8 @@ BlockComponent.prototype.render = function(blockId, queryId) {
             ? h("div.blocks-queries",
                 h("h2", "Blocks"),
                 h("div.buttons",
-                  h("button", {onclick: self.addBlock.bind(self)}, "Add Block")
+                  h("button", {onclick: self.addBlock.bind(self)}, "Add Block"),
+                  h("button", {onclick: self.showPredicants.bind(self)}, "Predicants")
                 ),
                 h("ol", self.blocks.map(function(blockViewModel) {
                   var block = blockViewModel.block;
@@ -499,7 +514,10 @@ BlockComponent.prototype.render = function(blockId, queryId) {
                 ]
               : undefined
           )
-        : h("div")
+        : h("div"),
+      self.predicantsComponent
+        ? self.predicantsComponent.render()
+        : undefined
     )
   );
 };

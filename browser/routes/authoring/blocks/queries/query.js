@@ -9,6 +9,7 @@ var sortableReact = require("../sortable");
 var plastiq = require('plastiq');
 var queryComponent = require('./queryComponent');
 var clone = require('./clone');
+var loadPredicants = require('../loadPredicants');
 
 function dropdownButton() {
   var args = Array.prototype.slice.call(arguments);
@@ -29,35 +30,6 @@ module.exports = React.createClass({
 
   componentDidMount: function() {
     var self = this;
-
-    function loadPredicants() {
-      return Promise.all([
-        self.props.http.get("/api/predicants"),
-        self.props.http.get("/api/users", {suppressErrors: true}).then(undefined, function (error) {
-          // user doesn't have admin access to see users
-          // don't show users
-          if (error.status != 403) {
-            throw error;
-          }
-        })
-      ]).then(function(results) {
-        var predicants = results[0];
-        var users = results[1];
-
-        if (users) {
-          users.forEach(function (user) {
-            var id = 'user:' + user.id;
-            var name = user.firstName + ' ' + user.familyName;
-            predicants[id] = {
-              id: id,
-              name: name
-            };
-          });
-        }
-
-        return predicants;
-      });
-    }
 
     function loadBlocks() {
       return self.props.http.get("/api/blocks").then(function(blockList) {

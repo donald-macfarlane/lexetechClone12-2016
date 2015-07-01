@@ -361,7 +361,8 @@ module.exports = function() {
     getLexicon: function() {
       var self = this;
 
-      return this.predicants().then(function (predicantsById) {
+      return this.predicants().then(function (predicants) {
+        var predicantsById = _.indexBy(predicants, 'id');
         function getBlockQueries(block) {
           return blockQueries.list(block.id).then(function (queries) {
             block.queries = queries.map(function (query) {
@@ -456,9 +457,11 @@ module.exports = function() {
     },
 
     predicants: function(predicant) {
-      return predicants.list().then(function(predicants) {
-        return _.indexBy(predicants, "id");
-      });
+      return predicants.list();
+    },
+
+    predicantById: function (id) {
+      return predicants.get(id);
     },
 
     removeAllPredicants: function() {
@@ -466,11 +469,19 @@ module.exports = function() {
     },
 
     addPredicant: function(predicant) {
-      return predicants.add(predicant);
+      return predicants.add(predicant).then(function () {
+        return predicant;
+      });
     },
 
     addPredicants: function(p) {
-      return predicants.addAll(p);
+      return predicants.addAll(p).then(function () {
+        return p;
+      });
+    },
+
+    updatePredicantById: function(id, predicant) {
+      return predicants.update(id, predicant);
     },
 
     blockQueries: function(blockId) {
