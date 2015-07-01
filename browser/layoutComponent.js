@@ -54,12 +54,9 @@ function topMenuTabs(model) {
   function authoringTab() {
     if (model.user.author) {
       if (query && query.query) {
-        return h('a',
-          {href: '/authoring/blocks/' + query.query.block + '/queries/' + query.query.id},
-          'Authoring: ' + query.query.text
-        );
+        return routeTab(routes.authoringQuery({queryId: query.query.id}), 'Authoring: ' + query.query.text);
       } else {
-        return h('a', {href: '/authoring'}, 'Authoring')
+        return routeTab(routes.authoring(), 'Authoring');
       }
     }
   }

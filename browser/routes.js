@@ -8,5 +8,9 @@ module.exports = {
   admin: router.route('/admin'),
   adminUser: router.route('/admin/users/:userId'),
   resetPassword: router.route('/resetpassword/:token'),
-  authorQuery: router.route('/authoring/blocks/:blockId/queries/:queryId')
+  authoring: router.route('/authoring'),
+  authoringCreateBlock: router.route('/authoring/blocks/create'),
+  authoringBlock: router.route('/authoring/blocks/:blockId'),
+  authoringCreateQuery: router.route('/authoring/blocks/:blockId/queries/create'),
+  authoringQuery: router.route('/authoring/blocks/:blockId/queries/:queryId')
 };
