@@ -608,6 +608,18 @@ describe "query api"
         expect(updatedPredicant.name).to.equal 'predicant 1 (updated)'
         expect(updatedPredicant.href).to.equal (predicant.href)
 
+      it "can delete a predicant"
+        predicants = api.post!('/api/predicants', [
+          { name = 'predicant 1' }
+          { name = 'predicant 2' }
+        ]).body
+
+        api.delete! (predicants.1.href)
+
+        updatedPredicants = api.get! '/api/predicants'.body
+
+        expect(Object.keys(updatedPredicants)).to.eql ["1"]
+        expect(updatedPredicants.(predicants.0.id).name).to.equal 'predicant 1'
 
       it 'can delete all predicants'
         api.post '/api/predicants' { name = 'predicant 1' }!

@@ -4,31 +4,33 @@ var loadPredicants = require('./loadPredicants');
 var _ = require('underscore');
 var throttle = require('plastiq-throttle');
 var http = require('../../../http');
+var clone = require('./queries/clone');
 
 function PredicantsComponent(options) {
   var self = this;
 
   this.onclose = options.onclose;
 
-  this.predicants = [];
+  this.predicants = options.predicants;
   this.filteredPredicants = [];
 
-  loadPredicants().then(function (predicants) {
-    self.predicants = _.values(predicants);
+  this.predicants.load().then(function () {
     self.refresh();
   });
 
   this.search = throttle(function (query) {
     if (query) {
       var lowerCaseQuery = query.toLowerCase();
-      this.filteredPredicants = this.predicants.filter(function (predicant) {
+      this.filteredPredicants = this.predicants.predicants.filter(function (predicant) {
         return predicant.name.toLowerCase().indexOf(lowerCaseQuery) >= 0;
       });
     } else {
-      this.filteredPredicants = this.predicants;
+      this.filteredPredicants = this.predicants.predicants;
     }
   });
 }
+
+PredicantsComponent.prototype.refresh = function () {};
 
 PredicantsComponent.prototype.render = function () {
   var self = this;
@@ -38,7 +40,8 @@ PredicantsComponent.prototype.render = function () {
   this.search(this.query);
 
   function selectPredicant(predicant) {
-    self.selectedPredicant = predicant;
+    self.originalSelectedPredicant = predicant;
+    self.selectedPredicant = clone(predicant);
   }
 
   return semanticUi.modal(
@@ -51,8 +54,16 @@ PredicantsComponent.prototype.render = function () {
       h('i.close.icon'),
       h('.header', 'Predicants'),
       h('.content',
-        h('.ui.horizontal.segments',
-          h('.ui.segment',
+        h('.predicants-editor',
+          h('.predicant-search',
+            h('.ui.button',
+              {
+                onclick: function () {
+                  self.selectedPredicant = {};
+                }
+              },
+              'Create'
+            ),
             h('.ui.icon.input',
               h('input', {type: 'text', placeholder: 'search predicants', binding: [this, 'query']}),
               h('i.search.icon')
@@ -72,22 +83,45 @@ PredicantsComponent.prototype.render = function () {
               })
             )
           ),
-          h('.ui.segment',
-            self.selectedPredicant
-              ? h('.predicant',
-                  h('h1', 'Predicant'),
-                  h('input', {type: 'text', binding: [self.selectedPredicant, 'name']}),
+          self.selectedPredicant
+            ? h('.selected-predicant',
+                h('h1', 'Predicant'),
+                h('input', {type: 'text', binding: [self.selectedPredicant, 'name']}),
+                h('.buttons',
+                  self.selectedPredicant.id
+                  ? h('.ui.button.blue', {
+                      onclick: function () {
+                        return http.put(self.selectedPredicant.href, self.selectedPredicant).then(function () {
+                          self.originalSelectedPredicant.name = self.selectedPredicant.name;
+                          delete self.selectedPredicant;
+                        });
+                      }
+                    }, 'Save')
+                  : h('.ui.button.green', {
+                      onclick: function () {
+                        return http.post('/api/predicants', self.selectedPredicant).then(function (predicant) {
+                          delete self.selectedPredicant;
+                          self.predicants.addPredicant(predicant);
+                        });
+                      }
+                    }, 'Create'),
                   h('.ui.button', {
                     onclick: function () {
-                      return http.put(self.selectedPredicant.href, self.selectedPredicant).then(function () {
+                      delete self.selectedPredicant;
+                    }
+                  }, 'Close'),
+                  h('.ui.button.red', {
+                    onclick: function () {
+                      return http.delete(self.selectedPredicant.href).then(function () {
+                        self.predicants.removePredicant(self.originalSelectedPredicant);
                         delete self.selectedPredicant;
-                        self.refresh();
+                        self.search.reset();
                       });
                     }
-                  }, 'Save')
+                  }, 'Delete')
                 )
-              : undefined
-          )
+              )
+            : undefined
         )
       )
     )

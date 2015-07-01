@@ -236,16 +236,16 @@ app.get("/predicants", function(req, res) {
   });
 });
 
-app.post("/predicants", function(req, res) {
+app.post("/predicants", handleErrors(function(req, res) {
   var db = app.get("db");
 
   var added = req.body instanceof Array
     ? db.addPredicants(req.body)
     : db.addPredicant(req.body)
 
-  added.then(function(result) {
+  return added.then(function(result) {
     if (result instanceof Array) {
-      result = result.forEach(function (p) {
+      result.forEach(function (p) {
         outgoingPredicant(req, p);
       });
     } else {
@@ -253,7 +253,7 @@ app.post("/predicants", function(req, res) {
     }
     res.status(201).send(result);
   });
-});
+}));
 
 app.put('/predicants/:id', handleErrors(function (req, res) {
   var db = app.get('db');
@@ -276,6 +276,14 @@ app.delete("/predicants", function(req, res) {
   var db = app.get("db");
 
   db.removeAllPredicants().then(function() {
+    res.status(204).send({});
+  });
+});
+
+app.delete("/predicants/:id", function(req, res) {
+  var db = app.get("db");
+
+  db.removePredicantById(req.params.id).then(function() {
     res.status(204).send({});
   });
 });

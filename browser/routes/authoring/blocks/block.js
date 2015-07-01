@@ -10,6 +10,7 @@ var http = require('../../../http');
 var routes = require('../../../routes');
 var clone = require('./queries/clone');
 var predicantsComponent = require('./predicantsComponent');
+var predicants = require('./predicants');
 
 _debug = require('debug');
 var debug = _debug('block');
@@ -24,6 +25,8 @@ function BlockComponent() {
     self.selectedBlock = self.block(blockId);
   });
 
+  this.predicants = predicants();
+
   this.loadQuery = throttle(function (blockId, queryId, blocksLoaded) {
     self.selectedQuery = self.query(blockId, queryId);
 
@@ -32,6 +35,7 @@ function BlockComponent() {
         query: clone(self.selectedQuery),
         originalQuery: self.selectedQuery,
         blockId: self.selectedBlock.id,
+        predicants: self.predicants,
         props: {
           removeQuery: self.removeQuery,
           updateQuery: self.updateQuery,
@@ -307,7 +311,8 @@ BlockComponent.prototype.showPredicants = function () {
   this.predicantsComponent = predicantsComponent({
     onclose: function () {
       delete self.predicantsComponent;
-    }
+    },
+    predicants: this.predicants
   });
 };
 

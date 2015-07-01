@@ -468,6 +468,10 @@ module.exports = function() {
       return predicants.removeAll();
     },
 
+    removePredicantById: function(id) {
+      return predicants.remove(id);
+    },
+
     addPredicant: function(predicant) {
       return predicants.add(predicant).then(function () {
         return predicant;

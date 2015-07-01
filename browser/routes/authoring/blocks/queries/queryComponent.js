@@ -23,12 +23,18 @@ function menuItem() {
 }
 
 function QueryComponent(options) {
+  var self = this;
+
   this.query = options.query;
   this.originalQuery = options.originalQuery;
   this.props = options.props;
   this.blockId = options.blockId;
-  this.predicants = {};
+  this.predicants = options.predicants;
   this.lastResponseId = 0;
+
+  this.predicants.load().then(function () {
+    self.refresh();
+  });
 
   this.dirty = this.dirty.bind(this);
 }
@@ -573,9 +579,9 @@ QueryComponent.prototype.renderPredicants = function(predicants) {
     self.dirty();
   }
 
-  if (Object.keys(self.predicants).length > 0) {
+  if (self.predicants.loaded) {
     function renderPredicant(id) {
-      var p = self.predicants[id];
+      var p = self.predicants.predicantsById[id];
 
       function remove() {
         return removePredicant(p);
@@ -598,7 +604,7 @@ QueryComponent.prototype.renderPredicants = function(predicants) {
         onAdd: addPredicant,
         onRemove: removePredicant,
         selectedItems: predicants,
-        items: self.predicants,
+        items: self.predicants.predicantsById,
         placeholder: "add predicant"
       })
     );

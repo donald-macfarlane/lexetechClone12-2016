@@ -1,5 +1,6 @@
 var h = require('plastiq').html;
 var removeFromArray = require('./removeFromArray');
+var _ = require('underscore');
 
 module.exports = function(options) {
   var items = options.items;
