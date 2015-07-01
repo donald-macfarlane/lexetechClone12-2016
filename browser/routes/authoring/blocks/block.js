@@ -42,13 +42,20 @@ function BlockComponent() {
   });
 
   this.loadClipboard();
-  // this.repositionQueriesList();
-  // this.resizeQueriesDiv();
-  /*
-  return $(window).on("scroll.repositionQueriesList", function() {
-    return self.repositionQueriesList();
-  });
-  */
+
+  this.dirtyBinding = function (model, property) {
+    return {
+      get: function () {
+        return model[property];
+      },
+
+      set: function (value) {
+        console.log('dirty binding');
+        self._dirty = true;
+        model[property] = value;
+      }
+    };
+  };
 }
 
 BlockComponent.prototype.setQuery = function (query) {
@@ -70,7 +77,7 @@ BlockComponent.prototype.setQuery = function (query) {
   }
 };
 
-BlockComponent.prototype.repositionQueriesList = function () {
+BlockComponent.prototype.repositionQueriesList = function (element) {
   if (this.blocks) {
     function pxNumber(x) {
       var m;
@@ -82,7 +89,6 @@ BlockComponent.prototype.repositionQueriesList = function () {
       }
     }
 
-    var element = this.getDOMNode();
     var buttons = $(element).find(".blocks-queries > .buttons");
     var marginBottom = buttons.css("margin-bottom");
     var top = Math.max(0, pxNumber(marginBottom) + buttons.offset().top + buttons.height() - Math.max(0, window.scrollY));
@@ -101,9 +107,8 @@ BlockComponent.prototype.query = function(queryId) {
   }
 };
 
-BlockComponent.prototype.resizeQueriesDiv = function() {
-  var element = this.getDOMNode();
-  var queriesDiv = $(element).find(".left-panel");
+BlockComponent.prototype.resizeQueriesDiv = function(element) {
+  var queriesDiv = $(element);
   var queriesOl = $(element).find(".blocks-queries > ol");
   var width = queriesOl.outerWidth();
   queriesDiv.css("min-width", width + "px");
@@ -159,7 +164,7 @@ BlockComponent.prototype.loadBlocks = function() {
       return block.update();
     });
 
-    if (!self.dirty && !self.isNewBlock()) {
+    if (!self._dirty && !self.isNewBlock()) {
       self.selectedBlock = self.block();
     }
 
@@ -218,12 +223,13 @@ BlockComponent.prototype.addQuery = function() {
 };
 
 BlockComponent.prototype.dirty = function(value) {
-  this.dirty = true;
+  console.log('dirty');
+  this._dirty = true;
   return value;
 };
 
 BlockComponent.prototype.clean = function(value) {
-  this.dirty = false;
+  this._dirty = false;
   return value;
 };
 
@@ -385,77 +391,97 @@ BlockComponent.prototype.render = function(blockId, queryId) {
 
   return h('.authoring-index.edit-lexicon',
     h("div.edit-block-query",
-      h("div.left-panel",
-        h("div.clipboard",
-          h("h2",
-            h("a", {href: "#", onclick: self.toggleClipboard.bind(self)}, "Clipboard",
-              self.clipboard
-                ? " (" + self.clipboard.length + ")"
-                : undefined
-            )
-          ),
-          self.showClipboard
-            ? h("ol",
+      h.component(
+        {
+          scroll: function () {
+            self.repositionQueriesList();
+          },
+
+          onadd: function (element) {
+            window.addEventListener('scroll', this.scroll);
+            self.resizeQueriesDiv(element);
+          },
+
+          onupdate: function (element) {
+            self.resizeQueriesDiv(element);
+          },
+
+          onremove: function () {
+            window.removeEventListener('scroll', this.scroll);
+          }
+        },
+        h("div.left-panel",
+          h("div.clipboard",
+            h("h2",
+              h("a", {href: "#", onclick: self.toggleClipboard.bind(self)}, "Clipboard",
                 self.clipboard
-                  ? self.clipboard.map(function (q) {
-                      function pasteFromClipboard(ev) {
-                        self.pasteQueryFromClipboard(q);
-                        ev.preventDefault();
-                      }
-
-                      function removeFromClipboard(ev) {
-                        self.removeFromClipboard(q);
-                      }
-
-                      return h("li", {onclick: pasteFromClipboard},
-                        h("h4", q.name),
-                        h("button.button.remove", {onclick: removeFromClipboard}, "remove")
-                      );
-                    })
+                  ? " (" + self.clipboard.length + ")"
                   : undefined
               )
-            : undefined
-        ),
-        self.blocks
-          ? h("div.blocks-queries",
-              h("h2", "Blocks"),
-              h("div.buttons",
-                h("button", {onclick: self.addBlock.bind(self)}, "Add Block")
-              ),
-              h("ol", self.blocks.map(function(blockViewModel) {
-                var block = blockViewModel.block;
+            ),
+            self.showClipboard
+              ? h("ol",
+                  self.clipboard
+                    ? self.clipboard.map(function (q) {
+                        function pasteFromClipboard(ev) {
+                          self.pasteQueryFromClipboard(q);
+                          ev.preventDefault();
+                        }
 
-                function selectBlock(ev) {
-                  routes.authoringBlock({blockId: block.id}).replace();
-                  return ev.stopPropagation();
-                }
+                        function removeFromClipboard(ev) {
+                          self.removeFromClipboard(q);
+                        }
 
-                function show(ev) {
-                  blockViewModel.hideQueries = false;
-                  ev.stopPropagation();
-                }
-
-                function hide(ev) {
-                  blockViewModel.hideQueries = true;
-                  ev.stopPropagation();
-                }
-
-                return h("li",
-                  h("h3", {onclick: selectBlock, class: {selected: self.blockId() === block.id}},
-                    (blockViewModel.queries && blockViewModel.queries.length > 0)
-                      ? blockViewModel.hideQueries
-                        ? h("button.toggle", {onclick: show}, "+")
-                        : h("button.toggle", {onclick: hide}, "-")
-                      : undefined,
-                    blockName(block)
-                  ),
-                  (!blockViewModel.hideQueries && blockViewModel.queriesHierarchy)
-                    ? renderQueries(block, blockViewModel.queriesHierarchy)
+                        return h("li", {onclick: pasteFromClipboard},
+                          h("h4", q.name),
+                          h("button.button.remove", {onclick: removeFromClipboard}, "remove")
+                        );
+                      })
                     : undefined
-                );
-              }))
-            )
-          : undefined
+                )
+              : undefined
+          ),
+          self.blocks
+            ? h("div.blocks-queries",
+                h("h2", "Blocks"),
+                h("div.buttons",
+                  h("button", {onclick: self.addBlock.bind(self)}, "Add Block")
+                ),
+                h("ol", self.blocks.map(function(blockViewModel) {
+                  var block = blockViewModel.block;
+
+                  function selectBlock(ev) {
+                    routes.authoringBlock({blockId: block.id}).replace();
+                    return ev.stopPropagation();
+                  }
+
+                  function show(ev) {
+                    blockViewModel.hideQueries = false;
+                    ev.stopPropagation();
+                  }
+
+                  function hide(ev) {
+                    blockViewModel.hideQueries = true;
+                    ev.stopPropagation();
+                  }
+
+                  return h("li",
+                    h("h3", {onclick: selectBlock, class: {selected: self.blockId() === block.id}},
+                      (blockViewModel.queries && blockViewModel.queries.length > 0)
+                        ? blockViewModel.hideQueries
+                          ? h("button.toggle", {onclick: show}, "+")
+                          : h("button.toggle", {onclick: hide}, "-")
+                        : undefined,
+                      blockName(block)
+                    ),
+                    (!blockViewModel.hideQueries && blockViewModel.queriesHierarchy)
+                      ? renderQueries(block, blockViewModel.queriesHierarchy)
+                      : undefined
+                  );
+                }))
+              )
+            : undefined
+        )
       ),
       (self.selectedBlock && self.selectedBlock.block)
         ? h("div.edit-block",
@@ -463,13 +489,13 @@ BlockComponent.prototype.render = function(blockId, queryId) {
             h("div.buttons",
               !self.blockId()
                 ? h("button.create", {onclick: self.create.bind(self)}, "Create")
-                : self.dirty
+                : self._dirty
                   ? h("button.save", {onclick: self.save.bind(self)}, "Save")
                   : undefined,
               self.blockId()
                 ? h("button.delete", {onclick: self.delete.bind(self)}, "Delete")
                 : undefined,
-              (self.dirty || self.isNewBlock())
+              (self._dirty || self.isNewBlock())
                 ? h("button.cancel", {onclick: self.cancel.bind(self)}, "Cancel")
                 : h("button.cancel", {onclick: self.cancel.bind(self)}, "Close")
             ),
@@ -479,7 +505,7 @@ BlockComponent.prototype.render = function(blockId, queryId) {
                 h("input", {
                   id: "block_name",
                   type: "text",
-                  binding: [self.selectedBlock.block, 'name']
+                  binding: self.dirtyBinding(self.selectedBlock.block, 'name')
                 })
               )
             ),
