@@ -12,13 +12,21 @@ body {
   margin: 0;
   padding: 0;
   .main {
-    background: url(/source/background.png);
+    min-width: 1024px;
+    background: url(/source/background.png) 20px 0;
     > .content {
+      top:-20px
+    }
+    > .content, .top-menu .content {
       position: relative;
       padding: 10px;
       width: 1024px;
       margin: 0 auto;
       background: url(/source/content-background.png);
+    }
+    .top-menu .content{
+      background: none;
+      padding-top:0;
     }
   }
 }
@@ -93,50 +101,80 @@ footer {
   }
 }
 
+.shadow {
+  -webkit-box-shadow: 0px 20px 41px -4px rgba(50, 50, 50, 1.74);
+  -moz-box-shadow: 0px 20px 41px -4px rgba(50, 50, 50, 1.74);
+  box-shadow: 0px 20px 41px -4px rgba(50, 50, 50, 1.74);
+  height: 20px;
+  position: relative;
+  top: -60px;
+}
+
 .top-menu {
   height: 237px;
-  border-bottom: 1px solid #D3CEAA;
-  background: #09492a url(/source/header-background.png) 0 10px repeat-x;
-  padding-top:10px;
+  border-top:10px solid #09492a;
+  background: url(/source/header-background.png) repeat-x;
+  text-align: right;
+  z-index: 1;
+  position: relative; 
 
   .logo {
     width: 302px;
     height: 151px;
     background: url(/source/logo.png) no-repeat;
     position: absolute;
-    left: 147px;
-    top: 39px;
+    left: 30px;
+    top: 34px;
   }
 
   .tabs {
+    font-size:14px;
     display: inline-block;
-    position: absolute;
-    margin-left: 10px;
-    padding-top: 9px;
-    a, a:visited {
-      margin-right: 5px;
-      padding: 8px 12px;
-      border-radius: 6px 6px 0 0;
-      text-decoration: none;
-      font-weight: normal;
+    position:relative;
+    top:75px;
+    a, a:visited, a:active {
+      color: #295c3e;
+      display:inline-block;
+      text-transform:uppercase;
+      font-weight:bold;
+
+      &:after {
+        content:'|';
+        margin:0 12px;
+      }
+      &:last-child:after {
+        content:'';
+        margin-right:0
+      }
     }
-    a.active {
-      color: darken(#D3CEAA, 20%);
-      background-color: #fff;
-      border: 1px solid #D3CEAA;
-      border-bottom: none;
+    a:hover {
+      text-decoration:underline;
     }
+    
+  }
+
+  .buttons {
+    position:relative;
+    top:100px;
     a {
-      color: lighten(#E7E8D1, 20%);
-      background-color: #D3CEAA;
-      border: 1px solid #E7E8D1;
-      border-bottom: none;
+      border:1px solid white;
+      background:#18510b;
+      display:inline-block;
+      padding:8px 12px;
+      color:white;
+      text-transform:uppercase;
+      font-weight:bold;
+      font-size:16px;
+      letter-spacing:1px;
+      min-width:130px;
+      text-align:center;
     }
   }
+
   .user {
     display: inline-block;
     position: absolute;
-    top:2px;
+    top:-8px;
     right: 10px;
     color:white;
     span:after {

@@ -11,15 +11,19 @@ module.exports = function (model, contents) {
     return h('div#wrapper',
       h('div.main',
         h('div.top-menu',
-          h('div.logo'),
-          topMenuTabs(model),
-          authStatus(model.user)
+          h('div.content',
+            h('div.logo'),
+            authStatus(model.user),
+            topMenuTabs(model),
+            topMenuButtons(model)
+          )
         ),
         model.flash && (!(model.flash instanceof Array) || (model.flash.length > 0))
           ? h('div.top-flash.warning', renderFlash(model.flash),
               h('a.close', {onclick: function () { delete model.flash; }})
             )
           : undefined,
+        h('div.shadow'),
         h('div.content', contents)
       ),
       footer(model)
@@ -54,6 +58,28 @@ function topMenuTabs(model) {
   function routeTab(route, title) {
     return route.a({class: {active: route.active}}, title);
   }
+  var root = routes.root();
+
+  return h('div.tabs',
+    model.user
+      ? [
+        routeTab(routes.root(), 'Home'),
+        routeTab(routes.root(), 'Tutorial'),
+        routeTab(routes.root(), 'FAQ'),
+        routeTab(routes.root(), 'Contact'),
+      ]
+      : undefined
+  );
+}
+
+function topMenuButtons(model) {
+  var query = model.query();
+  var currentDocument = model.currentDocument();
+  var document = model.document;
+
+  function routeTab(route, title) {
+    return route.a({}, title);
+  }
 
   function authoringTab() {
     if (model.user.author) {
@@ -81,15 +107,14 @@ function topMenuTabs(model) {
     }
   }
 
-  var root = routes.root();
-
-  return h('div.tabs',
+  return h('div.buttons',
     model.user
       ? [
-        routeTab(routes.root(), 'Home'),
-        reportTab(),
-        authoringTab(),
-        adminTab()
+          h('a', {href: '#'}, 'Save'),
+          routeTab(routes.root(), 'Exit'),
+          reportTab(),
+          authoringTab(),
+          adminTab()
       ]
       : undefined
   );
