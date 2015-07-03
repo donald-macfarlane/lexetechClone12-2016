@@ -96,7 +96,8 @@ footer {
 .top-menu {
   height: 237px;
   border-bottom: 1px solid #D3CEAA;
-  background: url(/source/header-background.png) repeat-x;
+  background: #09492a url(/source/header-background.png) 0 10px repeat-x;
+  padding-top:10px;
 
   .logo {
     width: 302px;
@@ -104,7 +105,7 @@ footer {
     background: url(/source/logo.png) no-repeat;
     position: absolute;
     left: 147px;
-    top: 29px;
+    top: 39px;
   }
 
   .tabs {
@@ -135,7 +136,13 @@ footer {
   .user {
     display: inline-block;
     position: absolute;
+    top:2px;
     right: 10px;
+    color:white;
+    span:after {
+      margin-left:10px;
+      content:'|';
+    }
     &.logged-in {
       form.logout {
         display: inline-block;
@@ -145,7 +152,7 @@ footer {
           border: none;
           background-color: transparent;
           cursor: pointer;
-          color: #8F8B73;
+          color: #white;
 
           &:hover {
             background-color: fade(#669FEC, 20%);
