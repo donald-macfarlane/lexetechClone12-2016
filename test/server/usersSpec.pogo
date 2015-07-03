@@ -154,23 +154,44 @@ describe 'users'
         expect(response.statusCode).to.equal 400
 
     context 'given an existing user'
-      postedUser = nil
+      joe = nil
+      jane = nil
 
       beforeEach
-        postedUser := api.post! '/api/users' {
+        joe := api.post! '/api/users' {
           email = 'joe@example.com'
+          password = 'password1'
+        }.body
+        jane := api.post! '/api/users' {
+          email = 'jane@example.com'
           password = 'password1'
         }.body
 
       it 'can update an existing user'
-        api.put! (postedUser.href) {
+        api.put! (joe.href) {
           email = 'jack@example.com'
           password = 'password1'
         }
 
-        user = api.get! (postedUser.href).body
+        user = api.get! (joe.href).body
 
         expect(user.email).to.eql 'jack@example.com'
+
+      it 'can delete a user'
+        userList = api.get! '/api/users'.body
+
+        expect [u <- userList, u.email].to.eql [
+          'joe@example.com'
+          'jane@example.com'
+        ]
+
+        response = api.delete! (joe.href)
+        expect(response.statusCode).to.equal 204
+
+        userList := api.get! '/api/users'.body
+        expect [u <- userList, u.email].to.eql [
+          'jane@example.com'
+        ]
 
     describe 'search'
       joe = nil

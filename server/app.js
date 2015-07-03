@@ -29,7 +29,6 @@ app.use(bodyParser.json({limit: "1mb"}));
 app.use(session({
   name: "session",
   secret: "haha bolshevik",
-  maxAge: days(30),
   overwrite: true
 }));
 

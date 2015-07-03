@@ -176,7 +176,7 @@ app.delete("/blocks/:blockId/queries/:queryId", function(req, res) {
   var db = app.get("db");
 
   db.deleteQuery(req.params.blockId, req.params.queryId).then(function() {
-    res.send({});
+    res.status(204).send({});
   });
 });
 
@@ -346,6 +346,12 @@ app.post('/users/resetpassword', handleErrors(function (req, res) {
 app.put('/users/:userId', handleErrors(function (req, res) {
   return mongoDb.updateUser(req.params.userId, incomingUser(req.body)).then(function () {
     res.send(outgoingUser(req.body, req));
+  });
+}));
+
+app.delete('/users/:userId', handleErrors(function (req, res) {
+  return mongoDb.deleteUser(req.params.userId).then(function () {
+    res.status(204).send({});
   });
 }));
 
