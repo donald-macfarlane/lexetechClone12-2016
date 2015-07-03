@@ -8,18 +8,21 @@ module.exports = function (model, contents) {
   if (model.user || model.login || model.signup) {
     listenToHttpErrors(model);
 
-    return h('div.main',
-      h('div.top-menu',
-        h('div.logo'),
-        topMenuTabs(model),
-        authStatus(model.user)
+    return h('div#wrapper',
+      h('div.main',
+        h('div.top-menu',
+          h('div.logo'),
+          topMenuTabs(model),
+          authStatus(model.user)
+        ),
+        model.flash && (!(model.flash instanceof Array) || (model.flash.length > 0))
+          ? h('div.top-flash.warning', renderFlash(model.flash),
+              h('a.close', {onclick: function () { delete model.flash; }})
+            )
+          : undefined,
+        h('div.content', contents)
       ),
-      model.flash && (!(model.flash instanceof Array) || (model.flash.length > 0))
-        ? h('div.top-flash.warning', renderFlash(model.flash),
-            h('a.close', {onclick: function () { delete model.flash; }})
-          )
-        : undefined,
-      h('div.content', contents)
+      footer(model)
     );
   } else {
     model.login = true;
@@ -102,6 +105,12 @@ function authStatus(user) {
         )
       ]
       : undefined
+  );
+}
+
+function footer(model) {
+  return h('footer',
+    'LEXeNOTES is  the registered trademark of Lexeme Technologies LLC. Copyright 2015 Lexeme Technologies LLC. All rights protected. US Patent #8,706,680.'
   );
 }
 

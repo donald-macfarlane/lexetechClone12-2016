@@ -1,5 +1,12 @@
 @backgroundColor:      #155203;
 
+html,
+body {
+  margin:0;
+  padding:0;
+  height:100%;
+}
+
 body {
   font-family: helvetica;
   margin: 0;
@@ -15,6 +22,28 @@ body {
     }
   }
 }
+
+#wrapper {
+  min-height:100%;
+  position:relative;
+  .main {
+    padding-bottom:133px; /* Height of the footer element */
+  }
+}
+
+footer {
+  text-align:center;
+  color:white;
+  background: #18510b url('/source/footer-tagline.png') center 25px no-repeat;
+  width:100%;
+  height:133px;
+  position:absolute;
+  bottom:0;
+  left:0;
+  padding-top:70px;
+  font-size:11px;
+}
+
 
 .debug {
   display: flex;
