@@ -64,6 +64,13 @@ task('put-lexicon --env <env=dev> <lexicon.json>', function (args, options) {
   });
 });
 
+task('clear-documents', function () {
+  var Document = require('./server/models/document')
+  return promisify(function (cb) {
+    Document.remove({}, cb);
+  });
+});
+
 var sqlCreds = {
   prod: {
     server: "74.208.163.231\\SQLExpress",
