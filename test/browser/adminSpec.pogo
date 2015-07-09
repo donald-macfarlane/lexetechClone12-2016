@@ -6,7 +6,7 @@ retry = require 'trytryagain'
 rootComponent = require '../../browser/rootComponent'
 
 appBrowser = prototypeExtending(element) {
-  adminTab() = self.find('.top-menu .tabs a', text = 'Admin')
+  adminTab() = self.find('.top-menu a', text = 'Admin')
 }
 
 adminBrowser = prototypeExtending(element) {

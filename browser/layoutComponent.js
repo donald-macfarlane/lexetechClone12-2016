@@ -78,7 +78,7 @@ function topMenuButtons(model) {
   var document = model.document;
 
   function routeTab(route, title) {
-    return route.a({}, title);
+    return route.a({class: 'ui button'}, title);
   }
 
   function authoringTab() {
@@ -110,7 +110,7 @@ function topMenuButtons(model) {
   return h('div.buttons',
     model.user
       ? [
-          h('a', {href: '#'}, 'Save'),
+          h('a.ui.button', {href: '#'}, 'Save'),
           routeTab(routes.root(), 'Exit'),
           reportTab(),
           authoringTab(),
