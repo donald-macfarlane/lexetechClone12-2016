@@ -126,6 +126,7 @@ var queryComponent = prototype({
                         href: '#',
                         onclick: function (ev) {
                           ev.preventDefault();
+                          ev.stopPropagation();
                           return self.selectResponse(response, self.history.stylesForQueryResponse(response));
                         }
                       },
