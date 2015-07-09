@@ -493,13 +493,38 @@ hr {
 .predicants-editor {
   display: flex;
   flex-flow: row;
+  justify-content: flex-start;
+  -webkit-justify-content: flex-start;
+  padding: 10px;
 
   .predicant-search {
-    flex: 1;
+    margin: 10px;
   }
 
   .selected-predicant {
-    flex: 1;
+    margin: 10px;
+  }
+
+  .ui.input {
+    margin: 10px;
+  }
+
+  .buttons {
+    margin: 10px;
+  }
+
+  .predicant-usages {
+    display: flex;
+
+    .predicant-usages-queries {
+      margin: 10px;
+      flex: 1;
+    }
+
+    .predicant-usages-responses {
+      margin: 10px;
+      flex: 1;
+    }
   }
 }
 
@@ -644,6 +669,30 @@ hr {
   }
 
   .responses, .blocks-queries {
+    > .ui.vertical.menu {
+      width: auto;
+    }
+
+    .item.no-query {
+      padding-right: 21px !important;
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+    }
+
+    .item .header {
+      white-space: nowrap;
+    }
+
+    .item > .header a {
+      padding: 3px;
+    }
+
+    .item.active > .header a {
+      font-weight: bold;
+      text-decoration: underline;
+      background-color: rgba(110, 109, 88, 0.22);
+    }
+
     & > ol, & > ul {
       list-style-type: none;
       padding-left: 0;
@@ -767,6 +816,12 @@ hr {
 
     .buttons {
       margin-bottom: 15px;
+    }
+
+    > .menu {
+      position: fixed;
+      overflow-y: scroll;
+      bottom: 0;
     }
 
     > ol {
@@ -1075,7 +1130,6 @@ hr {
     input[type=text].token-link {
       overflow: hidden;
       font-size: 13px;
-      margin-right: 13px;
       text-overflow: ellipsis;
       vertical-align: middle;
     }

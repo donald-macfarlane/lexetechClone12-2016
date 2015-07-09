@@ -174,14 +174,8 @@ var rootComponent = prototype({
         routes.adminUser(adminAuth(function (params) {
           return self.admin.render(params.userId);
         })),
-        routes.authoring(authorAuth(function () {
+        routes.authoring.under(authorAuth(function () {
           return self.authoringComponent().render();
-        })),
-        routes.authoringBlock(authorAuth(function (params) {
-          return self.authoringComponent().render(params.blockId);
-        })),
-        routes.authoringQuery(authorAuth(function (params) {
-          return self.authoringComponent().render(params.blockId, params.queryId);
         })),
         routes.resetPassword(function () {
           return h('h1', 'you have already logged in');

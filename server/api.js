@@ -272,6 +272,20 @@ app.get('/predicants/:id', handleErrors(function (req, res) {
   });
 }));
 
+app.get('/predicants/:id/usages', handleErrors(function (req, res) {
+  var db = app.get('db');
+
+  return db.usagesForPredicant(req.params.id).then(function (usages) {
+    usages.queries.forEach(function (query) {
+      outgoingQuery(req, query);
+    });
+    usages.responses.forEach(function (response) {
+      outgoingQuery(req, response.query);
+    });
+    res.send(usages);
+  });
+}));
+
 app.delete("/predicants", function(req, res) {
   var db = app.get("db");
 

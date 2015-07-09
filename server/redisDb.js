@@ -1,4 +1,3 @@
-var Promise = require("bluebird");
 var prototype = require('prote');
 var self = this;
 var createClient;
@@ -442,6 +441,35 @@ module.exports = function() {
 
     addQueryToUser: function(userId, query) {
       return userQueries.add(userId, query);
+    },
+
+    usagesForPredicant: function (predicantId) {
+      return queries.list().then(function (queries) {
+        var queriesRequiringPredicant = [];
+        var queriesWithResponsesIssuingPredicant = [];
+
+        queries.forEach(function (query) {
+          if (query.predicants.indexOf(predicantId) >= 0) {
+            queriesRequiringPredicant.push(query);
+          }
+
+          var responses = query.responses.filter(function (response) {
+            return response.predicants.indexOf(predicantId) >= 0;
+          });
+
+          if (responses.length > 0) {
+            queriesWithResponsesIssuingPredicant.push({
+              query: query,
+              responses: responses
+            });
+          }
+        });
+
+        return {
+          queries: queriesRequiringPredicant,
+          responses: queriesWithResponsesIssuingPredicant
+        };
+      });
     },
 
     userQueries: function(userId, query) {

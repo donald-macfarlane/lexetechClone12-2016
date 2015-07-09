@@ -47,16 +47,24 @@ function topMenuTabs(model) {
   var currentDocument = model.currentDocument();
   var document = model.document;
 
-  function routeTab(route, title) {
-    return route.a({class: {active: route.active}}, title);
+  function routeTab(route, title, active) {
+    return route.a({class: {active: active}}, title);
   }
 
   function authoringTab() {
     if (model.user.author) {
       if (query && query.query) {
-        return routeTab(routes.authoringQuery({queryId: query.query.id}), 'Authoring: ' + query.query.text);
+        return routeTab(
+          routes.authoringQuery({queryId: query.query.id}),
+          'Authoring: ' + query.query.text,
+          routes.authoringQuery.under().active
+        );
       } else {
-        return routeTab(routes.authoring(), 'Authoring');
+        return routeTab(
+          routes.authoring(),
+          'Authoring',
+          routes.authoring.under().active
+        );
       }
     }
   }
@@ -64,13 +72,17 @@ function topMenuTabs(model) {
   function reportTab() {
     if (currentDocument) {
       var title = currentDocument.name? 'Report: ' + currentDocument.name: 'Report';
-      return routeTab(routes.report({documentId: currentDocument.id}), title);
+      return routeTab(
+        routes.report({documentId: currentDocument.id}),
+        title,
+        routes.report.under().active
+      );
     }
   }
 
   function adminTab() {
     if (model.user.admin) {
-      return routeTab(routes.admin(), 'Admin');
+      return routeTab(routes.admin(), 'Admin', routes.admin.under().active);
     }
   }
 
@@ -79,7 +91,7 @@ function topMenuTabs(model) {
   return h('div.tabs',
     model.user
       ? [
-        routeTab(routes.root(), 'Home'),
+        routeTab(routes.root(), 'Home', routes.root().active),
         reportTab(),
         authoringTab(),
         adminTab()

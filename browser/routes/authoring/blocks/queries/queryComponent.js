@@ -11,6 +11,7 @@ var itemSelect = require('./itemSelect');
 var clone = require('./clone');
 var routes = require('../../../../routes');
 var removeFromArray = require('./removeFromArray');
+var dirtyBinding = require('../dirtyBinding');
 
 function sortable(options) {
   return options.render();
@@ -32,12 +33,32 @@ function QueryComponent(options) {
   this.predicants = options.predicants;
   this.lastResponseId = 0;
 
-  this.predicants.load().then(function () {
-    self.refresh();
+  function loadBlocks() {
+    return http.get("/api/blocks").then(function(blockList) {
+      return _.indexBy(blockList, "id");
+    });
+  }
+
+  loadBlocks().then(function (blocks) {
+    self.blocks = blocks;
   });
 
-  this.dirty = this.dirty.bind(this);
+  if (!this.predicants.loaded) {
+    this.predicants.load().then(function () {
+      self.refresh();
+    });
+  }
+
+  this.dirtyBinding = dirtyBinding(this);
 }
+
+QueryComponent.prototype.pasteQueryFromClipboard = function (query) {
+  _.extend(this.query, _.omit(query, "level", "id"));
+  this._dirty = true;
+};
+
+QueryComponent.prototype.refresh = function () {
+};
 
 QueryComponent.prototype.renderResponse = function (response) {
   var self = this;
@@ -59,7 +80,7 @@ QueryComponent.prototype.renderResponse = function (response) {
 
   function renderStyle(style) {
     if (editing) {
-      return responseHtmlEditor({ class: 'editor', binding: [response.styles, style, self.dirty]});
+      return responseHtmlEditor({ class: 'editor', binding: self.dirtyBinding(response.styles, style)});
     } else {
       return h.rawHtml('div.editor', response.styles[style]);
     }
@@ -75,7 +96,7 @@ QueryComponent.prototype.renderResponse = function (response) {
       h("ul",
         h("li.selector",
           h("label", "Selector"),
-          h("textarea", {binding: [response, 'text', self.dirty], onfocus: select})
+          h("textarea", {binding: self.dirtyBinding(response, 'text'), onfocus: select})
         ),
         h("li.set-level",
           h("label", "Set Level"),
@@ -203,12 +224,12 @@ QueryComponent.prototype.render = function () {
     h("ul",
       h("li.name", { key: "name" },
         h("label", "Name"),
-        h("input", { type: "text", binding: [self.query, 'name', self.dirty] })
+        h("input", { type: "text", binding: self.dirtyBinding(self.query, 'name') })
       ),
       h("li.question", { key: "qtext" },
         h("label", "Question"),
         h("textarea", {
-          binding: [self.query, 'text', self.dirty]
+          binding: self.dirtyBinding(self.query, 'text')
         })
       ),
       h("li.level", { key: "level" },
@@ -484,7 +505,7 @@ QueryComponent.prototype.renderAction = function(action, removeAction) {
       h('h4', name),
       self.blocks
         ? [
-            h('input', {type: 'text', binding: [action, 'arguments', numberArray, filterBlocksConversion, rangeConversion, self.dirty]}),
+            h('input', {type: 'text', binding: self.dirtyBinding(action, 'arguments', numberArray, filterBlocksConversion, rangeConversion)}),
             sortable({
               itemMoved: itemMoved,
               render: renderArguments
@@ -521,7 +542,7 @@ QueryComponent.prototype.renderAction = function(action, removeAction) {
             h("input",
               {
                 type: "text",
-                binding: [action, 0, self.dirty]
+                binding: self.dirtyBinding(action, 0)
               }
             )
           ),
@@ -530,7 +551,7 @@ QueryComponent.prototype.renderAction = function(action, removeAction) {
             h("input",
               {
                 type: "text",
-                binding: [action, 1, self.dirty]
+                binding: self.dirtyBinding(action, 1)
               }
             )
           )
@@ -658,7 +679,7 @@ QueryComponent.prototype.numberInput = function(model, field) {
   return h("input",
     {
       type: "number",
-      binding: [model, field, Number, this.dirty],
+      binding: this.dirtyBinding(model, field, Number),
       onfocus: function(ev) {
         return $(ev.target).on("mousewheel.disableScroll", function(ev) {
           ev.preventDefault();
@@ -687,7 +708,7 @@ QueryComponent.prototype.cancel = function() {
 };
 
 QueryComponent.prototype.close = function() {
-  routes.authoringBlock({blockId: 6}).push();
+  routes.authoringBlock({blockId: this.blockId}).push();
 };
 
 QueryComponent.prototype.addToClipboard = function() {
@@ -706,4 +727,13 @@ QueryComponent.prototype.highestResponseId = function() {
 
 module.exports = function (options) {
   return new QueryComponent(options);
+};
+
+module.exports.create = function(obj) {
+  var self = this;
+  return _.extend({
+    responses: [],
+    predicants: [],
+    level: 1
+  }, obj);
 };
