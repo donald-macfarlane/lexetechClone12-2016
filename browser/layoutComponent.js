@@ -84,7 +84,7 @@ function topMenuButtons(model) {
   function authoringTab() {
     if (model.user.author) {
       if (query && query.query) {
-        return h('a',
+        return h('a.ui.button',
           {href: '/authoring/blocks/' + query.query.block + '/queries/' + query.query.id},
           'Authoring: ' + query.query.text
         );

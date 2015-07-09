@@ -115,6 +115,10 @@ var queryComponent = prototype({
                       },
                       onmouseleave: function () {
                         self.responseEditor.stopShowingResponse();
+                      },
+                      onclick: function (ev) {
+                        ev.preventDefault();
+                        return self.selectResponse(response, self.history.stylesForQueryResponse(response));
                       }
                     },
                     h('a.content',
@@ -130,6 +134,8 @@ var queryComponent = prototype({
                     h('button.edit-response',
                       {
                         onclick: function (ev) {
+                          ev.stopPropagation();
+                          ev.preventDefault();
                           self.responseEditor.editResponse(response);
                         }
                       },
