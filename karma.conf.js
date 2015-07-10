@@ -33,6 +33,7 @@ module.exports = function(config) {
     },
 
     browserify: {
+      debug: true,
       extensions: ['.pogo'],
       transform: ['pogoify', 'lessify']
     },

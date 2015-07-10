@@ -73,7 +73,7 @@ StyleChangeNotifier.prototype.lexemeDifferences = function(updatedLexemes) {
           return {style: style, diffs: diffs};
         });
 
-        query.authoringHref = baseUrl + routes.authorQuery({blockId: query.block, queryId: query.id}).href;
+        query.authoringHref = baseUrl + routes.authoringQuery({blockId: query.block, queryId: query.id}).href;
 
         return {
           query: query,

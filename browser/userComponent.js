@@ -28,6 +28,8 @@ module.exports = prototype({
   render: function () {
     var self = this;
 
+    this.refresh = h.refresh;
+
     this.getResetPasswordToken(this.user);
 
     function saveUser(form) {
@@ -124,11 +126,27 @@ module.exports = prototype({
             ? [
                 h('.field',
                   h('label', 'Login Link'),
-                  h('.ui.input',
+                  h('.ui.action.input',
                     h('input.token-link', {type: 'text', value: tokenLink, onclick: function () { this.select(); }}),
                     zeroClipboard(
+                      {
+                        oncopy: function () {
+                          self.tokenLinkCopied = true;
+
+                          setTimeout(function () {
+                            self.tokenLinkCopied = false;
+                            self.refresh();
+                          }, 2000);
+                        }
+                      },
                       tokenLink,
-                      h('.ui.button.green.copy-token-link', 'copy login link')
+                      h('button.ui.teal.right.labeled.icon.button.copy-token-link',
+                        {
+                          onclick: function (ev) { ev.preventDefault(); }
+                        },
+                        h('i.copy.icon'),
+                        self.tokenLinkCopied? 'Copied!': 'Copy'
+                      )
                     )
                   )
                 ),

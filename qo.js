@@ -46,6 +46,13 @@ task('lexicon --env <env=dev>', function (args, options) {
   });
 });
 
+task('clear-lexicon --env <env=dev>', function (args, options) {
+  var api = createApi(options.env);
+  return api.post('lexicon', {blocks: []}).then(function (response) {
+    console.log(JSON.stringify(response.body, null, 2))
+  });
+});
+
 task('put-lexicon --env <env=dev> <lexicon.json>', function (args, options) {
   var file = args[0];
   return fs.readFile(file, 'utf-8').then(function (content) {
