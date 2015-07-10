@@ -88,6 +88,7 @@ module.exports = prototype({
     this.refresh = h.refresh;
 
     return h('div.report',
+      h('link', {rel: 'stylesheet', href: '/report.css'}),
       h('.query-response-editor',
         self.query.render()
       ),

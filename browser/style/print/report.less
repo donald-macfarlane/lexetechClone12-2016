@@ -1,0 +1,54 @@
+@media print {
+  .shadow,
+  footer,
+  .report .query-response-editor,
+  .report h3,
+  .report .actions,
+  .tabular.menu {
+    display:none;
+  }
+  .top-menu {
+    height:auto;
+    border:0;
+    background:none;
+    text-align:center;
+    .content {
+      margin:0 auto;
+      * {
+        display:none;
+      }
+      .logo {
+        display:inline-block;
+        position:static;
+        padding-top:2em;
+        height:auto;
+        img {
+          display:inline;
+          height:100px;
+        }
+      }
+    }
+  }
+  body {
+    background:none;
+    margin:0;
+    #wrapper .main {
+      background:none;
+      min-width:0;
+      width:100%;
+      .content {
+        top :0;
+        width:auto;
+        margin:0;
+        background:none;
+        .document-tabs {
+          background:none;
+        }
+      }
+
+      .bottom.attached.segment {
+        border-top: 1px solid #155203 ! important;
+      }
+    }
+  }
+}
