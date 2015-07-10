@@ -35,7 +35,7 @@ function credentialsForm(action, button, options) {
     h('div.field',
         h('div.ui.input',email
         ? [
-            h('input#email', { type: 'text', name: 'email', placeholder: 'Username' })
+            h('input#email', { type: 'text', name: 'email', placeholder: 'Email' })
           ]
         : h('input', { type: 'hidden', name: 'token', value: options.token })
       )
