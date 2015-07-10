@@ -51,6 +51,15 @@ If they're good:
 qo put-lexicon lexicon.json --env prod
 ```
 
+# CI
+
+[Lexeme on Codeship](https://codeship.com/projects/51394)
+
+# Production
+
+[https://lexetech.herokuapp.com/](https://lexetech.herokuapp.com/)
+[Lexeme on Heroku](https://dashboard.heroku.com/apps/lexetech/resources)
+
 # Semantic UI
 
 You can customise the semantic ui by editing the files in `semantic/src/site` in order to compile the changes you need to run the semantic ui gulp file, do this by running `gulp --gulpfile=semantic/gulpfile.js` in the root directory of this repo.
