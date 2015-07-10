@@ -246,19 +246,25 @@ module.exports() =
       queriesById.(q)
     ]
 
-    responses = [
+    usingQueries = [item <- queries, item.predicants.indexOf(predicantId) >= 0, item]
+    usingResponses = [
       q <- queries
-      r <- q.responses
-      r
+      qr = {
+        query = q
+        responses = [
+          r <- q.responses
+          r.predicants.indexOf(predicantId) >= 0
+          r
+        ]
+      }
+      qr.responses.length > 0
+      qr
     ]
-
-    (items) usingPredicant (predicantId) =
-      [item <- items, item.predicants.indexOf(predicantId) >= 0, item]
 
     {
       body = {
-        queries = (queries) usingPredicant (predicantId)
-        responses = (responses) usingPredicant (predicantId)
+        queries = usingQueries
+        responses = usingResponses
       }
     }
 
