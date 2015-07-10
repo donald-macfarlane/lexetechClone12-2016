@@ -16,7 +16,6 @@ function PredicantsComponent(options) {
   this.filteredPredicants = [];
 
   this.predicants.load().then(function () {
-    console.log('loaded predicants');
     self.refresh();
   });
 
@@ -123,11 +122,11 @@ PredicantsComponent.prototype.renderPredicantEditor = function () {
   return h('.selected-predicant',
     h('h1', 'Predicant'),
     h('.ui.input',
-      h('input', {type: 'text', binding: h.binding([self.selectedPredicant, 'name'], {refresh: false})})
+      h('input.name', {type: 'text', binding: h.binding([self.selectedPredicant, 'name'], {refresh: false})})
     ),
     h('.buttons',
       self.selectedPredicant.id
-      ? h('.ui.button.blue', {
+      ? h('button.save.ui.button.blue', {
           onclick: function () {
             return http.put(self.selectedPredicant.href, self.selectedPredicant).then(function () {
               self.originalSelectedPredicant.name = self.selectedPredicant.name;
@@ -136,7 +135,7 @@ PredicantsComponent.prototype.renderPredicantEditor = function () {
             });
           }
         }, 'Save')
-      : h('.ui.button.green', {
+      : h('button.create.ui.button.green', {
           onclick: function () {
             return http.post('/api/predicants', self.selectedPredicant).then(function (predicant) {
               self.predicants.addPredicant(predicant);
@@ -146,7 +145,7 @@ PredicantsComponent.prototype.renderPredicantEditor = function () {
             });
           }
         }, 'Create'),
-      h('.ui.button', {
+      h('button.close.ui.button', {
         onclick: function () {
           delete self.selectedPredicant;
           routes.authoringPredicants().push();

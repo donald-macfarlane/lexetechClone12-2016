@@ -9,6 +9,8 @@ browser = require 'browser-monkey'
 ckeditorMonkey = require './ckeditorMonkey'
 authoringComponent = require '../../browser/routes/authoring/blocks/block'
 mountApp = require './mountApp'
+predicantLexicon = require '../predicantLexicon'
+lexiconBuilder = require '../lexiconBuilder'
 
 createRouter = require 'mockjax-router'
 
@@ -61,6 +63,23 @@ authoringElement = testBrowser.component {
 
   responses() =
     responsesElement.scope(self.editQuery().find('ul li.responses'))
+
+  predicantsButton() = self.find('button', text = 'Predicants')
+  predicantsEditor() = predicantsEditorComponent.scope(self.find('.predicants-editor'))
+}
+
+predicantsEditorComponent = testBrowser.component {
+  search() = self.find('.predicant-search input')
+  searchResults() = self.find('.predicant-search .results')
+  searchResult(name) = self.find('.predicant-search .results a', text = name)
+  selectedPredicant() = selectedPredicant.scope(self.find('.selected-predicant'))
+}
+
+selectedPredicant = testBrowser.component {
+  name() = self.find('input.name')
+  saveButton() = self.find('button.save')
+  queries() = self.find('.predicant-usages-queries .results > .item')
+  responses() = self.find('.predicant-usages-responses .results > .item')
 }
 
 blockMenuItemMonkey = testBrowser.component {
@@ -561,3 +580,84 @@ describe 'authoring'
           page.clipboardItem().shouldHave!(text: ['query 2', 'query 3'])
           page.clipboardItem('query 2').removeButton().click()!
           page.clipboardItem().shouldHave!(text: ['query 3'])
+
+    describe 'predicants'
+      context 'with a lexicon'
+        beforeEach
+          lexicon = lexiconBuilder()
+
+          api.predicants.splice(0, api.predicants.length)
+
+          pred1 = {
+            id = '1'
+            name = 'HemophilVIII'
+          }
+          pred2 = {
+            id = '2'
+            name = "Hemophilia"
+          }
+
+          api.predicants.push (pred1, pred2)
+          console.log('before', api.predicants)
+
+          api.setLexicon (lexicon.queries [
+            {
+              name = 'query1'
+              text = 'All Users Query'
+
+              responses = [
+                {
+                  id = '1'
+                  text = 'User'
+
+                  predicants [pred1.id]
+                }
+              ]
+            }
+            {
+              name = 'query2'
+              text = 'User Query'
+              predicants = [pred2.id]
+
+              responses = [
+                {
+                  id = '1'
+                  text = 'Finished'
+                }
+              ]
+            }
+          ])
+
+          console.log('after', api.predicants)
+
+          startApp()
+
+        it 'can show and search predicants'
+          page.predicantsButton().click()!
+          predicantsEditor = page.predicantsEditor()
+          predicantsEditor.searchResult().shouldHave(text = ['HemophilVIII', 'Hemophilia'])!
+          predicantsEditor.search().typeIn('viii')!
+          predicantsEditor.searchResult().shouldHave(text = ['HemophilVIII'])!
+          predicantsEditor.searchResult('HemophilVIII').click()!
+
+        it 'can edit and save a predicant'
+          page.predicantsButton().click()!
+          predicantsEditor = page.predicantsEditor()
+          predicantsEditor.searchResult('HemophilVIII').click()!
+          predicantsEditor.selectedPredicant().name().shouldHave(value = 'HemophilVIII')!
+          predicantsEditor.selectedPredicant().name().typeIn('HemophilVIII (updated)')!
+          predicantsEditor.selectedPredicant().saveButton().click()!
+
+          predicantsEditor.searchResult().shouldHave(text = ['HemophilVIII (updated)', 'Hemophilia'])!
+
+          retry!
+            expect [p <- api.predicants, p.name].to.eql ['HemophilVIII (updated)', 'Hemophilia']
+
+        it 'predicants show links to queries and responses that contain it'
+          page.predicantsButton().click()!
+          predicantsEditor = page.predicantsEditor()
+          predicantsEditor.searchResult('HemophilVIII').click()!
+          predicantsEditor.selectedPredicant().responses().shouldHave(text = ['query1'])!
+
+          predicantsEditor.searchResult('Hemophilia').click()!
+          predicantsEditor.selectedPredicant().queries().shouldHave(text = ['query2'])!
