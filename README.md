@@ -1,9 +1,13 @@
 lexeme
 ======
 
-# start
+# deps
 
-Make sure you're running redis and mongodb.
+* node 0.12
+* redis
+* mongodb
+
+# start
 
 ```bash
 gulp

@@ -11,6 +11,7 @@ var lexemeApi = require('./lexemeApi');
 var startReportComponent = require('./startReportComponent');
 var throttle = require('plastiq-throttle');
 var adminComponent = require('./adminComponent');
+var authoringComponent = require('./routes/authoring/blocks/block');
 
 var rootComponent = prototype({
   constructor: function (pageData) {
@@ -94,6 +95,14 @@ var rootComponent = prototype({
     this._currentDocument = doc;
   },
 
+  authoringComponent: function () {
+    if (!this._authoringComponent) {
+      this._authoringComponent = authoringComponent();
+    }
+
+    return this._authoringComponent;
+  },
+
   render: function () {
     var self = this;
     this.refresh = h.refresh;
@@ -101,6 +110,14 @@ var rootComponent = prototype({
     function adminAuth(fn) {
       return function () {
         if (self.user.admin) {
+          return fn.apply(this, arguments);
+        }
+      }
+    }
+
+    function authorAuth(fn) {
+      return function () {
+        if (self.user.author) {
           return fn.apply(this, arguments);
         }
       }
@@ -156,6 +173,9 @@ var rootComponent = prototype({
         })),
         routes.adminUser(adminAuth(function (params) {
           return self.admin.render(params.userId);
+        })),
+        routes.authoring.under(authorAuth(function () {
+          return self.authoringComponent().render();
         })),
         routes.resetPassword(function () {
           return h('h1', 'you have already logged in');

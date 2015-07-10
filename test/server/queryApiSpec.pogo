@@ -592,6 +592,35 @@ describe "query api"
         expect(names).to.contain('predicant 2')
         expect(names).to.contain('predicant 3')
 
+      it "can update a predicant's name"
+        predicant = api.post! '/api/predicants' { name = 'predicant 1' }.body
+
+        api.put! (predicant.href) {
+          name = 'predicant 1 (updated)'
+        }
+
+        predicants = api.get! '/api/predicants'.body
+
+        expect(predicants.(predicant.id).name).to.equal 'predicant 1 (updated)'
+        expect(predicants.(predicant.id).href).to.equal (predicant.href)
+
+        updatedPredicant = api.get! (predicant.href).body
+        expect(updatedPredicant.name).to.equal 'predicant 1 (updated)'
+        expect(updatedPredicant.href).to.equal (predicant.href)
+
+      it "can delete a predicant"
+        predicants = api.post!('/api/predicants', [
+          { name = 'predicant 1' }
+          { name = 'predicant 2' }
+        ]).body
+
+        api.delete! (predicants.1.href)
+
+        updatedPredicants = api.get! '/api/predicants'.body
+
+        expect(Object.keys(updatedPredicants)).to.eql ["1"]
+        expect(updatedPredicants.(predicants.0.id).name).to.equal 'predicant 1'
+
       it 'can delete all predicants'
         api.post '/api/predicants' { name = 'predicant 1' }!
         api.delete '/api/predicants'!
@@ -629,6 +658,83 @@ describe "query api"
         expect [p <- query.predicants, predicants.(p).name].to.eql [
           'pred1'
           'pred3'
+        ]
+
+      it 'can get the queries that require a specific predicant'
+        l = lexicon.queries [
+          {
+            id = 1
+            text 'query 1'
+
+            predicants = [
+              'pred1'
+              'pred3'
+            ]
+          }
+          {
+            id = 2
+            text 'query 2'
+
+            predicants = [
+              'pred1'
+              'pred2'
+            ]
+
+            responses = [
+              {
+                text = 'query 2, response 1'
+                predicants = [
+                  'pred3'
+                ]
+              }
+              {
+                text = 'query 2, response 2'
+                predicants = [
+                  'pred1'
+                ]
+              }
+            ]
+          }
+          {
+            id = 3
+            text 'query 3'
+
+            responses = [
+              {
+                text = 'query 3, response 1'
+                predicants = [
+                  'pred1'
+                ]
+              }
+            ]
+          }
+        ]
+        api.post('/api/lexicon', l)!.body
+        predicants = api.get!('/api/predicants').body
+
+        predByName(name) = [id <- Object.keys(predicants), pred = predicants.(id), pred.name == name, pred].0
+        pred1 = predByName 'pred1'
+        pred2 = predByName 'pred2'
+        pred3 = predByName 'pred3'
+
+        queryResponses(usages) =
+          [q <- usages.responses, r <- q.responses, {query = q.query.text, response = r.text}]
+
+        pred1Usages = api.get!("/api/predicants/#(pred1.id)/usages").body
+        expect([q <- pred1Usages.queries, q.text].sort()).to.eql ['query 1', 'query 2']
+        expect(queryResponses(pred1Usages)).to.eql [
+          {query = 'query 2', response = 'query 2, response 2'}
+          {query = 'query 3', response = 'query 3, response 1'}
+        ]
+
+        pred2Usages = api.get!("/api/predicants/#(pred2.id)/usages").body
+        expect([q <- pred2Usages.queries, q.text].sort()).to.eql ['query 2']
+        expect(queryResponses(pred2Usages)).to.eql []
+
+        pred3Usages = api.get!("/api/predicants/#(pred3.id)/usages").body
+        expect([q <- pred3Usages.queries, q.text].sort()).to.eql ['query 1']
+        expect(queryResponses(pred3Usages)).to.eql [
+          {query = 'query 2', response = 'query 2, response 1'}
         ]
 
     describe 'clipboards'

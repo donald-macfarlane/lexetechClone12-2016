@@ -12,7 +12,7 @@ end
 
 When(/^I update the block name to "(.*?)"$/) do |new_name|
   visit '/authoring'
-  find('h3, h4', text: @block_name).click
+  find('.header a', text: @block_name).click
   fill_in 'Name', with: new_name
   click_on 'Save'
   @block_name = new_name

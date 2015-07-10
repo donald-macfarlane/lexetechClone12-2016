@@ -1,4 +1,3 @@
-var Promise = require("bluebird");
 var prototype = require('prote');
 var self = this;
 var createClient;
@@ -361,7 +360,8 @@ module.exports = function() {
     getLexicon: function() {
       var self = this;
 
-      return this.predicants().then(function (predicantsById) {
+      return this.predicants().then(function (predicants) {
+        var predicantsById = _.indexBy(predicants, 'id');
         function getBlockQueries(block) {
           return blockQueries.list(block.id).then(function (queries) {
             block.queries = queries.map(function (query) {
@@ -443,6 +443,35 @@ module.exports = function() {
       return userQueries.add(userId, query);
     },
 
+    usagesForPredicant: function (predicantId) {
+      return queries.list().then(function (queries) {
+        var queriesRequiringPredicant = [];
+        var queriesWithResponsesIssuingPredicant = [];
+
+        queries.forEach(function (query) {
+          if (query.predicants.indexOf(predicantId) >= 0) {
+            queriesRequiringPredicant.push(query);
+          }
+
+          var responses = query.responses.filter(function (response) {
+            return response.predicants.indexOf(predicantId) >= 0;
+          });
+
+          if (responses.length > 0) {
+            queriesWithResponsesIssuingPredicant.push({
+              query: query,
+              responses: responses
+            });
+          }
+        });
+
+        return {
+          queries: queriesRequiringPredicant,
+          responses: queriesWithResponsesIssuingPredicant
+        };
+      });
+    },
+
     userQueries: function(userId, query) {
       return userQueries.list(userId);
     },
@@ -456,21 +485,35 @@ module.exports = function() {
     },
 
     predicants: function(predicant) {
-      return predicants.list().then(function(predicants) {
-        return _.indexBy(predicants, "id");
-      });
+      return predicants.list();
+    },
+
+    predicantById: function (id) {
+      return predicants.get(id);
     },
 
     removeAllPredicants: function() {
       return predicants.removeAll();
     },
 
+    removePredicantById: function(id) {
+      return predicants.remove(id);
+    },
+
     addPredicant: function(predicant) {
-      return predicants.add(predicant);
+      return predicants.add(predicant).then(function () {
+        return predicant;
+      });
     },
 
     addPredicants: function(p) {
-      return predicants.addAll(p);
+      return predicants.addAll(p).then(function () {
+        return p;
+      });
+    },
+
+    updatePredicantById: function(id, predicant) {
+      return predicants.update(id, predicant);
     },
 
     blockQueries: function(blockId) {

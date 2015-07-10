@@ -140,22 +140,6 @@ function page(req, js) {
   };
 };
 
-function authoringAuthorised(req, res, next) {
-  if (req.user && req.user.author) {
-    next();
-  } else {
-    res.status(403).render('notauthorised.html');
-  }
-};
-
-function authoring(req, res) {
-  res.render("index.html", page(req, "/authoring.js"));
-};
-
-app.use('/authoring', authoringAuthorised);
-app.get("/authoring/*", authoring);
-app.get("/authoring", authoring);
-
 app.get("*", function(req, res) {
   res.render("index.html", page(req, "/app.js"));
 });

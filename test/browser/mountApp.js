@@ -31,7 +31,7 @@ function appendTestDiv() {
 }
 
 function stop(options) {
-  if (started) {
+  if (started && firstLocation != '/debug.html') {
     lastAttachment.remove();
 
     var divs = document.querySelectorAll('body > div.test');

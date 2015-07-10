@@ -57,8 +57,8 @@ function topMenuTabs(model) {
   var currentDocument = model.currentDocument();
   var document = model.document;
 
-  function routeTab(route, title) {
-    return route.a({class: {active: route.active}}, title);
+  function routeTab(route, title, active) {
+    return route.a({class: {active: active}}, title);
   }
   var root = routes.root();
 
@@ -79,19 +79,24 @@ function topMenuButtons(model) {
   var currentDocument = model.currentDocument();
   var document = model.document;
 
-  function routeTab(route, title) {
-    return route.a({class: 'ui button'}, title);
+  function routeTab(route, title, active) {
+    return route.a({class: {ui: true, button: true, active: active}}, title);
   }
 
   function authoringTab() {
     if (model.user.author) {
       if (query && query.query) {
-        return h('a.ui.button',
-          {href: '/authoring/blocks/' + query.query.block + '/queries/' + query.query.id},
-          'Authoring'
+        return routeTab(
+          routes.authoringQuery({blockId: query.query.block, queryId: query.query.id}),
+          'Authoring',
+          routes.authoring.under().active
         );
       } else {
-        return h('a.ui.button', {href: '/authoring'}, 'Authoring')
+        return routeTab(
+          routes.authoring(),
+          'Authoring',
+          routes.authoring.under().active
+        );
       }
     }
   }
@@ -99,24 +104,27 @@ function topMenuButtons(model) {
   function reportTab() {
     if (currentDocument) {
       var title = currentDocument.name? 'Report: ' + currentDocument.name: 'Report';
-      return routeTab(routes.report({documentId: currentDocument.id}), title);
+      return routeTab(
+        routes.report({documentId: currentDocument.id}),
+        title,
+        routes.report.under().active
+      );
     }
   }
 
   function adminTab() {
     if (model.user.admin) {
-      return routeTab(routes.admin(), 'Admin');
+      return routeTab(routes.admin(), 'Admin', routes.admin.under().active);
     }
   }
 
   return h('div.buttons',
     model.user
       ? [
-          h('a.ui.button', {href: '#'}, 'Save'),
-          routeTab(routes.root(), 'Exit'),
-          reportTab(),
-          authoringTab(),
-          adminTab()
+        routeTab(routes.root(), 'Home', routes.root().active),
+        reportTab(),
+        authoringTab(),
+        adminTab()
       ]
       : undefined
   );
