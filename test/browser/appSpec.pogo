@@ -30,6 +30,7 @@ describe 'report'
     startNewDocumentButton() = self.find('.button', text = 'Start new document')
     loadCurrentDocumentButton() = self.find('.button.load-current-document')
     loadPreviousButton() = self.find('.button', text = 'Load previous document')
+    authoringTab() = self.find('.top-menu .tabs a', text = 'Authoring')
   }
 
   reportBrowser = testBrowser.component {
@@ -78,7 +79,6 @@ describe 'report'
     api := queryApi()
     lexicon := lexiconBuilder()
     originalLocation := location.pathname + location.search + location.hash
-    history.pushState(nil, nil, '/')
 
   after
     mountApp.stop()
@@ -281,6 +281,20 @@ describe 'report'
                       left leg bleeding badly, aching"
 
       waitForLexemesToSave!(3)
+
+  context 'with authoring access'
+    beforeEach
+      api.setLexicon (simpleLexicon())
+      appendRootComponent(user = {email = 'bob@example.com', author = true})
+      rootBrowser.startNewDocumentButton().click!()
+
+    it 'can navigate to author the current query'
+      shouldHaveQuery 'Where does it hurt?'!
+      selectResponse 'left leg'!
+      shouldHaveQuery 'Is it bleeding?'!
+
+      rootBrowser.authoringTab().click()!
+      rootBrowser.find('.edit-query .name input').shouldHave(value = 'query2')!
 
   context 'lexicon that sets variables'
     beforeEach

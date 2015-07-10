@@ -55,7 +55,7 @@ function topMenuTabs(model) {
     if (model.user.author) {
       if (query && query.query) {
         return routeTab(
-          routes.authoringQuery({queryId: query.query.id}),
+          routes.authoringQuery({blockId: query.query.block, queryId: query.query.id}),
           'Authoring: ' + query.query.text,
           routes.authoringQuery.under().active
         );

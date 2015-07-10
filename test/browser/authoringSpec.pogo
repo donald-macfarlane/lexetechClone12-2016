@@ -9,6 +9,7 @@ browser = require 'browser-monkey'
 ckeditorMonkey = require './ckeditorMonkey'
 authoringComponent = require '../../browser/routes/authoring/blocks/block'
 mountApp = require './mountApp'
+predicantLexicon = require '../predicantLexicon'
 
 createRouter = require 'mockjax-router'
 
@@ -61,6 +62,21 @@ authoringElement = testBrowser.component {
 
   responses() =
     responsesElement.scope(self.editQuery().find('ul li.responses'))
+
+  predicantsButton() = self.find('button', text = 'Predicants')
+  predicantsEditor() = predicantsEditorComponent.scope(self.find('.predicants-editor'))
+}
+
+predicantsEditorComponent = testBrowser.component {
+  search() = self.find('.predicant-search input')
+  searchResults() = self.find('.predicant-search .results')
+  searchResult(name) = self.find('.predicant-search .results a', text = name)
+  selectedPredicant() = selectedPredicant.scope(self.find('.selected-predicant'))
+}
+
+selectedPredicant = testBrowser.component {
+  name() = self.find('input.name')
+  saveButton() = self.find('button.save')
 }
 
 blockMenuItemMonkey = testBrowser.component {
@@ -561,3 +577,30 @@ describe 'authoring'
           page.clipboardItem().shouldHave!(text: ['query 2', 'query 3'])
           page.clipboardItem('query 2').removeButton().click()!
           page.clipboardItem().shouldHave!(text: ['query 3'])
+
+    describe 'predicants'
+      context 'with a lexicon'
+        beforeEach
+          api.setLexicon (predicantLexicon('pred1'))
+          startApp()
+
+        it 'can show and search predicants'
+          page.predicantsButton().click()!
+          predicantsEditor = page.predicantsEditor()
+          predicantsEditor.searchResult().shouldHave(text = ['HemophilVIII', 'Hemophilia'])!
+          predicantsEditor.search().typeIn('viii')!
+          predicantsEditor.searchResult().shouldHave(text = ['HemophilVIII'])!
+          predicantsEditor.searchResult('HemophilVIII').click()!
+
+        it 'can edit and save a predicant'
+          page.predicantsButton().click()!
+          predicantsEditor = page.predicantsEditor()
+          predicantsEditor.searchResult('HemophilVIII').click()!
+          predicantsEditor.selectedPredicant().name().shouldHave(value = 'HemophilVIII')!
+          predicantsEditor.selectedPredicant().name().typeIn('HemophilVIII (updated)')!
+          predicantsEditor.selectedPredicant().saveButton().click()!
+
+          predicantsEditor.searchResult().shouldHave(text = ['HemophilVIII (updated)', 'Hemophilia'])!
+
+          retry!
+            expect [p <- api.predicants, p.name].to.eql ['HemophilVIII (updated)', 'Hemophilia']

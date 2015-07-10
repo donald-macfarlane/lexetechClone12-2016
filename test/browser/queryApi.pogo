@@ -226,11 +226,40 @@ module.exports() =
   clipboard = model('/api/user/queries', hrefs = true)
   documents = model('/api/user/documents', hrefs = true)
   users = model('/api/users', hrefs = true)
-  predicants = []
 
   router.get '/api/predicants' @(req)
+    predicants.forEach @(pred, index)
+      pred.href = '/api/predicants/' + (index + 1)
+
     {
       body = _.indexBy(predicants, 'id')
+    }
+
+  predicants = model('/api/predicants', hrefs = true)
+
+  router.get '/api/predicants/:predicantId/usages' @(req)
+    predicantId = req.params.predicantId
+
+    queries = [
+      b <- blocks
+      q <- b.queries
+      queriesById.(q)
+    ]
+
+    responses = [
+      q <- queries
+      r <- q.responses
+      r
+    ]
+
+    (items) usingPredicant (predicantId) =
+      [item <- items, item.predicants.indexOf(predicantId) >= 0, item]
+
+    {
+      body = {
+        queries = (queries) usingPredicant (predicantId)
+        responses = (responses) usingPredicant (predicantId)
+      }
     }
 
   {
