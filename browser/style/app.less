@@ -44,16 +44,17 @@ body {
 }
 
 footer {
-  text-align:center;
-  color:white;
-  background: #18510b url('/source/footer-tagline.png') center 25px no-repeat;
-  width:100%;
-  height:133px;
-  position:absolute;
-  bottom:0;
-  left:0;
-  padding-top:70px;
-  font-size:11px;
+  position: fixed;
+  z-index: 100;
+  text-align: center;
+  color: white;
+  background: #18510b url('/source/footer-tagline.png') center 8px no-repeat;
+  width: 100%;
+  height: 53px;
+  bottom: 0;
+  left: 0;
+  padding-top: 32px;
+  font-size: 11px;
 }
 
 
@@ -302,6 +303,10 @@ footer {
   }
 
   .query-response-editor {
+    margin-bottom: 0;
+  }
+
+  .query-response-editor {
     display: flex;
     flex-flow: row wrap;
 
@@ -329,7 +334,7 @@ footer {
 
     .query {
       .responses {
-        height: 300px;
+        height: 253px;
         margin: 10px;
         overflow-y: scroll;
 
@@ -357,7 +362,7 @@ footer {
         .response {
           border: none;
           position: relative;
-          padding: 5px;
+          padding: 2px;
           padding-right: 42px;
           border-left: 3px solid transparent;
 
@@ -428,6 +433,7 @@ footer {
       .response-text, .response-text-editor {
         background-color: white;
         outline: none;
+        box-shadow: inset 10px 10px 25px rgba(0, 0, 0, 0.1);
       }
     }
   }
@@ -436,6 +442,16 @@ footer {
     .actions {
       text-align: right;
     }
+
+    .document-outer {
+      background-color: white;
+      min-height: 45px;
+      font-size: 12pt;
+      font-family: times;
+      width: 600px;
+      margin: 0 auto;
+    }
+
     .document {
       list-style-type: none;
       padding: 0;

@@ -88,7 +88,7 @@ function topMenuButtons(model) {
       if (query && query.query) {
         return h('a.ui.button',
           {href: '/authoring/blocks/' + query.query.block + '/queries/' + query.query.id},
-          'Authoring: ' + query.query.text
+          'Authoring'
         );
       } else {
         return h('a.ui.button', {href: '/authoring'}, 'Authoring')

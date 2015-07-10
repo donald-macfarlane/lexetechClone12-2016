@@ -93,7 +93,6 @@ module.exports = prototype({
         self.query.render()
       ),
       h('.document-tabs',
-        h('h3', 'Report'),
         semanticUi.tabs(
           '.ui.top.attached.tabular.menu',
           {
