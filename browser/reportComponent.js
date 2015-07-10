@@ -123,11 +123,9 @@ module.exports = prototype({
           }
         ),
         h('.actions', [
-          h('.ui.button', 'Print'),
-          h('.ui.button', 'Save Work'),
-          h('.ui.button', 'Copy'),
-          h('.ui.button', 'Save to Vault'),
-          h('.ui.button', 'Save as Template'),
+          h('.ui.button', { 
+            onclick: function() {window.print()}},
+            'Print'),
           h('.ui.button', 'Discard')
         ])
       )

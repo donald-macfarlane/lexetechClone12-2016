@@ -12,18 +12,20 @@ module.exports = function (model, contents) {
       h('div.main',
         h('div.top-menu',
           h('div.content',
-            h('div.logo'),
+            h('div.logo',
+              h('img',{src: '/source/logo.png'})
+            ),
             authStatus(model.user),
             topMenuTabs(model),
             topMenuButtons(model)
           )
         ),
+        h('div.shadow'),
         model.flash && (!(model.flash instanceof Array) || (model.flash.length > 0))
-          ? h('div.top-flash.warning', renderFlash(model.flash),
+          ? h('div.ignored.ui.warning.message', renderFlash(model.flash),
               h('a.close', {onclick: function () { delete model.flash; }})
             )
           : undefined,
-        h('div.shadow'),
         h('div.content', contents)
       ),
       footer(model)
@@ -89,7 +91,7 @@ function topMenuButtons(model) {
           'Authoring: ' + query.query.text
         );
       } else {
-        return h('a', {href: '/authoring'}, 'Authoring')
+        return h('a.ui.button', {href: '/authoring'}, 'Authoring')
       }
     }
   }
