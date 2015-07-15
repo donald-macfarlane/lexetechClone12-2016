@@ -68,24 +68,27 @@ module.exports = prototype({
 
     return h('.documents',
       h('.ui.basic.button', {onclick: self.createDocument.bind(self)}, 'Start new document'),
-      currentDocument
-        ? h('.ui.basic.button.load-current-document', {onclick: self.loadCurrentDocument.bind(self)}, currentDocument.name? 'Load: ' + currentDocument.name: 'Load current document')
-        : h('.ui.basic.button.load-current-document.disabled', 'No current document'),
-      semanticUi.dropdown(
-        {
-          onChange: function (value, text) {
-            return self.loadDocument(value);
-          },
-          fullTextSearch: true
-        },
-        h('.ui.search.selection.dropdown.select-document',
-          h('input.search', {tabIndex: '0'}),
-          h('.default.text', 'Select document'),
-          h('.menu', {tabIndex: '-1'},
-            self.documents? self.documents.map(function (doc) {
-              return h('.item', {dataset: {value: doc.id}}, self.formatDocumentTitle(doc));
-            }): undefined
+      h('h1', 'Your reports'),
+      h('table.table.ui.celled.menu.documents',
+        h('thead',
+          h('tr',
+            h('th', 'Title'),
+            h('th', 'Name'),
+            h('th', '')
           )
+        ),
+        h('tbody',
+          self.documents? self.documents.map(function (doc) {
+            return currentDocument && currentDocument.id === doc.id
+            ? undefined
+            : h('tr',
+              h('td.title',self.formatDocumentTitle(doc)),
+              h('td.name', doc.name),
+              h('td',
+                h('.ui.basic.button.load-document', {onclick: function() {return self.loadDocument(doc.id)}}, 'Load')
+              )
+            );
+          }): undefined
         )
       )
     )
