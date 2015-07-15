@@ -12,10 +12,7 @@ var clone = require('./clone');
 var routes = require('../../../../routes');
 var removeFromArray = require('./removeFromArray');
 var dirtyBinding = require('../dirtyBinding');
-
-function sortable(options) {
-  return options.render();
-}
+var sortable = require('plastiq-sortable');
 
 function menuItem() {
   var args = Array.prototype.slice.call(arguments);
@@ -244,33 +241,34 @@ QueryComponent.prototype.render = function () {
         h("h3", "Responses"),
         h("button.add", {onclick: self.addResponse.bind(self)}, "Add Response"),
         h('div.response-editor',
-          sortable({
-            itemMoved: responseMoved,
-            render: function () {
+          sortable('ol.responses',
+            {
+              onitemmoved: function (item, from, to) {
+                self.dirty();
+              }
+            },
+            self.query.responses,
+            function (response) {
               function hide() {
                 self.highlightedResponse = undefined;
               }
 
-              return h('ol.responses',
-                self.query.responses.map(function (response) {
-                  function select() {
-                    self.selectedResponse = response;
-                  }
+              function select() {
+                self.selectedResponse = response;
+              }
 
-                  function show() {
-                    self.highlightedResponse = response;
-                  }
+              function show() {
+                self.highlightedResponse = response;
+              }
 
-                  return h('li', {
-                    onclick: select,
-                    onmouseenter: show,
-                    onmouseleave: hide,
-                    class: {selected: self.selectedResponse === response}
-                  }, response.text);
-                })
-              );
+              return h('li', {
+                onclick: select,
+                onmouseenter: show,
+                onmouseleave: hide,
+                class: {selected: self.selectedResponse === response}
+              }, response.text);
             }
-          }),
+          ),
           self.shownResponse()
             ? h('div.selected-response', self.renderResponse(self.shownResponse()))
             : undefined
@@ -456,26 +454,6 @@ QueryComponent.prototype.renderAction = function(action, removeAction) {
       self.dirty();
     }
 
-    function renderArguments() {
-      var args = action.arguments.map(function (id) {
-        var b = self.blocks[id];
-
-        function remove() {
-          removeBlock(b);
-        }
-
-        return h("li",
-          h("span", blockName(b)),
-          h.rawHtml("button.remove-block.remove",
-            { onclick: remove },
-            "&cross;"
-          )
-        );
-      });
-
-      return h("ol", args);
-    }
-
     function itemMoved(from, to) {
       moveItemInFromTo(action.arguments, from, to);
       self.dirty();
@@ -506,10 +484,29 @@ QueryComponent.prototype.renderAction = function(action, removeAction) {
       self.blocks
         ? [
             h('input', {type: 'text', binding: self.dirtyBinding(action, 'arguments', numberArray, filterBlocksConversion, rangeConversion)}),
-            sortable({
-              itemMoved: itemMoved,
-              render: renderArguments
-            }),
+            sortable('ol',
+              {
+                onitemmoved: function (item, from, to) {
+                  self.dirty();
+                }
+              },
+              action.arguments,
+              function (id) {
+                var b = self.blocks[id];
+
+                function remove() {
+                  removeBlock(b);
+                }
+
+                return h("li",
+                  h("span", blockName(b)),
+                  h.rawHtml("button.remove-block.remove",
+                    { onclick: remove },
+                    "&cross;"
+                  )
+                );
+              }
+            ),
             itemSelect({
               onAdd: addBlock,
               onRemove: removeBlock,
