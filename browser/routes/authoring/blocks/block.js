@@ -469,6 +469,7 @@ BlockComponent.prototype.renderBlocksQueries = function () {
 
       onupdate: function (element) {
         self.resizeQueriesDiv(element);
+        self.repositionQueriesList(element);
       },
 
       onremove: function () {

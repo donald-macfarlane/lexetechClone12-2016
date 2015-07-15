@@ -1,5 +1,4 @@
 @textColor                   : @primaryTextColor;
 @selectedTextColor           : @primaryTextColor;
 @invertedUnselectedTextColor : @highlightedTextColor;
-@hoverBackground             : @highlightedBackgroundColor;
 @hoverColor                  : @highlightedTextColor;

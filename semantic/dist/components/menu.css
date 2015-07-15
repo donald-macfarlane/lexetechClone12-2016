@@ -319,7 +319,7 @@
 .ui.menu .menu > .link.item:hover,
 .ui.menu .menu > a.item:hover {
   cursor: pointer;
-  background: #155203;
+  background: rgba(0, 0, 0, 0.03);
   color: #ffffff;
 }
 
@@ -377,7 +377,7 @@
 
 .ui.vertical.menu .active.item:hover,
 .ui.menu .active.item:hover {
-  background-color: #155203;
+  background-color: rgba(0, 0, 0, 0.03);
 }
 
 /*--------------

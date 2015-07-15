@@ -500,7 +500,7 @@ th {
          Site Overrides
 *******************************/
 /*!
- * # Semantic UI x.x - Site
+ * # Semantic UI - Site
  * http://github.com/semantic-org/semantic-ui/
  *
  *
@@ -17134,7 +17134,7 @@ ol.ui.list .item .item:hover,
 .ui.menu .menu > .link.item:hover,
 .ui.menu .menu > a.item:hover {
   cursor: pointer;
-  background: #155203;
+  background: rgba(0, 0, 0, 0.03);
   color: #ffffff;
 }
 
@@ -17199,7 +17199,7 @@ ol.ui.list .item .item:hover,
 
 .ui.vertical.menu .active.item:hover,
 .ui.menu .active.item:hover {
-  background-color: #155203;
+  background-color: rgba(0, 0, 0, 0.03);
 }
 
 /*--------------
