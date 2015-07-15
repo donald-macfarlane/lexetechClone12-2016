@@ -466,7 +466,7 @@ module.exports = function() {
         });
 
         return {
-          queries: queriesRequiringPredicant,
+          queries: _.sortBy(queriesRequiringPredicant, 'name'),
           responses: queriesWithResponsesIssuingPredicant
         };
       });
