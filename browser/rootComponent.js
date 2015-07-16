@@ -111,6 +111,8 @@ var rootComponent = prototype({
       return function () {
         if (self.user.admin) {
           return fn.apply(this, arguments);
+        } else {
+          return h('h1', "Sorry, you need to be an administrator to see this page.");
         }
       }
     }

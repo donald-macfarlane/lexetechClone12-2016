@@ -62,6 +62,7 @@ QueryComponent.prototype.renderResponse = function (response) {
 
   function remove() {
     self.query.responses = _.without(self.query.responses, response);
+    delete self.selectedResponse;
     return self.dirty();
   }
 

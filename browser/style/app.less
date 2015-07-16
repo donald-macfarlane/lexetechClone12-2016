@@ -36,10 +36,11 @@ body {
 }
 
 #wrapper {
-  min-height:100%;
-  position:relative;
+  height: 100%;
+  position: relative;
   .main {
     padding-bottom:133px; /* Height of the footer element */
+    min-height: 100%;
   }
 }
 
@@ -377,8 +378,9 @@ footer {
           button.edit-response {
             display: none;
             position: absolute;
-            right: 7px;
-            top: 4px;
+            right: 0;
+            top: 0;
+            bottom: 0;
             border: none;
             background-color: fade(@accept-color, 15%);
             cursor: pointer;
@@ -433,7 +435,7 @@ footer {
       .response-text, .response-text-editor {
         background-color: white;
         outline: none;
-        box-shadow: inset 10px 10px 25px rgba(0, 0, 0, 0.1);
+        box-shadow: inset 1px 1px 7px rgba(0, 0, 0, 0.1);
       }
     }
   }
@@ -754,6 +756,12 @@ hr {
 
   h1, h2, h3, h4 {
     color: rgb(94, 90, 67);
+  }
+
+  .action-add-blocks, .action-set-blocks {
+    li {
+      cursor: move;
+    }
   }
 
   .responses, .blocks-queries {

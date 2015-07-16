@@ -34,9 +34,13 @@ function BlockComponent() {
 
 BlockComponent.prototype.loadBlock = function (blockId, creatingBlock) {
   if (creatingBlock) {
-    this.selectedBlock = {block: {}};
+    this.selectedBlock = this.createBlock({});
   } else {
     this.selectedBlock = this.block(blockId);
+  }
+
+  if (this.selectedBlock) {
+    this.selectedBlock.startEditing();
   }
 };
 
@@ -105,36 +109,54 @@ BlockComponent.prototype.resizeQueriesDiv = function(element) {
   queriesDiv.css("min-width", width + "px");
 };
 
+BlockComponent.prototype.createBlock = function(b) {
+  var blockSelf = this;
+
+  return {
+    block: b,
+
+    startEditing: function () {
+      this.editedBlock = clone(this.block);
+    },
+
+    cancelEdits: function () {
+      this.editedBlock = clone(this.block);
+    },
+
+    commitEdits: function () {
+      this.block = this.editedBlock;
+    },
+
+    updateQueries: function () {
+      var self = this;
+
+      function getQueries() {
+        return http.get("/api/blocks/" + b.id + "/queries").then(function(queries) {
+          return wait(200).then(function() {
+            self.queries = queries;
+            self.queriesHierarchy = queriesInHierarchyByLevel(queries);
+          });
+        });
+      }
+
+      self.queriesPromise = getQueries();
+
+      return self.queriesPromise.then(function() {
+        blockSelf.refresh(blockSelf.blocksComponent);
+        blockSelf.refresh();
+      });
+    }
+  };
+}
+
 BlockComponent.prototype.loadBlocks = function() {
   var self = this;
-  var blockSelf = self;
   self.blocksLoaded = false;
 
   function getBlocks() {
     return http.get("/api/blocks").then(function(blocks) {
       return blocks.map(function (b) {
-        return {
-          block: b,
-
-          update: function () {
-            var self = this;
-
-            function getQueries() {
-              return http.get("/api/blocks/" + b.id + "/queries").then(function(queries) {
-                return wait(200).then(function() {
-                  self.queries = queries;
-                  self.queriesHierarchy = queriesInHierarchyByLevel(queries);
-                });
-              });
-            }
-
-            self.queriesPromise = getQueries();
-
-            return self.queriesPromise.then(function() {
-              blockSelf.refresh();
-            });
-          }
-        };
+        return self.createBlock(b);
       });
     }).then(function(blocks) {
       self.blocks = blocks;
@@ -146,17 +168,19 @@ BlockComponent.prototype.loadBlocks = function() {
 
   return this.blocksPromise.then(function(latestBlocks) {
     var allQueries = Promise.all(latestBlocks.map(function(block) {
-      return block.update();
+      return block.updateQueries();
     })).then(function () {
       self.blocksLoaded = true;
       self.loadBlock.reset();
       self.loadQuery.reset();
       self.refresh();
+      self.refresh(self.blocksComponent);
     });
 
     self.loadBlock.reset();
     self.loadQuery.reset();
     self.refresh();
+    self.refresh(self.blocksComponent);
     return latestBlocks;
   });
 };
@@ -183,7 +207,7 @@ BlockComponent.prototype.removeFromClipboard = function(query) {
 };
 
 BlockComponent.prototype.isNewBlock = function() {
-  return this.selectedBlock && this.selectedBlock.block && !this.selectedBlock.block.id;
+  return this.selectedBlock && this.selectedBlock.editedBlock && !this.selectedBlock.editedBlock.id;
 };
 
 BlockComponent.prototype.isNewQuery = function() {
@@ -213,15 +237,18 @@ BlockComponent.prototype.clean = function(value) {
 
 BlockComponent.prototype.save = function() {
   var self = this;
-  return http.post("/api/blocks/" + self.blockId, self.selectedBlock.block).then(function() {
-    return self.clean();
+  return http.post("/api/blocks/" + self.blockId, self.selectedBlock.editedBlock).then(function() {
+    self.selectedBlock.commitEdits();
+    self.refresh(self.blocksComponent);
+    self.clean();
   });
 };
 
 BlockComponent.prototype.create = function() {
   var self = this;
-  return http.post("/api/blocks", self.selectedBlock.block).then(function(savedBlock) {
-    self.clean()
+  return http.post("/api/blocks", self.selectedBlock.editedBlock).then(function(savedBlock) {
+    self.clean();
+    self.selectedBlock.commitEdits();
     var id = savedBlock.id;
     self.loadBlocks();
     routes.authoringBlock({blockId: id}).replace();
@@ -230,8 +257,8 @@ BlockComponent.prototype.create = function() {
 
 BlockComponent.prototype.delete = function() {
   var self = this;
-  self.selectedBlock.block.deleted = true;
-  return http.post("/api/blocks/" + self.blockId, self.selectedBlock.block).then(function() {
+  self.selectedBlock.editedBlock.deleted = true;
+  return http.post("/api/blocks/" + self.blockId, self.selectedBlock.editedBlock).then(function() {
     self.loadBlocks();
     routes.authoring().replace();
   });
@@ -244,13 +271,14 @@ BlockComponent.prototype.pasteQueryFromClipboard = function(query) {
 };
 
 BlockComponent.prototype.cancel = function() {
+  this.selectedBlock.cancelEdits();
   routes.authoring().push();
 };
 
 BlockComponent.prototype.createQuery = function(q) {
   var self = this;
   return http.post("/api/blocks/" + self.blockId + "/queries", q).then(function(savedQuery) {
-    self.selectedBlock.update();
+    self.selectedBlock.updateQueries();
     routes.authoringQuery({blockId: self.blockId, queryId: savedQuery.id}).replace();
   });
 };
@@ -258,7 +286,7 @@ BlockComponent.prototype.createQuery = function(q) {
 BlockComponent.prototype.updateQuery = function(q) {
   var self = this;
   return http.post("/api/blocks/" + self.blockId + "/queries/" + q.id, q).then(function() {
-    return self.selectedBlock.update();
+    return self.selectedBlock.updateQueries();
   });
 };
 
@@ -267,7 +295,7 @@ BlockComponent.prototype.insertQueryBefore = function(q) {
   q.before = q.id;
   q.id = void 0;
   return http.post("/api/blocks/" + self.blockId + "/queries", q).then(function(query) {
-    self.selectedBlock.update();
+    self.selectedBlock.updateQueries();
     routes.authoringQuery({blockId: self.blockId, queryId: query.id}).replace();
   });
 };
@@ -277,7 +305,7 @@ BlockComponent.prototype.insertQueryAfter = function(q) {
   q.after = q.id;
   q.id = void 0;
   return http.post("/api/blocks/" + self.blockId + "/queries", q).then(function(query) {
-    self.selectedBlock.update();
+    self.selectedBlock.updateQueries();
     routes.authoringQuery({blockId: self.blockId, queryId: query.id}).replace();
   });
 };
@@ -286,7 +314,7 @@ BlockComponent.prototype.removeQuery = function(q) {
   var self = this;
   q.deleted = true;
   return http.post("/api/blocks/" + self.blockId + "/queries/" + q.id, q).then(function() {
-    self.selectedBlock.update();
+    self.selectedBlock.updateQueries();
     routes.authoringBlock({blockId: self.blockId}).replace();
   });
 };
@@ -533,86 +561,92 @@ BlockComponent.prototype.renderBlocksQueries = function () {
         window.removeEventListener('scroll', this.scroll);
       }
     },
-    h("div.left-panel",
-      h("div.clipboard",
-        h("h2",
-          h("a", {href: "#", onclick: self.toggleClipboard.bind(self)}, "Clipboard",
-            self.clipboard
-              ? " (" + self.clipboard.length + ")"
-              : undefined
-          )
-        ),
-        self.showClipboard
-          ? h("ol",
+    function () {
+      return h("div.left-panel",
+        h("div.clipboard",
+          h("h2",
+            h("a", {href: "#", onclick: self.toggleClipboard.bind(self)}, "Clipboard",
               self.clipboard
-                ? self.clipboard.map(function (q) {
-                    function pasteFromClipboard(ev) {
-                      self.pasteQueryFromClipboard(q);
-                      ev.preventDefault();
-                    }
-
-                    function removeFromClipboard(ev) {
-                      self.removeFromClipboard(q);
-                    }
-
-                    return h("li", {onclick: pasteFromClipboard},
-                      h("h4", q.name),
-                      h("button.button.remove", {onclick: removeFromClipboard}, "remove")
-                    );
-                  })
+                ? " (" + self.clipboard.length + ")"
                 : undefined
             )
-          : undefined
-      ),
-      self.blocks
-        ? h(".blocks-queries",
-            h("h2", "Blocks"),
-            h("div.buttons",
-              h("button", {onclick: self.addBlock.bind(self)}, "Add Block"),
-              h("button", {onclick: routes.authoringPredicants().push}, "Predicants")
-            ),
-            h(".ui.vertical.menu.results", self.blocks.map(function(blockViewModel) {
-              var block = blockViewModel.block;
+          ),
+          self.showClipboard
+            ? h("ol",
+                self.clipboard
+                  ? self.clipboard.map(function (q) {
+                      function pasteFromClipboard(ev) {
+                        self.pasteQueryFromClipboard(q);
+                        ev.preventDefault();
+                      }
 
-              function selectBlock(ev) {
-                self.ignoreScrollToBlockQuery = true;
-                blockRoute.push();
-                ev.preventDefault();
-                ev.stopPropagation();
-              }
+                      function removeFromClipboard(ev) {
+                        self.removeFromClipboard(q);
+                      }
 
-              function show(ev) {
-                blockViewModel.hideQueries = false;
-                ev.stopPropagation();
-              }
-
-              function hide(ev) {
-                blockViewModel.hideQueries = true;
-                ev.stopPropagation();
-              }
-
-              var toggle =
-                (blockViewModel.queries && blockViewModel.queries.length > 0)
-                  ? blockViewModel.hideQueries
-                    ? h("i.icon.chevron.right", {onclick: show})
-                    : h("i.icon.chevron.down", {onclick: hide})
-                  : h("i.icon", {onclick: hide});
-
-              var blockRoute = routes.authoringBlock({blockId: block.id});
-
-              return h('.item', {class: {active: self.blockId === block.id}},
-                h(".header",
-                  toggle,
-                  h('a', {href: blockRoute.href, onclick: selectBlock}, blockName(block))
-                ),
-                (!blockViewModel.hideQueries && blockViewModel.queriesHierarchy)
-                  ? renderQueries(block, blockViewModel.queriesHierarchy)
+                      return h("li", {onclick: pasteFromClipboard},
+                        h("h4", q.name),
+                        h("button.button.remove", {onclick: removeFromClipboard}, "remove")
+                      );
+                    })
                   : undefined
-              );
-            }))
-          )
-        : undefined
-    )
+              )
+            : undefined
+        ),
+        self.blocksComponent = self.blocks
+          ? h.component({cacheKey: self.blockId + ':' + self.queryId},
+              function () {
+                return h(".blocks-queries",
+                  h("h2", "Blocks"),
+                  h("div.buttons",
+                    h("button", {onclick: self.addBlock.bind(self)}, "Add Block"),
+                    h("button", {onclick: routes.authoringPredicants().push}, "Predicants")
+                  ),
+                  h(".ui.vertical.menu.results", self.blocks.map(function(blockViewModel) {
+                    var block = blockViewModel.block;
+
+                    function selectBlock(ev) {
+                      self.ignoreScrollToBlockQuery = true;
+                      blockRoute.push();
+                      ev.preventDefault();
+                      ev.stopPropagation();
+                    }
+
+                    function show(ev) {
+                      blockViewModel.hideQueries = false;
+                      ev.stopPropagation();
+                    }
+
+                    function hide(ev) {
+                      blockViewModel.hideQueries = true;
+                      ev.stopPropagation();
+                    }
+
+                    var toggle =
+                      (blockViewModel.queries && blockViewModel.queries.length > 0)
+                        ? blockViewModel.hideQueries
+                          ? h("i.icon.chevron.right", {onclick: show})
+                          : h("i.icon.chevron.down", {onclick: hide})
+                        : h("i.icon", {onclick: hide});
+
+                    var blockRoute = routes.authoringBlock({blockId: block.id});
+
+                    return h('.item', {class: {active: self.blockId === block.id}},
+                      h(".header",
+                        toggle,
+                        h('a', {href: blockRoute.href, onclick: selectBlock}, blockName(block))
+                      ),
+                      (!blockViewModel.hideQueries && blockViewModel.queriesHierarchy)
+                        ? renderQueries(block, blockViewModel.queriesHierarchy)
+                        : undefined
+                    );
+                  }))
+                );
+              }
+            )
+          : undefined
+      );
+    }
   );
 };
 
@@ -627,12 +661,12 @@ BlockComponent.prototype.renderBlockEditor = function (blockId, queryId) {
     return h("div.edit-block",
       h("h2", "Block"),
       h("div.buttons",
-        !self.selectedBlock.block.id
+        !self.selectedBlock.editedBlock.id
           ? h("button.create", {onclick: self.create.bind(self)}, "Create")
           : self._dirty
             ? h("button.save", {onclick: self.save.bind(self)}, "Save")
             : undefined,
-        self.selectedBlock.block.id
+        self.selectedBlock.editedBlock.id
           ? h("button.delete", {onclick: self.delete.bind(self)}, "Delete")
           : undefined,
         (self._dirty || self.isNewBlock())
@@ -645,7 +679,7 @@ BlockComponent.prototype.renderBlockEditor = function (blockId, queryId) {
           h("input", {
             id: "block_name",
             type: "text",
-            binding: self.dirtyBinding(self.selectedBlock.block, 'name')
+            binding: self.dirtyBinding(self.selectedBlock.editedBlock, 'name')
           })
         )
       ),
