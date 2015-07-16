@@ -78,9 +78,11 @@ var queryComponent = prototype({
     self.refresh = h.refresh;
 
     if (query) {
-      var responsesForQuery = self.history.responsesForQuery(query) || {others: []};
+      var checkedResponses = self.history.checkedResponses(query) || {};
+      var responseIdToAccept = self.history.responseIdToAccept();
+
       var selectedResponse = query.responses && query.responses.filter(function (r) {
-        return r.id == responsesForQuery.previous;
+        return r.id == responseIdToAccept;
       })[0];
 
       function renderButton(content, _class, onclick, enabled) {
@@ -107,7 +109,7 @@ var queryComponent = prototype({
                       class: {
                         selected: selectedResponse == response,
                         loading: self.loadingResponse == response,
-                        other: responsesForQuery.others[response.id],
+                        checked: checkedResponses[response.id],
                         editing: self.responseEditor.editing() == response
                       },
                       onmouseenter: function () {

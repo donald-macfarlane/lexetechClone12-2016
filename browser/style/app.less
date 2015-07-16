@@ -288,7 +288,7 @@ footer {
   }
 }
 
-@accept-color: #2400FF;
+@accept-color: rgba(221, 204, 90, 0.54);
 
 .documents {
   .ui.dropdown.select-document {
@@ -369,10 +369,25 @@ footer {
 
           &.editing {
             background-color: fade(@accept-color, 4%);
+
+            &:after {
+              content: 'editing';
+            }
           }
 
           &.loading {
             .progress();
+          }
+
+          &.checked {
+            a::after {
+              content: '✔';
+              margin-left: 8px;
+            }
+          }
+
+          &.selected {
+            background-color: #E7E2BE;
           }
 
           button.edit-response {
@@ -382,7 +397,7 @@ footer {
             top: 0;
             bottom: 0;
             border: none;
-            background-color: fade(@accept-color, 15%);
+            background-color: @accept-color;
             cursor: pointer;
           }
 
@@ -467,7 +482,7 @@ footer {
           color: inherit;
 
           *:hover {
-            background-color: yellow;
+            background-color: @accept-color;
           }
         }
       }

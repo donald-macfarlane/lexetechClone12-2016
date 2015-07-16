@@ -6,6 +6,8 @@ ul.ui.list .item,
 ol.ui.list .item,
 .ui.list, .ui.selection.list {
   .item {
+    transition: none;
+
     a, a:hover {
       color: #094a2b !important;
     }
@@ -22,7 +24,6 @@ ol.ui.list .item,
 
     &.other, &.selected, &:hover {
       border-radius: 0;
-      background-color: #fbcc94 !important;
     }
   }
 }

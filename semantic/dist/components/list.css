@@ -874,6 +874,8 @@ ul.ui.list .item .item,
 ol.ui.list .item .item,
 .ui.list .item,
 .ui.selection.list .item {
+  -webkit-transition: none;
+          transition: none;
   border-radius: 0;
 }
 ul.ui.list .item .item a,
@@ -911,7 +913,6 @@ ol.ui.list .item .item:hover,
 .ui.list .item:hover,
 .ui.selection.list .item:hover {
   border-radius: 0;
-  background-color: #fbcc94 !important;
 }
 
 
