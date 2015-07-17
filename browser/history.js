@@ -228,9 +228,9 @@ module.exports = prototype({
     };
   },
 
-  responseIdToAccept: function () {
+  lexemeToAccept: function () {
     if (this.index + 1 < this.document.lexemes.length) {
-      return this.document.lexemes[this.index + 1].response.id;
+      return this.document.lexemes[this.index + 1];
     }
   },
 
