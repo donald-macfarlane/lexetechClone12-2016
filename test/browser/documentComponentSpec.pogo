@@ -1,19 +1,17 @@
 mountApp = require './mountApp'
 expect = require 'chai'.expect
-element = require './element'
+browser = require 'browser-monkey'
 queryApi = require './queryApi'
 retry = require 'trytryagain'
 documentComponent = require '../../browser/documentComponent'
 createDocument = require '../../browser/document'
 createHistory = require '../../browser/history'
 
-documentBrowser = prototypeExtending(element) {
+documentBrowser = browser.component {
   document() = self.find('ol.document')
 }
 
 describe 'document component'
-  browser = nil
-
   beforeEach =>
     $.mockjaxSettings.logging = false
 
@@ -31,8 +29,6 @@ describe 'document component'
     }
     mountApp(component)
 
-    browser := documentBrowser { selector = '.test' }
-
   it 'displays lexeme styles consecutively'
     withLexemes [
       {
@@ -44,7 +40,7 @@ describe 'document component'
         response = { styles = { style1 = 'two' } }
       }
     ]
-    browser.document().expect!(element.hasText('onetwo'))
+    documentBrowser.document().shouldHave! { text 'onetwo' }
 
   describe 'punctuation suppression'
     it 'supresses punctuation between lexemes that have style'
@@ -63,7 +59,7 @@ describe 'document component'
           response = { styles = { style1 = '<p>, two</p>' } }
         }
       ]
-      browser.document().expect!(element.hasText('onetwo'))
+      documentBrowser.document().shouldHave! { text = 'onetwo' }
 
   describe 'variables'
     it 'substitutes variables, forward and back'
@@ -83,4 +79,4 @@ describe 'document component'
           response = { styles = { style1 = ', more text !Var' } }
         }
       ]
-      browser.document().expect!(element.hasText('text lower, more text upper'))
+      documentBrowser.document().shouldHave! { text = 'text lower, more text upper'}

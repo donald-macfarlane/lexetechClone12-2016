@@ -1,7 +1,5 @@
 retry = require 'trytryagain'
 createTestDiv = require './createTestDiv'
-sendkeys = require './sendkeys'
-sendclick = require './sendclick'
 $ = require '../../browser/jquery'
 chai = require 'chai'
 expect = chai.expect

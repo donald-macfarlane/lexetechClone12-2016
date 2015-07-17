@@ -585,8 +585,8 @@ describe 'report'
 
       rootBrowser.loadCurrentDocumentButton().click!()
       shouldHaveQuery 'One'!
-      reportBrowser.query().response('A').shouldHave!(css: '.other')
-      reportBrowser.query().response('C').shouldHave!(css: '.other')
+      reportBrowser.query().response('A').shouldHave!(css: '.checked')
+      reportBrowser.query().response('C').shouldHave!(css: '.checked')
       selectResponse 'No More'!
       shouldBeFinished()!
 

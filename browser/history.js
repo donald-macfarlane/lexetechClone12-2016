@@ -207,7 +207,7 @@ module.exports = prototype({
     
     for (var n = this.index; n >= 0; n--) {
       var lexeme = this.document.lexemes[n];
-      if (this.query.query.id != lexeme.query.id) {
+      if (!(this.query.query && this.query.query.id === lexeme.query.id)) {
         break;
       } else {
         responses[lexeme.response.id] = true;
