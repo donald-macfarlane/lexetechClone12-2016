@@ -290,9 +290,19 @@ footer {
 @accept-color: #2400FF;
 
 .documents {
-  td:nth-child(1),
-  td:nth-child(2) {
-    width:50%;
+  .load-document {
+    cursor: pointer;
+    &:hover {
+      background-color: rgb(221, 223, 190);
+    }
+  }
+  td,th{
+    white-space:nowrap;
+    border-left:0 ! important;
+  }
+  td:first-child {
+    width:100%;
+    white-space:normal;
   }
 }
 
@@ -314,7 +324,7 @@ footer {
     .query-text {
       flex: 1 100%;
       border-color:   @backgroundColor;
-      border-width:   3px; 
+      border-width:   1px; 
       border-style:   solid;
       background-color: #fff;
       padding:        10px;

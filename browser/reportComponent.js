@@ -89,6 +89,9 @@ module.exports = prototype({
 
     return h('div.report',
       h('link', {rel: 'stylesheet', href: '/report.css'}),
+      h('fieldset',
+        self.renderReportName()
+      ),
       h('.query-response-editor',
         self.query.render()
       ),

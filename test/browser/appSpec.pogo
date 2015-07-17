@@ -28,12 +28,12 @@ describe 'report'
 
   rootBrowser = testBrowser.component {
     startNewDocumentButton() = self.find('.button', text = 'Start new document')
-    loadDocumentButton(index) = self.find(".documents tr:nth-child(#(index + 1)) .button.load-document")
+    loadDocumentButton(index) = self.find(".documents tr.button.load-document:nth-child(#(index + 1))")
     loadPreviousButton() = self.find('.button', text = 'Load previous document')
     authoringTab() = self.find('.top-menu .buttons a', text = 'Authoring')
   }
 
-  rootBrowser.loadCurrentDocumentButton() = self.find(".documents tr:first-child .button.load-document")
+  rootBrowser.loadCurrentDocumentButton() = self.find(".documents tr.button.load-document:first-child")
 
   reportBrowser = testBrowser.component {
     undoButton() = self.find('.query .button', text = 'undo')

@@ -147,6 +147,10 @@ var rootComponent = prototype({
       return array.filter(function (x) { return x; })[0];
     }
 
+    function refreshDocuments() {
+      return self.startReport.loadDocuments();
+    }
+
     return layoutComponent(self, whenLoggedIn(function () {
       return [
         routes.report(
@@ -165,7 +169,7 @@ var rootComponent = prototype({
             }
           }
         ),
-        routes.root(function () {
+        routes.root({onarrival: refreshDocuments}, function () {
           return self.startReport.render();
         }),
         routes.admin(adminAuth(function () {

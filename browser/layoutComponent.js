@@ -100,18 +100,7 @@ function topMenuButtons(model) {
       }
     }
   }
-
-  function reportTab() {
-    if (currentDocument) {
-      var title = currentDocument.name? 'Report: ' + currentDocument.name: 'Report';
-      return routeTab(
-        routes.report({documentId: currentDocument.id}),
-        title,
-        routes.report.under().active
-      );
-    }
-  }
-
+  
   function adminTab() {
     if (model.user.admin) {
       return routeTab(routes.admin(), 'Admin', routes.admin.under().active);
@@ -122,7 +111,6 @@ function topMenuButtons(model) {
     model.user
       ? [
         routeTab(routes.root(), 'Home', routes.root().active),
-        reportTab(),
         authoringTab(),
         adminTab()
       ]

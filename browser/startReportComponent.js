@@ -8,23 +8,22 @@ var debug = require('debug')('start-report');
 
 module.exports = prototype({
   constructor: function (options) {
-    var self = this;
-
+    this.user = options.user;
     this.documentApi = options.documentApi;
     this.root = options.root;
     this.currentDocument = options.currentDocument;
-
-    this.loadDocuments = throttle({throttle: 5000}, function () {
-      if (options.user) {
-        debug('loading documents');
-        return self.documentApi.allDocuments().then(function (documents) {
-          self.documents = documents;
-        });
-      }
-    });
   },
 
   refresh: function () {},
+
+  loadDocuments: function() {
+    var self = this;
+    if (self.user) {
+      return self.documentApi.allDocuments().then(function (documents) {
+        self.documents = documents;
+      });
+    }
+  },
 
   createDocument: function () {
     var self = this;
@@ -50,19 +49,10 @@ module.exports = prototype({
     });
   },
 
-  formatDocumentDate: function (doc) {
-    return moment(doc.lastModified).format('LL');
-  },
-
-  formatDocumentTitle: function (doc) {
-    return [h('.ui.label', this.formatDocumentDate(doc)), doc.name];
-  },
 
   render: function () {
     var self = this;
-
     this.refresh = h.refresh;
-    this.loadDocuments();
 
     var currentDocument = this.currentDocument();
 
@@ -72,22 +62,18 @@ module.exports = prototype({
       h('table.table.ui.celled.menu.documents',
         h('thead',
           h('tr',
-            h('th', 'Title'),
             h('th', 'Name'),
-            h('th', '')
+            h('th', 'Created'),
+            h('th', 'Modified')
           )
         ),
         h('tbody',
           self.documents? self.documents.map(function (doc) {
-            return currentDocument && currentDocument.id === doc.id
-            ? undefined
-            : h('tr',
-              h('td.title',self.formatDocumentTitle(doc)),
-              h('td.name', doc.name),
-              h('td',
-                h('.ui.basic.button.load-document', {onclick: function() {return self.loadDocument(doc.id)}}, 'Load')
-              )
-            );
+            return h('tr.button.load-document', {onclick: function() {return self.loadDocument(doc.id)}},
+              h('td.name', doc.name || 'Untitled2'),
+              h('td',moment(doc.created).format('LLL')),
+              h('td',moment(doc.lastModified).format('LLL'))
+            )
           }): undefined
         )
       )
