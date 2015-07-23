@@ -1,7 +1,5 @@
 retry = require 'trytryagain'
 createTestDiv = require './createTestDiv'
-sendkeys = require './sendkeys'
-sendclick = require './sendclick'
 $ = require '../../browser/jquery'
 chai = require 'chai'
 expect = chai.expect
@@ -598,7 +596,6 @@ describe 'authoring'
           }
 
           api.predicants.push (pred1, pred2)
-          console.log('before', api.predicants)
 
           api.setLexicon (lexicon.queries [
             {
@@ -627,8 +624,6 @@ describe 'authoring'
               ]
             }
           ])
-
-          console.log('after', api.predicants)
 
           startApp()
 

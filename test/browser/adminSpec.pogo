@@ -1,22 +1,24 @@
 mountApp = require './mountApp'
 expect = require 'chai'.expect
-element = require './element'
+browser = require 'browser-monkey'
 queryApi = require './queryApi'
 retry = require 'trytryagain'
 rootComponent = require '../../browser/rootComponent'
 
-appBrowser = prototypeExtending(element) {
+testBrowser = browser.scope '.test'
+
+app = testBrowser.component {
   adminTab() = self.find('.top-menu a', text = 'Admin')
 }
 
-adminBrowser = prototypeExtending(element) {
+admin = testBrowser.component {
   searchTextBox() = self.find('.search .ui.input input')
   createUser() = self.find('.button.create')
   searchResults() = self.find('.search .results')
   result(name) = self.find('.search .results h5', text = name)
 }
 
-userBrowser = prototypeExtending(element) {
+user = testBrowser.component {
   firstName() = self.find('form.user .first-name input')
   familyName() = self.find('form.user .family-name input')
   email() = self.find('form.user .email input')
@@ -25,9 +27,6 @@ userBrowser = prototypeExtending(element) {
 }
 
 describe 'admin'
-  app = nil
-  admin = nil
-  user = nil
   api = nil
   oldFilter = nil
 
@@ -37,9 +36,6 @@ describe 'admin'
     mountApp(rootComponent {
       user = { email = 'blah@example.com', admin = true }
     }, href = '/')
-    app := appBrowser { selector = '.test' }
-    admin := adminBrowser { selector = '.test' }
-    user := userBrowser { selector = '.test' }
   
   context 'with some users'
     beforeEach =>
@@ -58,9 +54,7 @@ describe 'admin'
       admin.searchTextBox().typeIn!('joe')
       admin.result('Joe').click!()
 
-      user.firstName().expect! @(element)
-        expect(element.0.value).to.equal('Joe')
-
+      user.firstName().shouldHave! { value = 'Joe' }
       user.firstName().typeIn!('Jack')
       user.saveButton().click!()
 

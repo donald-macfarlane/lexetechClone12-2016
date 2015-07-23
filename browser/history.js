@@ -202,22 +202,19 @@ module.exports = prototype({
     this.pushLexeme(lexeme, options);
   },
 
-  responsesForQuery: function (query) {
-    if (query.query) {
-      var responses = this.responsesByQueryId[query.query.id];
-      if (responses) {
-        var others = {};
-
-        responses.others && responses.others.forEach(function (r) {
-          others[r.id] = true;
-        });
-
-        return {
-          previous: responses.response && responses.response.id,
-          others: others
-        };
+  checkedResponses: function () {
+    var responses = {};
+    
+    for (var n = this.index; n >= 0; n--) {
+      var lexeme = this.document.lexemes[n];
+      if (!(this.query.query && this.query.query.id === lexeme.query.id)) {
+        break;
+      } else {
+        responses[lexeme.response.id] = true;
       }
     }
+
+    return responses;
   },
 
   accept: function () {
@@ -229,6 +226,12 @@ module.exports = prototype({
       query: queryPromise.then(this.setQuery),
       documentSaved: this.updateDocument()
     };
+  },
+
+  lexemeToAccept: function () {
+    if (this.index + 1 < this.document.lexemes.length) {
+      return this.document.lexemes[this.index + 1];
+    }
   },
 
   updateDocument: function () {

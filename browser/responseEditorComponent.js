@@ -47,36 +47,10 @@ module.exports = prototype({
     function styleTabContents(response, id, options) {
       return h('.ui.tab.bottom.attached.segment', {class: 'style-' + id},
         options.editing
-        ? [
-            responseHtmlEditor({
-              class: 'response-text-editor',
-              binding: [response.styles, id]
-            }),
-
-            h('button', {
-              onclick: function (ev) {
-                var promise = self.selectResponse(response.response, response.styles);
-                self.stopEditingResponse();
-                return promise;
-              }
-            }, 'ok'),
-            ' ',
-            h('button', {
-              onclick: function (ev) {
-                self.stopEditingResponse();
-              }
-            }, 'cancel'),
-            options.edited
-              ? [
-                  ' ',
-                  h('button', {
-                    onclick: function (ev) {
-                      response.styles[id] = response.response.styles[id];
-                    }
-                  }, 'revert')
-                ]
-              : undefined
-          ]
+        ? responseHtmlEditor({
+            class: 'response-text-editor',
+            binding: [response.styles, id]
+          })
         : h.rawHtml('.response-text', response? response.styles[id]: '')
       );
     }
@@ -87,29 +61,64 @@ module.exports = prototype({
       }
 
       var response = self.editingResponse || self.showingResponse;
+      var style = self.documentStyle.style;
 
       return [
-        semanticUi.tabs(
-          '.ui.tabular.menu.top.attached',
-          {
-            binding: [self.documentStyle, 'style'],
-            tabs: tabs.map(function (tab) {
-              return {
-                key: tab.id,
-                tab: h('a.item.style-' + tab.id, {class: {edited: styleEdited(tab.id)}}, tab.name),
-                content: function () {
-                  return styleTabContents(
-                    response,
-                    tab.id,
-                    {
-                      editing: self.editingResponse,
-                      edited: styleEdited(tab.id)
-                    }
-                  );
+        h('.response-tabs',
+          semanticUi.tabs(
+            '.ui.tabular.menu.top.attached',
+            {
+              binding: [self.documentStyle, 'style'],
+              tabs: tabs.map(function (tab) {
+                return {
+                  key: tab.id,
+                  tab: h('a.item.style-' + tab.id, {class: {edited: styleEdited(tab.id)}}, tab.name),
+                  content: function () {
+                    return styleTabContents(
+                      response,
+                      tab.id,
+                      {
+                        editing: self.editingResponse,
+                      }
+                    );
+                  }
                 }
-              }
-            })
-          }
+              })
+            }
+          ),
+          self.editingResponse
+            ? h('.actions',
+                h('button.ui.button',
+                  {
+                    onclick: function (ev) {
+                      var promise = self.selectResponse(response.response, response.styles);
+                      self.stopEditingResponse();
+                      return promise;
+                    }
+                  },
+                  'ok'
+                ),
+                ' ',
+                h('button.ui.button',
+                  {
+                    onclick: function (ev) {
+                      self.stopEditingResponse();
+                    }
+                  },
+                  'cancel'
+                ),
+                styleEdited(style)
+                  ? [
+                      ' ',
+                      h('button.ui.button', {
+                        onclick: function (ev) {
+                          response.styles[style] = response.response.styles[style];
+                        }
+                      }, 'revert')
+                    ]
+                  : undefined
+              )
+            : undefined
         )
       ];
     }

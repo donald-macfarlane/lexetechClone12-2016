@@ -93,7 +93,7 @@ var debugComponent = prototype({
 
     function predicantNames(predicants) {
       return Object.keys(predicants).map(function (p) {
-        return predicantByName(self.predicants, p);
+        return predicantByName(self.predicants, p).name;
       });
     }
 
@@ -219,7 +219,9 @@ var debugComponent = prototype({
           : undefined,
         h('p', 'blocks: ', renderContextArrays(previousContext, context, contextBlocks, code)),
         renderVariables(),
-        renderLoopPredicants(context),
+        this.predicants
+          ? renderLoopPredicants(context)
+          : undefined,
         renderResponse(selectedResponse)
       ),
       h('.context', renderJson(context)),

@@ -34,7 +34,7 @@ function PredicantsComponent(options) {
 }
 
 PredicantsComponent.prototype.refresh = function () {
-  console.log("refreshing, but haven't rendered yet!");
+  console.warn("refreshing, but haven't rendered yet!");
 };
 
 PredicantsComponent.prototype.loadQueriesForSelectedPredicant = function () {

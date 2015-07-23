@@ -78,17 +78,21 @@ var queryComponent = prototype({
     self.refresh = h.refresh;
 
     if (query) {
-      var responsesForQuery = self.history.responsesForQuery(query) || {others: []};
-      var selectedResponse = query.responses && query.responses.filter(function (r) {
-        return r.id == responsesForQuery.previous;
+      var checkedResponses = self.history.checkedResponses(query) || {};
+      var lexemeToAccept = self.history.lexemeToAccept();
+
+      var selectedResponse = lexemeToAccept && lexemeToAccept.response !== undefined && query.responses && query.responses.filter(function (r) {
+        return r.id == lexemeToAccept.response.id;
       })[0];
 
       function renderButton(content, _class, onclick, enabled) {
         enabled = arguments.length === 3? true: enabled;
 
-        return h('.ui.button' + (_class? '.' + _class: ''),
+        _class.disabled = !enabled;
+
+        return h('.ui.button',
           {
-            class: { disabled: !enabled },
+            class: _class,
             onclick: enabled? onclick: undefined
           },
           content
@@ -97,7 +101,7 @@ var queryComponent = prototype({
 
       return [
         h('h3.query-text', {key: 'query-text', class: {finished: !query.query}}, query.query? query.query.text: 'finished'),
-        renderButton(join('accept', h('br')), 'accept', self.history.accept.bind(self.history), selectedResponse),
+        renderButton(join('accept', h('br')), {accept: true}, self.history.accept.bind(self.history), lexemeToAccept),
         h('.query',
           query.query
             ? h('div.ui.selection.list.responses', {class: {overflow: query.responses.length >= 10}},
@@ -107,7 +111,7 @@ var queryComponent = prototype({
                       class: {
                         selected: selectedResponse == response,
                         loading: self.loadingResponse == response,
-                        other: responsesForQuery.others[response.id],
+                        checked: checkedResponses[response.id],
                         editing: self.responseEditor.editing() == response
                       },
                       onmouseenter: function () {
@@ -147,9 +151,9 @@ var queryComponent = prototype({
               )
             : undefined,
           h('.buttons',
-            renderButton('undo', 'undo', self.undo.bind(self), self.history.canUndo()),
-            renderButton('omit', 'omit', self.omit.bind(self)),
-            renderButton('skip', 'skip', self.skip.bind(self))
+            renderButton('undo', {undo: true}, self.undo.bind(self), self.history.canUndo()),
+            renderButton('omit', {omit: true, selected: lexemeToAccept && lexemeToAccept.omit}, self.omit.bind(self)),
+            renderButton('skip', {skip: true, selected: lexemeToAccept && lexemeToAccept.skip}, self.skip.bind(self))
           )
         ),
         self.responseEditor.render()

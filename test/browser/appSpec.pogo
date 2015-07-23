@@ -67,6 +67,8 @@ describe 'report'
   responseElement = testBrowser.component {
     link() = self.find('a')
     editButton() = self.find('button', text = 'edit')
+    shouldBeSelected() = self.shouldHave!(css = '.selected')
+    shouldBeChecked() = self.shouldHave!(css = '.checked')
   }
 
   responseEditorElement = testBrowser.component {
@@ -210,7 +212,7 @@ describe 'report'
       shouldHaveQuery 'Is it bleeding?'!
       reportBrowser.undoButton().click!()
       shouldHaveQuery 'Where does it hurt?'!
-      reportBrowser.query().response('left leg').shouldHave!(css = '.selected')
+      reportBrowser.query().response('left leg').shouldBeSelected()!
       reportBrowser.acceptButton().click!()
       shouldHaveQuery 'Is it bleeding?'!
       selectResponse 'yes'!
@@ -233,10 +235,10 @@ describe 'report'
       selectResponse 'yes'!
       reportBrowser.document().section('bleeding').click!()
       shouldHaveQuery 'Is it bleeding?'!
-      reportBrowser.query().response('yes').shouldHave!(css: '.selected')
+      reportBrowser.query().response('yes').shouldBeSelected()!
       reportBrowser.acceptButton().click!()
       shouldHaveQuery 'Is it aching?'!
-      reportBrowser.query().response('yes').shouldHave!(css: '.selected')
+      reportBrowser.query().response('yes').shouldBeSelected()!
       reportBrowser.acceptButton().click!()
       shouldBeFinished()!
 
@@ -585,12 +587,12 @@ describe 'report'
 
       rootBrowser.loadCurrentDocumentButton().click!()
       shouldHaveQuery 'One'!
-      reportBrowser.query().response('A').shouldHave!(css: '.other')
-      reportBrowser.query().response('C').shouldHave!(css: '.other')
+      reportBrowser.query().response('A').shouldBeChecked()!
+      reportBrowser.query().response('C').shouldBeChecked()!
       selectResponse 'No More'!
       shouldBeFinished()!
 
-  context 'logged in with lexicon for omit + skip'
+  context.only 'logged in with lexicon for omit + skip'
     beforeEach
       api.setLexicon (omitSkipLexicon())
       appendRootComponent()
@@ -607,11 +609,41 @@ describe 'report'
       selectResponse 'response 1'!
       shouldBeFinished()!
       
+    it 'can omit go back and accept the omit again'
+      shouldHaveQuery 'query 1, level 1'!
+      selectResponse 'response 1'!
+      shouldHaveQuery 'query 2, level 1'!
+      reportBrowser.query().omitButton().click!()
+      shouldHaveQuery 'query 3, level 2'!
+      reportBrowser.undoButton().click!()
+      shouldHaveQuery 'query 2, level 1'!
+      reportBrowser.query().omitButton().shouldHave!(css: '.selected')
+      reportBrowser.acceptButton().click!()
+      shouldHaveQuery 'query 3, level 2'!
+      selectResponse 'response 1'!
+      shouldHaveQuery 'query 5, level 1'!
+      selectResponse 'response 1'!
+      shouldBeFinished()!
+      
     it 'can skip'
       shouldHaveQuery 'query 1, level 1'!
       selectResponse 'response 1'!
       shouldHaveQuery 'query 2, level 1'!
       reportBrowser.query().skipButton().click!()
+      shouldHaveQuery 'query 5, level 1'!
+      selectResponse 'response 1'!
+      shouldBeFinished()!
+      
+    it 'can skip go back and accept the skip again'
+      shouldHaveQuery 'query 1, level 1'!
+      selectResponse 'response 1'!
+      shouldHaveQuery 'query 2, level 1'!
+      reportBrowser.query().skipButton().click!()
+      shouldHaveQuery 'query 5, level 1'!
+      reportBrowser.undoButton().click!()
+      shouldHaveQuery 'query 2, level 1'!
+      reportBrowser.query().skipButton().shouldHave!(css: '.selected')
+      reportBrowser.acceptButton().click!()
       shouldHaveQuery 'query 5, level 1'!
       selectResponse 'response 1'!
       shouldBeFinished()!
