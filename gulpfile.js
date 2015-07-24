@@ -80,7 +80,7 @@ gulp.task('watch-css', function () {
     .on('error', gutil.log.bind(gutil, 'Less Error'))
     .pipe(gulp.dest('server/generated'));
 
-    gulp.src('browser/style/print/report.less')
+  gulp.src('browser/style/print/report.less')
     .pipe(watch('browser/style/print/report.less'))
     .pipe(sourcemaps.init())
     .pipe(less({lineNumbers: 'all'}))

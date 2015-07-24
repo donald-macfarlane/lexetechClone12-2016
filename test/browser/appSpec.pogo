@@ -31,11 +31,11 @@ describe 'report'
     loadDocumentButton(index) = self.find(".documents tr.button.load-document:nth-child(#(index + 1))")
     loadPreviousButton() = self.find('.button', text = 'Load previous document')
     authoringTab() = self.find('.top-menu .buttons a', text = 'Authoring')
+    document(name) = self.find(".documents tr.document").containing('.name', text: name)
   }
 
-  rootBrowser.loadCurrentDocumentButton() = self.find(".documents tr.button.load-document:first-child")
-
   reportBrowser = testBrowser.component {
+    reportNameInput() = self.find('input.report-name')
     undoButton() = self.find('.query .button', text = 'undo')
     acceptButton() = self.find('.button.accept')
     debugTab() = self.find('.tabular .debug')
@@ -478,6 +478,7 @@ describe 'report'
         expect(api.documents.length).to.eql 0
 
       rootBrowser.startNewDocumentButton().click!()
+      reportBrowser.reportNameInput().typeIn!("bob's report")
       shouldHaveQuery 'Where does it hurt?'!
       selectResponse 'left leg'!
       shouldHaveQuery 'Is it bleeding?'!
@@ -487,11 +488,15 @@ describe 'report'
 
       history.back()
 
-      rootBrowser.loadCurrentDocumentButton().click!()
+      bobsReport = rootBrowser.document("bob's report")
+      bobsReport.shouldExist!()
+
+      bobsReport.click!()
       shouldHaveQuery 'Is it bleeding?'!
       selectResponse 'yes'!
       shouldHaveQuery 'Is it aching?'!
       selectResponse 'yes'!
+      reportBrowser.reportNameInput().shouldHave!(value: "bob's report")
       shouldBeFinished()!
 
     it 'can create a document, make some repeating responses, and come back to it'
@@ -499,6 +504,7 @@ describe 'report'
         expect(api.documents.length).to.eql 0
 
       rootBrowser.startNewDocumentButton().click!()
+      reportBrowser.reportNameInput().typeIn!("bob's report")
       shouldHaveQuery 'Where does it hurt?'!
       selectResponse 'left leg'!
       shouldHaveQuery 'Is it bleeding?'!
@@ -514,10 +520,10 @@ describe 'report'
 
       window.history.back()
 
-      debugger
-      rootBrowser.loadCurrentDocumentButton().shouldNotHave!(css: '.disabled')
+      bobsReport = rootBrowser.document("bob's report")
+      bobsReport.shouldExist!()
 
-      rootBrowser.loadCurrentDocumentButton().click!()
+      bobsReport.click!()
       shouldHaveQuery 'Is it aching?'!
       reportBrowser.undoButton().click!()
       shouldHaveQuery 'Is it bleeding?'!
@@ -572,6 +578,7 @@ describe 'report'
         expect(api.documents.length).to.eql 0
 
       rootBrowser.startNewDocumentButton().click!()
+      reportBrowser.reportNameInput().typeIn!("bob's report")
       shouldHaveQuery 'One'!
       selectResponse 'A'!
       shouldHaveQuery 'One'!
@@ -583,16 +590,17 @@ describe 'report'
 
       window.history.back()
 
-      rootBrowser.loadCurrentDocumentButton().shouldNotHave!(css: '.disabled')
+      bobsReport = rootBrowser.document("bob's report")
+      bobsReport.shouldExist!()
 
-      rootBrowser.loadCurrentDocumentButton().click!()
+      bobsReport.click!()
       shouldHaveQuery 'One'!
       reportBrowser.query().response('A').shouldBeChecked()!
       reportBrowser.query().response('C').shouldBeChecked()!
       selectResponse 'No More'!
       shouldBeFinished()!
 
-  context.only 'logged in with lexicon for omit + skip'
+  context 'logged in with lexicon for omit + skip'
     beforeEach
       api.setLexicon (omitSkipLexicon())
       appendRootComponent()

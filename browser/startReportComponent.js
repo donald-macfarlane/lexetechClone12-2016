@@ -69,7 +69,7 @@ module.exports = prototype({
         ),
         h('tbody',
           self.documents? self.documents.map(function (doc) {
-            return h('tr.button.load-document', {onclick: function() {return self.loadDocument(doc.id)}},
+            return h('tr.button.document', {onclick: function() {return self.loadDocument(doc.id)}},
               h('td.name', doc.name || 'Untitled2'),
               h('td',moment(doc.created).format('LLL')),
               h('td',moment(doc.lastModified).format('LLL'))
