@@ -102,7 +102,7 @@ module.exports = prototype({
     var currentDocument = this.currentDocument();
 
     return h('.documents',
-      self.documents && false ? self.documentList() : self.getStarted() 
+      self.documents ? self.documentList() : self.getStarted() 
     )
   }
 });
