@@ -10,6 +10,7 @@ When(/^I create a new user "(.*?)" with email "(.*?)"$/) do |name, email|
   familyName = name.split[1]
 
   click_on 'Admin'
+  sleep 0.25
   find('.button', text: 'ADD USER').click
   @new_user_email = email
   find('.user .first-name input').set(firstName)
