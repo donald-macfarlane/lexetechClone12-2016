@@ -49,6 +49,51 @@ module.exports = prototype({
     });
   },
 
+  newDocumentButton: function() {
+    var self = this;
+    return h('.ui.button.new-document', {onclick: self.createDocument.bind(self)}, 'Start new document');
+  },
+
+  documentList: function() {
+    var self = this;
+    return [
+      h('div.your-documents',
+        self.newDocumentButton(),
+        h('h1', 'Your documents'),
+        h('table.table.ui.celled.menu.documents',
+          h('thead',
+            h('tr',
+              h('th', 'Name'),
+              h('th', 'Created'),
+              h('th', 'Modified')
+            )
+          ),
+          h('tbody',
+            self.documents.map(function (doc) {
+              return h('tr.button.document.load-document', {onclick: function() {return self.loadDocument(doc.id)}},
+                h('td.name', doc.name || 'Untitled2'),
+                h('td',moment(doc.created).format('LLL')),
+                h('td',moment(doc.lastModified).format('LLL'))
+              )
+            })
+          )
+        )
+      )
+    ];
+  },
+
+  getStarted: function() {
+    var self = this;
+    return h('div.no-documents',
+      h('h1', 'Your documents'),
+      h('p', 'You have not yet created any documents.'),
+      h('p', 
+        h('a', {href: '#tutorial'}, 'Read the tutorial'),
+        ' or start a new document when you are ready:'
+      ),
+      self.newDocumentButton()
+    );
+  },
 
   render: function () {
     var self = this;
@@ -57,26 +102,7 @@ module.exports = prototype({
     var currentDocument = this.currentDocument();
 
     return h('.documents',
-      h('.ui.basic.button', {onclick: self.createDocument.bind(self)}, 'Start new document'),
-      h('h1', 'Your reports'),
-      h('table.table.ui.celled.menu.documents',
-        h('thead',
-          h('tr',
-            h('th', 'Name'),
-            h('th', 'Created'),
-            h('th', 'Modified')
-          )
-        ),
-        h('tbody',
-          self.documents? self.documents.map(function (doc) {
-            return h('tr.button.document', {onclick: function() {return self.loadDocument(doc.id)}},
-              h('td.name', doc.name || 'Untitled2'),
-              h('td',moment(doc.created).format('LLL')),
-              h('td',moment(doc.lastModified).format('LLL'))
-            )
-          }): undefined
-        )
-      )
+      self.documents && false ? self.documentList() : self.getStarted() 
     )
   }
 });

@@ -145,9 +145,9 @@ module.exports = prototype({
 
       return h('.report-header.ui.form',
         h('.field',
-          h('label', 'Report Identifier'),
+          h('label'),
           h('.ui.icon.input', {class: {loading: self.document.dirty}},
-            h('input.report-name', {type: 'text', placeholder: 'Name', binding: dirtyBinding(self.document, 'name', reportNameComponent)}),
+            h('input.report-name', {type: 'text', placeholder: 'Give this document a name', binding: dirtyBinding(self.document, 'name', reportNameComponent)}),
             h('i.icon')
           )
         )

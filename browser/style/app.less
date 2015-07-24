@@ -7,7 +7,7 @@ body {
   height:100%;
 }
 
-a, a:visited, a:active {
+a, a:visited, a:active, a:hover {
   color: #295c3e;
 }
 
@@ -291,6 +291,14 @@ footer {
 @accept-color: rgba(221, 204, 90, 0.54);
 
 .documents {
+  .your-documents .new-document {
+    float:right;
+  }
+  .no-documents {
+    a {
+      text-decoration:underline;
+    }
+  }
   .load-document {
     cursor: pointer;
     &:hover {
@@ -308,6 +316,13 @@ footer {
 }
 
 .report {
+  fieldset {
+    background-color: #f2f1f1;
+    margin-bottom:1.5em;
+  }
+  .ui.form input.report-name {
+    font-size:1.2em;
+  }
   .query-response-editor, .document-tabs {
     background-color: #f2f1f1;
     padding: 15px;
@@ -330,18 +345,16 @@ footer {
       background-color: #fff;
       padding:        10px;
       text-transform: uppercase;
-      margin:         -15px;
       margin-bottom:  15px;
     }
 
     .button.accept {
-      padding: 125px 0 0 0;
+      padding: 125px 0 92px 0;
       flex: 0 0 30px;
     }
 
     .query, .response-editor {
       flex: 1;
-      padding-top: 26px;
     }
 
     .query {
