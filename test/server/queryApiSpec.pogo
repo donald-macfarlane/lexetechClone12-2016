@@ -721,18 +721,18 @@ describe "query api"
           [q <- usages.responses, r <- q.responses, {query = q.query.text, response = r.text}]
 
         pred1Usages = api.get!("/api/predicants/#(pred1.id)/usages").body
-        expect([q <- pred1Usages.queries, q.text].sort()).to.eql ['query 1', 'query 2']
+        expect([q <- pred1Usages.queries, q.text]).to.eql ['query 1', 'query 2']
         expect(queryResponses(pred1Usages)).to.eql [
           {query = 'query 2', response = 'query 2, response 2'}
           {query = 'query 3', response = 'query 3, response 1'}
         ]
 
         pred2Usages = api.get!("/api/predicants/#(pred2.id)/usages").body
-        expect([q <- pred2Usages.queries, q.text].sort()).to.eql ['query 2']
+        expect([q <- pred2Usages.queries, q.text]).to.eql ['query 2']
         expect(queryResponses(pred2Usages)).to.eql []
 
         pred3Usages = api.get!("/api/predicants/#(pred3.id)/usages").body
-        expect([q <- pred3Usages.queries, q.text].sort()).to.eql ['query 1']
+        expect([q <- pred3Usages.queries, q.text]).to.eql ['query 1']
         expect(queryResponses(pred3Usages)).to.eql [
           {query = 'query 2', response = 'query 2, response 1'}
         ]
