@@ -24,6 +24,7 @@ end
 
 When(/^that link is used by the new user$/) do
   logout
+  expect(page).to have_css('button', text: 'LOG IN')
   visit @token_link
 end
 

@@ -19,7 +19,7 @@ module.exports.signup = function () {
 module.exports.resetPassword = function (token) {
   return h('div.signup-page',
     h('h1', 'Welcome'),
-    h('p', 'Please think of a password to login'),
+    h('p', "This is the first time you've used Lexenotes, please enter a new password to start"),
     credentialsForm('/resetpassword', h('button', 'Login'), {email: false, token: token}),
     h('div.links', signupLink(), ' | ', loginLink())
   );
