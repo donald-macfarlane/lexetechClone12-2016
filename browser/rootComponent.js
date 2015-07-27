@@ -126,6 +126,14 @@ var rootComponent = prototype({
     }
 
     function whenLoggedIn(fn) {
+      var inactive = routes.inactive(function () {
+        return h('h1', 'inactive');
+      });
+
+      if (inactive) {
+        return inactive;
+      }
+
       if (!self.user) {
         var authPage = first([
           routes.signup(authComponents.signup),

@@ -1,34 +1,14 @@
 var prototype = require('prote');
 var self = this;
-var createClient;
-var redis = require("then-redis");
-var urlUtils = require("url");
 var cache = require("../common/cache");
 var _ = require("underscore");
 var bluebird = require("bluebird");
 var semaphore = require("./semaphore");
-
-function createClient(url) {
-  if (url) {
-    var redisURL = urlUtils.parse(url);
-
-    var client = redis.createClient({
-        port: redisURL.port,
-        host: redisURL.hostname,
-        no_ready_check: true
-    });
-
-    client.auth(redisURL.auth.split(":")[1]);
-
-    return client;
-  } else {
-    return redis.createClient();
-  }
-}
+var redisClient = require('./redisClient');
 
 module.exports = function() {
   var self = this;
-  var client = createClient(process.env.REDISCLOUD_URL);
+  var client = redisClient({promises: true});
   var oneMax = semaphore();
 
   function setMax(key, value) {

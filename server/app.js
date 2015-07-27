@@ -4,7 +4,8 @@ var express = require("express");
 var bodyParser = require("body-parser");
 var passport = require("passport");
 var flash = require("connect-flash");
-var session = require("cookie-session");
+var session = require("express-session");
+var RedisStore = require('connect-redis')(session);
 var BasicStrategy = require("passport-http").BasicStrategy;
 var api = require("./api");
 var _ = require("underscore");
@@ -15,21 +16,26 @@ var redisDb = require("./redisDb");
 var promisify = require('./promisify');
 var debug = require('debug')('lexenotes:app');
 var handleErrors = require('./handleErrors');
+var urlUtils = require('url');
+var redisClient = require('./redisClient');
+var inactivityTimeout = require('./inactivityTimeout');
 
 var mongoDb = require("./mongoDb")
 mongoDb.connect();
-
-function days(n) {
-  return n * 60 * 60 * 24 * 1e3;
-};
 
 var app = express();
 app.use(bodyParser.json({limit: "1mb"}));
 
 app.use(session({
+  store: new RedisStore({client: redisClient()}),
   name: "session",
   secret: "haha bolshevik",
-  overwrite: true
+  cookie: {
+    maxAge: inactivityTimeout
+  },
+  resave: false,
+  rolling: true,
+  saveUninitialized: true
 }));
 
 app.use(bodyParser.urlencoded({extended: true}));

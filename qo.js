@@ -4,6 +4,7 @@ var createApi = require('./tools/createApi');
 var findAndModifyUser = require('./tools/findAndModifyUser');
 var fs = require('fs-promise');
 var _ = require('underscore');
+var promisify = require('./server/promisify');
 
 function mocha() { return shell('mocha test/*Spec.* test/server/*Spec.*'); }
 function karma() { return shell('karma start --single-run'); }

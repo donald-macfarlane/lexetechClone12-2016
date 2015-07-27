@@ -2,8 +2,15 @@ var jquery = require("./jquery");
 var Promise = require('bluebird');
 var _ = require('underscore');
 var qs = require('qs');
+var inactivityTimeout = require('../server/inactivityTimeout');
+
+var timer = makeTimer(function () {
+  http.onInactivity();
+}, inactivityTimeout);
 
 function send(method, url, body, options) {
+  timer.start();
+
   return Promise.resolve(jquery.ajax(_.extend({
     url: url,
     type: method,
@@ -23,6 +30,23 @@ function urlWithParams(url, options) {
 }
 
 var http = {};
+
+function makeTimer(callback, duration) {
+  var timeout;
+
+  return {
+    start: function () {
+      if (timeout !== undefined) {
+        clearTimeout(timeout);
+      }
+
+      var self = this;
+      timeout = setTimeout(function () {
+        callback();
+      }, duration);
+    }
+  };
+}
 
 ['get', 'delete'].forEach(function (method) {
   http[method] = function (url, options) {
