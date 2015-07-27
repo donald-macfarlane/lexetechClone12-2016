@@ -18,16 +18,18 @@ body {
   .main {
     min-width: 1024px;
     background: url(/source/background.png) 20px 0;
+
     > .content {
       top:-20px
     }
+
     > .content, .top-menu .content {
       position: relative;
       padding: 10px;
       width: 1024px;
       margin: 0 auto;
-      background: url(/source/content-background.png);
     }
+
     .top-menu .content{
       background: none;
       padding-top:0;
@@ -47,9 +49,9 @@ body {
 footer {
   position: fixed;
   z-index: 100;
-  text-align: center;
+  text-align: right;
   color: white;
-  background: #18510b url('/source/footer-tagline.png') center 8px no-repeat;
+  background: #18510b url('/source/footer-tagline.png') left 11px no-repeat;
   width: 100%;
   height: 53px;
   bottom: 0;
@@ -309,7 +311,6 @@ footer {
 
 .report {
   .query-response-editor, .document-tabs {
-    background-color: #f2f1f1;
     padding: 15px;
     margin-bottom: 15px;
   }
@@ -341,7 +342,11 @@ footer {
 
     .query, .response-editor {
       flex: 1;
-      padding-top: 26px;
+
+      background: white;
+      border-radius: 6px;
+      margin-right: 12px;
+      border: 1px solid #155203;
     }
 
     .query {
@@ -472,6 +477,8 @@ footer {
   }
 
   .document-tabs {
+    width: 740px;
+    margin: 0 auto;
 
     .document-outer {
       background-color: white;
