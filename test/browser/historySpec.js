@@ -5,6 +5,7 @@ var createHistory = require('../../browser/history');
 var retry = require('trytryagain');
 var buildGraph = require('../../browser/buildGraph');
 var simpleLexicon = require('../simpleLexicon');
+var omitSkipLexicon = require('../omitSkipLexicon');
 var loopingLexicon = require('../loopingLexicon');
 var substitutingLexicon = require('../substitutingLexicon');
 var Promise = require('bluebird');
@@ -92,6 +93,12 @@ describe('history', function () {
 
       function selectResponseAndExpectQuery(responseText, queryText, styles) {
         return selectResponse(responseText, styles).then(function () {
+          expectQuery(queryText);
+        });
+      }
+
+      function omitAndExpectQuery(queryText) {
+        return reloadHistory(history.omit()).then(function () {
           expectQuery(queryText);
         });
       }
@@ -224,6 +231,54 @@ describe('history', function () {
               {name: 'his', value: 'her'},
               {name: 'he', value: 'she'}
             ]);
+          });
+        });
+      });
+
+      describe('omit', function () {
+        beforeEach(function () {
+          lexicon = omitSkipLexicon();
+          server.setLexicon(lexicon);
+          return documentApi.create().then(function (doc) {
+            expect(server.documents.length, 'expected one document').to.equal(1);
+            historyWithDocument(doc);
+          });
+        });
+
+        it('can omit a query', function () {
+          return currentQuery().then(function () {
+            expectQuery('query 1, level 1');
+          }).then(function () {
+            return selectResponseAndExpectQuery('response 1', 'query 2, level 1');
+          }).then(function (result) {
+            return omitAndExpectQuery('query 3, level 2');
+          }).then(function () {
+            return selectResponseAndExpectQuery('response 1', 'query 5, level 1');
+          }).then(function () {
+            return selectResponse('response 1');
+          }).then(function () {
+            expectFinished();
+          });
+        });
+
+        it('can choose omit, go back and choose a response', function () {
+          return currentQuery().then(function () {
+            expectQuery('query 1, level 1');
+          }).then(function () {
+            return selectResponseAndExpectQuery('response 1', 'query 2, level 1');
+          }).then(function (result) {
+            return omitAndExpectQuery('query 3, level 2');
+          }).then(function () {
+            return undo();
+          }).then(function () {
+            expectQuery('query 2, level 1');
+            return selectResponseAndExpectQuery('response 1', 'query 3, level 2');
+          }).then(function () {
+            return selectResponseAndExpectQuery('response 1', 'query 5, level 1');
+          }).then(function () {
+            return selectResponse('response 1');
+          }).then(function () {
+            expectFinished();
           });
         });
       });
