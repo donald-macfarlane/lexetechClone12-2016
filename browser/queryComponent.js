@@ -103,6 +103,11 @@ var queryComponent = prototype({
         h('h3.query-text', {key: 'query-text', class: {finished: !query.query}}, query.query? query.query.text: 'finished'),
         renderButton(join('accept', h('br')), {accept: true}, self.history.accept.bind(self.history), lexemeToAccept),
         h('.query',
+          h('.buttons',
+            renderButton('undo', {undo: true}, self.undo.bind(self), self.history.canUndo()),
+            renderButton('omit', {omit: true, selected: lexemeToAccept && lexemeToAccept.omit}, self.omit.bind(self)),
+            renderButton('skip', {skip: true, selected: lexemeToAccept && lexemeToAccept.skip}, self.skip.bind(self))
+          ),
           query.query
             ? h('div.ui.selection.list.responses', {class: {overflow: query.responses.length >= 10}},
                 query.responses.map(function (response) {
@@ -149,12 +154,7 @@ var queryComponent = prototype({
                   );
                 })
               )
-            : undefined,
-          h('.buttons',
-            renderButton('undo', {undo: true}, self.undo.bind(self), self.history.canUndo()),
-            renderButton('omit', {omit: true, selected: lexemeToAccept && lexemeToAccept.omit}, self.omit.bind(self)),
-            renderButton('skip', {skip: true, selected: lexemeToAccept && lexemeToAccept.skip}, self.skip.bind(self))
-          )
+            : undefined
         ),
         self.responseEditor.render()
       ];

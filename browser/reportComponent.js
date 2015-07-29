@@ -89,9 +89,7 @@ module.exports = prototype({
 
     return h('div.report',
       h('link', {rel: 'stylesheet', href: '/report.css'}),
-      h('fieldset',
-        self.renderReportName()
-      ),
+      self.renderReportName(),
       h('.query-response-editor',
         self.query.render()
       ),
@@ -144,11 +142,12 @@ module.exports = prototype({
       }
 
       return h('.report-header.ui.form',
-        h('.field',
-          h('label', 'Report Identifier'),
-          h('.ui.icon.input', {class: {loading: self.document.dirty}},
-            h('input.report-name', {type: 'text', placeholder: 'Name', binding: dirtyBinding(self.document, 'name', reportNameComponent)}),
-            h('i.icon')
+        h('.field.inline.document-name',
+          h('label', 'Document Name'),
+          h('.ui.right.labeled.input', {class: {loading: self.document.dirty}},
+            h('input.report-name', {type: 'text', placeholder: 'Untitled', binding: dirtyBinding(self.document, 'name', reportNameComponent)}),
+            h('.ui.label', 'saved')
+            // h('i.icon'),
           )
         )
       )
