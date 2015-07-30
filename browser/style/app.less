@@ -310,9 +310,23 @@ footer {
 }
 
 .report {
-  .report-header {
-    .document-name {
-      text-align: right;
+  .document-name {
+    text-align: right;
+
+    label {
+      margin-right: 8px;
+      font-weight: bold;
+    }
+
+    .input {
+      .label {
+        width: 90px;
+        text-align: left;
+      }
+    }
+
+    input[type=text] {
+      width: 200px !important;
     }
   }
 
