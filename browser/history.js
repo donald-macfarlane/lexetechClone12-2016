@@ -68,6 +68,8 @@ module.exports = prototype({
   },
 
   currentQuery: function () {
+    this.loadingQuery = true;
+
     if (this.document.lexemes.length && this.index >= 0) {
       var lexeme = this.document.lexemes[this.index];
       return this.acceptLexeme(lexeme).then(this.setQuery);
@@ -77,6 +79,7 @@ module.exports = prototype({
   },
 
   selectResponse: function (response, styles) {
+    this.loadingQuery = true;
     return {
       query: response.query().then(this.setQuery),
       documentSaved: this.addQueryResponse(this.query.query, this.query.context, response, styles)
@@ -86,6 +89,7 @@ module.exports = prototype({
   skip: function () {
     var self = this;
 
+    this.loadingQuery = true;
     return {
       query: self.query.skip().then(this.setQuery),
       documentSaved: self.addQuerySkip(self.query.query, self.query.context)
@@ -93,6 +97,7 @@ module.exports = prototype({
   },
 
   setQuery: function (q) {
+    this.loadingQuery = false;
     this.query = q;
     return q;
   },
@@ -100,6 +105,7 @@ module.exports = prototype({
   omit: function () {
     var self = this;
 
+    this.loadingQuery = true;
     return {
       query: self.query.omit().then(self.setQuery),
       documentSaved: self.addQueryOmit(self.query.query, self.query.context)
@@ -204,13 +210,15 @@ module.exports = prototype({
 
   checkedResponses: function () {
     var responses = {};
+
+    var index = this.loadingQuery? this.index - 1: this.index;
     
-    for (var n = this.index; n >= 0; n--) {
+    for (var n = index; n >= 0; n--) {
       var lexeme = this.document.lexemes[n];
-      if (!(this.query.query && this.query.query.id === lexeme.query.id)) {
-        break;
-      } else {
+      if (this.query.query && this.query.query.id === lexeme.query.id) {
         responses[lexeme.response.id] = true;
+      } else {
+        break;
       }
     }
 
@@ -221,6 +229,8 @@ module.exports = prototype({
     this.index++;
     var lexeme = this.document.lexemes[this.index];
     var queryPromise = this.acceptLexeme(lexeme);
+
+    this.loadingQuery = true;
 
     return {
       query: queryPromise.then(this.setQuery),
@@ -241,6 +251,8 @@ module.exports = prototype({
   undo: function () {
     var lexeme = this.lexemes[this.index];
     this.index--;
+
+    this.loadingQuery = true;
 
     return {
       query: this.queryGraph.query(lexeme.query.id, lexeme.context).then(this.setQuery),

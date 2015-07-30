@@ -36,7 +36,7 @@ var queryComponent = prototype({
   selectResponse: function (response, styles) {
     var self = this;
 
-    return this.history.selectResponse(response, styles).query.then(function (q) {
+    return this.history.selectResponse(response, this.history.stylesForQueryResponse(response)).query.then(function (q) {
       self.setQuery(q);
     });
   },
@@ -127,7 +127,7 @@ var queryComponent = prototype({
                       },
                       onclick: function (ev) {
                         ev.preventDefault();
-                        return self.selectResponse(response, self.history.stylesForQueryResponse(response));
+                        return self.selectResponse(response);
                       }
                     },
                     h('a.content',
@@ -136,7 +136,7 @@ var queryComponent = prototype({
                         onclick: function (ev) {
                           ev.preventDefault();
                           ev.stopPropagation();
-                          return self.selectResponse(response, self.history.stylesForQueryResponse(response));
+                          return self.selectResponse(response);
                         }
                       },
                       response.text
