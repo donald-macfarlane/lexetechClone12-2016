@@ -518,12 +518,16 @@ BlockComponent.prototype.renderBlocksQueries = function () {
       key: 'edit-block-query',
       onadd: function (element) {
         function scroll() {
+          console.log('scrolling');
           self.repositionQueriesList(element);
         }
 
         this.scroll = scroll;
 
-        window.addEventListener('scroll', scroll);
+        console.log('adding scroll listener');
+        var wrapper = document.getElementById('wrapper');
+        wrapper.addEventListener('scroll', scroll);
+        // window.addEventListener('scroll', scroll);
         self.repositionQueriesList(element);
         self.resizeQueriesDiv(element);
       },
