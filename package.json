@@ -22,7 +22,7 @@
   "homepage": "https://github.com/featurist/lexeme",
   "devDependencies": {
     "bluebird": "^2.3.11",
-    "browser-monkey": "1.11.0",
+    "browser-monkey": "1.15.2",
     "chai": "2.0.0",
     "chai-as-promised": "4.2.0",
     "chinchilla": "0.0.9",

@@ -31,7 +31,15 @@ describe 'report'
     loadDocumentButton(index) = self.find(".documents tr.button.load-document:nth-child(#(index + 1))")
     loadPreviousButton() = self.find('.button', text = 'Load previous document')
     authoringTab() = self.find('.top-menu .buttons a', text = 'Authoring')
-    document(name) = self.find(".documents tr.document").containing('.name', text: name)
+    document(name) =
+      self.find(".documents tr.document").containing('.name', text: name).component {
+        deleteButton() = self.find('.delete.button')
+        deleteModal() =
+          browser.find('.ui.modals .ui.modal').component {
+            okButton() = self.find('.ok.button')
+            cancelButton() = self.find('.cancel.button')
+          }
+      }
   }
 
   reportBrowser = testBrowser.component {
@@ -498,6 +506,27 @@ describe 'report'
       selectResponse 'yes'!
       reportBrowser.reportNameInput().shouldHave!(value: "bob's report")
       shouldBeFinished()!
+
+    it 'can create a document and delete it'
+      retry!
+        expect(api.documents.length).to.eql 0
+
+      rootBrowser.newDocumentButton().click!()
+      reportBrowser.reportNameInput().typeIn!("bob's report")
+      shouldHaveQuery 'Where does it hurt?'!
+      selectResponse 'left leg'!
+      shouldHaveQuery 'Is it bleeding?'!
+
+      retry!
+        expect(api.documents.length).to.eql 1
+
+      history.back()
+
+      bobsReport = rootBrowser.document("bob's report")
+      bobsReport.shouldExist!()
+      bobsReport.deleteButton().click()!
+      bobsReport.deleteModal().okButton().click()!
+      bobsReport.shouldNotExist!()
 
     it 'can create a document, make some repeating responses, and come back to it'
       retry!
