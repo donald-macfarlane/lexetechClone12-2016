@@ -34,14 +34,6 @@ module.exports = prototype({
     });
   },
 
-  loadDocument: function (id) {
-    var self = this;
-
-    return this.documentApi.document(id).then(function (doc) {
-      self.root.openDocument(doc);
-    });
-  },
-
   askToDeleteDocument: function (doc) {
     var self = this;
     return new Promise(function (fulfil) {
@@ -52,6 +44,14 @@ module.exports = prototype({
         delete self.tellDeleteDocument;
         fulfil(goAheadWithDelete);
       };
+    });
+  },
+
+  loadDocument: function (id) {
+    var self = this;
+
+    return this.documentApi.document(id).then(function (doc) {
+      self.root.openDocument(doc);
     });
   },
 
@@ -69,11 +69,11 @@ module.exports = prototype({
     });
   },
 
-  render: function () {
+  documentList: function () {
     var self = this;
     this.refresh = h.refresh;
 
-    return h('.documents',
+    return h('div.your-documents',
       h('h1', 'Your documents'),
       h('table.table.ui.celled.documents',
         h('thead',
@@ -90,14 +90,14 @@ module.exports = prototype({
           )
         ),
         h('tbody',
-          self.documents? self.documents.map(function (doc) {
+          self.documents.map(function (doc) {
             return h('tr.button.document', {onclick: function() {return self.loadDocument(doc.id)}},
               h('td.name', documentName(doc)),
               h('td',moment(doc.created).format('LLL')),
               h('td',moment(doc.lastModified).format('LLL')),
               h('td', h('.ui.button.delete', {onclick: function (ev) { ev.stopPropagation(); return self.deleteDocument(doc); }}, 'delete'))
             )
-          }): undefined
+          })
         )
       ),
       self.askToDeleteModal
@@ -124,7 +124,29 @@ module.exports = prototype({
           )
         : undefined
     )
-  }
+  },
+
+  getStarted: function() {
+    var self = this;
+    return h('div.no-documents',
+      h('h1', 'Your documents'),
+      h('p', 'You have not yet created any documents.'),
+      h('p', 
+        h('a', {href: '#tutorial'}, 'Read the tutorial'),
+        ' or start a new document when you are ready:'
+      ),
+      h('.ui.button.new-document', {onclick: self.createDocument.bind(self)}, 'Start new document')
+    );
+  },
+
+  render: function () {
+    var self = this;
+    this.refresh = h.refresh;
+
+    return h('.documents',
+      self.documents && self.documents.length > 0 ? self.documentList() : self.getStarted() 
+    )
+  },
 });
 
 function documentName(document) {

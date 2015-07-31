@@ -7,7 +7,7 @@ body {
   height:100%;
 }
 
-a, a:visited, a:active {
+a, a:visited, a:active, a:hover {
   color: #295c3e;
 }
 
@@ -300,6 +300,14 @@ footer {
 @accept-color: rgba(221, 204, 90, 0.54);
 
 .documents {
+  .your-documents .new-document {
+    float:right;
+  }
+  .no-documents {
+    a {
+      text-decoration:underline;
+    }
+  }
   .document {
     cursor: pointer;
     &:hover {
@@ -325,26 +333,13 @@ footer {
 }
 
 .report {
-  .document-name {
-    text-align: right;
-
-    label {
-      margin-right: 8px;
-      font-weight: bold;
-    }
-
-    .input {
-      .label {
-        width: 90px;
-        text-align: left;
-      }
-    }
-
-    input[type=text] {
-      width: 200px !important;
-    }
+  fieldset {
+    background-color: #f2f1f1;
+    margin-bottom:1.5em;
   }
-
+  .ui.form input.report-name {
+    font-size:1.2em;
+  }
   .query-response-editor, .document-tabs {
     margin-bottom: 15px;
     margin-top: 15px;
