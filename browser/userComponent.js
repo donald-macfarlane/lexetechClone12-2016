@@ -54,7 +54,7 @@ module.exports = prototype({
     var user = this.user;
     var tokenLink = this.resetPasswordToken? location.origin + routes.resetPassword({token: this.resetPasswordToken}).href: undefined;
 
-    var rules = {
+    var fields = {
       email: {
         identifier: 'email',
         rules: [{
@@ -91,17 +91,17 @@ module.exports = prototype({
     };
 
     if (user.author) {
-      rules.officePhoneNumber.rules.push({
+      fields.officePhoneNumber.rules.push({
         type: 'empty',
         prompt: 'please enter a valid office phone number'
       });
 
-      rules.cellPhoneNumber.rules.push({
+      fields.cellPhoneNumber.rules.push({
         type: 'empty',
         prompt: 'please enter a valid cell phone number'
       });
 
-      rules.stateLicenseNumber.rules.push({
+      fields.stateLicenseNumber.rules.push({
         type: 'empty',
         prompt: 'please enter a valid state license number'
       });
@@ -110,12 +110,10 @@ module.exports = prototype({
     return form.form(
       {
         key: user.id || 'new',
-        rules: rules,
-        settings: {
-          inline: true
-        }
+        fields: fields,
+        inline: true
       },
-      function (component) {
+      function (validationForm) {
         return h('form.ui.form.user',
           newUser
             ? h('h2', 'New User')
@@ -165,7 +163,7 @@ module.exports = prototype({
           form.text('State License Number', [self.user, 'stateLicenseNumber', dirtyUser], {placeholder: 'state license number', name: 'state-license-number'}),
           form.boolean('Author', [self.user, 'author', dirtyUser]),
           form.boolean('Admin', [self.user, 'admin', dirtyUser]),
-          h('.ui.button', {class: {disabled: !self.user.dirty, blue: !newUser, green: newUser}, onclick: function () { return saveUser(component.state); }}, newUser? 'Create': 'Save'),
+          h('.ui.button', {class: {disabled: !self.user.dirty, blue: !newUser, green: newUser}, onclick: function () { return saveUser(validationForm); }}, newUser? 'Create': 'Save'),
           h('.ui.button', {onclick: routes.admin().push}, 'Close')
         );
       }

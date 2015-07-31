@@ -146,7 +146,6 @@ module.exports = prototype({
         h('.ui.icon.right.labeled.input', {class: {loading: self.document.dirty}},
           h('input.report-name', {type: 'text', placeholder: 'Untitled', binding: dirtyBinding(self.document, 'name', reportNameComponent)}),
           h('.ui.green.label', self.document.dirty? 'saving...': 'saved')
-          // h('i.icon'),
         )
       )
     });

@@ -20,7 +20,12 @@ body {
     background: url(/source/parch.jpg) 20px 0;
 
     > .content {
-      top:-20px
+      top:-20px;
+
+      h1.center {
+        margin-top: 150px;
+        text-align: center;
+      }
     }
 
     > .content, .top-menu .content {
@@ -297,6 +302,14 @@ footer {
     cursor: pointer;
     &:hover {
       background-color: rgb(221, 223, 190);
+
+      .button.delete {
+        visibility: visible;
+      }
+    }
+
+    .button.delete {
+      visibility: hidden;
     }
   }
   td,th{

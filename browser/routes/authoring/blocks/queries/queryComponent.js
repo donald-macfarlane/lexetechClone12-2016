@@ -10,7 +10,7 @@ var _ = require("underscore");
 var itemSelect = require('./itemSelect');
 var clone = require('./clone');
 var routes = require('../../../../routes');
-var removeFromArray = require('./removeFromArray');
+var removeFromArray = require('../../../../removeFromArray');
 var dirtyBinding = require('../dirtyBinding');
 var sortable = require('plastiq-sortable');
 

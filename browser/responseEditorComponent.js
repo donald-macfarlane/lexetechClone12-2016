@@ -51,7 +51,8 @@ module.exports = prototype({
             class: 'response-text-editor',
             binding: [response.styles, id]
           })
-        : h.rawHtml('.response-text', response? response.styles[id]: '')
+        : h.rawHtml('.response-text', response? response.styles[id]: ''),
+        h('div', 'response: ', response? response.styles[id]: '')
       );
     }
 

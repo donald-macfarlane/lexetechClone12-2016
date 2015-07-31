@@ -33,10 +33,11 @@ var queryComponent = prototype({
     this.responseEditor.stopShowingResponse();
   },
 
-  selectResponse: function (response, styles) {
+  selectResponse: function (response, _styles) {
     var self = this;
+    var styles = _styles || this.history.stylesForQueryResponse(response);
 
-    return this.history.selectResponse(response, this.history.stylesForQueryResponse(response)).query.then(function (q) {
+    return this.history.selectResponse(response, styles).query.then(function (q) {
       self.setQuery(q);
     });
   },

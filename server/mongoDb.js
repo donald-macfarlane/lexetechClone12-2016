@@ -50,6 +50,10 @@ exports.documents = function (userId) {
   });
 };
 
+exports.deleteDocument = function (userId, docId) {
+  return Document.findOneAndRemove({_id: docId, userId: userId}).exec();
+};
+
 exports.allUsers = function (options) {
   var max = options && options.max;
 

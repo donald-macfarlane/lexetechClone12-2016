@@ -34,6 +34,18 @@ describe 'documents'
     expect(response1.body.href).to.equal(response1.headers.location)
     expect(response2.body.href).to.equal(response2.headers.location)
 
+  it 'can delete a document'
+    doc1 = api.post!('/api/user/documents').body
+    doc2 = api.post!('/api/user/documents').body
+
+    expect(api.delete!(doc1.href).statusCode).to.equal(204)
+
+    expect(api.get!(doc1.href, exceptions = false).statusCode).to.equal(404)
+    expect(api.get!(doc2.href).body.href).to.equal(doc2.href)
+
+    list = api.get!('/api/user/documents').body
+    expect(list).to.eql([doc2])
+
   it 'adds a created field to documents as they are created, and a lastModified as they are updated'
     document = api.post!('/api/user/documents').body
 
@@ -86,6 +98,24 @@ describe 'documents'
     expect(user2.get!(docUrl, exceptions = false).statusCode).to.equal(404)
     doc.query = "user 2's edit"
     user2.post!(docUrl, doc)
+
+    expect(user1.get!(docUrl).body.query).to.eql("user 1's")
+
+  it 'only the original author can delete documents they create'
+    user1 = httpism.api "http://user1:password@localhost:#(port)"
+    user2 = httpism.api "http://user2:password@localhost:#(port)"
+    app.set 'apiUsers' {
+      "user1:password" = true
+      "user2:password" = true
+    }
+
+    response = user1.post!('/api/user/documents', {
+      query = "user 1's"
+    })
+    docUrl = response.headers.location
+    doc = response.body
+
+    expect(user2.delete!(docUrl, exceptions = false).statusCode).to.equal(404)
 
     expect(user1.get!(docUrl).body.query).to.eql("user 1's")
 

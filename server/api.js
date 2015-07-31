@@ -469,6 +469,16 @@ app.post("/user/documents", handleErrors(function(req, res) {
   });
 }));
 
+app.delete('/user/documents/:id', handleErrors(function (req, res) {
+  return mongoDb.deleteDocument(req.user.id, req.params.id).then(function (result) {
+    if (result) {
+      res.status(204).send({});
+    } else {
+      res.status(404).send({});
+    }
+  });
+}));
+
 app.get('/user/documents', function (req, res) {
   mongoDb.documents(req.user.id).then(function (docs) {
     docs.forEach(function (doc) {
