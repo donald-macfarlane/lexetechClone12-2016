@@ -135,7 +135,7 @@ module.exports = prototype({
         h('a', {href: '#tutorial'}, 'Read the tutorial'),
         ' or start a new document when you are ready:'
       ),
-      h('.ui.button.new-document', {onclick: self.createDocument.bind(self)}, 'Start new document')
+      h('.ui.button.new-document', {onclick: self.createDocument.bind(self)}, 'New Document')
     );
   },
 

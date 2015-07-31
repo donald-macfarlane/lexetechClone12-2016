@@ -171,7 +171,7 @@ describe('documentHasChangedStyles', function () {
     });
   });
 
-  context.only('documents with omit and skip', function () {
+  context('documents with omit and skip', function () {
     it('can produce changes even if the document has omit and skip lexemes', function () {
       var originalDocument = {
         lexemes: [
