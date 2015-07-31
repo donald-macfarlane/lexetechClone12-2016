@@ -835,6 +835,14 @@ hr {
   .responses, .blocks-queries {
     > .ui.vertical.menu {
       width: auto;
+
+      > .item {
+        padding-left: 0;
+        
+        > .header > a {
+          font-size: 18px;
+        }
+      }
     }
 
     .item.no-query {
@@ -847,8 +855,19 @@ hr {
       white-space: nowrap;
     }
 
-    .item > .header a {
-      padding: 3px;
+    .menu {
+      padding-left: 8px;
+    }
+
+    .item > .header {
+      padding-left: 5px;
+      a {
+        padding: 3px;
+        font-size: 12px;
+      }
+      i.icon {
+        font-size: 12px;
+      }
     }
 
     .item.active > .header a {

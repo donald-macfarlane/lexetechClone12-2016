@@ -474,11 +474,13 @@ BlockComponent.prototype.renderBlocksQueries = function () {
       function show(ev) {
         tree.hideQueries = false;
         ev.stopPropagation();
+        self.refresh(self.blocksComponent);
       }
 
       function hide(ev) {
         tree.hideQueries = true;
         ev.stopPropagation();
+        self.refresh(self.blocksComponent);
       }
 
       var toggle =
@@ -615,11 +617,13 @@ BlockComponent.prototype.renderBlocksQueries = function () {
                     function show(ev) {
                       blockViewModel.hideQueries = false;
                       ev.stopPropagation();
+                      self.refresh(self.blocksComponent);
                     }
 
                     function hide(ev) {
                       blockViewModel.hideQueries = true;
                       ev.stopPropagation();
+                      self.refresh(self.blocksComponent);
                     }
 
                     var toggle =
