@@ -526,8 +526,9 @@ BlockComponent.prototype.renderBlocksQueries = function () {
 
         console.log('adding scroll listener');
         var wrapper = document.getElementById('wrapper');
-        wrapper.addEventListener('scroll', scroll);
-        // window.addEventListener('scroll', scroll);
+        if (wrapper) {
+          wrapper.addEventListener('scroll', scroll);
+        }
         self.repositionQueriesList(element);
         self.resizeQueriesDiv(element);
       },
