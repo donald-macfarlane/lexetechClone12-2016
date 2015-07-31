@@ -728,7 +728,7 @@ describe "query api"
         ]
 
         pred2Usages = api.get!("/api/predicants/#(pred2.id)/usages").body
-        expect([q <- pred2Usages.queries, q.text]).to.eql ['query 2']
+        expect([q <- pred2Usages.queries, q.text].sort()).to.eql ['query 2']
         expect(queryResponses(pred2Usages)).to.eql []
 
         pred3Usages = api.get!("/api/predicants/#(pred3.id)/usages").body
