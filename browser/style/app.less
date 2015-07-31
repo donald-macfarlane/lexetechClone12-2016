@@ -17,17 +17,19 @@ body {
   padding: 0;
   .main {
     min-width: 1024px;
-    background: url(/source/background.png) 20px 0;
+    background: url(/source/parch.jpg) 20px 0;
+
     > .content {
       top:-20px
     }
+
     > .content, .top-menu .content {
       position: relative;
       padding: 10px;
       width: 1024px;
       margin: 0 auto;
-      background: url(/source/content-background.png);
     }
+
     .top-menu .content{
       background: none;
       padding-top:0;
@@ -47,9 +49,9 @@ body {
 footer {
   position: fixed;
   z-index: 100;
-  text-align: center;
+  text-align: right;
   color: white;
-  background: #18510b url('/source/footer-tagline.png') center 8px no-repeat;
+  background: #18510b url('/source/footer-tagline.png') left 11px no-repeat;
   width: 100%;
   height: 53px;
   bottom: 0;
@@ -108,9 +110,9 @@ footer {
 }
 
 .shadow {
-  -webkit-box-shadow: 0px 20px 41px -4px rgba(50, 50, 50, 1.74);
-  -moz-box-shadow: 0px 20px 41px -4px rgba(50, 50, 50, 1.74);
-  box-shadow: 0px 20px 41px -4px rgba(50, 50, 50, 1.74);
+  -webkit-box-shadow: 0px 20px 35px -4px #867D56;
+  -moz-box-shadow: 0px 20px 35px -4px #867D56;
+  box-shadow: 0px 20px 35px -4px #867D56;
   height: 20px;
   position: relative;
   top: -60px;
@@ -308,10 +310,15 @@ footer {
 }
 
 .report {
+  .report-header {
+    .document-name {
+      text-align: right;
+    }
+  }
+
   .query-response-editor, .document-tabs {
-    background-color: #f2f1f1;
-    padding: 15px;
     margin-bottom: 15px;
+    margin-top: 15px;
   }
 
   .query-response-editor {
@@ -330,24 +337,28 @@ footer {
       background-color: #fff;
       padding:        10px;
       text-transform: uppercase;
-      margin:         -15px;
       margin-bottom:  15px;
     }
 
     .button.accept {
-      padding: 125px 0 0 0;
-      flex: 0 0 30px;
+      padding: 114px 0 0 0;
+      flex: 0 0 40px;
     }
 
     .query, .response-editor {
       flex: 1;
-      padding-top: 26px;
     }
 
     .query {
+
       .responses {
+        background: white;
+        border-radius: 3px;
+        margin-right: 12px;
+        border: 1px solid #155203;
+
         height: 253px;
-        margin: 10px;
+        margin: 0;
         overflow-y: scroll;
 
         .response {
@@ -408,6 +419,7 @@ footer {
       }
 
       .buttons {
+        margin-bottom: 5px;
         .selected {
           background-color: #E7E2BE;
         }
@@ -416,6 +428,7 @@ footer {
 
     .response-editor {
       position: relative;
+      margin-left: 10px;
 
       > .response-tabs {
         display: flex;
@@ -472,6 +485,9 @@ footer {
   }
 
   .document-tabs {
+    width: 740px;
+    margin: 0 auto;
+    margin-top: 15px;
 
     .document-outer {
       background-color: white;

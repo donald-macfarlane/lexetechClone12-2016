@@ -166,7 +166,7 @@ module.exports = prototype({
       if (!(lastLexeme.query.id == lexeme.query.id
             && lastLexeme.context.key() == lexeme.context.key()
             && (
-              (lexeme.response && lastLexeme.response.id == lexeme.response.id)
+              (lexeme.response && lastLexeme.response && lastLexeme.response.id == lexeme.response.id)
               || (lexeme.skip && lastLexeme.skip)
               || (lexeme.omit && lastLexeme.omit)))) {
         this.lexemes.splice(this.index, this.lexemes.length - this.index, lexeme);
@@ -263,6 +263,8 @@ module.exports = prototype({
           documentSaved: Promise.resolve(undefined)
         };
       }
+    } else {
+      throw new Error('cannot go to query index: ' + index + ', there are only ' + this.lexemes.length + ' queries');
     }
   },
 
