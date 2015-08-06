@@ -3,6 +3,7 @@ var semanticUi = require('plastiq-semantic-ui');
 var loadPredicants = require('./loadPredicants');
 var _ = require('underscore');
 var throttle = require('plastiq-throttle');
+var loader = require('plastiq-loader');
 var http = require('../../../http');
 var clone = require('./queries/clone');
 var routes = require('../../../routes');
@@ -71,20 +72,33 @@ PredicantsComponent.prototype.render = function () {
     routes.authoringPredicants(function () {
       return self.renderPredicantsList();
     }),
+    routes.authoringCreatePredicant({
+      onarrival: function () {
+        self.selectedPredicant = {};
+        self.usagesForSelectedPredicant = undefined;
+      }
+    }, function (params) {
+      return [
+        self.renderPredicantsList(),
+        self.selectedPredicant
+          ? self.renderPredicantEditor(self)
+          : undefined
+      ];
+    }),
     routes.authoringPredicant(function (params) {
       self.selectPredicant(params.predicantId, self.predicants.loaded);
 
       return [
-        self.renderPredicantsList(),
+        self.renderPredicantsList(self),
         self.selectedPredicant
-          ? self.renderPredicantEditor()
+          ? self.renderPredicantEditor(self)
           : undefined
       ];
     })
   );
 };
 
-PredicantsComponent.prototype.renderPredicantsList = function () {
+PredicantsComponent.prototype.renderPredicantsList = function (editedPredicant) {
   return h('.predicant-search',
     h('.ui.button',
       {
@@ -94,6 +108,7 @@ PredicantsComponent.prototype.renderPredicantsList = function () {
       },
       'Create'
     ),
+    h('br'),
     h('.ui.icon.input',
       h('input', {type: 'text', placeholder: 'search predicants', binding: [this, 'query']}),
       h('i.search.icon')
@@ -103,7 +118,7 @@ PredicantsComponent.prototype.renderPredicantsList = function () {
         return h('a.item.teal',
           {
             href: '#',
-            class: {active: predicant == self.originalSelectedPredicant},
+            class: {active: editedPredicant && predicant == editedPredicant.originalSelectedPredicant},
             onclick: function (ev) {
               routes.authoringPredicant({predicantId: predicant.id}).push();
               ev.preventDefault();
@@ -116,44 +131,45 @@ PredicantsComponent.prototype.renderPredicantsList = function () {
   );
 };
 
-PredicantsComponent.prototype.renderPredicantEditor = function () {
+PredicantsComponent.prototype.renderPredicantEditor = function (editedPredicant) {
   var self = this;
 
   return h('.selected-predicant',
     h('h1', 'Predicant'),
     h('.ui.input',
-      h('input.name', {type: 'text', binding: h.binding([self.selectedPredicant, 'name'], {refresh: false})})
+      h('label', 'Name'),
+      h('input.name', {type: 'text', binding: h.binding([editedPredicant.selectedPredicant, 'name'], {refresh: false})})
     ),
     h('.buttons',
-      self.selectedPredicant.id
+      editedPredicant.selectedPredicant.id
       ? h('button.save.ui.button.blue', {
           onclick: function () {
-            return http.put(self.selectedPredicant.href, self.selectedPredicant).then(function () {
-              self.originalSelectedPredicant.name = self.selectedPredicant.name;
-              delete self.selectedPredicant;
+            return http.put(editedPredicant.selectedPredicant.href, editedPredicant.selectedPredicant).then(function () {
+              editedPredicant.originalSelectedPredicant.name = editedPredicant.selectedPredicant.name;
+              delete editedPredicant.selectedPredicant;
               routes.authoringPredicants().push();
             });
           }
         }, 'Save')
       : h('button.create.ui.button.green', {
           onclick: function () {
-            return http.post('/api/predicants', self.selectedPredicant).then(function (predicant) {
+            return http.post('/api/predicants', editedPredicant.selectedPredicant).then(function (predicant) {
               self.predicants.addPredicant(predicant);
               self.search.reset();
-              delete self.selectedPredicant;
+              delete editedPredicant.selectedPredicant;
               routes.authoringPredicants().push();
             });
           }
         }, 'Create'),
       h('button.close.ui.button', {
         onclick: function () {
-          delete self.selectedPredicant;
+          delete editedPredicant.selectedPredicant;
           routes.authoringPredicants().push();
         }
       }, 'Close')
     ),
     h('.predicant-usages',
-      self.usagesForSelectedPredicant.queries.length
+      self.usagesForSelectedPredicant && self.usagesForSelectedPredicant.queries.length
         ? h('.predicant-usages-queries',
             h('h3', 'Depenent Queries'),
             h('.ui.vertical.menu.results',
@@ -163,7 +179,7 @@ PredicantsComponent.prototype.renderPredicantEditor = function () {
             )
           )
         : undefined,
-      self.usagesForSelectedPredicant.responses.length
+      self.usagesForSelectedPredicant && self.usagesForSelectedPredicant.responses.length
         ? h('.predicant-usages-responses',
             h('h3', 'Issuing Responses'),
             h('.ui.vertical.menu.results',

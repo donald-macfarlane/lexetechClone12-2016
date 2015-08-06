@@ -63,10 +63,11 @@ authoringElement = testBrowser.component {
     responsesElement.scope(self.editQuery().find('ul li.responses'))
 
   predicantsButton() = self.find('button', text = 'Predicants')
-  predicantsEditor() = predicantsEditorComponent.scope(self.find('.predicants-editor'))
+  predicantsEditor() = self.find('.predicants-editor').component(predicantsEditorComponent)
 }
 
-predicantsEditorComponent = testBrowser.component {
+predicantsEditorComponent = {
+  createButton() = self.find('.button', text = 'Create')
   search() = self.find('.predicant-search input')
   searchResults() = self.find('.predicant-search .results')
   searchResult(name) = self.find('.predicant-search .results a', text = name)
@@ -76,12 +77,15 @@ predicantsEditorComponent = testBrowser.component {
 selectedPredicant = testBrowser.component {
   name() = self.find('input.name')
   saveButton() = self.find('button.save')
+  createButton() = self.find('button.create')
   queries() = self.find('.predicant-usages-queries .results > .item')
   responses() = self.find('.predicant-usages-responses .results > .item')
 }
 
 blockMenuItemMonkey = testBrowser.component {
-  link() = self.find('.header a')
+  link() = self.find('> .header a')
+  expand() = self.find('> .header .icon.right')
+  collapse() = self.find('> .header .icon.down')
 }
 
 editQueryMonkey = testBrowser.component {
@@ -362,6 +366,14 @@ describe 'authoring'
                   predicants = []
                   responses = []
                 }
+                {
+                  id = '3'
+                  name = 'query 3'
+                  text = 'question 3'
+                  level = 2
+                  predicants = []
+                  responses = []
+                }
               ]
             }
           ]
@@ -382,6 +394,20 @@ describe 'authoring'
 
         page.queryMenuItem('two', 'query 2').link().click!()
         page.editQuery().name().shouldHave!(value = 'query 2')
+
+      it 'can collapse and expand a block'
+        page.queryMenuItem('one', 'query 1').shouldExist!()
+        page.blockMenuItem('one').collapse().click!()
+        page.queryMenuItem('one', 'query 1').shouldNotExist!()
+        page.blockMenuItem('one').expand().click!()
+        page.queryMenuItem('one', 'query 1').shouldExist!()
+
+      it 'can collapse and expand a query'
+        page.queryMenuItem('two', 'query 3').shouldExist!()
+        page.queryMenuItem('two', 'query 2').collapse().click!()
+        page.queryMenuItem('two', 'query 3').shouldNotExist!()
+        page.queryMenuItem('two', 'query 2').expand().click!()
+        page.queryMenuItem('two', 'query 3').shouldExist!()
 
     describe 'updating and inserting queries'
       beforeEach
@@ -647,6 +673,18 @@ describe 'authoring'
 
           retry!
             expect [p <- api.predicants, p.name].to.eql ['HemophilVIII (updated)', 'Hemophilia']
+
+        it 'can create a predicant'
+          page.predicantsButton().click()!
+          predicantsEditor = page.predicantsEditor()
+          predicantsEditor.createButton().click()!
+          predicantsEditor.selectedPredicant().name().typeIn('My New Predicant')!
+          predicantsEditor.selectedPredicant().createButton().click()!
+
+          predicantsEditor.searchResult().shouldHave(text = ['HemophilVIII', 'Hemophilia', 'My New Predicant'])!
+
+          retry!
+            expect [p <- api.predicants, p.name].to.eql ['HemophilVIII', 'Hemophilia', 'My New Predicant']
 
         it 'predicants show links to queries and responses that contain it'
           page.predicantsButton().click()!
