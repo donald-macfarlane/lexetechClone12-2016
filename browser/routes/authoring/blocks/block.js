@@ -12,6 +12,7 @@ var clone = require('./queries/clone');
 var predicantsComponent = require('./predicantsComponent');
 var predicants = require('./predicants');
 var dirtyBinding = require('./dirtyBinding');
+var semanticUi = require('plastiq-semantic-ui');
 
 _debug = require('debug');
 var debug = _debug('block');
@@ -30,6 +31,10 @@ function BlockComponent() {
   this.loadClipboard();
 
   this.dirtyBinding = dirtyBinding(this);
+
+  this.predicantsComponent = predicantsComponent({
+    predicants: this.predicants
+  });
 }
 
 BlockComponent.prototype.loadBlock = function (blockId, creatingBlock) {
@@ -114,6 +119,8 @@ BlockComponent.prototype.createBlock = function(b) {
 
   return {
     block: b,
+
+    hideQueries: true,
 
     startEditing: function () {
       this.editedBlock = clone(this.block);
@@ -323,21 +330,41 @@ BlockComponent.prototype.addBlock = function() {
   routes.authoringCreateBlock().push();
 };
 
-BlockComponent.prototype.renderPredicants = function () {
-  var self = this;
-
-  if (!this.predicantsComponent) {
-    this.predicantsComponent = predicantsComponent({
-      predicants: this.predicants
-    });
-  }
-
-  return this.predicantsComponent.render();
+BlockComponent.prototype.renderPredicantsMenu = function () {
+  return this.predicantsComponent.renderMenu();
 };
 
-BlockComponent.prototype.toggleClipboard = function(ev) {
-  ev.preventDefault();
-  this.showClipboard = !this.showClipboard;
+BlockComponent.prototype.renderPredicantEditor = function () {
+  return this.predicantsComponent.renderEditor();
+};
+
+BlockComponent.prototype.renderClipboard = function () {
+  var self = this;
+
+  return h("div.clipboard",
+    h(".ui.menu.vertical",
+      self.clipboard
+        ? self.clipboard.length
+          ? self.clipboard.map(function (q) {
+              function pasteFromClipboard(ev) {
+                self.pasteQueryFromClipboard(q);
+                ev.preventDefault();
+              }
+
+              function removeFromClipboard(ev) {
+                ev.stopPropagation();
+                return self.removeFromClipboard(q);
+              }
+
+              return h("a.item", {onclick: pasteFromClipboard},
+                q.name,
+                h('.ui.label.remove', {onclick: removeFromClipboard}, 'remove')
+              );
+            })
+          : h('a.item', 'no queries in clipboard')
+        : undefined
+    )
+  );
 };
 
 BlockComponent.prototype.textValue = function(value) {
@@ -362,7 +389,7 @@ BlockComponent.prototype.render = function() {
       routes.authoring(function () {
         load();
         return [
-          self.renderBlocksQueries()
+          self.renderMenu()
         ];
       }),
       routes.authoringCreateBlock(
@@ -380,7 +407,7 @@ BlockComponent.prototype.render = function() {
         function (params) {
           load();
           return [
-            self.renderBlocksQueries(),
+            self.renderMenu(),
             self.renderBlockEditor(params.blockId)
           ];
         }
@@ -396,7 +423,7 @@ BlockComponent.prototype.render = function() {
         function (params) {
           load();
           return [
-            self.renderBlocksQueries(),
+            self.renderMenu(),
             self.renderBlockEditor(params.blockId)
           ];
         }
@@ -404,8 +431,8 @@ BlockComponent.prototype.render = function() {
       routes.authoringPredicants.under(function () {
         load();
         return [
-          self.renderBlocksQueries(),
-          self.renderPredicants()
+          self.renderMenu(),
+          self.renderPredicantEditor()
         ];
       }),
       routes.authoringCreateQuery(
@@ -425,8 +452,8 @@ BlockComponent.prototype.render = function() {
         function (params) {
           load();
           return [
-            self.renderBlocksQueries(),
-            self.renderBlockEditor(params.blockId, params.queryId)
+            self.renderMenu(),
+            self.renderQueryEditor(params.blockId, params.queryId)
           ];
         }
       ),
@@ -446,9 +473,10 @@ BlockComponent.prototype.render = function() {
         },
         function (params) {
           load();
+
           return [
-            self.renderBlocksQueries(),
-            self.renderBlockEditor(params.blockId, params.queryId)
+            self.renderMenu(),
+            self.renderQueryEditor(params.blockId, params.queryId)
           ];
         }
       )
@@ -463,6 +491,31 @@ BlockComponent.prototype.askToScrollBlockQueryMenu = function () {
     this.ignoreScrollToBlockQuery = false;
   }
 }
+
+BlockComponent.prototype.renderMenu = function () {
+  var self = this;
+
+  return h('.menu', semanticUi.tabs('.ui.tabular.menu', {
+    binding: [this, 'tab'],
+    tabs: [
+      {
+        key: 'blocks',
+        tab: h('a.item', 'Blocks'),
+        content: function () { return self.renderBlocksQueries(); }
+      },
+      {
+        key: 'clipboard',
+        tab: h('a.item', 'Clipboard (' + (self.clipboard? self.clipboard.length: 0) + ')'),
+        content: function () { return self.renderClipboard(); }
+      },
+      {
+        key: 'predicants',
+        tab: h('a.item', 'Predicants'),
+        content: function () { return self.renderPredicantsMenu(); }
+      }
+    ]
+  }));
+};
 
 BlockComponent.prototype.renderBlocksQueries = function () {
   var self = this;
@@ -513,153 +566,71 @@ BlockComponent.prototype.renderBlocksQueries = function () {
     }));
   }
 
-  return h.component(
-    {
-      key: 'edit-block-query',
-      onadd: function (element) {
-        function scroll() {
-          console.log('scrolling');
-          self.repositionQueriesList(element);
-        }
+  return h("div.left-panel", {key: 'edit-block-query'},
+    self.blocksComponent = self.blocks
+      ? h.component({cacheKey: self.blockId + ':' + self.queryId},
+          function () {
+            return h(".blocks-queries",
+              h("div.buttons",
+                h("button", {onclick: self.addBlock.bind(self)}, "Add Block")
+              ),
+              h(".ui.vertical.menu.results", self.blocks.map(function(blockViewModel) {
+                var block = blockViewModel.block;
 
-        this.scroll = scroll;
+                function selectBlock(ev) {
+                  self.ignoreScrollToBlockQuery = true;
+                  blockRoute.push();
+                  ev.preventDefault();
+                  ev.stopPropagation();
+                }
 
-        console.log('adding scroll listener');
-        var wrapper = document.getElementById('wrapper');
-        if (wrapper) {
-          wrapper.addEventListener('scroll', scroll);
-        }
-        self.repositionQueriesList(element);
-        self.resizeQueriesDiv(element);
-      },
+                function show(ev) {
+                  blockViewModel.hideQueries = false;
+                  ev.stopPropagation();
+                  self.refresh(self.blocksComponent);
+                }
 
-      onupdate: function (element) {
-        self.resizeQueriesDiv(element);
-        self.repositionQueriesList(element);
+                function hide(ev) {
+                  blockViewModel.hideQueries = true;
+                  ev.stopPropagation();
+                  self.refresh(self.blocksComponent);
+                }
 
-        function relativePosition(element, ancestor) {
-          var top = 0;
-          var left = 0;
+                var toggle =
+                  (blockViewModel.queries && blockViewModel.queries.length > 0)
+                    ? blockViewModel.hideQueries
+                      ? h("i.icon.chevron.right", {onclick: show})
+                      : h("i.icon.chevron.down", {onclick: hide})
+                    : h("i.icon", {onclick: hide});
 
-          while(element.offsetParent && ancestor !== element) {
-            top += element.offsetTop;
-            left += element.offsetLeft;
-            element = element.offsetParent;
-          }
+                var blockRoute = routes.authoringBlock({blockId: block.id});
 
-          return {
-            top: top,
-            left: left
-          }
-        }
-
-        if (self.scrollToBlockQuery && self.blocksLoaded) {
-          self.scrollToBlockQuery = false;
-          var items = element.querySelectorAll('.item.active');
-          var item = items[items.length - 1];
-          var menu = element.querySelector('.ui.menu.results');
-          if (item && menu) {
-            menu.scrollTop = relativePosition(item, menu).top - 60;
-          }
-        }
-      },
-
-      onremove: function () {
-        window.removeEventListener('scroll', this.scroll);
-      }
-    },
-    function () {
-      return h("div.left-panel",
-        h("div.clipboard",
-          h("h2",
-            h("a", {href: "#", onclick: self.toggleClipboard.bind(self)}, "Clipboard",
-              self.clipboard
-                ? " (" + self.clipboard.length + ")"
-                : undefined
-            )
-          ),
-          self.showClipboard
-            ? h("ol",
-                self.clipboard
-                  ? self.clipboard.map(function (q) {
-                      function pasteFromClipboard(ev) {
-                        self.pasteQueryFromClipboard(q);
-                        ev.preventDefault();
-                      }
-
-                      function removeFromClipboard(ev) {
-                        self.removeFromClipboard(q);
-                      }
-
-                      return h("li", {onclick: pasteFromClipboard},
-                        h("h4", q.name),
-                        h("button.button.remove", {onclick: removeFromClipboard}, "remove")
-                      );
-                    })
-                  : undefined
-              )
-            : undefined
-        ),
-        self.blocksComponent = self.blocks
-          ? h.component({cacheKey: self.blockId + ':' + self.queryId},
-              function () {
-                return h(".blocks-queries",
-                  h("h2", "Blocks"),
-                  h("div.buttons",
-                    h("button", {onclick: self.addBlock.bind(self)}, "Add Block"),
-                    h("button", {onclick: routes.authoringPredicants().push}, "Predicants")
+                return h('.item', {class: {active: self.blockId === block.id}},
+                  h(".header",
+                    toggle,
+                    h('a', {href: blockRoute.href, onclick: selectBlock}, blockName(block))
                   ),
-                  h(".ui.vertical.menu.results", self.blocks.map(function(blockViewModel) {
-                    var block = blockViewModel.block;
-
-                    function selectBlock(ev) {
-                      self.ignoreScrollToBlockQuery = true;
-                      blockRoute.push();
-                      ev.preventDefault();
-                      ev.stopPropagation();
-                    }
-
-                    function show(ev) {
-                      blockViewModel.hideQueries = false;
-                      ev.stopPropagation();
-                      self.refresh(self.blocksComponent);
-                    }
-
-                    function hide(ev) {
-                      blockViewModel.hideQueries = true;
-                      ev.stopPropagation();
-                      self.refresh(self.blocksComponent);
-                    }
-
-                    var toggle =
-                      (blockViewModel.queries && blockViewModel.queries.length > 0)
-                        ? blockViewModel.hideQueries
-                          ? h("i.icon.chevron.right", {onclick: show})
-                          : h("i.icon.chevron.down", {onclick: hide})
-                        : h("i.icon", {onclick: hide});
-
-                    var blockRoute = routes.authoringBlock({blockId: block.id});
-
-                    return h('.item', {class: {active: self.blockId === block.id}},
-                      h(".header",
-                        toggle,
-                        h('a', {href: blockRoute.href, onclick: selectBlock}, blockName(block))
-                      ),
-                      (!blockViewModel.hideQueries && blockViewModel.queriesHierarchy)
-                        ? renderQueries(block, blockViewModel.queriesHierarchy)
-                        : undefined
-                    );
-                  }))
+                  (!blockViewModel.hideQueries && blockViewModel.queriesHierarchy)
+                    ? renderQueries(block, blockViewModel.queriesHierarchy)
+                    : undefined
                 );
-              }
-            )
-          : undefined
-      );
-    }
+              }))
+            );
+          }
+        )
+      : undefined
   );
 };
 
-BlockComponent.prototype.renderBlockEditor = function (blockId, queryId) {
+BlockComponent.prototype.renderQueryEditor = function (blockId, queryId) {
+  if (this.queryComponent) {
+    return this.queryComponent.render();
+  } else {
+    return h('h1', 'loading');
+  }
+};
+
+BlockComponent.prototype.renderBlockEditor = function (blockId) {
   var self = this;
 
   function addQuery() {
@@ -698,9 +669,6 @@ BlockComponent.prototype.renderBlockEditor = function (blockId, queryId) {
               h("button", {onclick: addQuery}, "Add Query")
             )
           )
-        : undefined,
-      this.queryComponent
-        ? this.queryComponent.render()
         : undefined
     );
   }

@@ -638,7 +638,7 @@ hr {
 .edit-block-query, .edit-lexicon {
   display: flex;
 
-  > *:last-child {
+  > *:last-child:not(:first-child) {
     width: 100%;
     margin-right: inherit;
   }
@@ -648,16 +648,20 @@ hr {
   }
 }
 
+.predicant-search {
+  margin: 10px;
+
+  .results.menu {
+    width: auto;
+  }
+}
+
 .predicants-editor {
   display: flex;
   flex-flow: row;
   justify-content: flex-start;
   -webkit-justify-content: flex-start;
   padding: 10px;
-
-  .predicant-search {
-    margin: 10px;
-  }
 
   .selected-predicant {
     margin: 10px;
@@ -949,47 +953,19 @@ hr {
   }
 
   .clipboard {
-    h2 {
-      a {
-        color: inherit;
-      }
-    }
-    > ol {
-      list-style-type: none;
-      background-color: rgba(149, 153, 86, 0.16);
-      padding-left: 0;
+    .ui.menu {
+      width: auto;
 
-      > li {
-        position: relative;
+      .item {
+        .remove {
+          visibility: hidden;
+        }
 
         &:hover {
-          background-color: rgba(197, 199, 165, 0.22);
-
           .remove {
-            display: block;
+            visibility: visible;
           }
         }
-
-        .remove {
-          position: absolute;
-          display: none;
-          right: 0;
-          top: 0;
-          padding: 0 6px;
-          bottom: 0;
-          margin: 0;
-
-          &:hover {
-            background-color: rgb(244, 138, 138);
-            color: white;
-          }
-        }
-      }
-
-      h4 {
-        margin: 0;
-        padding: 4px;
-        cursor: pointer;
       }
     }
   }
@@ -999,12 +975,6 @@ hr {
 
     .buttons {
       margin-bottom: 15px;
-    }
-
-    > .menu {
-      position: fixed;
-      overflow-y: scroll;
-      bottom: 0;
     }
 
     > ol {

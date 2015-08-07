@@ -706,7 +706,7 @@ QueryComponent.prototype.cancel = function() {
 };
 
 QueryComponent.prototype.close = function() {
-  routes.authoringBlock({blockId: this.blockId}).push();
+  routes.authoring().push();
 };
 
 QueryComponent.prototype.addToClipboard = function() {

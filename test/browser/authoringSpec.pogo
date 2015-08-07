@@ -21,14 +21,19 @@ authoringElement = testBrowser.component {
     self.find('.btn-group').containing('button.dropdown-toggle', text = name)
 
   clipboard() =
-    self.find('.clipboard')
+    self.find('.clipboard').component {
+      clipboardItem(name) = self.find('.menu .item', text = name).component(clipboardItem)
+    }
 
-  clipboardHeader() =
-    self.clipboard().find('a', text = 'Clipboard')
+  clipboardTab() =
+    self.find('.tabular a', text = 'Clipboard')
 
-  clipboardItem(name) =
-    clipboardItem.scope(self.clipboard().find('ol li', text = name))
+  blocksTab() =
+    self.find('.tabular a', text = 'Blocks')
     
+  predicantsTab() =
+    self.find('.tabular a', text = 'Predicants')
+
   dropdownMenuItem(name) =
     self.find('ul.dropdown-menu li a', text = name)
 
@@ -62,19 +67,18 @@ authoringElement = testBrowser.component {
   responses() =
     responsesElement.scope(self.editQuery().find('ul li.responses'))
 
-  predicantsButton() = self.find('button', text = 'Predicants')
   predicantsEditor() = self.find('.predicants-editor').component(predicantsEditorComponent)
+  predicantsMenu() = self.find('.predicant-search').component(predicantsMenuComponent)
+}
+
+predicantsMenuComponent = {
+  createButton() = self.find('.button', text = 'Create')
+  search() = self.find('input.search')
+  searchResults() = self.find('.results')
+  searchResult(name) = self.find('.results a', text = name)
 }
 
 predicantsEditorComponent = {
-  createButton() = self.find('.button', text = 'Create')
-  search() = self.find('.predicant-search input')
-  searchResults() = self.find('.predicant-search .results')
-  searchResult(name) = self.find('.predicant-search .results a', text = name)
-  selectedPredicant() = selectedPredicant.scope(self.find('.selected-predicant'))
-}
-
-selectedPredicant = testBrowser.component {
   name() = self.find('input.name')
   saveButton() = self.find('button.save')
   createButton() = self.find('button.create')
@@ -102,8 +106,8 @@ predicantsMonkey = testBrowser.component {
   result(name) = self.find('ol li', text = name)
 }
 
-clipboardItem = testBrowser.component {
-  removeButton() = self.find('.button.remove')
+clipboardItem = {
+  removeButton() = self.find('.remove')
 }
 
 responsesElement = testBrowser.component {
@@ -246,6 +250,7 @@ describe 'authoring'
             }
           ]
 
+        page.blockMenuItem('xyz').expand().click()!
         page.queryMenuItem('xyz', 'query 1').shouldExist!()
       
       it 'can create a query with a user predicant'
@@ -389,20 +394,23 @@ describe 'authoring'
         page.blockName().shouldHave!(value = 'two')
 
       it 'can select one query after another'
+        page.blockMenuItem('one').expand().click!()
         page.queryMenuItem('one', 'query 1').link().click!()
         page.editQuery().name().shouldHave!(value = 'query 1')
 
+        page.blockMenuItem('two').expand().click!()
         page.queryMenuItem('two', 'query 2').link().click!()
         page.editQuery().name().shouldHave!(value = 'query 2')
 
       it 'can collapse and expand a block'
-        page.queryMenuItem('one', 'query 1').shouldExist!()
-        page.blockMenuItem('one').collapse().click!()
         page.queryMenuItem('one', 'query 1').shouldNotExist!()
         page.blockMenuItem('one').expand().click!()
         page.queryMenuItem('one', 'query 1').shouldExist!()
+        page.blockMenuItem('one').collapse().click!()
+        page.queryMenuItem('one', 'query 1').shouldNotExist!()
 
       it 'can collapse and expand a query'
+        page.blockMenuItem('two').expand().click!()
         page.queryMenuItem('two', 'query 3').shouldExist!()
         page.queryMenuItem('two', 'query 2').collapse().click!()
         page.queryMenuItem('two', 'query 3').shouldNotExist!()
@@ -451,7 +459,7 @@ describe 'authoring'
         startApp()
       
       it 'can update a block'
-        page.queryMenuItem('one').link().click!()
+        page.blockMenuItem('one').link().click!()
         page.blockName().typeIn!('one (updated)')
         page.block().find('button', text = 'Save').click!()
 
@@ -461,6 +469,7 @@ describe 'authoring'
           expect([b <- api.blocks, b.name]).to.eql ['one (updated)']
       
       it 'can update a query'
+        page.blockMenuItem('one').expand().click!()
         page.queryMenuItem('one', 'query 1').link().click!()
         page.editQuery().name().typeIn!('query 1 (updated)')
         page.editQuery().find('button', text = 'Overwrite').click!()
@@ -471,6 +480,7 @@ describe 'authoring'
           expect([q <- api.lexicon().blocks.0.queries, q.name]).to.eql ['query 1 (updated)']
       
       it 'can add a response to a query'
+        page.blockMenuItem('one').expand().click!()
         page.queryMenuItem('one', 'query 1').link().click!()
         responses = page.responses()
         responses.addResponseButton().click!()
@@ -492,6 +502,7 @@ describe 'authoring'
           ]
       
       it 'can insert a query before'
+        page.blockMenuItem('one').expand().click!()
         page.queryMenuItem('one', 'query 1').link().click!()
         page.editQuery().name().typeIn!('query 2 (before 1)')
         page.editQuery().find('button', text = 'Insert Before').click!()
@@ -503,6 +514,7 @@ describe 'authoring'
           expect([q <- api.lexicon().blocks.0.queries, q.name]).to.eql ['query 2 (before 1)', 'query 1']
       
       it 'can insert a query after'
+        page.blockMenuItem('one').expand().click!()
         page.queryMenuItem('one', 'query 1').link().click!()
         page.editQuery().name().typeIn!('query 2 (after 1)')
         page.editQuery().find('button', text = 'Insert After').click!()
@@ -514,6 +526,7 @@ describe 'authoring'
           expect([q <- api.lexicon().blocks.0.queries, q.name]).to.eql ['query 1', 'query 2 (after 1)']
       
       it 'can delete a query'
+        page.blockMenuItem('one').expand().click!()
         page.queryMenuItem('one', 'query 1').link().click!()
         page.editQuery().find('button', text = 'Delete').click!()
 
@@ -546,6 +559,7 @@ describe 'authoring'
         startApp()
 
       it 'can add a query to the clipboard'
+        page.blockMenuItem('one').expand().click!()
         page.queryMenuItem('one', 'query 1').link().click()!
         page.editQuery().addToClipboardButton().click()!
 
@@ -562,8 +576,8 @@ describe 'authoring'
             }
         ]
 
-        page.clipboardHeader().click()!
-        page.clipboardItem('query 1').exists()!
+        page.clipboardTab().click()!
+        page.clipboard().clipboardItem('query 1').exists()!
 
       context 'when there is a query in the clipboard'
         beforeEach
@@ -586,24 +600,26 @@ describe 'authoring'
           startApp()
 
         it 'can paste the query into a new query, not including level'
+          page.blockMenuItem('one').expand().click!()
           page.queryMenuItem('one', 'query 1').link().click()!
 
           page.editQuery().name().shouldHave!(value: 'query 1')
 
-          page.clipboardHeader().click()!
-          page.clipboardItem('query 2').click()!
+          page.clipboardTab().click()!
+          page.clipboard().clipboardItem('query 2').click()!
 
           page.editQuery().name().shouldHave!(value: 'query 2')
           page.editQuery().level().shouldHave!(value: '1')
 
           page.editQuery().overwriteButton().click!()
+          page.blocksTab().click()!
           page.queryMenuItem('one', 'query 2').exists!()
 
         it 'can delete the clipboard query'
-          page.clipboardHeader().click()!
-          page.clipboardItem().shouldHave!(text: ['query 2', 'query 3'])
-          page.clipboardItem('query 2').removeButton().click()!
-          page.clipboardItem().shouldHave!(text: ['query 3'])
+          page.clipboardTab().click()!
+          page.clipboard().clipboardItem().shouldHave!(text: ['query 2', 'query 3'])
+          page.clipboard().clipboardItem('query 2').removeButton().click()!
+          page.clipboard().clipboardItem().shouldHave!(text: ['query 3'])
 
     describe 'predicants'
       context 'with a lexicon'
@@ -654,43 +670,45 @@ describe 'authoring'
           startApp()
 
         it 'can show and search predicants'
-          page.predicantsButton().click()!
-          predicantsEditor = page.predicantsEditor()
-          predicantsEditor.searchResult().shouldHave(text = ['HemophilVIII', 'Hemophilia'])!
-          predicantsEditor.search().typeIn('viii')!
-          predicantsEditor.searchResult().shouldHave(text = ['HemophilVIII'])!
-          predicantsEditor.searchResult('HemophilVIII').click()!
+          page.predicantsTab().click()!
+          predicantsMenu = page.predicantsMenu()
+          predicantsMenu.searchResult().shouldHave(text = ['HemophilVIII', 'Hemophilia'])!
+          predicantsMenu.search().typeIn('viii')!
+          predicantsMenu.searchResult().shouldHave(text = ['HemophilVIII'])!
+          predicantsMenu.searchResult('HemophilVIII').click()!
 
         it 'can edit and save a predicant'
-          page.predicantsButton().click()!
-          predicantsEditor = page.predicantsEditor()
-          predicantsEditor.searchResult('HemophilVIII').click()!
-          predicantsEditor.selectedPredicant().name().shouldHave(value = 'HemophilVIII')!
-          predicantsEditor.selectedPredicant().name().typeIn('HemophilVIII (updated)')!
-          predicantsEditor.selectedPredicant().saveButton().click()!
+          page.predicantsTab().click()!
+          predicantsMenu = page.predicantsMenu()
+          predicantsMenu.searchResult('HemophilVIII').click()!
+          page.predicantsEditor().name().shouldHave(value = 'HemophilVIII')!
+          page.predicantsEditor().name().typeIn('HemophilVIII (updated)')!
+          page.predicantsEditor().saveButton().click()!
 
-          predicantsEditor.searchResult().shouldHave(text = ['HemophilVIII (updated)', 'Hemophilia'])!
+          predicantsMenu.searchResult().shouldHave(text = ['HemophilVIII (updated)', 'Hemophilia'])!
 
           retry!
             expect [p <- api.predicants, p.name].to.eql ['HemophilVIII (updated)', 'Hemophilia']
 
         it 'can create a predicant'
-          page.predicantsButton().click()!
+          page.predicantsTab().click()!
+          predicantsMenu = page.predicantsMenu()
+          predicantsMenu.createButton().click()!
           predicantsEditor = page.predicantsEditor()
-          predicantsEditor.createButton().click()!
-          predicantsEditor.selectedPredicant().name().typeIn('My New Predicant')!
-          predicantsEditor.selectedPredicant().createButton().click()!
+          page.predicantsEditor().name().typeIn('My New Predicant')!
+          page.predicantsEditor().createButton().click()!
 
-          predicantsEditor.searchResult().shouldHave(text = ['HemophilVIII', 'Hemophilia', 'My New Predicant'])!
+          predicantsMenu.searchResult().shouldHave(text = ['HemophilVIII', 'Hemophilia', 'My New Predicant'])!
 
           retry!
             expect [p <- api.predicants, p.name].to.eql ['HemophilVIII', 'Hemophilia', 'My New Predicant']
 
         it 'predicants show links to queries and responses that contain it'
-          page.predicantsButton().click()!
+          page.predicantsTab().click()!
+          predicantsMenu = page.predicantsMenu()
           predicantsEditor = page.predicantsEditor()
-          predicantsEditor.searchResult('HemophilVIII').click()!
-          predicantsEditor.selectedPredicant().responses().shouldHave(text = ['query1'])!
+          predicantsMenu.searchResult('HemophilVIII').click()!
+          predicantsEditor.responses().shouldHave(text = ['query1'])!
 
-          predicantsEditor.searchResult('Hemophilia').click()!
-          predicantsEditor.selectedPredicant().queries().shouldHave(text = ['query2'])!
+          predicantsMenu.searchResult('Hemophilia').click()!
+          predicantsEditor.queries().shouldHave(text = ['query2'])!
