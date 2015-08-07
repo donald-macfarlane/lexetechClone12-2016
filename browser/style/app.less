@@ -842,9 +842,25 @@ hr {
 
       > .item {
         padding-left: 0;
+        padding-top: 0;
+        padding-bottom: 0;
         
         > .header > a {
           font-size: 18px;
+          background-color: inherit;
+        }
+
+        > .menu {
+          padding-bottom: 5px;
+        }
+      }
+
+      .menu {
+        padding-left: 8px;
+
+        > .item {
+          padding-top: 0;
+          padding-bottom: 0;
         }
       }
     }
@@ -857,10 +873,6 @@ hr {
 
     .item .header {
       white-space: nowrap;
-    }
-
-    .menu {
-      padding-left: 8px;
     }
 
     .item > .header {
@@ -876,7 +888,6 @@ hr {
 
     .item.active > .header a {
       font-weight: bold;
-      text-decoration: underline;
       background-color: rgba(110, 109, 88, 0.22);
     }
 

@@ -342,7 +342,7 @@ BlockComponent.prototype.renderClipboard = function () {
   var self = this;
 
   return h("div.clipboard",
-    h(".ui.menu.vertical",
+    h(".ui.menu.vertical.secondary",
       self.clipboard
         ? self.clipboard.length
           ? self.clipboard.map(function (q) {
@@ -361,7 +361,7 @@ BlockComponent.prototype.renderClipboard = function () {
                 h('.ui.label.remove', {onclick: removeFromClipboard}, 'remove')
               );
             })
-          : h('a.item', 'no queries in clipboard')
+          : h('.item', 'no queries in clipboard')
         : undefined
     )
   );
@@ -495,23 +495,23 @@ BlockComponent.prototype.askToScrollBlockQueryMenu = function () {
 BlockComponent.prototype.renderMenu = function () {
   var self = this;
 
-  return h('.menu', semanticUi.tabs('.ui.tabular.menu', {
+  return h('.menu', semanticUi.tabs('.ui.tabular.menu.top.attached', {
     binding: [this, 'tab'],
     tabs: [
       {
         key: 'blocks',
         tab: h('a.item', 'Blocks'),
-        content: function () { return self.renderBlocksQueries(); }
+        content: function () { return h('.ui.bottom.attached.tab.segment', self.renderBlocksQueries()); }
       },
       {
         key: 'clipboard',
         tab: h('a.item', 'Clipboard (' + (self.clipboard? self.clipboard.length: 0) + ')'),
-        content: function () { return self.renderClipboard(); }
+        content: function () { return h('.ui.bottom.attached.tab.segment', self.renderClipboard()); }
       },
       {
         key: 'predicants',
         tab: h('a.item', 'Predicants'),
-        content: function () { return self.renderPredicantsMenu(); }
+        content: function () { return h('.ui.bottom.attached.tab.segment', self.renderPredicantsMenu()); }
       }
     ]
   }));
@@ -572,9 +572,9 @@ BlockComponent.prototype.renderBlocksQueries = function () {
           function () {
             return h(".blocks-queries",
               h("div.buttons",
-                h("button", {onclick: self.addBlock.bind(self)}, "Add Block")
+                h(".ui.button", {onclick: self.addBlock.bind(self)}, "Add Block")
               ),
-              h(".ui.vertical.menu.results", self.blocks.map(function(blockViewModel) {
+              h(".ui.vertical.menu.secondary.results", self.blocks.map(function(blockViewModel) {
                 var block = blockViewModel.block;
 
                 function selectBlock(ev) {

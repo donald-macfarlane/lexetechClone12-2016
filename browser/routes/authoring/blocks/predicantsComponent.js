@@ -89,10 +89,12 @@ PredicantsComponent.prototype.renderEditor = function () {
   );
 };
 
-PredicantsComponent.prototype.renderMenu = function (selectedPredicantId) {
+PredicantsComponent.prototype.renderMenu = function () {
   this.refresh = h.refresh;
 
   var filteredPredicants = this.searchPredicants(this.loadPredicants(), this.query);
+
+  var self = this;
 
   return h('.predicant-search',
     h('.ui.button',
@@ -108,13 +110,13 @@ PredicantsComponent.prototype.renderMenu = function (selectedPredicantId) {
       h('input.search', {type: 'text', placeholder: 'search predicants', binding: [this, 'query']}),
       h('i.search.icon')
     ),
-    h('.ui.vertical.menu.results',
+    h('.ui.vertical.menu.secondary.results',
       filteredPredicants.map(function (predicant) {
         var predicantRoute = routes.authoringPredicant({predicantId: predicant.id});
         return h('a.item.teal',
           {
             href: predicantRoute.href,
-            class: {active: predicant.id == selectedPredicantId},
+            class: {active: self.selectedPredicant && self.selectedPredicant.originalPredicant && predicant.id == self.selectedPredicant.originalPredicant.id},
             onclick: function (ev) {
               predicantRoute.push();
               ev.preventDefault();
@@ -130,7 +132,7 @@ PredicantsComponent.prototype.renderMenu = function (selectedPredicantId) {
 PredicantsComponent.prototype.renderPredicantEditor = function (selectedPredicant) {
   var self = this;
 
-  var usagesForSelectedPredicant = this.loadQueriesForSelectedPredicant(selectedPredicant.predicant);
+  var usagesForSelectedPredicant = this.originalPredicant && this.loadQueriesForSelectedPredicant(selectedPredicant.originalPredicant);
 
   return h('.selected-predicant',
     h('h1', 'Predicant'),
@@ -144,6 +146,7 @@ PredicantsComponent.prototype.renderPredicantEditor = function (selectedPredican
           onclick: function () {
             return http.put(selectedPredicant.predicant.href, selectedPredicant.predicant).then(function () {
               selectedPredicant.originalPredicant.name = selectedPredicant.predicant.name;
+              delete self.selectedPredicant;
               routes.authoring().push();
             });
           }
@@ -153,12 +156,14 @@ PredicantsComponent.prototype.renderPredicantEditor = function (selectedPredican
             return http.post('/api/predicants', selectedPredicant.predicant).then(function (predicant) {
               self.predicants.addPredicant(predicant);
               self.searchPredicants.reset();
+              delete self.selectedPredicant;
               routes.authoring().push();
             });
           }
         }, 'Create'),
       h('button.close.ui.button', {
         onclick: function () {
+          delete self.selectedPredicant;
           routes.authoring().push();
         }
       }, 'Close')
