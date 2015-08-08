@@ -132,7 +132,7 @@ PredicantsComponent.prototype.renderMenu = function () {
 PredicantsComponent.prototype.renderPredicantEditor = function (selectedPredicant) {
   var self = this;
 
-  var usagesForSelectedPredicant = this.originalPredicant && this.loadQueriesForSelectedPredicant(selectedPredicant.originalPredicant);
+  var usagesForSelectedPredicant = selectedPredicant.originalPredicant && this.loadQueriesForSelectedPredicant(selectedPredicant.originalPredicant);
 
   return h('.selected-predicant',
     h('h1', 'Predicant'),

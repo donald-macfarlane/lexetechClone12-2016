@@ -56,7 +56,7 @@ authoringElement = testBrowser.component {
     self.find('button', text = 'Add Query')
 
   addBlockButton() =
-    self.find('button', text = 'Add Block')
+    self.find('.button', text = 'Add Block')
 
   closeBlockButton() =
     self.find('button', text = 'Close')
