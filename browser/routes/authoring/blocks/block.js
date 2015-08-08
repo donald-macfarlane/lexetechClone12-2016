@@ -572,7 +572,7 @@ BlockComponent.prototype.renderBlocksQueries = function () {
           function () {
             return h(".blocks-queries",
               h("div.buttons",
-                h(".ui.button", {onclick: self.addBlock.bind(self)}, "Add Block")
+                h("button.ui.button", {onclick: self.addBlock.bind(self)}, "Add Block")
               ),
               h(".ui.vertical.menu.secondary.results", self.blocks.map(function(blockViewModel) {
                 var block = blockViewModel.block;
