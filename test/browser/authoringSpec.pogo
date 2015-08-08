@@ -675,12 +675,12 @@ describe 'authoring'
           predicantsMenu.searchResult().shouldHave(text = ['HemophilVIII', 'Hemophilia'])!
           predicantsMenu.search().typeIn('viii')!
           predicantsMenu.searchResult().shouldHave(text = ['HemophilVIII'])!
-          predicantsMenu.searchResult('HemophilVIII').click()!
 
         it 'can edit and save a predicant'
           page.predicantsTab().click()!
           predicantsMenu = page.predicantsMenu()
           predicantsMenu.searchResult('HemophilVIII').click()!
+          predicantsMenu.searchResult('HemophilVIII').shouldHave(css: '.active')!
           page.predicantsEditor().name().shouldHave(value = 'HemophilVIII')!
           page.predicantsEditor().name().typeIn('HemophilVIII (updated)')!
           page.predicantsEditor().saveButton().click()!
