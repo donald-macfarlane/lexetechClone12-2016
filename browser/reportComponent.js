@@ -141,14 +141,11 @@ module.exports = prototype({
         self.throttledSaveDocument();
       }
 
-      return h('.report-header.ui.form',
-        h('.field.inline.document-name',
-          h('label', 'Document Name'),
-          h('.ui.right.labeled.input', {class: {loading: self.document.dirty}},
-            h('input.report-name', {type: 'text', placeholder: 'Untitled', binding: dirtyBinding(self.document, 'name', reportNameComponent)}),
-            h('.ui.label', 'saved')
-            // h('i.icon'),
-          )
+      return h('.field.inline.document-name',
+        h('label', 'Document Name'),
+        h('.ui.icon.right.labeled.input', {class: {loading: self.document.dirty}},
+          h('input.report-name', {type: 'text', placeholder: 'Untitled', binding: dirtyBinding(self.document, 'name', reportNameComponent)}),
+          h('.ui.green.label', self.document.dirty? 'saving...': 'saved')
         )
       )
     });

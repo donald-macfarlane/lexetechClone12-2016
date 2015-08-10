@@ -1,5 +1,5 @@
 var _ = require('underscore');
-var removeFromArray = require('./queries/removeFromArray');
+var removeFromArray = require('../../../removeFromArray');
 var http = require('../../../http');
 
 function Predicants() {

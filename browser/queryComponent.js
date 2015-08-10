@@ -33,8 +33,9 @@ var queryComponent = prototype({
     this.responseEditor.stopShowingResponse();
   },
 
-  selectResponse: function (response, styles) {
+  selectResponse: function (response, _styles) {
     var self = this;
+    var styles = _styles || this.history.stylesForQueryResponse(response);
 
     return this.history.selectResponse(response, styles).query.then(function (q) {
       self.setQuery(q);
@@ -127,7 +128,7 @@ var queryComponent = prototype({
                       },
                       onclick: function (ev) {
                         ev.preventDefault();
-                        return self.selectResponse(response, self.history.stylesForQueryResponse(response));
+                        return self.selectResponse(response);
                       }
                     },
                     h('a.content',
@@ -136,7 +137,7 @@ var queryComponent = prototype({
                         onclick: function (ev) {
                           ev.preventDefault();
                           ev.stopPropagation();
-                          return self.selectResponse(response, self.history.stylesForQueryResponse(response));
+                          return self.selectResponse(response);
                         }
                       },
                       response.text

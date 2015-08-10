@@ -32,6 +32,28 @@ describe('documentHasChangedStyles', function () {
     };
   }
 
+  function skipLexeme(options) {
+    var queryId = options && options.queryId || 1;
+
+    return {
+      query: {
+        id: queryId
+      },
+      skip: true
+    };
+  }
+
+  function omitLexeme(options) {
+    var queryId = options && options.queryId || 1;
+
+    return {
+      query: {
+        id: queryId
+      },
+      omit: true
+    };
+  }
+
   context('when there is no original document', function () {
     it('has changed styles when the document contains lexemes with changed styles', function () {
       var document = {
@@ -146,6 +168,33 @@ describe('documentHasChangedStyles', function () {
       };
 
       expect(documentHasChangedStyles(document, originalDocument)).to.be.false;
+    });
+  });
+
+  context('documents with omit and skip', function () {
+    it('can produce changes even if the document has omit and skip lexemes', function () {
+      var originalDocument = {
+        lexemes: [
+          lexeme({queryId: 1}),
+          lexeme({queryId: 2, styles: {style1: 'changed style1', style2: 'changed style2'}}),
+          skipLexeme({queryId: 3})
+        ]
+      };
+
+      var document = {
+        lexemes: [
+          omitLexeme({queryId: 1}),
+          lexeme({queryId: 2, responseId: '3', styles: {style1: 'changed style1', style2: 'changed style2'}}),
+          lexeme({queryId: 3, responseId: '1', styles: {style1: 'changed style1', style2: 'changed style2'}}),
+          lexeme({queryId: 4, responseId: '4', styles: {style1: 'changed style1', style2: 'changed style2'}}),
+        ]
+      };
+
+      expect(documentHasChangedStyles(document, originalDocument)).to.eql([
+        {queryId: 2, responseId: '3', styles: {style1: 'changed style1', style2: 'changed style2'}},
+        {queryId: 3, responseId: '1', styles: {style1: 'changed style1', style2: 'changed style2'}},
+        {queryId: 4, responseId: '4', styles: {style1: 'changed style1', style2: 'changed style2'}}
+      ]);
     });
   });
 });

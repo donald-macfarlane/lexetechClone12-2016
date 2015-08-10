@@ -8,7 +8,7 @@ var documentApi = require('./documentApi')();
 var routes = require('./routes');
 var buildGraph = require('./buildGraph');
 var lexemeApi = require('./lexemeApi');
-var startReportComponent = require('./startReportComponent');
+var documentsComponent = require('./documentsComponent');
 var throttle = require('plastiq-throttle');
 var adminComponent = require('./adminComponent');
 var authoringComponent = require('./routes/authoring/blocks/block');
@@ -22,7 +22,7 @@ var rootComponent = prototype({
       this.documentApi = documentApi;
       this.admin = adminComponent();
 
-      this.startReport = startReportComponent({
+      this.startReport = documentsComponent({
         documentApi: documentApi,
         root: {openDocument: this.openDocument.bind(this)},
         user: this.user,
@@ -35,8 +35,12 @@ var rootComponent = prototype({
     var self = this;
 
     if (docId != this.documentId) {
-      return this.documentApi.document(docId).then(function (doc) {
+      return this.documentApi.document(docId, {suppressErrors: true}).then(function (doc) {
         self.openDocument(doc);
+      }, function (error) {
+        if (error.status == 404) {
+          self.documentNotFound = true;
+        }
       });
     }
   },
@@ -62,6 +66,7 @@ var rootComponent = prototype({
   },
 
   openDocument: function (doc) {
+    this.documentNotFound = false;
     this.document = doc;
     this.setCurrentDocument(doc);
     this.documentId = doc.id;
@@ -172,10 +177,12 @@ var rootComponent = prototype({
             },
           },
           function (params) {
-            if (self.report) {
+            if (self.documentNotFound) {
+              return h('h1.center', "Very sorry! We couldn't find this document.");
+            } else if (self.report) {
               return self.report.render();
             } else {
-              return h('h1', 'loading');
+              return h('h1.center', 'loading');
             }
           }
         ),

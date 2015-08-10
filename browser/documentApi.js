@@ -11,16 +11,20 @@ module.exports = prototype({
     });
   },
 
-  document: function (id) {
+  document: function (id, options) {
     if (id instanceof Object) {
       return documentPrototype(id);
     } else {
-      return http.get('/api/user/documents/' + id).then(documentPrototype);
+      return http.get('/api/user/documents/' + id, options).then(documentPrototype);
     }
   },
 
   create: function () {
     return http.post('/api/user/documents', {lexemes: []}).then(documentPrototype);
+  },
+
+  delete: function (id) {
+    return http.delete('/api/user/documents/' + id);
   },
 
   allDocuments: function () {

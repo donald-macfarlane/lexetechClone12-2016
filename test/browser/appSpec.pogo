@@ -27,11 +27,19 @@ describe 'report'
   testBrowser = browser.find('.test').component(ckeditorMonkey)
 
   rootBrowser = testBrowser.component {
-    startNewDocumentButton() = self.find('.button', text = 'Start new document')
+    newDocumentButton() = self.find('.button', text = 'New Document')
     loadDocumentButton(index) = self.find(".documents tr.button.load-document:nth-child(#(index + 1))")
     loadPreviousButton() = self.find('.button', text = 'Load previous document')
     authoringTab() = self.find('.top-menu .buttons a', text = 'Authoring')
-    document(name) = self.find(".documents tr.document").containing('.name', text: name)
+    document(name) =
+      self.find(".documents tr.document").containing('.name', text: name).component {
+        deleteButton() = self.find('.delete.button')
+        deleteModal() =
+          browser.find('.ui.modals .ui.modal').component {
+            okButton() = self.find('.ok.button')
+            cancelButton() = self.find('.cancel.button')
+          }
+      }
   }
 
   reportBrowser = testBrowser.component {
@@ -124,7 +132,7 @@ describe 'report'
     beforeEach
       api.setLexicon (simpleLexicon())
       appendRootComponent()
-      rootBrowser.startNewDocumentButton().click!()
+      rootBrowser.newDocumentButton().click!()
 
     it 'can generate notes by answering queries'
       shouldHaveQuery 'Where does it hurt?'!
@@ -290,7 +298,7 @@ describe 'report'
     beforeEach
       api.setLexicon (simpleLexicon())
       appendRootComponent(user = {email = 'bob@example.com', author = true})
-      rootBrowser.startNewDocumentButton().click!()
+      rootBrowser.newDocumentButton().click!()
 
     it 'can navigate to author the current query'
       shouldHaveQuery 'Where does it hurt?'!
@@ -304,7 +312,7 @@ describe 'report'
     beforeEach
       api.setLexicon (substitutingLexicon())
       appendRootComponent()
-      rootBrowser.startNewDocumentButton().click!()
+      rootBrowser.newDocumentButton().click!()
 
     it 'outputs the document with variables substituted'
       shouldHaveQuery 'Patient gender'!
@@ -323,7 +331,7 @@ describe 'report'
     beforeEach
       api.setLexicon (punctuationLexicon())
       appendRootComponent()
-      rootBrowser.startNewDocumentButton().click!()
+      rootBrowser.newDocumentButton().click!()
 
     it 'outputs the document with variables substituted'
       shouldHaveQuery 'Heading'!
@@ -436,7 +444,7 @@ describe 'report'
         graphHack = false
       }, href = '/')
 
-      rootBrowser.startNewDocumentButton().click!()
+      rootBrowser.newDocumentButton().click!()
 
     it 'displays debugging information' =>
       self.timeout 100000
@@ -470,14 +478,14 @@ describe 'report'
       appendRootComponent()
 
     it 'can create a new document'
-      rootBrowser.startNewDocumentButton().click!()
+      rootBrowser.newDocumentButton().click!()
       shouldHaveQuery 'Where does it hurt?'!
 
     it 'can create a document, make some responses, and come back to it'
       retry!
         expect(api.documents.length).to.eql 0
 
-      rootBrowser.startNewDocumentButton().click!()
+      rootBrowser.newDocumentButton().click!()
       reportBrowser.reportNameInput().typeIn!("bob's report")
       shouldHaveQuery 'Where does it hurt?'!
       selectResponse 'left leg'!
@@ -499,11 +507,32 @@ describe 'report'
       reportBrowser.reportNameInput().shouldHave!(value: "bob's report")
       shouldBeFinished()!
 
+    it 'can create a document and delete it'
+      retry!
+        expect(api.documents.length).to.eql 0
+
+      rootBrowser.newDocumentButton().click!()
+      reportBrowser.reportNameInput().typeIn!("bob's report")
+      shouldHaveQuery 'Where does it hurt?'!
+      selectResponse 'left leg'!
+      shouldHaveQuery 'Is it bleeding?'!
+
+      retry!
+        expect(api.documents.length).to.eql 1
+
+      history.back()
+
+      bobsReport = rootBrowser.document("bob's report")
+      bobsReport.shouldExist!()
+      bobsReport.deleteButton().click()!
+      bobsReport.deleteModal().okButton().click()!
+      bobsReport.shouldNotExist!()
+
     it 'can create a document, make some repeating responses, and come back to it'
       retry!
         expect(api.documents.length).to.eql 0
 
-      rootBrowser.startNewDocumentButton().click!()
+      rootBrowser.newDocumentButton().click!()
       reportBrowser.reportNameInput().typeIn!("bob's report")
       shouldHaveQuery 'Where does it hurt?'!
       selectResponse 'left leg'!
@@ -547,7 +576,7 @@ describe 'report'
         appendRootComponent {
           user = { email = 'blah@example.com', id = '1234' }
         }
-        rootBrowser.startNewDocumentButton().click!()
+        rootBrowser.newDocumentButton().click!()
 
       it "shows the query for the user"
         shouldHaveQuery 'All Users Query'!
@@ -561,7 +590,7 @@ describe 'report'
         appendRootComponent {
           user = { email = 'another@example.com', id = '5678' }
         }
-        rootBrowser.startNewDocumentButton().click!()
+        rootBrowser.newDocumentButton().click!()
 
       it "doesn't show the query for the other user"
         shouldHaveQuery 'All Users Query'!
@@ -577,7 +606,7 @@ describe 'report'
       retry!
         expect(api.documents.length).to.eql 0
 
-      rootBrowser.startNewDocumentButton().click!()
+      rootBrowser.newDocumentButton().click!()
       reportBrowser.reportNameInput().typeIn!("bob's report")
       shouldHaveQuery 'One'!
       selectResponse 'A'!
@@ -604,7 +633,7 @@ describe 'report'
     beforeEach
       api.setLexicon (omitSkipLexicon())
       appendRootComponent()
-      rootBrowser.startNewDocumentButton().click!()
+      rootBrowser.newDocumentButton().click!()
       
     it 'can omit'
       shouldHaveQuery 'query 1, level 1'!

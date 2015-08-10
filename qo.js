@@ -191,6 +191,14 @@ function postPut(method, args, options) {
   }
 }
 
+task('api-delete <href>', function (args, options) {
+  var path = args[0];
+
+  return createApi(options.env).delete(path).then(function (response) {
+    console.log(JSON.stringify(response.body, null, 2));
+  });
+});
+
 ['post', 'put'].forEach(function (method) {
   task('api-' + method + ' [<file.json>|-d <json>] [<href>] [--env <env>]', {desc: 'put the JSON representation of an API resource. If the JSON has a `href` it will be used.'}, function (args, options) {
     return postPut(method, args, options);

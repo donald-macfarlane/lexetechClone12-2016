@@ -3,6 +3,7 @@ var semanticUi = require('plastiq-semantic-ui');
 var loadPredicants = require('./loadPredicants');
 var _ = require('underscore');
 var throttle = require('plastiq-throttle');
+var loader = require('plastiq-loader');
 var http = require('../../../http');
 var clone = require('./queries/clone');
 var routes = require('../../../routes');
@@ -15,76 +16,84 @@ function PredicantsComponent(options) {
   this.predicants = options.predicants;
   this.filteredPredicants = [];
 
-  this.predicants.load().then(function () {
-    self.refresh();
+  this.loadPredicants = loader(function () {
+    var self = this;
+
+    return this.predicants.load().then(function () {
+      return self.predicants;
+    });
   });
 
-  this.selectPredicant = throttle({throttle: 0}, this.selectPredicant.bind(this));
-
-  this.search = throttle(function (query) {
-    if (query) {
-      var lowerCaseQuery = query.toLowerCase();
-      this.filteredPredicants = this.predicants.predicants.filter(function (predicant) {
-        return predicant.name.toLowerCase().indexOf(lowerCaseQuery) >= 0;
-      });
+  this.searchPredicants = loader(function (predicants, query) {
+    if (predicants) {
+      if (query) {
+        var lowerCaseQuery = query.toLowerCase();
+        return predicants.predicants.filter(function (predicant) {
+          return predicant.name.toLowerCase().indexOf(lowerCaseQuery) >= 0;
+        });
+      } else {
+        return predicants.predicants;
+      }
     } else {
-      this.filteredPredicants = this.predicants.predicants;
+      return [];
     }
   });
+
+  this.selectPredicant = loader(function (predicants, id) {
+    if (predicants) {
+      var predicant = predicants.predicantsById[id];
+
+      if (predicant) {
+        return {
+          originalPredicant: predicant,
+          predicant: clone(predicant)
+        }
+      }
+    }
+  });
+
+  function wait(n) {
+    return new Promise(function (fulfil) {
+      setTimeout(fulfil, n);
+    });
+  }
+
+  this.loadQueriesForSelectedPredicant = loader(function (predicant) {
+    return http.get('/api/predicants/' + predicant.id + '/usages').then(function (usages) {
+      return usages;
+    });
+  }, {timeout: 0});
 }
+
+PredicantsComponent.prototype.createPredicant = function () {
+  this.selectedPredicant = {predicant: {}};
+};
+
+PredicantsComponent.prototype.loadPredicant = function (predicantId) {
+  this.selectedPredicant = this.selectPredicant(this.loadPredicants(), predicantId);
+};
 
 PredicantsComponent.prototype.refresh = function () {
   console.warn("refreshing, but haven't rendered yet!");
 };
 
-PredicantsComponent.prototype.loadQueriesForSelectedPredicant = function () {
-  var self = this;
-
-  self.usagesForSelectedPredicant = {
-    queries: [],
-    responses: []
-  };
-
-  return http.get('/api/predicants/' + this.selectedPredicant.id + '/usages').then(function (usages) {
-    self.usagesForSelectedPredicant = usages;
-    self.refresh();
-  });
-};
-
-PredicantsComponent.prototype.selectPredicant = function(id) {
-  var predicant = this.predicants.predicantsById[id];
-  if (predicant) {
-    this.originalSelectedPredicant = predicant;
-    this.selectedPredicant = clone(predicant);
-    this.loadQueriesForSelectedPredicant(predicant);
-  }
-};
-
-PredicantsComponent.prototype.render = function () {
+PredicantsComponent.prototype.renderEditor = function () {
   var self = this;
 
   this.refresh = h.refresh;
 
-  this.search(this.query, this.predicants.loaded);
-
-  return h('.predicants-editor',
-    routes.authoringPredicants(function () {
-      return self.renderPredicantsList();
-    }),
-    routes.authoringPredicant(function (params) {
-      self.selectPredicant(params.predicantId, self.predicants.loaded);
-
-      return [
-        self.renderPredicantsList(),
-        self.selectedPredicant
-          ? self.renderPredicantEditor()
-          : undefined
-      ];
-    })
-  );
+  if (this.selectedPredicant) {
+    return self.renderPredicantEditor(self.selectedPredicant);
+  }
 };
 
-PredicantsComponent.prototype.renderPredicantsList = function () {
+PredicantsComponent.prototype.renderMenu = function () {
+  this.refresh = h.refresh;
+
+  var filteredPredicants = this.searchPredicants(this.loadPredicants(), this.query);
+
+  var self = this;
+
   return h('.predicant-search',
     h('.ui.button',
       {
@@ -94,18 +103,20 @@ PredicantsComponent.prototype.renderPredicantsList = function () {
       },
       'Create'
     ),
+    h('br'),
     h('.ui.icon.input',
-      h('input', {type: 'text', placeholder: 'search predicants', binding: [this, 'query']}),
+      h('input.search', {type: 'text', placeholder: 'search predicants', binding: [this, 'query']}),
       h('i.search.icon')
     ),
-    h('.ui.vertical.menu.results',
-      this.filteredPredicants.map(function (predicant) {
+    h('.ui.vertical.menu.secondary.results',
+      filteredPredicants.map(function (predicant) {
+        var predicantRoute = routes.authoringPredicant({predicantId: predicant.id});
         return h('a.item.teal',
           {
-            href: '#',
-            class: {active: predicant == self.originalSelectedPredicant},
+            href: predicantRoute.href,
+            class: {active: self.selectedPredicant && self.selectedPredicant.originalPredicant && predicant.id == self.selectedPredicant.originalPredicant.id},
             onclick: function (ev) {
-              routes.authoringPredicant({predicantId: predicant.id}).push();
+              predicantRoute.push();
               ev.preventDefault();
             }
           },
@@ -116,58 +127,61 @@ PredicantsComponent.prototype.renderPredicantsList = function () {
   );
 };
 
-PredicantsComponent.prototype.renderPredicantEditor = function () {
+PredicantsComponent.prototype.renderPredicantEditor = function (selectedPredicant) {
   var self = this;
 
-  return h('.selected-predicant',
+  var usagesForSelectedPredicant = selectedPredicant.originalPredicant && this.loadQueriesForSelectedPredicant(selectedPredicant.originalPredicant);
+
+  return h('.selected-predicant.ui.segment',
     h('h1', 'Predicant'),
     h('.ui.input',
-      h('input.name', {type: 'text', binding: h.binding([self.selectedPredicant, 'name'], {refresh: false})})
+      h('label', 'Name'),
+      h('input.name', {type: 'text', binding: h.binding([selectedPredicant.predicant, 'name'], {refresh: false})})
     ),
     h('.buttons',
-      self.selectedPredicant.id
+      selectedPredicant.predicant.id
       ? h('button.save.ui.button.blue', {
           onclick: function () {
-            return http.put(self.selectedPredicant.href, self.selectedPredicant).then(function () {
-              self.originalSelectedPredicant.name = self.selectedPredicant.name;
+            return http.put(selectedPredicant.predicant.href, selectedPredicant.predicant).then(function () {
+              selectedPredicant.originalPredicant.name = selectedPredicant.predicant.name;
               delete self.selectedPredicant;
-              routes.authoringPredicants().push();
+              routes.authoring().push();
             });
           }
         }, 'Save')
       : h('button.create.ui.button.green', {
           onclick: function () {
-            return http.post('/api/predicants', self.selectedPredicant).then(function (predicant) {
+            return http.post('/api/predicants', selectedPredicant.predicant).then(function (predicant) {
               self.predicants.addPredicant(predicant);
-              self.search.reset();
+              self.searchPredicants.reset();
               delete self.selectedPredicant;
-              routes.authoringPredicants().push();
+              routes.authoring().push();
             });
           }
         }, 'Create'),
       h('button.close.ui.button', {
         onclick: function () {
           delete self.selectedPredicant;
-          routes.authoringPredicants().push();
+          routes.authoring().push();
         }
       }, 'Close')
     ),
     h('.predicant-usages',
-      self.usagesForSelectedPredicant.queries.length
-        ? h('.predicant-usages-queries',
-            h('h3', 'Depenent Queries'),
-            h('.ui.vertical.menu.results',
-              self.usagesForSelectedPredicant.queries.map(function (query) {
-                return h('.item.teal', h('.header', routes.authoringQuery({blockId: query.block, queryId: query.id}).link(query.name)));
+      h('.predicant-usages-queries',
+        h('h3', 'Depenent Queries'),
+        h('.ui.vertical.menu.results.secondary',
+          usagesForSelectedPredicant && usagesForSelectedPredicant.queries.length
+            ? usagesForSelectedPredicant.queries.map(function (query) {
+                return h('.item.teal', routes.authoringQuery({blockId: query.block, queryId: query.id}).link(query.name));
               })
-            )
-          )
-        : undefined,
-      self.usagesForSelectedPredicant.responses.length
-        ? h('.predicant-usages-responses',
-            h('h3', 'Issuing Responses'),
-            h('.ui.vertical.menu.results',
-              self.usagesForSelectedPredicant.responses.map(function (responseQuery) {
+            : h('.item.teal', 'none')
+        )
+      ),
+      h('.predicant-usages-responses',
+        h('h3', 'Issuing Responses'),
+        h('.ui.vertical.menu.results.secondary',
+          usagesForSelectedPredicant && usagesForSelectedPredicant.responses.length
+            ? usagesForSelectedPredicant.responses.map(function (responseQuery) {
                 var query = responseQuery.query;
                 return h('.item.teal',
                   h('.header', routes.authoringQuery({blockId: query.block, queryId: query.id}).link(query.name)),
@@ -178,9 +192,9 @@ PredicantsComponent.prototype.renderPredicantEditor = function () {
                   )
                 );
               })
-            )
-          )
-        : undefined
+            : h('.item.teal', 'none')
+        )
+      )
     )
   );
 };

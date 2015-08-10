@@ -7,7 +7,7 @@ body {
   height:100%;
 }
 
-a, a:visited, a:active {
+a, a:visited, a:active, a:hover {
   color: #295c3e;
 }
 
@@ -20,7 +20,12 @@ body {
     background: url(/source/parch.jpg) 20px 0;
 
     > .content {
-      top:-20px
+      top:-20px;
+
+      h1.center {
+        margin-top: 150px;
+        text-align: center;
+      }
     }
 
     > .content, .top-menu .content {
@@ -40,6 +45,8 @@ body {
 #wrapper {
   height: 100%;
   position: relative;
+  overflow-x: scroll;
+
   .main {
     padding-bottom:133px; /* Height of the footer element */
     min-height: 100%;
@@ -293,10 +300,26 @@ footer {
 @accept-color: rgba(221, 204, 90, 0.54);
 
 .documents {
+  .your-documents .new-document {
+    float:right;
+  }
+  .no-documents {
+    a {
+      text-decoration:underline;
+    }
+  }
   .document {
     cursor: pointer;
     &:hover {
       background-color: rgb(221, 223, 190);
+
+      .button.delete {
+        visibility: visible;
+      }
+    }
+
+    .button.delete {
+      visibility: hidden;
     }
   }
   td,th{
@@ -310,12 +333,13 @@ footer {
 }
 
 .report {
-  .report-header {
-    .document-name {
-      text-align: right;
-    }
+  fieldset {
+    background-color: #f2f1f1;
+    margin-bottom:1.5em;
   }
-
+  .ui.form input.report-name {
+    font-size:1.2em;
+  }
   .query-response-editor, .document-tabs {
     margin-bottom: 15px;
     margin-top: 15px;
@@ -611,54 +635,25 @@ hr {
   margin: 20px;
 }
 
-.edit-block-query, .edit-lexicon {
+.edit-lexicon {
   display: flex;
-
-  > *:last-child {
-    width: 100%;
-    margin-right: inherit;
+  
+  > * {
+    flex: 1 1 auto;
+    margin-left: 20px;
   }
 
-  > * {
-    margin-right: 20px;
+  > *:first-child {
+    flex: 0 1 370px;
+    margin-left: 0;
   }
 }
 
-.predicants-editor {
-  display: flex;
-  flex-flow: row;
-  justify-content: flex-start;
-  -webkit-justify-content: flex-start;
-  padding: 10px;
+.predicant-search {
+  margin: 10px;
 
-  .predicant-search {
-    margin: 10px;
-  }
-
-  .selected-predicant {
-    margin: 10px;
-  }
-
-  .ui.input {
-    margin: 10px;
-  }
-
-  .buttons {
-    margin: 10px;
-  }
-
-  .predicant-usages {
-    display: flex;
-
-    .predicant-usages-queries {
-      margin: 10px;
-      flex: 1;
-    }
-
-    .predicant-usages-responses {
-      margin: 10px;
-      flex: 1;
-    }
+  .results.menu {
+    width: auto;
   }
 }
 
@@ -811,6 +806,30 @@ hr {
   .responses, .blocks-queries {
     > .ui.vertical.menu {
       width: auto;
+
+      > .item {
+        padding-left: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        
+        > .header > a {
+          font-size: 18px;
+          background-color: inherit;
+        }
+
+        > .menu {
+          padding-bottom: 5px;
+        }
+      }
+
+      .menu {
+        padding-left: 8px;
+
+        > .item {
+          padding-top: 0;
+          padding-bottom: 0;
+        }
+      }
     }
 
     .item.no-query {
@@ -823,13 +842,19 @@ hr {
       white-space: nowrap;
     }
 
-    .item > .header a {
-      padding: 3px;
+    .item > .header {
+      padding-left: 5px;
+      a {
+        padding: 3px;
+        font-size: 12px;
+      }
+      i.icon {
+        font-size: 12px;
+      }
     }
 
     .item.active > .header a {
       font-weight: bold;
-      text-decoration: underline;
       background-color: rgba(110, 109, 88, 0.22);
     }
 
@@ -906,47 +931,19 @@ hr {
   }
 
   .clipboard {
-    h2 {
-      a {
-        color: inherit;
-      }
-    }
-    > ol {
-      list-style-type: none;
-      background-color: rgba(149, 153, 86, 0.16);
-      padding-left: 0;
+    .ui.menu {
+      width: auto;
 
-      > li {
-        position: relative;
+      .item {
+        .remove {
+          visibility: hidden;
+        }
 
         &:hover {
-          background-color: rgba(197, 199, 165, 0.22);
-
           .remove {
-            display: block;
+            visibility: visible;
           }
         }
-
-        .remove {
-          position: absolute;
-          display: none;
-          right: 0;
-          top: 0;
-          padding: 0 6px;
-          bottom: 0;
-          margin: 0;
-
-          &:hover {
-            background-color: rgb(244, 138, 138);
-            color: white;
-          }
-        }
-      }
-
-      h4 {
-        margin: 0;
-        padding: 4px;
-        cursor: pointer;
       }
     }
   }
@@ -956,12 +953,6 @@ hr {
 
     .buttons {
       margin-bottom: 15px;
-    }
-
-    > .menu {
-      position: fixed;
-      overflow-y: scroll;
-      bottom: 0;
     }
 
     > ol {
@@ -1096,6 +1087,36 @@ hr {
         > li {
           position: relative;
         }
+      }
+    }
+  }
+
+  .selected-predicant {
+    margin: 10px;
+
+    .ui.input {
+      margin: 10px;
+    }
+
+    .buttons {
+      margin: 10px;
+    }
+
+    .predicant-usages {
+      display: flex;
+
+      .menu {
+        width: auto;
+      }
+
+      .predicant-usages-queries {
+        margin: 10px;
+        flex: 1;
+      }
+
+      .predicant-usages-responses {
+        margin: 10px;
+        flex: 1;
       }
     }
   }

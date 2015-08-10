@@ -31,14 +31,16 @@ module.exports = function(document, originalDocument) {
 
   function findOriginalLexeme(queryId, responseId) {
     return _.find(originalDocument.lexemes, function (lexeme) {
-      return lexeme.query.id == queryId && lexeme.response.id == responseId;
+      return lexeme.query.id == queryId && lexeme.response && lexeme.response.id == responseId;
     });
   }
 
   if (originalDocument) {
     return prepareDifferences(document.lexemes.map(function (lexeme) {
-      var originalLexeme = findOriginalLexeme(lexeme.query.id, lexeme.response.id);
-      return lexemeHasChangedStyles(lexeme, originalLexeme);
+      if (lexeme.response) {
+        var originalLexeme = findOriginalLexeme(lexeme.query.id, lexeme.response.id);
+        return lexemeHasChangedStyles(lexeme, originalLexeme);
+      }
     }));
   } else {
     return prepareDifferences(document.lexemes.map(function (lexeme) {
