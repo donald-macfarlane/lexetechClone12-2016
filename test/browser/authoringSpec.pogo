@@ -67,7 +67,7 @@ authoringElement = testBrowser.component {
   responses() =
     responsesElement.scope(self.editQuery().find('ul li.responses'))
 
-  predicantsEditor() = self.find('.predicants-editor').component(predicantsEditorComponent)
+  predicantsEditor() = self.find('.selected-predicant').component(predicantsEditorComponent)
   predicantsMenu() = self.find('.predicant-search').component(predicantsMenuComponent)
 }
 

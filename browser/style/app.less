@@ -635,16 +635,17 @@ hr {
   margin: 20px;
 }
 
-.edit-block-query, .edit-lexicon {
+.edit-lexicon {
   display: flex;
-
-  > *:last-child:not(:first-child) {
-    width: 100%;
-    margin-right: inherit;
+  
+  > * {
+    flex: 1 1 auto;
+    margin-left: 20px;
   }
 
-  > * {
-    margin-right: 20px;
+  > *:first-child {
+    flex: 0 1 370px;
+    margin-left: 0;
   }
 }
 
@@ -653,40 +654,6 @@ hr {
 
   .results.menu {
     width: auto;
-  }
-}
-
-.predicants-editor {
-  display: flex;
-  flex-flow: row;
-  justify-content: flex-start;
-  -webkit-justify-content: flex-start;
-  padding: 10px;
-
-  .selected-predicant {
-    margin: 10px;
-  }
-
-  .ui.input {
-    margin: 10px;
-  }
-
-  .buttons {
-    margin: 10px;
-  }
-
-  .predicant-usages {
-    display: flex;
-
-    .predicant-usages-queries {
-      margin: 10px;
-      flex: 1;
-    }
-
-    .predicant-usages-responses {
-      margin: 10px;
-      flex: 1;
-    }
   }
 }
 
@@ -1120,6 +1087,36 @@ hr {
         > li {
           position: relative;
         }
+      }
+    }
+  }
+
+  .selected-predicant {
+    margin: 10px;
+
+    .ui.input {
+      margin: 10px;
+    }
+
+    .buttons {
+      margin: 10px;
+    }
+
+    .predicant-usages {
+      display: flex;
+
+      .menu {
+        width: auto;
+      }
+
+      .predicant-usages-queries {
+        margin: 10px;
+        flex: 1;
+      }
+
+      .predicant-usages-responses {
+        margin: 10px;
+        flex: 1;
       }
     }
   }

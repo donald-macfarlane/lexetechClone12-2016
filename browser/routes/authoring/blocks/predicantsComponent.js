@@ -52,12 +52,26 @@ function PredicantsComponent(options) {
     }
   });
 
+  function wait(n) {
+    return new Promise(function (fulfil) {
+      setTimeout(fulfil, n);
+    });
+  }
+
   this.loadQueriesForSelectedPredicant = loader(function (predicant) {
     return http.get('/api/predicants/' + predicant.id + '/usages').then(function (usages) {
       return usages;
     });
-  });
+  }, {timeout: 0});
 }
+
+PredicantsComponent.prototype.createPredicant = function () {
+  this.selectedPredicant = {predicant: {}};
+};
+
+PredicantsComponent.prototype.loadPredicant = function (predicantId) {
+  this.selectedPredicant = this.selectPredicant(this.loadPredicants(), predicantId);
+};
 
 PredicantsComponent.prototype.refresh = function () {
   console.warn("refreshing, but haven't rendered yet!");
@@ -68,25 +82,9 @@ PredicantsComponent.prototype.renderEditor = function () {
 
   this.refresh = h.refresh;
 
-  return h('.predicants-editor',
-    routes.authoringCreatePredicant({
-      onarrival: function () {
-        self.selectedPredicant = {predicant: {}};
-      }
-    }, function (params) {
-      return self.selectedPredicant
-        ? self.renderPredicantEditor(self.selectedPredicant)
-        : undefined;
-    }),
-
-    routes.authoringPredicant(function (params) {
-      self.selectedPredicant = self.selectPredicant(self.loadPredicants(), params.predicantId);
-
-      return self.selectedPredicant
-        ? self.renderPredicantEditor(self.selectedPredicant)
-        : undefined;
-    })
-  );
+  if (this.selectedPredicant) {
+    return self.renderPredicantEditor(self.selectedPredicant);
+  }
 };
 
 PredicantsComponent.prototype.renderMenu = function () {
@@ -134,7 +132,7 @@ PredicantsComponent.prototype.renderPredicantEditor = function (selectedPredican
 
   var usagesForSelectedPredicant = selectedPredicant.originalPredicant && this.loadQueriesForSelectedPredicant(selectedPredicant.originalPredicant);
 
-  return h('.selected-predicant',
+  return h('.selected-predicant.ui.segment',
     h('h1', 'Predicant'),
     h('.ui.input',
       h('label', 'Name'),
@@ -169,21 +167,21 @@ PredicantsComponent.prototype.renderPredicantEditor = function (selectedPredican
       }, 'Close')
     ),
     h('.predicant-usages',
-      usagesForSelectedPredicant && usagesForSelectedPredicant.queries.length
-        ? h('.predicant-usages-queries',
-            h('h3', 'Depenent Queries'),
-            h('.ui.vertical.menu.results',
-              usagesForSelectedPredicant.queries.map(function (query) {
-                return h('.item.teal', h('.header', routes.authoringQuery({blockId: query.block, queryId: query.id}).link(query.name)));
+      h('.predicant-usages-queries',
+        h('h3', 'Depenent Queries'),
+        h('.ui.vertical.menu.results.secondary',
+          usagesForSelectedPredicant && usagesForSelectedPredicant.queries.length
+            ? usagesForSelectedPredicant.queries.map(function (query) {
+                return h('.item.teal', routes.authoringQuery({blockId: query.block, queryId: query.id}).link(query.name));
               })
-            )
-          )
-        : undefined,
-      usagesForSelectedPredicant && usagesForSelectedPredicant.responses.length
-        ? h('.predicant-usages-responses',
-            h('h3', 'Issuing Responses'),
-            h('.ui.vertical.menu.results',
-              usagesForSelectedPredicant.responses.map(function (responseQuery) {
+            : h('.item.teal', 'none')
+        )
+      ),
+      h('.predicant-usages-responses',
+        h('h3', 'Issuing Responses'),
+        h('.ui.vertical.menu.results.secondary',
+          usagesForSelectedPredicant && usagesForSelectedPredicant.responses.length
+            ? usagesForSelectedPredicant.responses.map(function (responseQuery) {
                 var query = responseQuery.query;
                 return h('.item.teal',
                   h('.header', routes.authoringQuery({blockId: query.block, queryId: query.id}).link(query.name)),
@@ -194,9 +192,9 @@ PredicantsComponent.prototype.renderPredicantEditor = function (selectedPredican
                   )
                 );
               })
-            )
-          )
-        : undefined
+            : h('.item.teal', 'none')
+        )
+      )
     )
   );
 };

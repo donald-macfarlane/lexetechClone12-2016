@@ -385,101 +385,110 @@ BlockComponent.prototype.render = function() {
   }
 
   return h('.authoring-index.edit-lexicon',
-    h("div.edit-block-query",
-      routes.authoring(function () {
-        load();
-        return [
-          self.renderMenu()
-        ];
-      }),
-      routes.authoringCreateBlock(
-        {
-          onarrival: function () {
-            delete self.blockId;
-            self.creatingBlock = true;
-            self.askToScrollBlockQueryMenu();
-          },
-
-          ondeparture: function () {
-            self.creatingBlock = false;
-          }
+    routes.authoring(function () {
+      load();
+      return [
+        self.renderMenu()
+      ];
+    }),
+    routes.authoringCreateBlock(
+      {
+        onarrival: function () {
+          delete self.blockId;
+          self.creatingBlock = true;
+          self.askToScrollBlockQueryMenu();
         },
-        function (params) {
-          load();
-          return [
-            self.renderMenu(),
-            self.renderBlockEditor(params.blockId)
-          ];
-        }
-      ),
-      routes.authoringBlock(
-        {
-          onarrival: function () {
-            self.askToScrollBlockQueryMenu();
-          },
 
-          blockId: [self, 'blockId']
-        },
-        function (params) {
-          load();
-          return [
-            self.renderMenu(),
-            self.renderBlockEditor(params.blockId)
-          ];
+        ondeparture: function () {
+          self.creatingBlock = false;
         }
-      ),
-      routes.authoringPredicants.under(function () {
+      },
+      function (params) {
         load();
         return [
           self.renderMenu(),
-          self.renderPredicantEditor()
+          self.renderBlockEditor(params.blockId)
         ];
-      }),
-      routes.authoringCreateQuery(
-        {
-          onarrival: function () {
-            delete self.queryId;
-            self.creatingQuery = true;
-            self.askToScrollBlockQueryMenu();
-          },
-
-          ondeparture: function () {
-            self.creatingQuery = false;
-          },
-
-          blockId: [self, 'blockId']
+      }
+    ),
+    routes.authoringBlock(
+      {
+        onarrival: function () {
+          self.askToScrollBlockQueryMenu();
         },
-        function (params) {
-          load();
-          return [
-            self.renderMenu(),
-            self.renderQueryEditor(params.blockId, params.queryId)
-          ];
-        }
-      ),
-      routes.authoringQuery(
-        {
-          blockId: [self, 'blockId'],
-          queryId: [self, 'queryId'],
 
-          onarrival: function () {
-            self.askToScrollBlockQueryMenu();
-          },
+        blockId: [self, 'blockId']
+      },
+      function (params) {
+        load();
+        return [
+          self.renderMenu(),
+          self.renderBlockEditor(params.blockId)
+        ];
+      }
+    ),
+    routes.authoringCreatePredicant({
+      onarrival: function () {
+        self.predicantsComponent.createPredicant();
+      }
+    }, function (params) {
+      return [
+        self.renderMenu(),
+        self.renderPredicantEditor(self.selectedPredicant)
+      ];
+    }),
+    routes.authoringPredicant(function (params) {
+      self.predicantsComponent.loadPredicant(params.predicantId);
 
-          ondeparture: function () {
-            delete self.blockId;
-            delete self.queryId;
-          }
+      return [
+        self.renderMenu(),
+        self.renderPredicantEditor()
+      ];
+    }),
+    routes.authoringCreateQuery(
+      {
+        onarrival: function () {
+          delete self.queryId;
+          self.creatingQuery = true;
+          self.askToScrollBlockQueryMenu();
         },
-        function (params) {
-          load();
 
-          return [
-            self.renderMenu(),
-            self.renderQueryEditor(params.blockId, params.queryId)
-          ];
+        ondeparture: function () {
+          self.creatingQuery = false;
+        },
+
+        blockId: [self, 'blockId']
+      },
+      function (params) {
+        load();
+        return [
+          self.renderMenu(),
+          self.renderQueryEditor(params.blockId, params.queryId)
+        ];
+      }
+    ),
+    routes.authoringQuery(
+      {
+        blockId: [self, 'blockId'],
+        queryId: [self, 'queryId'],
+
+        onarrival: function () {
+          self.askToScrollBlockQueryMenu();
+        },
+
+        ondeparture: function () {
+          delete self.blockId;
+          delete self.queryId;
         }
-      )
+      },
+      function (params) {
+        load();
+
+        return [
+          self.renderMenu(),
+          self.renderQueryEditor(params.blockId, params.queryId)
+        ];
+      }
     )
   );
 };

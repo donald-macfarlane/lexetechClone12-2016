@@ -1,4 +1,4 @@
-require 'pry'
+require 'pry-byebug'
 require 'cappie'
 require 'capybara-screenshot/cucumber'
 require 'capybara-webkit'

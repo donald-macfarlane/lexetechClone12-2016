@@ -15,7 +15,6 @@
     "tests"
   ],
   "dependencies": {
-    "jquery-mockjax": "~1.6.1",
     "ckeditor": "~4.4.7"
   }
 }
