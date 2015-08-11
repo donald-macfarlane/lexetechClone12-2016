@@ -69,10 +69,13 @@ footer {
 
 
 .debug {
+  display: -webkit-flex;
   display: flex;
+  -webkit-flex-direction: row;
   flex-direction: row;
 
   > * {
+    -webkit-flex: 1;
     flex: 1;
   }
 
@@ -366,10 +369,13 @@ footer {
   }
 
   .query-response-editor {
+    display: -webkit-flex;
     display: flex;
+    -webkit-flex-flow: row wrap;
     flex-flow: row wrap;
 
     .query-text {
+      -webkit-flex: 1 100%;
       flex: 1 100%;
       border-color:   @backgroundColor;
       border-width:   1px; 
@@ -382,10 +388,12 @@ footer {
 
     .button.accept {
       padding: 114px 0 0 0;
+      -webkit-flex: 0 0 40px;
       flex: 0 0 40px;
     }
 
     .query, .response-editor {
+      -webkit-flex: 1;
       flex: 1;
     }
 
@@ -471,7 +479,9 @@ footer {
       margin-left: 10px;
 
       > .response-tabs {
+        display: -webkit-flex;
         display: flex;
+        -webkit-flex-direction: column;
         flex-direction: column;
         position: absolute;
         top: 0;
@@ -480,10 +490,12 @@ footer {
         right: 0;
 
         .ui.tabular.menu {
+          -webkit-flex: 0 0 auto;
           flex: 0 0 auto;
         }
 
         .ui.tab {
+          -webkit-flex: 1 100%;
           flex: 1 100%;
         }
 
@@ -652,14 +664,17 @@ hr {
 }
 
 .edit-lexicon {
+  display: -webkit-flex;
   display: flex;
   
   > * {
+    -webkit-flex: 1 1 auto;
     flex: 1 1 auto;
     margin-left: 20px;
   }
 
   > *:first-child {
+    -webkit-flex: 0 1 370px;
     flex: 0 1 370px;
     margin-left: 0;
   }
@@ -1031,10 +1046,12 @@ hr {
 
   .responses {
     .response-editor {
+      display: -webkit-flex;
       display: flex;
       align-items: flex-start;
 
       > ol.responses {
+        -webkit-flex: 0 0 30%;
         flex: 0 0 30%;
         list-style-type: none;
         padding-left: 0;
@@ -1067,6 +1084,7 @@ hr {
       }
 
       .selected-response {
+        -webkit-flex: 1 auto;
         flex: 1 auto;
 
         > li {
@@ -1090,6 +1108,7 @@ hr {
     }
 
     .predicant-usages {
+      display: -webkit-flex;
       display: flex;
 
       .menu {
@@ -1098,11 +1117,13 @@ hr {
 
       .predicant-usages-queries {
         margin: 10px;
+        -webkit-flex: 1;
         flex: 1;
       }
 
       .predicant-usages-responses {
         margin: 10px;
+        -webkit-flex: 1;
         flex: 1;
       }
     }
@@ -1258,9 +1279,11 @@ hr {
 }
 
 .admin {
+  display: -webkit-flex;
   display: flex;
 
   .search {
+    -webkit-flex: 0 0 226px;
     flex: 0 0 226px;
 
     .ui.icon.input input {
@@ -1269,6 +1292,7 @@ hr {
   }
 
   .user {
+    -webkit-flex: 0 1 800px;
     flex: 0 1 800px;
 
     h2 {

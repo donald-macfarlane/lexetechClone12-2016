@@ -120,8 +120,6 @@ BlockComponent.prototype.createBlock = function(b) {
   return {
     block: b,
 
-    hideQueries: true,
-
     startEditing: function () {
       this.editedBlock = clone(this.block);
     },
@@ -380,10 +378,6 @@ BlockComponent.prototype.render = function() {
     self.loadQuery(self.queryId, self.creatingQuery);
   }
 
-  function askToScrollBlockQueryMenu() {
-    self.askToScrollBlockQueryMenu(self.blockId, self.queryId);
-  }
-
   return h('.authoring-index.edit-lexicon',
     routes.authoring(function () {
       load();
@@ -396,7 +390,6 @@ BlockComponent.prototype.render = function() {
         onarrival: function () {
           delete self.blockId;
           self.creatingBlock = true;
-          self.askToScrollBlockQueryMenu();
         },
 
         ondeparture: function () {
@@ -413,10 +406,6 @@ BlockComponent.prototype.render = function() {
     ),
     routes.authoringBlock(
       {
-        onarrival: function () {
-          self.askToScrollBlockQueryMenu();
-        },
-
         blockId: [self, 'blockId']
       },
       function (params) {
@@ -450,7 +439,6 @@ BlockComponent.prototype.render = function() {
         onarrival: function () {
           delete self.queryId;
           self.creatingQuery = true;
-          self.askToScrollBlockQueryMenu();
         },
 
         ondeparture: function () {
@@ -472,10 +460,6 @@ BlockComponent.prototype.render = function() {
         blockId: [self, 'blockId'],
         queryId: [self, 'queryId'],
 
-        onarrival: function () {
-          self.askToScrollBlockQueryMenu();
-        },
-
         ondeparture: function () {
           delete self.blockId;
           delete self.queryId;
@@ -492,14 +476,6 @@ BlockComponent.prototype.render = function() {
     )
   );
 };
-
-BlockComponent.prototype.askToScrollBlockQueryMenu = function () {
-  if (!this.ignoreScrollToBlockQuery) {
-    this.scrollToBlockQuery = true;
-  } else {
-    this.ignoreScrollToBlockQuery = false;
-  }
-}
 
 BlockComponent.prototype.renderMenu = function () {
   var self = this;
@@ -553,7 +529,6 @@ BlockComponent.prototype.renderBlocksQueries = function () {
           : h("i.icon", {onclick: hide});
 
       function selectQuery(ev) {
-        self.ignoreScrollToBlockQuery = true;
         queryRoute.push();
         ev.stopPropagation();
         ev.preventDefault();
@@ -587,29 +562,28 @@ BlockComponent.prototype.renderBlocksQueries = function () {
                 var block = blockViewModel.block;
 
                 function selectBlock(ev) {
-                  self.ignoreScrollToBlockQuery = true;
                   blockRoute.push();
                   ev.preventDefault();
                   ev.stopPropagation();
                 }
 
                 function show(ev) {
-                  blockViewModel.hideQueries = false;
+                  blockViewModel.showQueries = true;
                   ev.stopPropagation();
                   self.refresh(self.blocksComponent);
                 }
 
                 function hide(ev) {
-                  blockViewModel.hideQueries = true;
+                  blockViewModel.showQueries = false;
                   ev.stopPropagation();
                   self.refresh(self.blocksComponent);
                 }
 
                 var toggle =
                   (blockViewModel.queries && blockViewModel.queries.length > 0)
-                    ? blockViewModel.hideQueries
-                      ? h("i.icon.chevron.right", {onclick: show})
-                      : h("i.icon.chevron.down", {onclick: hide})
+                    ? blockViewModel.showQueries
+                      ? h("i.icon.chevron.down", {onclick: hide})
+                      : h("i.icon.chevron.right", {onclick: show})
                     : h("i.icon", {onclick: hide});
 
                 var blockRoute = routes.authoringBlock({blockId: block.id});
@@ -619,7 +593,7 @@ BlockComponent.prototype.renderBlocksQueries = function () {
                     toggle,
                     h('a', {href: blockRoute.href, onclick: selectBlock}, blockName(block))
                   ),
-                  (!blockViewModel.hideQueries && blockViewModel.queriesHierarchy)
+                  ((blockViewModel.showQueries || self.blockId === block.id) && blockViewModel.queriesHierarchy)
                     ? renderQueries(block, blockViewModel.queriesHierarchy)
                     : undefined
                 );
