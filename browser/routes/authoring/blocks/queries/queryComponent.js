@@ -149,47 +149,47 @@ QueryComponent.prototype.render = function () {
     self.dirty();
   }
 
-  return h("div.edit-query",
+  return h(".edit-query.ui.segment",
     h("h2", "Query"),
     h("div.buttons",
-      h("button.add-to-clipboard", {onclick: self.addToClipboard.bind(self)}, "Add to Clipboard"),
+      h("button.ui.button.add-to-clipboard", {onclick: self.addToClipboard.bind(self)}, "Add to Clipboard"),
       created
         ? [
-          h("button.insert-query-before",
+          h("button.ui.button.insert-query-before",
             {
               class: activeWhenDirtyAndCreated,
               onclick: self.insertBefore.bind(self)
             },
             "Insert Before"
           ),
-          h("button.insert-query-after",
+          h("button.ui.button.insert-query-after",
             {
               class: activeWhenDirtyAndCreated,
               onclick: self.insertAfter.bind(self)
             },
             "Insert After"
           ),
-          h("button.save",
+          h("button.ui.button.save.blue",
             {
               class: activeWhenDirtyAndCreated,
               onclick: self.save.bind(self)
             },
             "Overwrite"
           ),
-          h("button.cancel",
+          h("button.ui.button.cancel.red",
             {
               class: activeWhenDirtyAndCreated,
               onclick: self.cancel.bind(self)
             },
             "Cancel"
           ),
-          h("button.delete",
+          h("button.ui.button.delete.red",
             {
               onclick: self.delete.bind(self)
             },
             "Delete"
           ),
-          h("button.close",
+          h("button.ui.button.close",
             {
               onclick: self.close.bind(self)
             },

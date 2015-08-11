@@ -358,7 +358,7 @@ BlockComponent.prototype.renderClipboard = function () {
 
               return h("a.item", {onclick: pasteFromClipboard},
                 q.name,
-                h('.ui.label.remove', {onclick: removeFromClipboard}, 'remove')
+                h('.ui.label.remove.red', {onclick: removeFromClipboard}, 'remove')
               );
             })
           : h('.item', 'no queries in clipboard')
@@ -647,7 +647,7 @@ BlockComponent.prototype.renderBlockEditor = function (blockId) {
   }
 
   if (self.selectedBlock) {
-    return h("div.edit-block",
+    return h("div.edit-block.ui.segment",
       h("h2", "Block"),
       h("div.buttons",
         !self.selectedBlock.editedBlock.id
