@@ -164,6 +164,8 @@ var listenToHttpErrors = _.once(function (model) {
   }));
 
   http.onInactivity = function () {
-    routes.inactive().push();
+    http.post('/logout').then(function () {
+      window.location = routes.login({inactive: true}).href;
+    });
   };
 });

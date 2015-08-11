@@ -1,8 +1,11 @@
 var h = require('plastiq').html;
 var routes = require('./routes');
 
-module.exports.login = function () {
+module.exports.login = function (params) {
   return h('div.login-page',
+    params.inactive
+      ? h('h3', 'While you were away, we logged you out to protect your documents.')
+      : undefined,
     credentialsForm('/login', h('button.ui.button', 'Log in')),
     h('div.links', signupLink())
   );

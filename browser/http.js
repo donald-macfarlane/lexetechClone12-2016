@@ -6,7 +6,7 @@ var inactivityTimeout = require('../server/inactivityTimeout');
 
 var timer = makeTimer(function () {
   http.onInactivity();
-}, inactivityTimeout);
+}, inactivityTimeout.timeout - 2000);
 
 function send(method, url, body, options) {
   timer.start();

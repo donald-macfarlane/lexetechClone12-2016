@@ -32,7 +32,7 @@ app.use(session({
   name: "session",
   secret: "haha bolshevik",
   cookie: {
-    maxAge: inactivityTimeout
+    maxAge: inactivityTimeout.timeout
   },
   resave: false,
   rolling: true,
