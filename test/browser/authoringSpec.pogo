@@ -420,7 +420,7 @@ describe 'authoring'
 
     context 'when there are lots of blocks and queries'
       blocks = [
-        b <- [1..30]
+        b <- [1..60]
 
         {
           id = String(b)
@@ -459,7 +459,14 @@ describe 'authoring'
         page.queryMenuItem('block 25', 'query 12').shouldNotExist!()
 
         menu = page.find('.block-query-menu').element()!
-        expect(menu.scrollTop).to.be.greaterThan(700)
+        menuTop = $(menu).offset().top
+
+        menuItem = page.queryMenuItem('block 26', 'query 12').link().element()!
+        menuItemTop = $(menuItem).offset().top
+
+        console.log('menuItemTop', menuItemTop, 'menuTop', menuTop, menuItemTop - menuTop)
+
+        expect(menuItemTop - menuTop).to.be.within(30, 80)
 
     describe 'updating and inserting queries'
       beforeEach

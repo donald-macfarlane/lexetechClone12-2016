@@ -577,18 +577,12 @@ BlockComponent.prototype.renderBlocksQueries = function () {
             
             onupdate: function (element) {
               function relativePosition(element, ancestor) {
-                var top = 0;
-                var left = 0;
-
-                while(element.offsetParent && ancestor !== element) {
-                  top += element.offsetTop;
-                  left += element.offsetLeft;
-                  element = element.offsetParent;
-                }
+                var elementOffset = $(element).offset();
+                var ancestorOffset = $(ancestor).offset();
 
                 return {
-                  top: top,
-                  left: left
+                  top: elementOffset.top - ancestorOffset.top,
+                  left: elementOffset.left - ancestorOffset.left
                 }
               }
 
