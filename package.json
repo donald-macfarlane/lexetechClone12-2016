@@ -28,6 +28,7 @@
     "chinchilla": "0.0.9",
     "extend": "2.0.0",
     "gulp-help": "1.3.4",
+    "hobostyle": "1.0.0",
     "jquery-mockjax": "1.6.1",
     "jquery-sendkeys": "^1.0.2",
     "karma": "^0.12.28",

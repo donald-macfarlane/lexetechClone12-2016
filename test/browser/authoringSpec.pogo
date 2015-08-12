@@ -9,6 +9,7 @@ authoringComponent = require '../../browser/routes/authoring/blocks/block'
 mountApp = require './mountApp'
 predicantLexicon = require '../predicantLexicon'
 lexiconBuilder = require '../lexiconBuilder'
+hobostyle = require 'hobostyle'
 
 createRouter = require 'mockjax-router'
 
@@ -440,8 +441,14 @@ describe 'authoring'
         }
       ]
 
+      style = nil
+
       beforeEach
         api.setLexicon({blocks = blocks})
+        style := hobostyle.style '.block-query-menu { max-height: 600px !important; }'
+
+      afterEach
+        style.remove()
 
       it 'shows the selected query on navigation'
         block = blocks.25
@@ -452,7 +459,7 @@ describe 'authoring'
         page.queryMenuItem('block 25', 'query 12').shouldNotExist!()
 
         menu = page.find('.block-query-menu').element()!
-        expect(menu.scrollTop).to.be.greaterThan(450)
+        expect(menu.scrollTop).to.be.greaterThan(700)
 
     describe 'updating and inserting queries'
       beforeEach
