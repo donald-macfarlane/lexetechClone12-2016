@@ -12,7 +12,7 @@ module.exports = function redisClient(options) {
         }
       : function (options) {
           if (options) {
-            return redis.createClient(options.host, options.port, options);
+            return redis.createClient(options.port, options.host, options);
           } else {
             return redis.createClient();
           }
@@ -27,7 +27,9 @@ module.exports = function redisClient(options) {
         no_ready_check: true
     });
 
-    client.auth(redisUrl.auth.split(":")[1]);
+    if (redisUrl.auth) {
+      client.auth(redisUrl.auth.split(":")[1]);
+    }
 
     return client;
   } else {
