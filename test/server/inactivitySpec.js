@@ -1,5 +1,5 @@
 var inactivityTimeout = require('../../server/inactivityTimeout');
-inactivityTimeout.timeout = 15000;
+inactivityTimeout.timeout = 5000;
 
 var app = require('../../server/app');
 var httpism = require('httpism');
@@ -13,10 +13,12 @@ describe('inactivity', function () {
   var cookies;
 
   var client;
+  var cookies;
 
   beforeEach(function () {
     server = app.listen(port);
-    client = httpism.api('http://localhost:' + port, {cookies: new toughCookie.CookieJar()});
+    cookies = new toughCookie.CookieJar();
+    client = httpism.api('http://localhost:' + port, {cookies: cookies});
     return users.deleteAll()
   });
 
@@ -30,8 +32,9 @@ describe('inactivity', function () {
     function repeatedlyGetDocuments(n) {
       return client.get('/api/user/documents').then(function (documents) {
         expect(documents.body).to.eql([]);
+        console.log(cookies.getCookiesSync(client.url));
         if (n >= 0) {
-          return wait(1000).then(function () {
+          return wait(3000).then(function () {
             return repeatedlyGetDocuments(n - 1);
           });
         }
@@ -39,8 +42,9 @@ describe('inactivity', function () {
     }
 
     return client.post('/signup', {email: 'author@example.com', password: 'password1'}, {form: true}).then(function (response) {
-      return repeatedlyGetDocuments(30).then(function () {
-        return wait(20000).then(function() {
+      return repeatedlyGetDocuments(4).then(function () {
+        return wait(7000).then(function() {
+          console.log('here --------------------');
           return client.get('/api/user/documents', {exceptions: false}).then(function (documents) {
             expect(documents.statusCode).to.equal(401);
           });
