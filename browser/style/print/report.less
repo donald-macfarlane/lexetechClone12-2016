@@ -3,7 +3,7 @@
   footer,
   .report .query-response-editor,
   .report h3,
-  .report fieldset,
+  .report .field,
   .report .actions,
   .tabular.menu {
     display:none;
@@ -33,22 +33,38 @@
   body {
     background:none;
     margin:0;
-    #wrapper .main {
-      background:none;
-      min-width:0;
-      width:100%;
-      .content {
-        top :0;
-        width:auto;
-        margin:0;
+    #wrapper {
+      height: auto;
+      .main {
         background:none;
-        .document-tabs {
+        height: auto;
+        min-width:0;
+        width:100%;
+        .content {
+          top :0;
+          height: auto;
+          width:auto;
+          margin:0;
           background:none;
-        }
-      }
+          .document-tabs {
+            background:none;
+            width: auto;
 
-      .bottom.attached.segment {
-        border: none ! important;
+            .document-outer {
+              margin: 0;
+              width: auto;
+              padding: 0 30px;
+
+              .document {
+                color: black;
+              }
+            }
+          }
+        }
+
+        .bottom.attached.segment {
+          border: none ! important;
+        }
       }
     }
   }
