@@ -10,6 +10,8 @@ function mocha() { return shell('mocha test/*Spec.* test/server/*Spec.*'); }
 function karma() { return shell('karma start --single-run'); }
 function cucumber() { return shell('cucumber'); }
 
+var envArg = '[--env <' + Object.keys(createApi.environments).join('|') + '>]'
+
 task('mocha', mocha);
 task('karma', karma);
 task('cucumber', cucumber);
@@ -18,19 +20,19 @@ task('test', function () {
   return runAllThenThrow(mocha, karma, cucumber);
 });
 
-task('add-author <user-query> [--env <dev|prod>] [--id <user-id>]', function (args, options) {
+task('add-author <user-query> ' + envArg + ' [--id <user-id>]', function (args, options) {
   return findAndModifyUser(createApi(options.env), args[0], function (user) {
     user.author = true;
   }, options);
 });
 
-task('add-admin <user-query> [--env <dev|prod>] [--id <user-id>]', function (args, options) {
+task('add-admin <user-query> ' + envArg + ' [--id <user-id>]', function (args, options) {
   return findAndModifyUser(createApi(options.env), args[0], function (user) {
     user.admin = true;
   }, options);
 });
 
-task('undelete <href> [--env <env>]', function (args, options) {
+task('undelete <href> ' + envArg, function (args, options) {
   var api = createApi(options.env);
 
   return api.get(args[0]).then(function (response) {
@@ -40,21 +42,21 @@ task('undelete <href> [--env <env>]', function (args, options) {
   });
 });
 
-task('lexicon --env <env=dev>', function (args, options) {
+task('lexicon ' + envArg, function (args, options) {
   var api = createApi(options.env);
   return api.get('lexicon').then(function (response) {
     console.log(JSON.stringify(response.body, null, 2))
   });
 });
 
-task('clear-lexicon --env <env=dev>', function (args, options) {
+task('clear-lexicon ' + envArg, function (args, options) {
   var api = createApi(options.env);
   return api.post('lexicon', {blocks: []}).then(function (response) {
     console.log(JSON.stringify(response.body, null, 2))
   });
 });
 
-task('put-lexicon --env <env=dev> <lexicon.json>', function (args, options) {
+task('put-lexicon ' + envArg + ' <lexicon.json>', function (args, options) {
   var file = args[0];
   return fs.readFile(file, 'utf-8').then(function (content) {
     var lexicon = JSON.parse(content);
@@ -93,7 +95,7 @@ var sqlCreds = {
   }
 };
 
-task('sql-lexicon --env <env=dev>', function (args, options) {
+task('sql-lexicon ' + envArg, function (args, options) {
   require('pogo');
   var loadQueriesFromSql = require('./tools/loadQueriesFromSql');
 
@@ -165,7 +167,7 @@ task('merge-styles styles.tab lexicon.json', function (args) {
   });
 });
 
-task('api <href> [--env <env>]', {desc: 'show the JSON of an API resource, e.g. blocks/1'}, function (args, options) {
+task('api <href> ' + envArg, {desc: 'show the JSON of an API resource, e.g. blocks/1'}, function (args, options) {
   var path = args[0];
 
   return createApi(options.env).get(path).then(function (response) {
@@ -200,7 +202,7 @@ task('api-delete <href>', function (args, options) {
 });
 
 ['post', 'put'].forEach(function (method) {
-  task('api-' + method + ' [<file.json>|-d <json>] [<href>] [--env <env>]', {desc: 'put the JSON representation of an API resource. If the JSON has a `href` it will be used.'}, function (args, options) {
+  task('api-' + method + ' [<file.json>|-d <json>] [<href>] ' + envArg, {desc: 'put the JSON representation of an API resource. If the JSON has a `href` it will be used.'}, function (args, options) {
     return postPut(method, args, options);
   });
 });

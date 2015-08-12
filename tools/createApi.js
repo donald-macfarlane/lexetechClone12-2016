@@ -2,7 +2,7 @@ var httpism = require('httpism');
 
 var environments = {
   prod: 'http://api:squidandeels@lexetech.herokuapp.com/api/',
-  design: 'http://api:squidandeels@lexetechdesign.herokuapp.com/api/',
+  staging: 'http://api:squidandeels@lexeme-staging.herokuapp.com/api/',
   dev: 'http://api:squidandeels@localhost:8000/api/'
 };
 
@@ -15,3 +15,5 @@ module.exports = function(environment) {
 
   return httpism.api(url);
 };
+
+module.exports.environments = environments;
