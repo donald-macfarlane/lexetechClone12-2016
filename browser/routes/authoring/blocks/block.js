@@ -390,6 +390,7 @@ BlockComponent.prototype.render = function() {
         onarrival: function () {
           delete self.blockId;
           self.creatingBlock = true;
+          self.askToScrollBlockQueryMenu();
         },
 
         ondeparture: function () {
@@ -406,6 +407,10 @@ BlockComponent.prototype.render = function() {
     ),
     routes.authoringBlock(
       {
+        onarrival: function () {
+          self.askToScrollBlockQueryMenu();
+        },
+
         blockId: [self, 'blockId']
       },
       function (params) {
@@ -439,6 +444,7 @@ BlockComponent.prototype.render = function() {
         onarrival: function () {
           delete self.queryId;
           self.creatingQuery = true;
+          self.askToScrollBlockQueryMenu();
         },
 
         ondeparture: function () {
@@ -460,6 +466,10 @@ BlockComponent.prototype.render = function() {
         blockId: [self, 'blockId'],
         queryId: [self, 'queryId'],
 
+        onarrival: function () {
+          self.askToScrollBlockQueryMenu();
+        },
+
         ondeparture: function () {
           delete self.blockId;
           delete self.queryId;
@@ -476,6 +486,14 @@ BlockComponent.prototype.render = function() {
     )
   );
 };
+
+BlockComponent.prototype.askToScrollBlockQueryMenu = function () {
+  if (!this.ignoreScrollToBlockQuery) {
+    this.scrollToBlockQuery = true;
+  } else {
+    this.ignoreScrollToBlockQuery = false;
+  }
+}
 
 BlockComponent.prototype.renderMenu = function () {
   var self = this;
@@ -529,6 +547,7 @@ BlockComponent.prototype.renderBlocksQueries = function () {
           : h("i.icon", {onclick: hide});
 
       function selectQuery(ev) {
+        self.ignoreScrollToBlockQuery = true;
         queryRoute.push();
         ev.stopPropagation();
         ev.preventDefault();
@@ -552,16 +571,48 @@ BlockComponent.prototype.renderBlocksQueries = function () {
 
   return h("div.left-panel", {key: 'edit-block-query'},
     self.blocksComponent = self.blocks
-      ? h.component({cacheKey: self.blockId + ':' + self.queryId},
+      ? h.component(
+          {
+            cacheKey: self.blockId + ':' + self.queryId,
+            
+            onupdate: function (element) {
+              function relativePosition(element, ancestor) {
+                var top = 0;
+                var left = 0;
+
+                while(element.offsetParent && ancestor !== element) {
+                  top += element.offsetTop;
+                  left += element.offsetLeft;
+                  element = element.offsetParent;
+                }
+
+                return {
+                  top: top,
+                  left: left
+                }
+              }
+
+              if (self.scrollToBlockQuery && self.blocksLoaded) {
+                self.scrollToBlockQuery = false;
+                var items = element.querySelectorAll('.item.active');
+                var item = items[items.length - 1];
+                var menu = element.querySelector('.ui.menu.results');
+                if (item && menu) {
+                  menu.scrollTop = relativePosition(item, menu).top - 60;
+                }
+              }
+            }
+          },
           function () {
             return h(".blocks-queries",
               h("div.buttons",
                 h("button.ui.button", {onclick: self.addBlock.bind(self)}, "Add Block")
               ),
-              h(".ui.vertical.menu.secondary.results", self.blocks.map(function(blockViewModel) {
+              h(".ui.vertical.menu.secondary.results.block-query-menu", self.blocks.map(function(blockViewModel) {
                 var block = blockViewModel.block;
 
                 function selectBlock(ev) {
+                  self.ignoreScrollToBlockQuery = true;
                   blockRoute.push();
                   ev.preventDefault();
                   ev.stopPropagation();

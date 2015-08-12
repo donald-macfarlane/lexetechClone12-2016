@@ -62,7 +62,7 @@ authoringElement = testBrowser.component {
     self.find('button', text = 'Close')
 
   editQuery() =
-    editQueryMonkey.scope(self.find('.edit-query'))
+    self.find('.edit-query').component(editQueryComponent)
 
   responses() =
     responsesElement.scope(self.editQuery().find('ul li.responses'))
@@ -92,7 +92,7 @@ blockMenuItemMonkey = testBrowser.component {
   collapse() = self.find('> .header .icon.down')
 }
 
-editQueryMonkey = testBrowser.component {
+editQueryComponent = {
   name() = self.find('ul li.name input')
   text() = self.find('ul li.question textarea')
   level() = self.find('ul li.level input')
@@ -156,8 +156,8 @@ describe 'authoring'
 
       window.location = '#/authoring'
 
-    startApp() =
-      mountApp(authoringComponent(), href = '/authoring')
+    startApp(href = '/authoring') =
+      mountApp(authoringComponent(), href = href)
 
     after
       if (@not isKarmaDebug)
@@ -416,6 +416,43 @@ describe 'authoring'
         page.queryMenuItem('two', 'query 3').shouldNotExist!()
         page.queryMenuItem('two', 'query 2').expand().click!()
         page.queryMenuItem('two', 'query 3').shouldExist!()
+
+    context 'when there are lots of blocks and queries'
+      blocks = [
+        b <- [1..30]
+
+        {
+          id = String(b)
+          name "block #(b)"
+
+          queries = [
+            q <- [1..30]
+
+            {
+              id = String(q)
+              name = "query #(q)"
+              text = "question #(q)"
+              level = 1
+              predicants = []
+              responses = []
+            }
+          ]
+        }
+      ]
+
+      beforeEach
+        api.setLexicon({blocks = blocks})
+
+      it 'shows the selected query on navigation'
+        block = blocks.25
+        query = blocks.25.queries.11
+        startApp(href: "/authoring/blocks/#(block.id)/queries/#(query.id)")
+        page.queryMenuItem('block 26', 'query 12').shouldExist!()
+        page.editQuery().name().shouldHave(value: 'query 12')!
+        page.queryMenuItem('block 25', 'query 12').shouldNotExist!()
+
+        menu = page.find('.block-query-menu').element()!
+        expect(menu.scrollTop).to.be.greaterThan(450)
 
     describe 'updating and inserting queries'
       beforeEach
