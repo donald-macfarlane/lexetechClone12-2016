@@ -25,6 +25,16 @@ mongoDb.connect();
 
 var app = express();
 
+app.use(function (req, res, next) {
+  var baseurl = process.env.BASEURL;
+
+  if (/^https/.test(baseurl) && req.headers['x-forwarded-proto'] == 'http') {
+    res.redirect(urlUtils.resolve(process.env.BASEURL, req.url));
+  } else {
+    next();
+  }
+});
+
 app.use(bodyParser.json({limit: "1mb"}));
 
 app.use(session({
