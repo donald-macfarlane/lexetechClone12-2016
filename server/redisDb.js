@@ -6,10 +6,50 @@ var bluebird = require("bluebird");
 var semaphore = require("./semaphore");
 var redisClient = require('./redisClient');
 
+function scan(client, pattern) {
+  var ids = [];
+
+  return scanEach(client, pattern, function (scannedIds) {
+    ids.push.apply(ids, scannedIds);
+  }).then(function () {
+    return ids;
+  });
+}
+
+function scanEach(client, pattern, fn) {
+  function iterateScan(c) {
+    var cursor =
+      c === undefined
+      ? 0
+      : c === '0'
+        ? undefined
+        : c;
+
+    if (cursor !== undefined) {
+      return client.scan(cursor, "match", pattern).then(function(result) {
+        if (result[1].length) {
+          var fnResult = fn(result[1]);
+        }
+
+        if (fnResult && typeof fnResult.then === 'function') {
+          return fnResult.then(function () {
+            return iterateScan(result[0]);
+          });
+        } else {
+          return iterateScan(result[0]);
+        }
+      });
+    }
+  }
+
+  return iterateScan();
+}
+
 module.exports = function() {
   var self = this;
   var client = redisClient({promises: true});
   var oneMax = semaphore();
+  var namespace = 'lexeme:';
 
   function setMax(key, value) {
     return oneMax(function() {
@@ -33,9 +73,9 @@ module.exports = function() {
           function setIds() {
             if (keepIds) {
               var highest = _.max(objects.map(function (object) { return Number(object.id); }));
-              return setMax("last_id:" + name, highest);
+              return setMax(namespace + "last_id:" + name, highest);
             } else {
-              return client.incrby("last_id:" + name, objects.length).then(function(last) {
+              return client.incrby(namespace + "last_id:" + name, objects.length).then(function(last) {
                 var first = last - objects.length;
                 var items = _.zip(objects, _.range(first + 1, last + 1));
                 items.forEach(function (pn) {
@@ -47,7 +87,7 @@ module.exports = function() {
 
           return setIds().then(function() {
             var keyValues = _.flatten(objects.map(function (p) {
-              var key = name + ":" + p.id;
+              var key = namespace + name + ":" + p.id;
               var value = JSON.stringify(p);
 
               return [key, value];
@@ -61,15 +101,15 @@ module.exports = function() {
       },
 
       get: function(id) {
-        return client.get(name + ":" + id).then(function(object) {
+        return client.get(namespace + name + ":" + id).then(function(object) {
           return JSON.parse(object);
         });
       },
 
       add: function(object) {
-        return client.incr("last_id:" + name).then(function(lastId) {
+        return client.incr(namespace + "last_id:" + name).then(function(lastId) {
           object.id = String(lastId);
-          return client.set(name + ":" + object.id, JSON.stringify(object)).then(function() {
+          return client.set(namespace + name + ":" + object.id, JSON.stringify(object)).then(function() {
             return object;
           });
         });
@@ -77,34 +117,17 @@ module.exports = function() {
 
       update: function(id, object) {
         object.id = id;
-        return client.set(name + ":" + id, JSON.stringify(object)).then(function() {
+        return client.set(namespace + name + ":" + id, JSON.stringify(object)).then(function() {
           return object;
         });
       },
 
       remove: function(id) {
-        return client.del(name + ":" + id);
+        return client.del(namespace + name + ":" + id);
       },
 
       ids: function() {
-        var ids = [];
-        function scan(c) {
-          var cursor =
-            c === undefined
-            ? 0
-            : c === '0'
-              ? undefined
-              : c;
-
-          if (cursor !== undefined) {
-            return client.scan(cursor, "match", name + ":*").then(function(result) {
-              ids.push.apply(ids, result[1]);
-              return scan(result[0]);
-            });
-          }
-        }
-
-        return scan().then(function() {
+        return scan(client, namespace + name + ':*').then(function(ids) {
           return ids;
         });
       },
@@ -114,7 +137,7 @@ module.exports = function() {
 
         var keys = withPrefix
           ? ids
-          : ids.map(function (id) { return name + ":" + id; });
+          : ids.map(function (id) { return namespace + name + ":" + id; });
 
         if (keys.length > 0) {
           return client.mget(keys).then(function(values) {
@@ -152,7 +175,7 @@ module.exports = function() {
       var self = this;
 
       return this.collection.add(item).then(function (i) {
-        return client.rpush(self.name + ":" + id, i.id).then(function () {
+        return client.rpush(namespace + self.name + ":" + id, i.id).then(function () {
           return i
         });
       });
@@ -164,7 +187,7 @@ module.exports = function() {
       if (items.length) {
         return this.collection.addAll(items, options).then(function () {
           var itemIds = items.map(function (item) { return item.id; });
-          return client.rpush.apply(client, [self.name + ":" + id].concat(itemIds));
+          return client.rpush.apply(client, [namespace + self.name + ":" + id].concat(itemIds));
         });
       }
     },
@@ -172,22 +195,22 @@ module.exports = function() {
     list: function(id) {
       var self = this;
 
-      return client.lrange(this.name + ":" + id, 0, -1).then(function (ids) {
+      return client.lrange(namespace + this.name + ":" + id, 0, -1).then(function (ids) {
         return self.collection.getAll(ids);
       });
     },
 
     moveAfter: function(id, itemId, afterItemId) {
       client.multi();
-      client.linsert(this.name + ":" + id, "after", afterItemId, itemId);
-      client.lrem(this.name + ":" + id, 1, itemId);
+      client.linsert(namespace + this.name + ":" + id, "after", afterItemId, itemId);
+      client.lrem(namespace + this.name + ":" + id, 1, itemId);
       return client.exec();
     },
 
     moveBefore: function(id, itemId, beforeItemId) {
       client.multi();
-      client.linsert(this.name + ":" + id, "before", beforeItemId, itemId);
-      client.lrem(this.name + ":" + id, -1, itemId);
+      client.linsert(namespace + this.name + ":" + id, "before", beforeItemId, itemId);
+      client.lrem(namespace + this.name + ":" + id, -1, itemId);
       return client.exec();
     },
 
@@ -195,7 +218,7 @@ module.exports = function() {
       var self = this;
 
       return self.collection.add(item).then(function(i) {
-        return client.linsert(self.name + ":" + id, "before", itemId, i.id).then(function() {
+        return client.linsert(namespace + self.name + ":" + id, "before", itemId, i.id).then(function() {
           return i;
         });
       });
@@ -205,7 +228,7 @@ module.exports = function() {
       var self = this;
 
       return self.collection.add(item).then(function(i) {
-        return client.linsert(self.name + ":" + id, "after", itemId, i.id).then(function() {
+        return client.linsert(namespace + self.name + ":" + id, "after", itemId, i.id).then(function() {
           return i;
         });
       });
@@ -214,7 +237,7 @@ module.exports = function() {
     remove: function(id, itemId) {
       var self = this;
       return self.collection.remove(itemId).then(function() {
-        return client.lrem(self.name + ":" + id, 1, itemId);
+        return client.lrem(namespace + self.name + ":" + id, 1, itemId);
       });
     }
   });
@@ -234,7 +257,9 @@ module.exports = function() {
 
   return {
     clear: function() {
-      return client.flushdb();
+      return scanEach(client, namespace + '*', function (ids) {
+        return client.del.apply(client, ids);
+      });
     },
 
     setLexicon: function(lexicon) {

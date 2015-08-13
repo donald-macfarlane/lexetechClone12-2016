@@ -5,6 +5,7 @@ app = require '../../server/app'
 expect = require 'chai'.expect
 lexiconBuilder = require '../lexiconBuilder'
 retry = require 'trytryagain'
+redisClient = require '../../server/redisClient'
 
 describe "query api"
   port = 12345
@@ -48,6 +49,21 @@ describe "query api"
           {id = '20', name = 'block 20'}
           {id = '30', name = 'block 30'}
         ])
+
+      it 'other keys in redis are maintained after setting lexicon'
+        redis = redisClient(promises: true)
+        redis.set 'myvar' 'value'!
+
+        lexicon1 = lexicon.blocks [
+          {
+            id = '10'
+            name = 'block 10'
+          }
+        ]
+
+        api.post('/api/lexicon', lexicon1)!
+
+        expect(redis.get 'myvar'!).to.equal('value')
 
       it 'the next block id is one higher than highest from before'
         lexicon1 = lexicon.blocks [

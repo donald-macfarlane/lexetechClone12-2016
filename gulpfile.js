@@ -58,7 +58,6 @@ function watchJs(filename) {
 
 gulp.task('watch-js', function () {
   watchJs('./browser/app.js');
-  watchJs('./browser/authoring.pogo');
 });
 
 gulp.task('js',
