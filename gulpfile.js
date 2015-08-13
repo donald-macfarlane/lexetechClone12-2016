@@ -20,8 +20,6 @@ function browserifyBundle(watch, filename) {
     cache: watch && {},
     packageCache: watch && {},
     fullPaths: watch,
-    extensions: ['.pogo'],
-    transform: ['pogoify'],
     debug: watch
   });
 }
@@ -66,8 +64,7 @@ gulp.task('watch-js', function () {
 gulp.task('js',
   rebundle(
     {minify: true},
-    browserifyBundle(false, './browser/app.js'),
-    browserifyBundle(false, './browser/authoring.pogo')
+    browserifyBundle(false, './browser/app.js')
   )
 );
 
