@@ -1,8 +1,8 @@
 var httpism = require('httpism');
 
 var environments = {
-  prod: 'http://api:squidandeels@lexetech.herokuapp.com/api/',
-  staging: 'http://api:squidandeels@lexeme-staging.herokuapp.com/api/',
+  prod: 'https://api:squidandeels@lexenotes.com/api/',
+  staging: 'https://api:squidandeels@lexeme-staging.herokuapp.com/api/',
   dev: 'http://api:squidandeels@localhost:8000/api/'
 };
 
