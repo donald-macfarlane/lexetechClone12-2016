@@ -32,7 +32,6 @@ describe('inactivity', function () {
     function repeatedlyGetDocuments(n) {
       return client.get('/api/user/documents').then(function (documents) {
         expect(documents.body).to.eql([]);
-        console.log(cookies.getCookiesSync(client.url));
         if (n >= 0) {
           return wait(3000).then(function () {
             return repeatedlyGetDocuments(n - 1);
@@ -44,7 +43,6 @@ describe('inactivity', function () {
     return client.post('/signup', {email: 'author@example.com', password: 'password1'}, {form: true}).then(function (response) {
       return repeatedlyGetDocuments(4).then(function () {
         return wait(7000).then(function() {
-          console.log('here --------------------');
           return client.get('/api/user/documents', {exceptions: false}).then(function (documents) {
             expect(documents.statusCode).to.equal(401);
           });

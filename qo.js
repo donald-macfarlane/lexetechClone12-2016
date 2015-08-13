@@ -5,8 +5,23 @@ var findAndModifyUser = require('./tools/findAndModifyUser');
 var fs = require('fs-promise');
 var _ = require('underscore');
 var promisify = require('./server/promisify');
+var Promise = require('bluebird');
 
-function mocha() { return shell('mocha test/*Spec.* test/server/*Spec.*'); }
+var glob = Promise.promisify(require('glob'));
+
+function runIndySpecs() {
+  return glob('test/server-indy/*Spec.*').then(function (files) {
+    return Promise.each(files, function (file) {
+      return shell('mocha', [file]);
+    });
+  })
+}
+
+function mocha() {
+  return shell('mocha test/*Spec.* test/server/*Spec.*').then(function () {
+    return runIndySpecs();
+  });
+}
 function karma() { return shell('karma start --single-run'); }
 function cucumber() { return shell('cucumber'); }
 
