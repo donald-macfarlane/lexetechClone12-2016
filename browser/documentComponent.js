@@ -16,7 +16,7 @@ module.exports = prototype({
     var suppressPunctuation = false;
 
     return h('.document-outer',
-      h('ol.document',
+      h('.document',
         this.history.currentLexemes().map(function (lexeme, index) {
           return {
             lexeme: lexeme,
@@ -39,20 +39,17 @@ module.exports = prototype({
 
           suppressPunctuation = lexeme.suppressPunctuation;
 
-          return h('li',
-            h('a.section',
-              {
-                href: '#',
-                onclick: function (ev) {
-                  ev.preventDefault();
+          return h.rawHtml('span.section',
+            {
+              onclick: function (ev) {
+                ev.preventDefault();
 
-                  return self.history.back(index - 1).query.then(function (query) {
-                    self.setQuery(query);
-                  });
-                }
-              },
-              h.rawHtml('span', styleHtml)
-            )
+                return self.history.back(index - 1).query.then(function (query) {
+                  self.setQuery(query);
+                });
+              }
+            },
+            styleHtml
           );
         })
       )
