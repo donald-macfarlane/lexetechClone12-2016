@@ -2,6 +2,7 @@
            Accordion
 *******************************/
 
+@fontSize: 1em;
 @boxShadow: none;
 
 /* Title */
@@ -20,8 +21,8 @@
 @iconMargin: 0em 0.25rem 0em 0rem;
 @iconPadding: 0em;
 @iconTransition:
-  transform @defaultDuration @defaultEasing,
-  opacity @defaultDuration @defaultEasing
+  transform @transitionDuration @transitionEasing,
+  opacity @transitionDuration @transitionEasing
 ;
 @iconVerticalAlign: baseline;
 @iconTransform: none;
@@ -31,7 +32,7 @@
 @childAccordionPadding: 0em;
 
 /* Content */
-@contentMargin: '';
+@contentMargin: 0em;
 @contentPadding: 0.5em 0em 1em;
 
 /*-------------------
@@ -76,11 +77,11 @@
 @styledTitlePadding: 0.75em 1em;
 @styledTitleFontWeight: bold;
 @styledTitleColor: @unselectedTextColor;
-@styledTitleTransition: background-color @defaultDuration @defaultEasing;
+@styledTitleTransition: background-color @transitionDuration @transitionEasing;
 @styledTitleBorder: 1px solid @borderColor;
 @styledTitleTransition:
-  background @defaultDuration @defaultEasing,
-  color @defaultDuration @defaultEasing
+  background @transitionDuration @transitionEasing,
+  color @transitionDuration @transitionEasing
 ;
 
 /* Styled Title States */

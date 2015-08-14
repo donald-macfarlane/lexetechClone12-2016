@@ -95,7 +95,7 @@
 
 .drop.transition {
   transform-origin: top center;
-  animation-duration: 400ms;
+  animation-duration: 500ms;
   animation-timing-function: cubic-bezier(0.34, 1.61, 0.7, 1);
 }
 .drop.transition.in {
@@ -229,7 +229,7 @@
   }
   100% {
     opacity: 0;
-    transform: translateY(5%);
+    transform: translateY(10%);
   }
 }
 @keyframes fadeOutDown {
@@ -239,7 +239,7 @@
   }
   100% {
     opacity: 0;
-    transform: translateY(-5%);
+    transform: translateY(-10%);
   }
 }
 @keyframes fadeOutLeft {
@@ -249,7 +249,7 @@
   }
   100% {
     opacity: 0;
-    transform: translateX(5%);
+    transform: translateX(10%);
   }
 }
 @keyframes fadeOutRight {
@@ -259,7 +259,7 @@
   }
   100% {
     opacity: 0;
-    transform: translateX(-5%);
+    transform: translateX(-10%);
   }
 }
 
@@ -270,6 +270,7 @@
 .flip.transition.in,
 .flip.transition.out {
   animation-duration: 600ms;
+  perspective: 2000px;
 }
 .horizontal.flip.transition.in {
   animation-name: horizontalFlipIn;
@@ -339,10 +340,11 @@
   animation-name: scaleOut;
 }
 
+/* In */
 @keyframes scaleIn {
   0% {
     opacity: 0;
-    transform: scale(0.8);
+    transform: scale(0.7);
   }
   100% {
     opacity: 1;
@@ -358,10 +360,9 @@
   }
   100% {
     opacity: 0;
-    transform: scale(0.9);
+    transform: scale(0.7);
   }
 }
-
 
 /*--------------
       Fly

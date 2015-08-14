@@ -4,13 +4,11 @@
 
 @background: @white;
 @border: none;
+@width: 90%;
 @zIndex: 1001;
+@xOffset: -(@width / 2);
 @borderRadius: @defaultBorderRadius;
-@transformOrigin: 50% 25%;
-@boxShadow:
-  1px 3px 3px 0px rgba(0, 0, 0, 0.2),
-  1px 3px 15px 2px rgba(0, 0, 0, 0.2)
-;
+@boxShadow: 0 1px 4px 1px rgba(0, 0, 0, 0.3);
 
 /* Close Icon */
 @closeOpacity: 0.8;
@@ -26,20 +24,21 @@
 
 /* Header */
 @headerMargin: 0em;
-@headerVerticalPadding: 1.25rem;
-@headerHorizontalPadding: 1.5rem;
+@headerVerticalPadding: 1.2rem;
+@headerHorizontalPadding: 2rem;
 @headerPadding: @headerVerticalPadding @headerHorizontalPadding;
-@headerBackground: @white;
+@headerBackground: @subtleGradient @white;
 @headerColor: @darkTextColor;
-@headerFontSize: @huge;
-@headerBoxShadow: none;
+@headerFontSize: 1.6em;
+@headerLineHeight: 1.3em;
+@headerBoxShadow: @subtleShadow;
 @headerFontWeight: bold;
 @headerFontFamily: @headerFont;
 @headerBorder: 1px solid @borderColor;
 
 /* Content */
 @contentFontSize: 1em;
-@contentPadding: 1.5rem;
+@contentPadding: 2rem;
 @contentLineHeight: 1.4;
 @contentBackground: #FFFFFF;
 
@@ -50,13 +49,13 @@
 
 @descriptionDistance: 2em;
 @descriptionMinWidth: '';
-@descriptionWidth: auto;
+@descriptionWidth: 80%;
 @descriptionVerticalAlign: top;
 
 /* Modal Actions */
 @actionBorder: 1px solid @borderColor;
-@actionBackground: @offWhite;
-@actionPadding: 1rem 1rem;
+@actionBackground: #EFEFEF;
+@actionPadding: 1rem 2rem;
 @actionAlign: right;
 
 @buttonDistance: 0.75em;
@@ -77,12 +76,13 @@
 @mobileCloseTop: 0.5rem;
 @mobileCloseRight: 0.5rem;
 
+
 /* Responsive Widths */
 @mobileWidth: 95%;
 @tabletWidth: 88%;
-@computerWidth: 850px;
-@largeMonitorWidth: 900px;
-@widescreenMonitorWidth: 950px;
+@computerWidth: 74%;
+@largeMonitorWidth: 56%;
+@widescreenMonitorWidth: 42%;
 
 @mobileMargin: 0em 0em 0em -(@mobileWidth / 2);
 @tabletMargin: 0em 0em 0em -(@tabletWidth / 2);
@@ -93,9 +93,6 @@
 @fullScreenWidth: 95%;
 @fullScreenOffset: (100% - @fullScreenWidth) / 2;
 @fullScreenMargin: 1em auto;
-
-/* Coupling */
-@invertedBoxShadow: 1px 3px 10px 2px rgba(0, 0, 0, 0.2);
 
 /*-------------------
         Types
@@ -108,9 +105,6 @@
 @basicModalCloseRight: 1.5rem;
 @basicInnerCloseColor: @white;
 
-@basicInvertedModalColor: @textColor;
-@basicInvertedModalHeaderColor: @darkTextColor;
-
 /* Scrolling Margin */
 @scrollingMargin: 3.5rem;
 @mobileScrollingMargin: 1rem;
@@ -120,7 +114,7 @@
 --------------------*/
 
 /* Size Widths */
-@smallRatio: 0.8;
+@smallRatio: 0.6;
 @largeRatio: 1.2;
 
 /* Derived Responsive Sizes */

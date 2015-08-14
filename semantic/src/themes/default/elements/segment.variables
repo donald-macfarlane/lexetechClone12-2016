@@ -8,34 +8,18 @@
 
 @background: @white;
 @borderWidth: 1px;
-@border: @borderWidth solid @borderColor;
+@border: none;
 
-@boxShadow: @subtleShadow;
+@borderShadow: 0px 0px 0px @borderWidth @borderColor;
+@boxShadow:
+  @borderShadow,
+  @subtleShadow
+;
 @verticalPadding: 1em;
 @horizontalPadding: 1em;
-@padding: @verticalPadding @horizontalPadding;
 
-@verticalMargin: 1rem;
-@horizontalMargin: 0em;
-@margin: @verticalMargin @horizontalMargin;
+@margin: 1rem;
 @borderRadius: @defaultBorderRadius;
-
-/*-------------------
-       Group
---------------------*/
-
-@groupedMargin: @margin;
-@groupedBorder: @border;
-@groupedBoxShadow: @boxShadow;
-@groupedBorderRadius: @borderRadius;
-
-@nestedGroupMargin: @verticalMargin @verticalMargin;
-
-@groupedSegmentBorder: none;
-@groupedSegmentDivider: @border;
-@groupedSegmentMargin: 0em;
-@groupedSegmentWidth: auto;
-@groupedSegmentBoxShadow: none;
 
 /*-------------------
        Coupling
@@ -43,6 +27,7 @@
 
 /* Page Grid Segment */
 @pageGridMargin: (2 * @verticalPadding);
+
 
 /*******************************
             States
@@ -54,6 +39,8 @@
 
 /* Loading Spinner */
 @loaderSize: 3em;
+@loaderOffset: -(@loaderSize / 2);
+@loaderMargin: @loaderOffset 0em 0em @loaderOffset;
 @loaderLineZIndex: 101;
 
 
@@ -64,9 +51,8 @@
 /* Piled */
 @piledZIndex: auto;
 @piledMargin: 3em;
-@piledBoxShadow: '';
+@piledBoxShadow: 0px 0px 1px 1px @borderColor;
 @piledDegrees: 1.2deg;
-@piledBorder: @border;
 
 /* Circular */
 @circularPadding: 2em;
@@ -78,62 +64,37 @@
 @tallStackedPadding: @verticalPadding + (0.8em);
 
 /* Raised */
-@raisedBoxShadow: @floatingShadow;
-
-/* Padded */
-@paddedSegmentPadding: 1.5em;
-@veryPaddedSegmentPadding: 3em;
+@raisedShadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.15);
+@raisedBoxShadow:
+  @borderShadow,
+  @raisedShadow
+;
 
 /* Attached */
 @attachedTopOffset: 0px;
 @attachedBottomOffset: 0px;
-@attachedHorizontalOffset: -@borderWidth;
+@attachedHorizontalOffset: -1px;
 @attachedWidth: ~"calc(100% + "-@attachedHorizontalOffset * 2~")";
 @attachedBoxShadow: none;
-@attachedBorder: @borderWidth solid @solidBorderColor;
+@attachedBorder: 1px solid @solidBorderColor;
 @attachedBottomBoxShadow:
-  @boxShadow,
-  @attachedBoxShadow
+  @attachedBoxShadow,
+  @subtleShadow
 ;
-
-/* Inverted */
-@invertedBackground: @black;
-
-/* Floated */
-@floatedDistance: 1em;
-
-/* Basic */
-@basicBackground: none transparent;
-@basicBorder: none;
-@basicBoxShadow: none;
-@basicBorderRadius: 0px;
 
 /* Colors */
 @coloredBorderSize: 2px;
+@coloredBorderRadius: @borderRadius;
 
 /* Ordinality */
-@secondaryBackground: @darkWhite;
-@secondaryColor: @mutedTextColor;
+@secondaryBackground: #FAF9FA;
+@secondaryColor: @textColor;
 
-@tertiaryBackground:  @midWhite;
-@tertiaryColor: @mutedTextColor;
+@tertiaryBackground:  #EBEBEB;
+@tertiaryColor: @lightTextColor;
 
-@secondaryInvertedLightness: 0.2;
-@secondaryInvertedBackground:
-  lighten(@black, (@secondaryInvertedLightness * 100))
-  linear-gradient(
-    rgba(255, 255, 255, @secondaryInvertedLightness) 0%,
-    rgba(255, 255, 255, @secondaryInvertedLightness) 100%
-  )
-;
-@secondaryInvertedColor: @invertedMutedTextColor;
+@secondaryInvertedBackground: linear-gradient(rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.3) 100%);
+@secondaryInvertedColor: @offWhite;
 
-@tertiaryInvertedLightness: 0.35;
-@tertiaryInvertedBackground:
-  lighten(@black, (@tertiaryInvertedLightness * 100))
-  linear-gradient(
-    rgba(255, 255, 255, @tertiaryInvertedLightness) 0%,
-    rgba(255, 255, 255, @tertiaryInvertedLightness) 100%
-  )
-;
-@tertiaryInvertedColor: @invertedMutedTextColor;
+@tertiaryInvertedBackground: linear-gradient(rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.5) 100%);
+@tertiaryInvertedColor: @darkWhite;

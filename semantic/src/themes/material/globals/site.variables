@@ -102,7 +102,6 @@
 @linkColor           : #009FDA;
 @linkUnderline       : none;
 @linkHoverColor      : lighten(@linkColor, 5);
-@linkHoverUnderline  : @linkUnderline;
 
 /*-------------------
   Highlighted Text
@@ -116,5 +115,5 @@
 --------------------*/
 
 /* 4px @ default em */
-@relativeBorderRadius: @relative4px;
-@absoluteBorderRadius: 4px;
+@relativeBorderRadius: 0.2857em;
+@absoluteBorderRadius: 2px;

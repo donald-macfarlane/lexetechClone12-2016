@@ -6,11 +6,10 @@
        Element
 --------------------*/
 
+@contentSizing: content-box;
 @width: 300px;
 @height: 100%;
-
 @distance: 4rem;
-@splitDistance: (@distance / 2);
 
 /*-------------------
       Variations
@@ -20,15 +19,8 @@
 @closeDistance: 2em;
 @veryCloseDistance: 1em;
 
-@splitCloseDistance: (@closeDistance / 2);
-@splitVeryCloseDistance: (@veryCloseDistance / 2);
+/* Divided */
+@dividedBorder: 1px solid @borderColor;
+@dividedDistance: 5rem;
 
-@closeWidth: @width + @splitCloseDistance;
-@veryCloseWidth: @width + @splitVeryCloseDistance;
-
-/* Dividing */
-@dividingBorder: 1px solid @borderColor;
-@dividingDistance: 5rem;
-@splitDividingDistance: (@dividingDistance / 2);
-@dividingWidth: @width + @splitDividingDistance;
-
+@medium: 1em;

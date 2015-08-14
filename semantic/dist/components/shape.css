@@ -3,7 +3,7 @@
  * http://github.com/semantic-org/semantic-ui/
  *
  *
- * Copyright 2015 Contributors
+ * Copyright 2014 Contributors
  * Released under the MIT license
  * http://opensource.org/licenses/MIT
  *
@@ -16,12 +16,9 @@
 
 .ui.shape {
   position: relative;
-  vertical-align: top;
   display: inline-block;
   -webkit-perspective: 2000px;
           perspective: 2000px;
-  -webkit-transition: -webkit-transform 0.6s ease-in-out, left 0.6s ease-in-out, width 0.6s ease-in-out, height 0.6s ease-in-out;
-          transition: transform 0.6s ease-in-out, left 0.6s ease-in-out, width 0.6s ease-in-out, height 0.6s ease-in-out;
 }
 .ui.shape .sides {
   -webkit-transform-style: preserve-3d;
@@ -37,7 +34,7 @@
 .ui.shape .side {
   display: none;
 }
-.ui.shape .side * {
+.ui.shape .side > * {
   -webkit-backface-visibility: visible !important;
           backface-visibility: visible !important;
 }
@@ -52,7 +49,7 @@
   height: 15em;
   padding: 2em;
   background-color: #e6e6e6;
-  color: #155203;
+  color: rgba(0, 0, 0, 0.8);
   box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.3);
 }
 .ui.cube.shape .side > .content {
@@ -110,23 +107,26 @@
   position: absolute;
   top: 0px;
   left: 0px;
-  display: block;
   z-index: 100;
 }
 .ui.shape .hidden.side {
-  opacity: 0.6;
+  opacity: 0.4;
 }
 
 /*--------------
       CSS
 ---------------*/
 
+.ui.shape.animating {
+  -webkit-transition: all 0.6s ease-in-out;
+          transition: all 0.6s ease-in-out;
+}
 .ui.shape.animating .sides {
   position: absolute;
 }
 .ui.shape.animating .sides {
-  -webkit-transition: -webkit-transform 0.6s ease-in-out, left 0.6s ease-in-out, width 0.6s ease-in-out, height 0.6s ease-in-out;
-          transition: transform 0.6s ease-in-out, left 0.6s ease-in-out, width 0.6s ease-in-out, height 0.6s ease-in-out;
+  -webkit-transition: all 0.6s ease-in-out;
+          transition: all 0.6s ease-in-out;
 }
 .ui.shape.animating .side {
   -webkit-transition: opacity 0.6s ease-in-out;

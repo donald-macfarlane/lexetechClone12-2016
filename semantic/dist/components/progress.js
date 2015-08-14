@@ -3,7 +3,7 @@
  * http://github.com/semantic-org/semantic-ui/
  *
  *
- * Copyright 2015 Contributors
+ * Copyright 2014 Contributors
  * Released under the MIT license
  * http://opensource.org/licenses/MIT
  *
@@ -63,12 +63,11 @@ $.fn.progress = function(parameters) {
         initialize: function() {
           module.debug('Initializing progress bar', settings);
 
-          module.set.duration();
-          module.set.transitionEvent();
+          transitionEnd = module.get.transitionEnd();
 
           module.read.metadata();
-          module.read.settings();
-
+          module.set.duration();
+          module.set.initials();
           module.instantiate();
         },
 
@@ -99,108 +98,84 @@ $.fn.progress = function(parameters) {
 
         read: {
           metadata: function() {
-            var
-              data = {
-                percent : $module.data(metadata.percent),
-                total   : $module.data(metadata.total),
-                value   : $module.data(metadata.value)
-              }
-            ;
-            if(data.percent) {
-              module.debug('Current percent value set from metadata', data.percent);
-              module.set.percent(data.percent);
+            if( $module.data(metadata.percent) ) {
+              module.verbose('Current percent value set from metadata');
+              module.percent = $module.data(metadata.percent);
             }
-            if(data.total) {
-              module.debug('Total value set from metadata', data.total);
-              module.set.total(data.total);
+            if( $module.data(metadata.total) ) {
+              module.verbose('Total value set from metadata');
+              module.total = $module.data(metadata.total);
             }
-            if(data.value) {
-              module.debug('Current value set from metadata', data.value);
-              module.set.value(data.value);
-              module.set.progress(data.value);
+            if( $module.data(metadata.value) ) {
+              module.verbose('Current value set from metadata');
+              module.value = $module.data(metadata.value);
             }
           },
-          settings: function() {
-            if(settings.total !== false) {
-              module.debug('Current total set in settings', settings.total);
-              module.set.total(settings.total);
-            }
-            if(settings.value !== false) {
-              module.debug('Current value set in settings', settings.value);
-              module.set.value(settings.value);
-              module.set.progress(module.value);
-            }
-            if(settings.percent !== false) {
-              module.debug('Current percent set in settings', settings.percent);
-              module.set.percent(settings.percent);
-            }
+          currentValue: function() {
+            return (module.value !== undefined)
+              ? module.value
+              : false
+            ;
           }
         },
 
         increment: function(incrementValue) {
           var
-            maxValue,
-            startValue,
-            newValue
-          ;
-          if( module.has.total() ) {
-            startValue     = module.get.value();
-            incrementValue = incrementValue || 1;
-
-            newValue       = startValue + incrementValue;
-            maxValue       = module.get.total();
-
-            module.debug('Incrementing value', startValue, newValue, maxValue);
-            if(newValue > maxValue ) {
-              module.debug('Value cannot increment above total', maxValue);
-              newValue = maxValue;
-            }
-          }
-          else {
-            startValue     = module.get.percent();
-            incrementValue = incrementValue || module.get.randomValue();
-
-            newValue       = startValue + incrementValue;
-            maxValue       = 100;
-
-            module.debug('Incrementing percentage by', startValue, newValue);
-            if(newValue > maxValue ) {
-              module.debug('Value cannot increment above 100 percent');
-              newValue = maxValue;
-            }
-          }
-          module.set.progress(newValue);
-        },
-        decrement: function(decrementValue) {
-          var
-            total     = module.get.total(),
+            total          = module.total || false,
+            edgeValue,
             startValue,
             newValue
           ;
           if(total) {
-            startValue     =  module.get.value();
+            startValue     = module.value || 0;
+            incrementValue = incrementValue || 1;
+            newValue       = startValue + incrementValue;
+            edgeValue      = module.total;
+            module.debug('Incrementing value by', incrementValue, startValue, edgeValue);
+            if(newValue > edgeValue ) {
+              module.debug('Value cannot increment above total', edgeValue);
+              newValue = edgeValue;
+            }
+            module.set.progress(newValue);
+          }
+          else {
+            startValue     = module.percent || 0;
+            incrementValue = incrementValue || module.get.randomValue();
+            newValue       = startValue + incrementValue;
+            edgeValue      = 100;
+            module.debug('Incrementing percentage by', incrementValue, startValue);
+            if(newValue > edgeValue ) {
+              module.debug('Value cannot increment above 100 percent');
+              newValue = edgeValue;
+            }
+            module.set.progress(newValue);
+          }
+        },
+        decrement: function(decrementValue) {
+          var
+            total     = module.total || false,
+            edgeValue = 0,
+            startValue,
+            newValue
+          ;
+          if(total) {
+            startValue     =  module.value   || 0;
             decrementValue =  decrementValue || 1;
             newValue       =  startValue - decrementValue;
             module.debug('Decrementing value by', decrementValue, startValue);
           }
           else {
-            startValue     =  module.get.percent();
+            startValue     =  module.percent || 0;
             decrementValue =  decrementValue || module.get.randomValue();
             newValue       =  startValue - decrementValue;
             module.debug('Decrementing percentage by', decrementValue, startValue);
           }
 
-          if(newValue < 0) {
+          if(newValue < edgeValue) {
             module.debug('Value cannot decrement below 0');
             newValue = 0;
           }
           module.set.progress(newValue);
-        },
-
-        has: {
-          total: function() {
-            return (module.get.total() !== false);
-          }
         },
 
         get: {
@@ -208,7 +183,7 @@ $.fn.progress = function(parameters) {
             var
               value   = module.value                || 0,
               total   = module.total                || 0,
-              percent = (animating)
+              percent = (module.is.visible() && animating)
                 ? module.get.displayPercent()
                 : module.percent || 0,
               left = (module.total > 0)
@@ -225,20 +200,9 @@ $.fn.progress = function(parameters) {
             module.debug('Adding variables to progress bar text', templateText);
             return templateText;
           },
-
-
           randomValue: function() {
             module.debug('Generating random increment percentage');
             return Math.floor((Math.random() * settings.random.max) + settings.random.min);
-          },
-
-          numericValue: function(value) {
-            return (typeof value === 'string')
-              ? (value.replace(/[^\d.]/g, '') !== '')
-                ? +(value.replace(/[^\d.]/g, ''))
-                : false
-              : value
-            ;
           },
 
           transitionEnd: function() {
@@ -269,17 +233,17 @@ $.fn.progress = function(parameters) {
                 ? (barWidth / totalWidth * 100)
                 : module.percent
             ;
-            return (settings.precision > 0)
-              ? Math.round(displayPercent * (10 * settings.precision)) / (10 * settings.precision)
-              : Math.round(displayPercent)
-            ;
+            if(settings.precision === 0) {
+              return Math.round(displayPercent);
+            }
+            return Math.round(displayPercent * (10 * settings.precision)) / (10 * settings.precision);
           },
 
           percent: function() {
             return module.percent || 0;
           },
           value: function() {
-            return module.value || 0;
+            return module.value || false;
           },
           total: function() {
             return module.total || false;
@@ -355,37 +319,66 @@ $.fn.progress = function(parameters) {
             module.verbose('Setting progress bar transition duration', duration);
             $bar
               .css({
+                '-webkit-transition-duration': duration,
+                '-moz-transition-duration': duration,
+                '-ms-transition-duration': duration,
+                '-o-transition-duration': duration,
                 'transition-duration':  duration
               })
             ;
+          },
+          initials: function() {
+            if(settings.total !== false) {
+              module.verbose('Current total set in settings', settings.total);
+              module.total = settings.total;
+            }
+            if(settings.value !== false) {
+              module.verbose('Current value set in settings', settings.value);
+              module.value = settings.value;
+            }
+            if(settings.percent !== false) {
+              module.verbose('Current percent set in settings', settings.percent);
+              module.percent = settings.percent;
+            }
+            if(module.percent !== undefined) {
+              module.set.percent(module.percent);
+            }
+            else if(module.value !== undefined) {
+              module.set.progress(module.value);
+            }
           },
           percent: function(percent) {
             percent = (typeof percent == 'string')
               ? +(percent.replace('%', ''))
               : percent
             ;
-            // round display percentage
-            percent = (settings.precision > 0)
-              ? Math.round(percent * (10 * settings.precision)) / (10 * settings.precision)
-              : Math.round(percent)
-            ;
+            if(percent > 0 && percent < 1) {
+              module.verbose('Module percentage passed as decimal, converting');
+              percent = percent * 100;
+            }
+            // round percentage
+            if(settings.precision === 0) {
+              percent = Math.round(percent);
+            }
+            else {
+              percent = Math.round(percent * (10 * settings.precision)) / (10 * settings.precision);
+            }
             module.percent = percent;
-            if( !module.has.total() ) {
-              module.value = (settings.precision > 0)
-                ? Math.round( (percent / 100) * module.total * (10 * settings.precision)) / (10 * settings.precision)
-                : Math.round( (percent / 100) * module.total * 10) / 10
+            if(module.total) {
+              module.value = Math.round( (percent / 100) * module.total * (10 * settings.precision)) / (10 * settings.precision);
+            }
+            else if(settings.limitValues) {
+              module.value = (module.value > 100)
+                ? 100
+                : (module.value < 0)
+                  ? 0
+                  : module.value
               ;
-              if(settings.limitValues) {
-                module.value = (module.value > 100)
-                  ? 100
-                  : (module.value < 0)
-                    ? 0
-                    : module.value
-                ;
-              }
             }
             module.set.barWidth(percent);
-            module.set.labelInterval();
+            if( module.is.visible() ) {
+              module.set.labelInterval();
+            }
             module.set.labels();
             settings.onChange.call(element, percent, module.value, module.total);
           },
@@ -507,25 +500,23 @@ $.fn.progress = function(parameters) {
             }
             settings.onError.call(element, module.value, module.total);
           },
-          transitionEvent: function() {
-            transitionEnd = module.get.transitionEnd();
-          },
           total: function(totalValue) {
             module.total = totalValue;
           },
-          value: function(value) {
-            module.value = value;
-          },
           progress: function(value) {
             var
-              numericValue = module.get.numericValue(value),
+              numericValue = (typeof value === 'string')
+                ? (value.replace(/[^\d.]/g, '') !== '')
+                  ? +(value.replace(/[^\d.]/g, ''))
+                  : false
+                : value,
               percentComplete
             ;
             if(numericValue === false) {
               module.error(error.nonNumeric, value);
             }
-            if( module.has.total() ) {
-              module.set.value(numericValue);
+            if(module.total) {
+              module.value    = numericValue;
               percentComplete = (numericValue / module.total) * 100;
               module.debug('Calculating percent complete from total', percentComplete);
               module.set.percent( percentComplete );
@@ -607,7 +598,7 @@ $.fn.progress = function(parameters) {
               });
             }
             clearTimeout(module.performance.timer);
-            module.performance.timer = setTimeout(module.performance.display, 500);
+            module.performance.timer = setTimeout(module.performance.display, 100);
           },
           display: function() {
             var
@@ -721,7 +712,7 @@ $.fn.progress.settings = {
   namespace    : 'progress',
 
   debug        : false,
-  verbose      : false,
+  verbose      : true,
   performance  : true,
 
   random       : {
@@ -736,7 +727,7 @@ $.fn.progress.settings = {
   limitValues  : true,
 
   label        : 'percent',
-  precision    : 0,
+  precision    : 1,
   framerate    : (1000 / 30), /// 30 fps
 
   percent      : false,

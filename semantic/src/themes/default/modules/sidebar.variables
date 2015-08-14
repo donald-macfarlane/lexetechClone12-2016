@@ -9,11 +9,14 @@
 /* Animation */
 @perspective: 1500px;
 @duration: 500ms;
-@easing: @defaultEasing;
+@easing: ease;
 
 /* Dimmer */
 @dimmerColor: rgba(0, 0, 0, 0.4);
-@dimmerTransition: opacity @duration;
+@dimmerTransition:
+  transform @duration,
+  opacity @duration
+;
 
 /* Color below page */
 @canvasBackground: @lightBlack;

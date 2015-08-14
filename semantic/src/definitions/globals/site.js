@@ -3,7 +3,7 @@
  * http://github.com/semantic-org/semantic-ui/
  *
  *
- * Copyright 2015 Contributors
+ * Copyright 2014 Contributors
  * Released under the MIT license
  * http://opensource.org/licenses/MIT
  *
@@ -320,7 +320,7 @@ $.site = $.fn.site = function(parameters) {
           });
         }
         clearTimeout(module.performance.timer);
-        module.performance.timer = setTimeout(module.performance.display, 500);
+        module.performance.timer = setTimeout(module.performance.display, 100);
       },
       display: function() {
         var
@@ -433,7 +433,7 @@ $.site.settings = {
   },
 
   debug       : false,
-  verbose     : false,
+  verbose     : true,
   performance : true,
 
   modules: [
@@ -442,7 +442,6 @@ $.site.settings = {
     'checkbox',
     'dimmer',
     'dropdown',
-    'embed',
     'form',
     'modal',
     'nag',
@@ -454,6 +453,7 @@ $.site.settings = {
     'sticky',
     'tab',
     'transition',
+    'video',
     'visit',
     'visibility'
   ],

@@ -1,6 +1,6 @@
 /*******************************
     User Variable Overrides
 *******************************/
-@textColor                   : @lexemeGreen;
+@textColor                   : @primaryTextColor;
 @selectedTextColor           : @primaryTextColor;
 @invertedUnselectedTextColor : @highlightedTextColor;

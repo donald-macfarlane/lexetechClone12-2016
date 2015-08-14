@@ -12,7 +12,7 @@
 @inputBorderRadius: 3px;
 
 @labelFontWeight: bold;
-@labelDistance: 6px;
+@labelMargin: 6px;
 
 /*-------------------
         States

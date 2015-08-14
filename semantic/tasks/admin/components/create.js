@@ -212,24 +212,24 @@ module.exports = function(callback) {
         return gulp.src(release.templates.package)
           .pipe(plumber())
           .pipe(flatten())
-          .pipe(jsonEditor(function(npm) {
+          .pipe(jsonEditor(function(package) {
             if(isJavascript) {
-              npm.dependencies = {
+              package.dependencies = {
                 jquery: 'x.x.x'
               };
-              npm.main = 'index.js';
+              package.main = 'index.js';
             }
-            npm.name = packageName;
+            package.name = packageName;
             if(version) {
-              npm.version = version;
+              package.version = version;
             }
-            npm.title       = 'Semantic UI - ' + capitalizedComponent;
-            npm.description = 'Single component release of ' + component;
-            npm.repository  = {
+            package.title       = 'Semantic UI - ' + capitalizedComponent;
+            package.description = 'Single component release of ' + component;
+            package.repository  = {
               type : 'git',
               url  : gitURL
             };
-            return npm;
+            return package;
           }))
           .pipe(gulp.dest(outputDirectory))
         ;

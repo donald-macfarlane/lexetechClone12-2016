@@ -1,16 +1,12 @@
 /*******************************
      User Global Variables
 *******************************/
-@lexemeGreen:                #155203;
-@buttonBackgroundColor:      @lexemeGreen;
-@borderColor:                @lexemeGreen;
-@solidBorderColor:           @lexemeGreen;
+@buttonBackgroundColor:      #155203;
+@borderColor:                #155203;
+@solidBorderColor:           @borderColor;
 
-@textColor:                  @lexemeGreen;
-@green:                      @lexemeGreen;
-
-@primaryTextColor:           @lexemeGreen;
+@primaryTextColor:           #155203;
 @primaryBackgroundColor:     #fff;
 
 @highlightedTextColor:       #fff;
-@highlightedBackgroundColor: @lexemeGreen;
+@highlightedBackgroundColor: #155203;

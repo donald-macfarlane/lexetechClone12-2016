@@ -3,7 +3,7 @@
  * http://github.com/semantic-org/semantic-ui/
  *
  *
- * Copyright 2015 Contributors
+ * Copyright 2014 Contributors
  * Released under the MIT license
  * http://opensource.org/licenses/MIT
  *
@@ -31,9 +31,7 @@ $.visit = $.fn.visit = function(parameters) {
   $allModules
     .each(function() {
       var
-        settings          = ( $.isPlainObject(parameters) )
-          ? $.extend(true, {}, $.fn.visit.settings, parameters)
-          : $.extend({}, $.fn.visit.settings),
+        settings        = $.extend(true, {}, $.fn.visit.settings, parameters),
 
         error           = settings.error,
         namespace       = settings.namespace,
@@ -367,7 +365,7 @@ $.visit = $.fn.visit = function(parameters) {
               });
             }
             clearTimeout(module.performance.timer);
-            module.performance.timer = setTimeout(module.performance.display, 500);
+            module.performance.timer = setTimeout(module.performance.display, 100);
           },
           display: function() {
             var
@@ -481,7 +479,7 @@ $.fn.visit.settings = {
   name          : 'Visit',
 
   debug         : false,
-  verbose       : false,
+  verbose       : true,
   performance   : true,
 
   namespace     : 'visit',

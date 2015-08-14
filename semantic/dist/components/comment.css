@@ -3,7 +3,7 @@
  * http://github.com/semantic-org/semantic-ui/
  *
  *
- * Copyright 2015 Contributors
+ * Copyright 2014 Contributorss
  * Released under the MIT license
  * http://opensource.org/licenses/MIT
  *
@@ -106,14 +106,14 @@
 
 .ui.comments .comment .author {
   font-size: 1em;
-  color: #155203;
+  color: rgba(0, 0, 0, 0.8);
   font-weight: bold;
 }
 .ui.comments .comment a.author {
   cursor: pointer;
 }
 .ui.comments .comment a.author:hover {
-  color: #195d9f;
+  color: #00b2f3;
 }
 
 /*--------------
@@ -142,7 +142,7 @@
   margin: 0.25em 0em 0.5em;
   font-size: 1em;
   word-wrap: break-word;
-  color: #155203;
+  color: rgba(0, 0, 0, 0.8);
   line-height: 1.3;
 }
 

@@ -10,7 +10,7 @@
 @groupMargin: 1.5em 0em;
 
 /* Item */
-@display: flex;
+@display: table;
 @background: transparent;
 @borderRadius: 0rem;
 @minHeight: 0px;
@@ -19,7 +19,7 @@
 @boxShadow: none;
 @border: none;
 @zIndex: '';
-@transition: box-shadow @defaultDuration @defaultEasing;
+@transition: box-shadow @transitionDuration @transitionEasing;
 
 /* Responsive */
 @itemSpacing: 1em;
@@ -40,7 +40,7 @@
 --------------------*/
 
 /* Image */
-@imageDisplay: block;
+@imageDisplay: table-cell;
 @imageFloat: none;
 @imageMaxHeight: '';
 @imageVerticalAlign: top;
@@ -52,10 +52,10 @@
 @imageBorder: none;
 
 /* Content */
-@contentDisplay: block;
+@contentDisplay: table-cell;
 @contentVerticalAlign: top;
 
-@contentWidth: auto;
+@contentWidth: 100%;
 @contentOffset: 0em;
 @contentBackground: none;
 @contentMargin: 0em;
@@ -68,11 +68,10 @@
 /* Header */
 @headerMargin: -@lineHeightOffset 0em 0em;
 @headerFontWeight: bold;
-@headerFontSize: @relativeBig;
+@headerFontSize: 1.2em;
 @headerColor: @darkTextColor;
 
 /* Metadata */
-@metaMargin: 0.5em 0em 0.5em;
 @metaFontSize: 1em;
 @metaLineHeight: 1em;
 @metaSpacing: 0.3em;
@@ -81,7 +80,7 @@
 /* Icons */
 @actionOpacity: 0.75;
 @actionHoverOpacity: 1;
-@actionTransition: color @defaultDuration @defaultEasing;
+@actionTransition: color @transitionDuration @transitionEasing;
 
 /* Actions */
 @favoriteColor: #FFB70A;
@@ -96,14 +95,14 @@
 @metaLinkHoverColor: @textColor;
 @contentLinkColor: '';
 @contentLinkHoverColor: '';
-@contentLinkTransition: color @defaultDuration @defaultEasing;
+@contentLinkTransition: color @transitionDuration @transitionEasing;
 
 
 /* Description */
 @descriptionDistance: 0.6em;
-@descriptionMaxWidth: auto;
+@descriptionMaxWidth: 550px;
 @descriptionFontSize: 1em;
-@descriptionLineHeight: @lineHeight;
+@descriptionLineHeight: 1.33;
 @descriptionColor: @textColor;
 
 /* Content Image */
@@ -132,7 +131,7 @@
 @extraPadding: 0em 0em 0em;
 @extraBoxShadow: none;
 @extraColor: @lightTextColor;
-@extraTransition: color @defaultDuration @defaultEasing;
+@extraTransition: color @transitionDuration @transitionEasing;
 
 /*-------------------
       Variations

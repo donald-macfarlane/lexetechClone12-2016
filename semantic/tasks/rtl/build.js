@@ -27,7 +27,7 @@ var
   config       = require('../config/user'),
 
   // install config
-  tasks        = require('../config/tasks'),
+  tasks        = require('../config/project/tasks'),
   install      = require('../config/project/install'),
 
   // shorthand

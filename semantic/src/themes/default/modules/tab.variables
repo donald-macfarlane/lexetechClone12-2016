@@ -9,3 +9,5 @@
 
 @loaderDistanceFromTop: 100px;
 @loaderSize: 2.5em;
+@loaderOffset: -(@loaderSize / 2);
+@loaderMargin: @loaderOffset 0em 0em @loaderOffset;

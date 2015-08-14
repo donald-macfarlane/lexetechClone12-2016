@@ -29,7 +29,7 @@ var
   config       = require('../config/user'),
 
   // task config
-  tasks        = require('../config/tasks'),
+  tasks        = require('../config/project/tasks'),
   install      = require('../config/project/install'),
 
   // shorthand
