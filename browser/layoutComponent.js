@@ -3,6 +3,7 @@ var h = plastiq.html;
 var routes = require('./routes');
 var http = require('./http');
 var _ = require('underscore');
+var wait = require('./wait');
 
 module.exports = function (model, contents) {
   if (model.user || model.login || model.signup) {
@@ -135,12 +136,6 @@ function footer(model) {
   return h('footer',
     'LEXeNOTES is  the registered trademark of Lexeme Technologies LLC. Copyright 2015 Lexeme Technologies LLC. All rights protected. US Patent #8,706,680.'
   );
-}
-
-function wait(n) {
-  return new Promise(function (result) {
-    setTimeout(result, n);
-  });
 }
 
 var listenToHttpErrors = _.once(function (model) {

@@ -1,17 +1,12 @@
 var semaphore = require('../../server/semaphore');
 var expect = require('chai').expect;
 var Promise = require('bluebird');
+var wait = require('../../browser/wait');
 
 describe('semaphore', function () {
   it('can process only one job at a time', function () {
     var s = semaphore();
     var log = [];
-
-    function wait(n) {
-      return new Promise(function (fulfil) {
-        setTimeout(fulfil, n);
-      });
-    }
 
     function job(n) {
       return function () {

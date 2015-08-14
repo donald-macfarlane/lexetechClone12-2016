@@ -22,7 +22,7 @@ var rootComponent = prototype({
       this.documentApi = documentApi;
       this.admin = adminComponent();
 
-      this.startReport = documentsComponent({
+      this.documentsComponent = documentsComponent({
         documentApi: documentApi,
         root: {openDocument: this.openDocument.bind(this)},
         user: this.user,
@@ -162,7 +162,7 @@ var rootComponent = prototype({
     }
 
     function refreshDocuments() {
-      return self.startReport.loadDocuments();
+      return self.documentsComponent.loadDocuments();
     }
 
     return layoutComponent(self, whenLoggedIn(function () {
@@ -193,7 +193,7 @@ var rootComponent = prototype({
           }
         ),
         routes.root({onarrival: refreshDocuments}, function () {
-          return self.startReport.render();
+          return self.documentsComponent.render();
         }),
         routes.admin(adminAuth(function () {
           return self.admin.render();

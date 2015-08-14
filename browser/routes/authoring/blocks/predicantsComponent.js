@@ -52,12 +52,6 @@ function PredicantsComponent(options) {
     }
   });
 
-  function wait(n) {
-    return new Promise(function (fulfil) {
-      setTimeout(fulfil, n);
-    });
-  }
-
   this.loadQueriesForSelectedPredicant = loader(function (predicant) {
     return http.get('/api/predicants/' + predicant.id + '/usages').then(function (usages) {
       return usages;

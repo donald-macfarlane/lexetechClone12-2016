@@ -6,6 +6,7 @@ var httpism = require('httpism');
 var toughCookie = require('tough-cookie');
 var users = require('../../server/users');
 var expect = require('chai').expect;
+var wait = require('../../browser/wait');
 
 describe('inactivity', function () {
   var server;
@@ -51,9 +52,3 @@ describe('inactivity', function () {
     });
   });
 });
-
-function wait(n) {
-  return new Promise(function (fulfil) {
-    setTimeout(fulfil, n);
-  });
-}

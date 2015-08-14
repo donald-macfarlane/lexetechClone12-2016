@@ -13,6 +13,7 @@ var predicantsComponent = require('./predicantsComponent');
 var predicants = require('./predicants');
 var dirtyBinding = require('./dirtyBinding');
 var semanticUi = require('plastiq-semantic-ui');
+var wait = require('../../../wait');
 
 _debug = require('debug');
 var debug = _debug('block');
@@ -705,9 +706,3 @@ BlockComponent.prototype.renderBlockEditor = function (blockId) {
 module.exports = function () {
   return new BlockComponent();
 };
-
-function wait(n) {
-  return new Promise(function (fulfil) {
-    setTimeout(fulfil, n);
-  });
-}

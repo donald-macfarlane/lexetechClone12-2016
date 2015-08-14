@@ -66,7 +66,7 @@ module.exports = prototype({
     });
   },
 
-  documentList: function () {
+  renderDocumentList: function () {
     var self = this;
     this.refresh = h.refresh;
 
@@ -123,7 +123,7 @@ module.exports = prototype({
     )
   },
 
-  getStarted: function() {
+  renderGetStarted: function() {
     var self = this;
     return h('div.no-documents',
       h('h1', 'Your documents'),
@@ -141,8 +141,12 @@ module.exports = prototype({
     this.refresh = h.refresh;
 
     return h('.documents',
-      self.documents && self.documents.length > 0 ? self.documentList() : self.getStarted() 
-    )
+      self.documents
+        ? self.documents.length > 0
+          ? self.renderDocumentList()
+          : self.renderGetStarted() 
+        : h('.ui.active.inverted.dimmer.loading', h('.ui.text.loader', 'loading'))
+    );
   },
 });
 
