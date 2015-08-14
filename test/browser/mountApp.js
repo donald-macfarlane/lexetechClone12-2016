@@ -6,7 +6,7 @@ var firstLocation;
 var started = false;
 
 module.exports = function (component, options) {
-  stop();
+  stop({last: false});
 
   if (!started) {
     firstLocation = location.pathname + location.search;
@@ -31,7 +31,9 @@ function appendTestDiv() {
 }
 
 function stop(options) {
-  if (started && firstLocation != '/debug.html') {
+  var last = options && options.hasOwnProperty('last')? options.last: true;
+
+  if (started && !(firstLocation == '/debug.html' && last)) {
     lastAttachment.remove();
 
     var divs = document.querySelectorAll('body > div.test');

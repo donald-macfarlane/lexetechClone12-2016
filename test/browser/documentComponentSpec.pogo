@@ -8,7 +8,7 @@ createDocument = require '../../browser/document'
 createHistory = require '../../browser/history'
 
 documentBrowser = browser.component {
-  document() = self.find('ol.document')
+  document() = self.find('.document')
 }
 
 describe 'document component'
