@@ -7,7 +7,6 @@ module.exports = prototype({
   constructor: function (model) {
     this.history = model.history;
     this.setQuery = model.setQuery;
-    this.documentStyle = model.documentStyle;
   },
 
   render: function (style) {

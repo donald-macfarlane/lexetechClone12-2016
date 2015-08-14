@@ -76,7 +76,6 @@ var rootComponent = prototype({
       queryGraph: this.queryGraph(),
       lexemeApi: this.lexemeApi()
     });
-    routes.report({documentId: doc.id}).push();
   },
 
   currentDocument: function () {
@@ -168,7 +167,7 @@ var rootComponent = prototype({
 
     return layoutComponent(self, whenLoggedIn(function () {
       return [
-        routes.report(
+        routes.report.under(
           {
             documentId: {
               set: function (docId) {
@@ -176,11 +175,18 @@ var rootComponent = prototype({
               }
             },
           },
-          function (params) {
+          function () {
             if (self.documentNotFound) {
               return h('h1.center', "Very sorry! We couldn't find this document.");
             } else if (self.report) {
-              return self.report.render();
+              return [
+                routes.report(function () {
+                  return self.report.render();
+                }),
+                routes.printReport(function () {
+                  return self.report.renderPrint();
+                })
+              ];
             } else {
               return h('h1.center', 'loading');
             }

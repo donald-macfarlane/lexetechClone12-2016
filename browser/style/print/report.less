@@ -1,71 +1,9 @@
-@media print {
-  .shadow,
-  footer,
-  .report .query-response-editor,
-  .report h3,
-  .report .field,
-  .report .actions,
-  .tabular.menu {
-    display:none;
-  }
-  .top-menu {
-    height:auto;
-    border:0;
-    background:none;
-    text-align:center;
-    .content {
-      margin:0 auto;
-      * {
-        display:none;
-      }
-      .logo {
-        display:inline-block;
-        position:static;
-        padding-top:2em;
-        height:auto;
-        img {
-          display:inline;
-          height:100px;
-        }
-      }
-    }
-  }
-  body {
-    background:none;
-    margin:0;
-    #wrapper {
-      height: auto;
-      .main {
-        background:none;
-        height: auto;
-        min-width:0;
-        width:100%;
-        .content {
-          top :0;
-          height: auto;
-          width:auto;
-          margin:0;
-          background:none;
-          .document-tabs {
-            background:none;
-            width: auto;
+@import (reference) '../app.less';
 
-            .document-outer {
-              margin: 0;
-              width: auto;
-              padding: 0 30px;
+.document-outer {
+  .report .document-tabs .document-outer;
+}
 
-              .document {
-                color: black;
-              }
-            }
-          }
-        }
-
-        .bottom.attached.segment {
-          border: none ! important;
-        }
-      }
-    }
-  }
+.document {
+  .report .document-tabs .document;
 }

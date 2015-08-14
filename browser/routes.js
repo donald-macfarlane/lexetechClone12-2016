@@ -4,6 +4,7 @@ module.exports = {
   login:                router.route('/login'),
   signup:               router.route('/signup'),
   report:               router.route('/reports/:documentId'),
+  printReport:          router.route('/reports/:documentId/print/:style'),
   root:                 router.route('/'),
   admin:                router.route('/admin'),
   adminUser:            router.route('/admin/users/:userId'),

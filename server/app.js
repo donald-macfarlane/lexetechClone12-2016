@@ -1,5 +1,3 @@
-var Promise = require("bluebird");
-
 var express = require("express");
 var bodyParser = require("body-parser");
 var passport = require("passport");
@@ -19,6 +17,8 @@ var handleErrors = require('./handleErrors');
 var urlUtils = require('url');
 var redisClient = require('./redisClient');
 var inactivityTimeout = require('./inactivityTimeout');
+var routes = require('../browser/routes');
+var printReport = require('./printReport');
 
 var mongoDb = require("./mongoDb")
 mongoDb.connect();
@@ -156,6 +156,8 @@ function page(req, js) {
     flash: req.flash("error")
   };
 };
+
+app.use(printReport);
 
 app.get("*", function(req, res) {
   res.render("index.html", page(req, "/app.js"));

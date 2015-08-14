@@ -8,6 +8,7 @@ var queryComponent = require('./queryComponent');
 var debugComponent = require('./debugComponent');
 var documentComponent = require('./documentComponent');
 var historyComponent = require('./history');
+var routes = require('./routes');
 
 function dirtyBinding(model, name, component) {
   return {
@@ -64,8 +65,6 @@ module.exports = prototype({
 
     this.documentComponent = documentComponent({
       history: this.history,
-      query: this.query,
-      documentStyle: this.documentStyle,
       setQuery: setQuery
     });
   },
@@ -124,12 +123,20 @@ module.exports = prototype({
         ),
         h('.actions', [
           h('.ui.button', { 
-            onclick: function() {window.print()}},
+            onclick: function() {self.print()}},
             'Print'),
           h('.ui.button', 'Discard')
         ])
       )
     );
+  },
+
+  print: function () {
+    location.href = routes.printReport({documentId: this.document.id, style: this.documentStyle.style}).href;
+  },
+
+  renderPrint: function () {
+    return this.documentComponent.render(this.documentStyle.style);
   },
 
   renderReportName: function () {

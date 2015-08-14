@@ -7,6 +7,7 @@ var throttle = require('plastiq-throttle');
 var debug = require('debug')('start-report');
 var removeFromArray = require('./removeFromArray');
 var _ = require('underscore');
+var routes = require('./routes');
 
 module.exports = prototype({
   constructor: function (options) {
@@ -30,7 +31,7 @@ module.exports = prototype({
     var self = this;
 
     return this.documentApi.create().then(function (doc) {
-      self.root.openDocument(doc);
+      routes.report({documentId: doc.id}).push();
     });
   },
 
@@ -48,11 +49,7 @@ module.exports = prototype({
   },
 
   loadDocument: function (id) {
-    var self = this;
-
-    return this.documentApi.document(id).then(function (doc) {
-      self.root.openDocument(doc);
-    });
+    routes.report({documentId: id}).push();
   },
 
   deleteDocument: function (docToDelete) {
