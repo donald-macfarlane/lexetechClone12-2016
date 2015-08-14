@@ -19,21 +19,14 @@ var redisClient = require('./redisClient');
 var inactivityTimeout = require('./inactivityTimeout');
 var routes = require('../browser/routes');
 var printReport = require('./printReport');
+var httpsRedirect = require('./httpsRedirect');
 
 var mongoDb = require("./mongoDb")
 mongoDb.connect();
 
 var app = express();
 
-app.use(function (req, res, next) {
-  var baseurl = process.env.BASEURL;
-
-  if (/^https/.test(baseurl) && req.headers['x-forwarded-proto'] == 'http') {
-    res.redirect(urlUtils.resolve(process.env.BASEURL, req.url));
-  } else {
-    next();
-  }
-});
+app.use(httpsRedirect);
 
 app.use(bodyParser.json({limit: "1mb"}));
 
