@@ -162,7 +162,7 @@ PredicantsComponent.prototype.renderPredicantEditor = function (selectedPredican
     ),
     h('.predicant-usages',
       h('.predicant-usages-queries',
-        h('h3', 'Depenent Queries'),
+        h('h3', 'Dependent Queries'),
         h('.ui.vertical.menu.results.secondary',
           usagesForSelectedPredicant && usagesForSelectedPredicant.queries.length
             ? usagesForSelectedPredicant.queries.map(function (query) {
