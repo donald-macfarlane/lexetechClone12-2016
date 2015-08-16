@@ -4,12 +4,11 @@ var plastiq = require('plastiq');
 var router = require('plastiq-router');
 
 if (!history.pushState) {
-  if (location.pathname == '/') {
-    router.start({history: router.hash});
-  } else {
+  if (location.pathname != '/') {
     var path = (location.pathname + location.search).replace(/^\//, '');
     location.href = '/#' + path;
   }
+  router.start({history: router.hash});
 } else {
   router.start();
 }
