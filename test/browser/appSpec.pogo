@@ -1,3 +1,4 @@
+window.Promise = require 'bluebird'
 retry = require 'trytryagain'
 createTestDiv = require './createTestDiv'
 $ = require '../../browser/jquery'
