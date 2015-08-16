@@ -45,7 +45,7 @@ module.exports = prototype({
     var self = this;
 
     function styleTabContents(response, id, options) {
-      return h('.ui.tab.bottom.attached.segment', {class: 'style-' + id},
+      return h('.ui.tab.bottom.attached.segment.style-' + id, {class: {editing: options.editing}},
         options.editing
         ? responseHtmlEditor({
             class: 'response-text-editor',

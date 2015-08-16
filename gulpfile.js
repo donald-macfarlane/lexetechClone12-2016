@@ -68,16 +68,8 @@ gulp.task('js',
 );
 
 gulp.task('watch-css', function () {
-  gulp.src('browser/style/app.less')
+  gulp.src('browser/style/*.less')
     .pipe(watch('browser/style/*.less'))
-    .pipe(sourcemaps.init())
-    .pipe(less({lineNumbers: 'all'}))
-    .pipe(sourcemaps.write('.'))
-    .on('error', gutil.log.bind(gutil, 'Less Error'))
-    .pipe(gulp.dest('server/generated'));
-
-  gulp.src('browser/style/print/report.less')
-    .pipe(watch('browser/style/print/report.less'))
     .pipe(sourcemaps.init())
     .pipe(less({lineNumbers: 'all'}))
     .pipe(sourcemaps.write('.'))
@@ -86,12 +78,7 @@ gulp.task('watch-css', function () {
 });
 
 gulp.task('css', function () {
-  gulp.src('browser/style/app.less')
-    .pipe(less())
-    .on('error', gutil.log.bind(gutil, 'Less Error'))
-    .pipe(gulp.dest('server/generated'));
-
-  gulp.src('browser/style/print/report.less')
+  gulp.src('browser/style/*.less')
     .pipe(less())
     .on('error', gutil.log.bind(gutil, 'Less Error'))
     .pipe(gulp.dest('server/generated'));

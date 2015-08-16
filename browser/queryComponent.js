@@ -103,6 +103,7 @@ var queryComponent = prototype({
       return [
         h('h3.query-text', {key: 'query-text', class: {finished: !query.query}}, query.query? query.query.text: 'finished'),
         renderButton(join('accept', h('br')), {accept: true}, self.history.accept.bind(self.history), lexemeToAccept),
+        self.responseEditor.render(),
         h('.query',
           h('.buttons',
             renderButton('undo', {undo: true}, self.undo.bind(self), self.history.canUndo()),
@@ -156,8 +157,7 @@ var queryComponent = prototype({
                 })
               )
             : undefined
-        ),
-        self.responseEditor.render()
+        )
       ];
     }
   }
