@@ -1,4 +1,3 @@
-var Promise = require("bluebird");
 var http = require('../../../../http');
 var h = require('plastiq').html;
 var semanticUi = require('plastiq-semantic-ui');
@@ -676,7 +675,7 @@ QueryComponent.prototype.insertAfter = function() {
 QueryComponent.prototype.numberInput = function(model, field) {
   return h("input",
     {
-      type: "number",
+      type: "text",
       binding: this.dirtyBinding(model, field, Number),
       onfocus: function(ev) {
         return $(ev.target).on("mousewheel.disableScroll", function(ev) {

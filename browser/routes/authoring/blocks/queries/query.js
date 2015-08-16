@@ -1,4 +1,3 @@
-var Promise = require("bluebird");
 var self = this;
 var React = require("react");
 var r = React.createElement;

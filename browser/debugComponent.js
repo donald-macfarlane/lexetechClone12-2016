@@ -1,6 +1,5 @@
 var h = require('plastiq').html;
 var _ = require('underscore');
-var Promise = require('bluebird');
 var lexemeApi = require('./lexemeApi');
 var prototype = require('prote');
 var renderJson = require('./renderJson');

@@ -1,5 +1,4 @@
 var jquery = require("./jquery");
-var Promise = require('bluebird');
 var _ = require('underscore');
 var qs = require('qs');
 var inactivityTimeout = require('../server/inactivityTimeout');

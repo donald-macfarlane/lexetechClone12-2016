@@ -1,4 +1,3 @@
-var Promise = require("bluebird");
 var _ = require("underscore");
 var createContext = require("./context");
 var createCache = require("../common/cache");

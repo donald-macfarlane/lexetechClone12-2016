@@ -1,4 +1,3 @@
-var Promise = require("bluebird");
 var _ = require("underscore");
 var queryComponent = require("./queries/queryComponent");
 var $ = require("../../../jquery");

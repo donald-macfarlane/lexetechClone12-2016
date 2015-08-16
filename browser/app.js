@@ -1,3 +1,4 @@
+window.Promise = require('bluebird');
 window._debug = require('debug');
 var plastiq = require('plastiq');
 var router = require('plastiq-router');

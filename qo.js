@@ -221,3 +221,7 @@ task('api-delete <href>', function (args, options) {
     return postPut(method, args, options);
   });
 });
+
+task('semantic-ie9', function () {
+  return shell('blessc semantic/dist/semantic.css semantic/dist/semantic.ie.css');
+});
