@@ -8,3 +8,11 @@
     }
   }
 }
+
+.ui.menu {
+  .item {
+    &:hover {
+      color: black;
+    }
+  }
+}

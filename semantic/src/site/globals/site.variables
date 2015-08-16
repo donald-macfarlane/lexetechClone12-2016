@@ -1,6 +1,7 @@
 /*******************************
      User Global Variables
 *******************************/
+@lexemeGreen:                #155203;
 @buttonBackgroundColor:      #155203;
 @borderColor:                #155203;
 @solidBorderColor:           @borderColor;

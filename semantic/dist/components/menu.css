@@ -320,7 +320,7 @@
 .ui.menu .menu > a.item:hover {
   cursor: pointer;
   background: rgba(0, 0, 0, 0.03);
-  color: #ffffff;
+  color: #155203;
 }
 
 /*--------------
@@ -1601,6 +1601,9 @@
   background-color: #155203;
   color: #ffffff;
   border-radius: 5px 5px 0px 0px;
+}
+.ui.menu .item:hover {
+  color: black;
 }
 
 
