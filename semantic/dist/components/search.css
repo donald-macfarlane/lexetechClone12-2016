@@ -30,7 +30,7 @@
   font-size: 1em;
   background: #ffffff;
   border: 1px solid #155203;
-  color: rgba(0, 0, 0, 0.8);
+  color: #155203;
   box-shadow: 0em 0em 0em 0em transparent inset;
   -webkit-transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
           transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
@@ -74,7 +74,7 @@
   overflow: hidden;
   font-size: 1em;
   padding: 0.5em 1em;
-  color: rgba(0, 0, 0, 0.8);
+  color: #155203;
   line-height: 1.33;
   border-bottom: 1px solid #155203;
 }
@@ -117,7 +117,7 @@
 }
 .ui.search > .results .result .price {
   float: right;
-  color: #5bbd72;
+  color: #155203;
 }
 
 /*--------------
@@ -131,12 +131,12 @@
   font-family: 'Lato', 'Helvetica Neue', Arial, Helvetica, sans-serif;
   font-size: 1.1428em;
   font-weight: bold;
-  color: rgba(0, 0, 0, 0.8);
+  color: #155203;
 }
 .ui.search > .results > .message .description {
   margin-top: 0.25rem;
   font-size: 1em;
-  color: rgba(0, 0, 0, 0.8);
+  color: #155203;
 }
 
 /* View All Results */
@@ -145,7 +145,7 @@
   border-top: none;
   background: #f0f0f0;
   padding: 0.5em 1em;
-  color: rgba(0, 0, 0, 0.8);
+  color: #155203;
   font-weight: bold;
   text-align: center;
 }
@@ -210,7 +210,7 @@
   background: #f0f0f0;
 }
 .ui.search > .results .category.active > .name {
-  color: rgba(0, 0, 0, 0.8);
+  color: #155203;
 }
 .ui.search > .results .result.active,
 .ui.category.search > .results .category .result.active {

@@ -175,7 +175,7 @@
   max-width: 550px;
   font-size: 1em;
   line-height: 1.33;
-  color: rgba(0, 0, 0, 0.8);
+  color: #155203;
 }
 
 /*--------------
@@ -237,7 +237,7 @@
   color: rgba(0, 0, 0, 0.4);
 }
 .ui.items > .item .meta > a:not(.ui):hover {
-  color: rgba(0, 0, 0, 0.8);
+  color: #155203;
 }
 
 /*--------------

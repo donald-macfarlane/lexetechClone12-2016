@@ -168,7 +168,7 @@ ol.ui.list ol,
 .ui.list .list > a.item,
 .ui.list > a.item {
   cursor: pointer;
-  color: rgba(0, 0, 0, 0.8);
+  color: #155203;
 }
 .ui.list .list > a.item:hover,
 .ui.list > a.item:hover {
@@ -184,7 +184,7 @@ ol.ui.list ol,
 /* Linking Content */
 .ui.list .item a {
   cursor: pointer;
-  color: rgba(0, 0, 0, 0.8) !important;
+  color: #155203 !important;
 }
 .ui.list .item a:hover {
   color: #00b2f3 !important;
@@ -197,12 +197,12 @@ ol.ui.list ol,
   margin: 0em;
   font-family: 'Lato', 'Helvetica Neue', Arial, Helvetica, sans-serif;
   font-weight: bold;
-  color: rgba(0, 0, 0, 0.8);
+  color: #155203;
 }
 .ui.list .list > .item .description,
 .ui.list > .item .description {
   display: block;
-  color: rgba(0, 0, 0, 0.8);
+  color: #155203;
 }
 
 /* Floated Content */
@@ -318,7 +318,7 @@ ol.ui.list ol,
 
 .ui.list .list > a.item:hover .icon,
 .ui.list > a.item:hover .icon {
-  color: rgba(0, 0, 0, 0.8);
+  color: #155203;
 }
 
 
@@ -521,7 +521,7 @@ ul.ui.list li:before,
   margin-left: -1rem;
   content: '•';
   opacity: 1;
-  color: rgba(0, 0, 0, 0.8);
+  color: #155203;
   vertical-align: top;
 }
 ul.ui.list ul,
@@ -575,7 +575,7 @@ ol.ui.list li:before,
   counter-increment: ordered;
   content: counters(ordered, ".") " ";
   text-align: right;
-  color: rgba(0, 0, 0, 0.8);
+  color: #155203;
   vertical-align: middle;
   opacity: 0.8;
 }

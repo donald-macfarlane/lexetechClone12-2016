@@ -85,7 +85,7 @@
   height: 17px;
   text-align: center;
   opacity: 0;
-  color: rgba(0, 0, 0, 0.8);
+  color: #155203;
   -webkit-transition: all 0.1s ease;
           transition: all 0.1s ease;
 }
@@ -99,7 +99,7 @@
 .ui.checkbox label,
 .ui.checkbox + label {
   cursor: pointer;
-  color: rgba(0, 0, 0, 0.8);
+  color: #155203;
   -webkit-transition: color 0.2s ease;
           transition: color 0.2s ease;
   -webkit-user-select: none;
@@ -246,7 +246,7 @@
   -webkit-transform: scale(0.42857143);
       -ms-transform: scale(0.42857143);
           transform: scale(0.42857143);
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: #155203;
 }
 
 /*--------------
@@ -364,7 +364,7 @@
 .ui.toggle.checkbox label {
   min-height: 1.5rem;
   padding-left: 4.5rem;
-  color: rgba(0, 0, 0, 0.8);
+  color: #155203;
 }
 .ui.toggle.checkbox label {
   padding-top: 0.15em;
@@ -437,13 +437,13 @@
 .ui.toggle.checkbox input[type="checkbox"]:checked ~ label,
 .ui.toggle.checkbox input[type="radio"]:checked ~ .box,
 .ui.toggle.checkbox input[type="radio"]:checked ~ label {
-  color: #5bbd72;
+  color: #155203;
 }
 .ui.toggle.checkbox input[type="checkbox"]:checked ~ .box:before,
 .ui.toggle.checkbox input[type="checkbox"]:checked ~ label:before,
 .ui.toggle.checkbox input[type="radio"]:checked ~ .box:before,
 .ui.toggle.checkbox input[type="radio"]:checked ~ label:before {
-  background-color: #5bbd72;
+  background-color: #155203;
 }
 .ui.toggle.checkbox input[type="checkbox"]:checked ~ .box:after,
 .ui.toggle.checkbox input[type="checkbox"]:checked ~ label:after,

@@ -14,4 +14,3 @@
   background-color: @highlightedBackgroundColor;
   color:            @highlightedTextColor;
 }
-

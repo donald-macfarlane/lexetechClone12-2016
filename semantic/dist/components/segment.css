@@ -355,7 +355,7 @@
   border-top: 2px solid #3b83c0;
 }
 .ui.green.segment:not(.inverted) {
-  border-top: 2px solid #5bbd72;
+  border-top: 2px solid #155203;
 }
 .ui.orange.segment:not(.inverted) {
   border-top: 2px solid #e07b53;
@@ -426,7 +426,7 @@
   color: #ffffff !important;
 }
 .ui.inverted.green.segment {
-  background-color: #5bbd72 !important;
+  background-color: #155203 !important;
   color: #ffffff !important;
 }
 .ui.inverted.orange.segment {
@@ -491,7 +491,7 @@
   box-shadow: none;
 }
 .ui.inverted.segment .segment {
-  color: rgba(0, 0, 0, 0.8);
+  color: #155203;
 }
 .ui.inverted.segment .inverted.segment {
   color: #ffffff;
@@ -512,11 +512,11 @@
 
 .ui.secondary.segment {
   background: #faf9fa;
-  color: rgba(0, 0, 0, 0.8);
+  color: #155203;
 }
 .ui.tertiary.segment {
   background: #ebebeb;
-  color: rgba(0, 0, 0, 0.8);
+  color: #155203;
 }
 .ui.secondary.inverted.segment {
   background: -webkit-linear-gradient(rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.3) 100%);

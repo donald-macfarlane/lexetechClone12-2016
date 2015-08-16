@@ -154,7 +154,7 @@
   right: auto;
   left: 0%;
   bottom: auto;
-  color: rgba(0, 0, 0, 0.8);
+  color: #155203;
   font-weight: bold;
   text-shadow: none;
   margin-top: 0.2em;
@@ -174,7 +174,7 @@
 ---------------*/
 
 .ui.progress.success .bar {
-  background-color: #5bbd72 !important;
+  background-color: #155203 !important;
 }
 .ui.progress.success .bar,
 .ui.progress.success .bar::after {
@@ -296,7 +296,7 @@
   color: #ffffff;
 }
 .ui.inverted.progress.success > .label {
-  color: #5bbd72;
+  color: #155203;
 }
 .ui.inverted.progress.warning > .label {
   color: #f2c037;
@@ -365,7 +365,7 @@
   background-color: #3b83c0;
 }
 .ui.green.progress .bar {
-  background-color: #5bbd72;
+  background-color: #155203;
 }
 .ui.orange.progress .bar {
   background-color: #e07b53;

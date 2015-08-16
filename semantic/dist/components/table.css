@@ -23,7 +23,7 @@
   border: 1px solid #155203;
   box-shadow: none;
   border-radius: 0.25rem;
-  color: rgba(0, 0, 0, 0.8);
+  color: #155203;
   border-collapse: separate;
   border-spacing: 0px;
 }
@@ -55,7 +55,7 @@
   cursor: auto;
   background: #f0f0f0;
   text-align: left;
-  color: rgba(0, 0, 0, 0.8);
+  color: #155203;
   padding: 0.7em 0.8em;
   vertical-align: middle;
   font-style: none;
@@ -86,7 +86,7 @@
   border-top: 1px solid #155203;
   background: #ffffff;
   text-align: left;
-  color: rgba(0, 0, 0, 0.8);
+  color: #155203;
   padding: 0.7em 0.8em;
   vertical-align: middle;
   font-style: normal;
@@ -558,7 +558,7 @@
   border-top: 0.2em solid #3b83c0;
 }
 .ui.green.table {
-  border-top: 0.2em solid #5bbd72;
+  border-top: 0.2em solid #155203;
 }
 .ui.orange.table {
   border-top: 0.2em solid #e07b53;
@@ -593,7 +593,7 @@
   color: #ffffff !important;
 }
 .ui.inverted.green.table {
-  background-color: #5bbd72 !important;
+  background-color: #155203 !important;
   color: #ffffff !important;
 }
 .ui.inverted.orange.table {
@@ -750,7 +750,7 @@
   cursor: pointer;
   white-space: nowrap;
   border-left: 1px solid #155203;
-  color: rgba(0, 0, 0, 0.8);
+  color: #155203;
 }
 .ui.sortable.table thead th:first-child {
   border-left: none;

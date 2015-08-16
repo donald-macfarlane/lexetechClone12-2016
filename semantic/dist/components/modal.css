@@ -194,7 +194,7 @@
   .ui.modal > .close {
     top: 0.905rem;
     right: 1rem;
-    color: rgba(0, 0, 0, 0.8);
+    color: #155203;
   }
 }
 
@@ -336,7 +336,7 @@
 .ui.fullscreen.modal > .close {
   top: 0.905rem;
   right: 1rem;
-  color: rgba(0, 0, 0, 0.8);
+  color: #155203;
 }
 
 /*--------------
