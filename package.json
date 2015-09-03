@@ -23,7 +23,7 @@
   "devDependencies": {
     "bluebird": "^2.3.11",
     "browser-monkey": "1.18.0",
-    "chai": "3.2.0",
+    "chai": "git://github.com/dereke/chai.git",
     "chai-as-promised": "5.1.0",
     "chinchilla": "0.0.9",
     "extend": "2.0.0",
