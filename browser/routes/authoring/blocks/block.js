@@ -147,6 +147,7 @@ BlockComponent.prototype.createBlock = function(b) {
       self.queriesPromise = getQueries();
 
       return self.queriesPromise.then(function() {
+        blockSelf.loadQuery.reset();
         blockSelf.refresh(blockSelf.blocksComponent);
         blockSelf.refresh();
       });
@@ -301,7 +302,7 @@ BlockComponent.prototype.insertQueryBefore = function(q) {
   q.id = void 0;
   return http.post("/api/blocks/" + self.blockId + "/queries", q).then(function(query) {
     self.selectedBlock.updateQueries();
-    routes.authoringQuery({blockId: self.blockId, queryId: query.id}).replace();
+    routes.authoringQuery({blockId: self.blockId, queryId: query.id}).push();
   });
 };
 
@@ -311,7 +312,7 @@ BlockComponent.prototype.insertQueryAfter = function(q) {
   q.id = void 0;
   return http.post("/api/blocks/" + self.blockId + "/queries", q).then(function(query) {
     self.selectedBlock.updateQueries();
-    routes.authoringQuery({blockId: self.blockId, queryId: query.id}).replace();
+    routes.authoringQuery({blockId: self.blockId, queryId: query.id}).push();
   });
 };
 

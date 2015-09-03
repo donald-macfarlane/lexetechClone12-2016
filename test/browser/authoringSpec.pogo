@@ -1,5 +1,4 @@
 retry = require 'trytryagain'
-createTestDiv = require './createTestDiv'
 $ = require '../../browser/jquery'
 chai = require 'chai'
 expect = chai.expect
@@ -10,12 +9,15 @@ mountApp = require './mountApp'
 predicantLexicon = require '../predicantLexicon'
 lexiconBuilder = require '../lexiconBuilder'
 hobostyle = require 'hobostyle'
-
+createSnapshots = require './snapshots'
 createRouter = require 'mockjax-router'
-
 queryApi = require './queryApi'
 
-testBrowser = browser.component(ckeditorMonkey)
+snapshots = createSnapshots()
+
+testBrowser = browser.component(ckeditorMonkey).on @(evt)
+  testDiv = document.querySelector 'body > div.test'
+  snapshots.add(testDiv)
 
 authoringElement = testBrowser.component {
   dropdownMenu(name) =
@@ -464,8 +466,6 @@ describe 'authoring'
         menuItem = page.queryMenuItem('block 26', 'query 12').link().element()!
         menuItemTop = $(menuItem).offset().top
 
-        console.log('menuItemTop', menuItemTop, 'menuTop', menuTop, menuItemTop - menuTop)
-
         expect(menuItemTop - menuTop).to.be.within(30, 80)
 
     describe 'updating and inserting queries'
@@ -560,11 +560,12 @@ describe 'authoring'
 
         page.queryMenuItem('one', 'query 2 (before 1)').exists!()
         page.queryMenuItem('one', 'query 1').exists!()
+        page.editQuery().name().shouldHave!(value: 'query 2 (before 1)')
 
         retry!
           expect([q <- api.lexicon().blocks.0.queries, q.name]).to.eql ['query 2 (before 1)', 'query 1']
       
-      it 'can insert a query after'
+      it.only 'can insert a query after'
         page.blockMenuItem('one').expand().click!()
         page.queryMenuItem('one', 'query 1').link().click!()
         page.editQuery().name().typeIn!('query 2 (after 1)')
@@ -572,6 +573,7 @@ describe 'authoring'
 
         page.queryMenuItem('one', 'query 2 (after 1)').exists!()
         page.queryMenuItem('one', 'query 1').exists!()
+        page.editQuery().name().shouldHave!(value: 'query 2 (after 1)')
 
         retry!
           expect([q <- api.lexicon().blocks.0.queries, q.name]).to.eql ['query 1', 'query 2 (after 1)']

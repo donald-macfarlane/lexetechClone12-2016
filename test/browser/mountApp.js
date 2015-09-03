@@ -10,6 +10,10 @@ module.exports = function (component, options) {
 
   if (!started) {
     firstLocation = location.pathname + location.search;
+    var refresh = document.createElement('a');
+    refresh.href = firstLocation;
+    refresh.innerText = 'refresh';
+    document.body.appendChild(refresh);
   }
 
   started = true;
