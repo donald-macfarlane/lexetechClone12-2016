@@ -3,12 +3,13 @@ var h = plastiq.html;
 var prototype = require('prote');
 var semanticUi = require('plastiq-semantic-ui');
 var _ = require('underscore');
-
 var queryComponent = require('./queryComponent');
 var debugComponent = require('./debugComponent');
 var documentComponent = require('./documentComponent');
 var historyComponent = require('./history');
 var routes = require('./routes');
+var zeroClipboard = require('plastiq-zeroclipboard');
+var vdomToHtml = require('vdom-to-html');
 
 function dirtyBinding(model, name, component) {
   return {
@@ -122,6 +123,17 @@ module.exports = prototype({
           }
         ),
         h('.actions', [
+          zeroClipboard({
+            'text/plain': function () {
+              var html = vdomToHtml(self.documentComponent.render(self.documentStyle.style));
+              var element = document.createElement('div');
+              element.innerHTML = html;
+              return element.innerText;
+            },
+            'text/html': function () {
+              return vdomToHtml(self.documentComponent.render(self.documentStyle.style));
+            }
+          }, h('.ui.button', 'Copy')),
           h('.ui.button', { 
             onclick: function() {self.print()}},
             'Print'),
