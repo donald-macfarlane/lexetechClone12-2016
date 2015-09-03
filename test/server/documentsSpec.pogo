@@ -6,6 +6,7 @@ Document = require '../../server/models/document'
 startSmtpServer = require './smtpServer'
 retry = require 'trytryagain'
 lexiconBuilder = require '../lexiconBuilder'
+debug = (require 'debug') 'documents-spec'
 
 describe 'documents'
   port = 12345
@@ -33,6 +34,31 @@ describe 'documents'
     expect(response1.headers.location).to.not.equal(response2.headers.location)
     expect(response1.body.href).to.equal(response1.headers.location)
     expect(response2.body.href).to.equal(response2.headers.location)
+
+  it.only 'when creating 6th document, deletes document with oldest last modified date'
+    response1 = api.post!('/api/user/documents', {name = '1'})
+    response2 = api.post!('/api/user/documents', {name = '2'})
+    response3 = api.post!('/api/user/documents', {name = '3'})
+    response4 = api.post!('/api/user/documents', {name = '4'})
+    response5 = api.post!('/api/user/documents', {name = '5'})
+
+    api.put! (response1.body.href) {
+      name = 'update 1'
+    }
+
+    api.put! (response2.body.href) {
+      name = 'update 2'
+    }
+
+    response6 = api.post!('/api/user/documents', {name = '6'})
+
+    api.get! (response1.body.href)
+    api.get! (response2.body.href)
+    api.get! (response4.body.href)
+    api.get! (response5.body.href)
+    api.get! (response6.body.href)
+
+    expect(api.get! (response3.body.href, exceptions: false).statusCode).to.equal(404)
 
   it 'can delete a document'
     doc1 = api.post!('/api/user/documents').body

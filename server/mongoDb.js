@@ -36,6 +36,15 @@ exports.createDocument = function (userId, doc) {
   return new Document(doc).save().then(objectify);
 };
 
+exports.limitDocuments = function(userId, limit) {
+  return Document.find({userId: userId}).sort('-lastModified').skip(limit).exec().then(function (documents) {
+    if (documents.length > 0) {
+      var ids = documents.map(function (d) { return d._id; });
+      return Document.remove({_id: {$in: ids}});
+    }
+  });
+};
+
 exports.readDocument = function (userId, docId) {
   return Document.findOne({_id: docId, userId: userId}).then(objectify);
 };

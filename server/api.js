@@ -462,10 +462,12 @@ app.post("/user/documents", handleErrors(function(req, res) {
   incomingDocument(doc);
   doc.created = doc.lastModified;
   return mongoDb.createDocument(req.user.id, doc).then(function(document) {
-    outgoingDocument(document, req);
-    res.set("location", document.href);
-    res.send(document);
-    return createStyleChangeNotifier(req).notifyOnStyleChange(document);
+    return mongoDb.limitDocuments(req.user.id, 5).then(function () {
+      outgoingDocument(document, req);
+      res.set("location", document.href);
+      res.send(document);
+      return createStyleChangeNotifier(req).notifyOnStyleChange(document);
+    });
   });
 }));
 
