@@ -1,5 +1,6 @@
 var plastiq = require('plastiq');
 var router = require('plastiq-router');
+var karmaDebug = require('./karmaDebug');
 
 var lastAttachment;
 var firstLocation;
@@ -10,10 +11,13 @@ module.exports = function (component, options) {
 
   if (!started) {
     firstLocation = location.pathname + location.search;
-    var refresh = document.createElement('a');
-    refresh.href = firstLocation;
-    refresh.innerText = 'refresh';
-    document.body.appendChild(refresh);
+
+    if (karmaDebug) {
+      var refresh = document.createElement('a');
+      refresh.href = firstLocation;
+      refresh.innerText = 'refresh';
+      document.body.appendChild(refresh);
+    }
   }
 
   started = true;
@@ -37,7 +41,7 @@ function appendTestDiv() {
 function stop(options) {
   var last = options && options.hasOwnProperty('last')? options.last: true;
 
-  if (started && !(firstLocation == '/debug.html' && last)) {
+  if (started && !(karmaDebug && last)) {
     lastAttachment.remove();
 
     var divs = document.querySelectorAll('body > div.test');

@@ -12,12 +12,17 @@ hobostyle = require 'hobostyle'
 createSnapshots = require './snapshots'
 createRouter = require 'mockjax-router'
 queryApi = require './queryApi'
+karmaDebug = require './karmaDebug'
 
-snapshots = createSnapshots()
+testBrowser = browser.component(ckeditorMonkey)
 
-testBrowser = browser.component(ckeditorMonkey).on @(evt)
-  testDiv = document.querySelector 'body > div.test'
-  snapshots.add(testDiv)
+if (karmaDebug)
+  console.log 'doing snapshots'
+  snapshots = createSnapshots()
+  testBrowser := testBrowser.on @(evt)
+    console.log('event', evt)
+    testDiv = document.querySelector 'body > div.test'
+    snapshots.add(testDiv)
 
 authoringElement = testBrowser.component {
   dropdownMenu(name) =
@@ -460,13 +465,16 @@ describe 'authoring'
         page.editQuery().name().shouldHave(value: 'query 12')!
         page.queryMenuItem('block 25', 'query 12').shouldNotExist!()
 
-        menu = page.find('.block-query-menu').element()!
-        menuTop = $(menu).offset().top
+        page.find('.block-query-menu').shouldHaveElement! @(menu)
+          menuTop = $(menu).offset().top
+          console.log('menu top', menuTop)
 
-        menuItem = page.queryMenuItem('block 26', 'query 12').link().element()!
-        menuItemTop = $(menuItem).offset().top
+          menuItem = page.queryMenuItem('block 26', 'query 12').link().element()!
+          menuItemTop = $(menuItem).offset().top
+          console.log('menu item top', menuItemTop)
+          console.log('difference', menuItemTop - menuTop)
 
-        expect(menuItemTop - menuTop).to.be.within(30, 80)
+          expect(menuItemTop - menuTop).to.be.within(30, 80)
 
     describe 'updating and inserting queries'
       beforeEach
@@ -565,7 +573,7 @@ describe 'authoring'
         retry!
           expect([q <- api.lexicon().blocks.0.queries, q.name]).to.eql ['query 2 (before 1)', 'query 1']
       
-      it.only 'can insert a query after'
+      it 'can insert a query after'
         page.blockMenuItem('one').expand().click!()
         page.queryMenuItem('one', 'query 1').link().click!()
         page.editQuery().name().typeIn!('query 2 (after 1)')

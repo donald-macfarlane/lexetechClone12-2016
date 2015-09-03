@@ -593,6 +593,7 @@ BlockComponent.prototype.renderBlocksQueries = function () {
                 var item = items[items.length - 1];
                 var menu = element.querySelector('.ui.menu.results');
                 if (item && menu) {
+                  console.log('setting query top');
                   menu.scrollTop = relativePosition(item, menu).top - 60;
                 }
               }
