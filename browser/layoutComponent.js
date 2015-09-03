@@ -108,10 +108,25 @@ function topMenuButtons(model) {
     }
   }
 
+  function reportTab() {
+    var currentDocument = model.currentDocument();
+
+    if (currentDocument) {
+      if (routes.authoring.under().active) {
+        var href = routes.report({documentId: currentDocument.id}).href;
+        return h('a.ui.button', {href: href, title: currentDocument.name}, 'Report');
+      } else {
+        var route = routes.report({documentId: currentDocument.id});
+        return route.link({class: {ui: true, button: true, active: route.active}}, 'Report');
+      }
+    }
+  }
+
   return h('div.buttons',
     model.user
       ? [
         routeTab(routes.root(), 'Home', routes.root().active),
+        reportTab(),
         authoringTab(),
         adminTab()
       ]

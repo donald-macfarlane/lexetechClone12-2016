@@ -482,91 +482,92 @@ describe 'report'
       rootBrowser.newDocumentButton().click!()
       shouldHaveQuery 'Where does it hurt?'!
 
-    it 'can create a document, make some responses, and come back to it'
-      retry!
-        expect(api.documents.length).to.eql 0
+    describe 'documents'
+      it 'can create a document, make some responses, and come back to it'
+        retry!
+          expect(api.documents.length).to.eql 0
 
-      rootBrowser.newDocumentButton().click!()
-      reportBrowser.reportNameInput().typeIn!("bob's report")
-      shouldHaveQuery 'Where does it hurt?'!
-      selectResponse 'left leg'!
-      shouldHaveQuery 'Is it bleeding?'!
+        rootBrowser.newDocumentButton().click!()
+        reportBrowser.reportNameInput().typeIn!("bob's report")
+        shouldHaveQuery 'Where does it hurt?'!
+        selectResponse 'left leg'!
+        shouldHaveQuery 'Is it bleeding?'!
 
-      retry!
-        expect(api.documents.length).to.eql 1
+        retry!
+          expect(api.documents.length).to.eql 1
 
-      history.back()
+        history.back()
 
-      bobsReport = rootBrowser.document("bob's report")
-      bobsReport.shouldExist!()
+        bobsReport = rootBrowser.document("bob's report")
+        bobsReport.shouldExist!()
 
-      bobsReport.click!()
-      shouldHaveQuery 'Is it bleeding?'!
-      selectResponse 'yes'!
-      shouldHaveQuery 'Is it aching?'!
-      selectResponse 'yes'!
-      reportBrowser.reportNameInput().shouldHave!(value: "bob's report")
-      shouldBeFinished()!
+        bobsReport.click!()
+        shouldHaveQuery 'Is it bleeding?'!
+        selectResponse 'yes'!
+        shouldHaveQuery 'Is it aching?'!
+        selectResponse 'yes'!
+        reportBrowser.reportNameInput().shouldHave!(value: "bob's report")
+        shouldBeFinished()!
 
-    it 'can create a document and delete it'
-      retry!
-        expect(api.documents.length).to.eql 0
+      it 'can create a document and delete it'
+        retry!
+          expect(api.documents.length).to.eql 0
 
-      rootBrowser.newDocumentButton().click!()
-      reportBrowser.reportNameInput().typeIn!("bob's report")
-      shouldHaveQuery 'Where does it hurt?'!
-      selectResponse 'left leg'!
-      shouldHaveQuery 'Is it bleeding?'!
+        rootBrowser.newDocumentButton().click!()
+        reportBrowser.reportNameInput().typeIn!("bob's report")
+        shouldHaveQuery 'Where does it hurt?'!
+        selectResponse 'left leg'!
+        shouldHaveQuery 'Is it bleeding?'!
 
-      retry!
-        expect(api.documents.length).to.eql 1
+        retry!
+          expect(api.documents.length).to.eql 1
 
-      history.back()
+        history.back()
 
-      bobsReport = rootBrowser.document("bob's report")
-      bobsReport.shouldExist!()
-      bobsReport.deleteButton().click()!
-      bobsReport.deleteModal().okButton().click()!
-      bobsReport.shouldNotExist!()
+        bobsReport = rootBrowser.document("bob's report")
+        bobsReport.shouldExist!()
+        bobsReport.deleteButton().click()!
+        bobsReport.deleteModal().okButton().click()!
+        bobsReport.shouldNotExist!()
 
-    it 'can create a document, make some repeating responses, and come back to it'
-      retry!
-        expect(api.documents.length).to.eql 0
+      it 'can create a document, make some repeating responses, and come back to it'
+        retry!
+          expect(api.documents.length).to.eql 0
 
-      rootBrowser.newDocumentButton().click!()
-      reportBrowser.reportNameInput().typeIn!("bob's report")
-      shouldHaveQuery 'Where does it hurt?'!
-      selectResponse 'left leg'!
-      shouldHaveQuery 'Is it bleeding?'!
-      response = reportBrowser.query().response('yes')
-      response.editButton().click!()
-      editor = reportBrowser.responseEditor()
-      editor.responseTextEditor('style1').typeInCkEditorHtml!('bleeding badly')
-      editor.okButton().click!()
-      shouldHaveQuery 'Is it aching?'!
+        rootBrowser.newDocumentButton().click!()
+        reportBrowser.reportNameInput().typeIn!("bob's report")
+        shouldHaveQuery 'Where does it hurt?'!
+        selectResponse 'left leg'!
+        shouldHaveQuery 'Is it bleeding?'!
+        response = reportBrowser.query().response('yes')
+        response.editButton().click!()
+        editor = reportBrowser.responseEditor()
+        editor.responseTextEditor('style1').typeInCkEditorHtml!('bleeding badly')
+        editor.okButton().click!()
+        shouldHaveQuery 'Is it aching?'!
 
-      retry!
-        expect(api.documents.length).to.eql 1
+        retry!
+          expect(api.documents.length).to.eql 1
 
-      window.history.back()
+        window.history.back()
 
-      bobsReport = rootBrowser.document("bob's report")
-      bobsReport.shouldExist!()
+        bobsReport = rootBrowser.document("bob's report")
+        bobsReport.shouldExist!()
 
-      bobsReport.click!()
-      shouldHaveQuery 'Is it aching?'!
-      reportBrowser.undoButton().click!()
-      shouldHaveQuery 'Is it bleeding?'!
+        bobsReport.click!()
+        shouldHaveQuery 'Is it aching?'!
+        reportBrowser.undoButton().click!()
+        shouldHaveQuery 'Is it bleeding?'!
 
-      response.editButton().click!()
+        response.editButton().click!()
 
-      editor.responseTextEditor('style1').shouldHave!(html: 'bleeding badly')
+        editor.responseTextEditor('style1').shouldHave!(html: 'bleeding badly')
 
-      editor.okButton().click!()
+        editor.okButton().click!()
 
-      shouldHaveQuery 'Is it aching?'!
-      selectResponse 'yes'!
-      shouldBeFinished()!
+        shouldHaveQuery 'Is it aching?'!
+        selectResponse 'yes'!
+        shouldBeFinished()!
 
   context 'logged in with lexicon with user specific queries'
     beforeEach
