@@ -29,8 +29,7 @@ describe 'report'
 
   rootBrowser = testBrowser.component {
     newDocumentButton() = self.find('.button', text = 'New Document')
-    loadDocumentButton(index) = self.find(".documents tr.button.load-document:nth-child(#(index + 1))")
-    loadPreviousButton() = self.find('.button', text = 'Load previous document')
+    reportTab() = self.find('.ui.button', text = 'Report')
     authoringTab() = self.find('.top-menu .buttons a', text = 'Authoring')
     document(name) =
       self.find(".documents tr.document").containing('.name', text: name).component {
@@ -529,6 +528,24 @@ describe 'report'
         bobsReport.deleteButton().click()!
         bobsReport.deleteModal().okButton().click()!
         bobsReport.shouldNotExist!()
+
+      it 'can create a document come back to it using the report link'
+        retry!
+          expect(api.documents.length).to.eql 0
+
+        rootBrowser.newDocumentButton().click!()
+        reportBrowser.reportNameInput().typeIn!("bob's report")
+        shouldHaveQuery 'Where does it hurt?'!
+        selectResponse 'left leg'!
+        shouldHaveQuery 'Is it bleeding?'!
+
+        retry!
+          expect(api.documents.length).to.eql 1
+
+        history.back()
+
+        rootBrowser.reportTab().click()!
+        reportBrowser.reportNameInput().shouldHave!(value: "bob's report")
 
       it 'can create a document, make some repeating responses, and come back to it'
         retry!
