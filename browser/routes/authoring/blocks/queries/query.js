@@ -31,8 +31,8 @@ module.exports = React.createClass({
     var self = this;
 
     function loadBlocks() {
-      return self.props.http.get("/api/blocks").then(function(blockList) {
-        return _.indexBy(blockList, "id");
+      return self.props.http.get("/api/blocks").then(function(response) {
+        return _.indexBy(response.body, "id");
       });
     }
 

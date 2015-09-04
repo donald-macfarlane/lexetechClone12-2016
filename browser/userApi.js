@@ -78,20 +78,22 @@ module.exports = prototype({
 
   users: function (params) {
     var self = this;
-    return http.get('/api/users', {params: params}).then(function (users) {
-      return users.map(self.mapUser);
+    return http.get('/api/users', {params: params}).then(function (response) {
+      return response.body.map(self.mapUser);
     });
   },
 
   search: function(query) {
     var self = this;
-    return http.get('/api/users/search', {params: {q: query}}).then(function (users) {
-      return users.map(self.mapUser);
+    return http.get('/api/users/search', {params: {q: query}}).then(function (response) {
+      return response.body.map(self.mapUser);
     });
   },
 
   user: function (userId) {
-    return http.get('/api/users/' + userId).then(this.mapUser);
+    return http.get('/api/users/' + userId).then(function (response) {
+      return this.mapUser(response.body);
+    });
   },
 
   create: function () {
@@ -99,6 +101,8 @@ module.exports = prototype({
   },
 
   resetPasswordToken: function (user) {
-    return http.post(user.resetPasswordTokenHref);
+    return http.post(user.resetPasswordTokenHref).then(function (r) {
+      return r.body;
+    });
   }
 });

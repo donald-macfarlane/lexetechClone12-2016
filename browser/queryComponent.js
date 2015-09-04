@@ -2,7 +2,6 @@ var plastiq = require('plastiq');
 var h = plastiq.html;
 var buildGraph = require('./buildGraph');
 var prototype = require('prote');
-var http = require('./http');
 var semanticUi = require('plastiq-semantic-ui');
 var responseEditor = require('./responseEditorComponent');
 var join = require('./join');

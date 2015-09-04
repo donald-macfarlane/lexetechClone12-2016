@@ -1,34 +1,25 @@
-var jquery = require("./jquery");
-var _ = require('underscore');
-var qs = require('qs');
 var inactivityTimeout = require('../server/inactivityTimeout');
+var httpism = require('httpism');
+
+var http = httpism.api([
+  function (req, next) {
+    timer.start();
+
+    return next().then(undefined, function (error) {
+      errorHandler(error);
+    });
+  }
+]);
+
+var errorHandler;
+
+http.onError = function (handler) {
+  errorHandler = handler;
+};
 
 var timer = makeTimer(function () {
   http.onInactivity();
 }, inactivityTimeout.timeout - 2000);
-
-function send(method, url, body, options) {
-  timer.start();
-
-  return Promise.resolve(jquery.ajax(_.extend({
-    url: url,
-    type: method,
-    contentType: "application/json; charset=UTF-8",
-    data: body? JSON.stringify(body): undefined
-  }, options)));
-}
-
-function urlWithParams(url, options) {
-  if (options && options.params) {
-    var u = url + '?' + qs.stringify(options.params);
-    delete options.params;
-    return u;
-  } else {
-    return url;
-  }
-}
-
-var http = {};
 
 function makeTimer(callback, duration) {
   var timeout;
@@ -46,21 +37,5 @@ function makeTimer(callback, duration) {
     }
   };
 }
-
-['get', 'delete'].forEach(function (method) {
-  http[method] = function (url, options) {
-    return send(method.toUpperCase(), urlWithParams(url, options), undefined, options);
-  };
-});
-
-['put', 'post'].forEach(function (method) {
-  http[method] = function (url, body, options) {
-    return send(method.toUpperCase(), urlWithParams(url, options), body, options);
-  };
-});
-
-http.onError = function(fn) {
-  jquery(document).ajaxError(fn);
-};
 
 module.exports = http;

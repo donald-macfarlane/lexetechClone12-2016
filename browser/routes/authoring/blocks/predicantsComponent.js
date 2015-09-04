@@ -4,7 +4,7 @@ var loadPredicants = require('./loadPredicants');
 var _ = require('underscore');
 var throttle = require('plastiq-throttle');
 var loader = require('plastiq-loader');
-var http = require('../../../http');
+var http = require('../http');
 var clone = require('./queries/clone');
 var routes = require('../../../routes');
 
@@ -53,8 +53,8 @@ function PredicantsComponent(options) {
   });
 
   this.loadQueriesForSelectedPredicant = loader(function (predicant) {
-    return http.get('/api/predicants/' + predicant.id + '/usages').then(function (usages) {
-      return usages;
+    return http.get('/api/predicants/' + predicant.id + '/usages').then(function (response) {
+      return response.body;
     });
   }, {timeout: 0});
 }
@@ -145,7 +145,8 @@ PredicantsComponent.prototype.renderPredicantEditor = function (selectedPredican
         }, 'Save')
       : h('button.create.ui.button.green', {
           onclick: function () {
-            return http.post('/api/predicants', selectedPredicant.predicant).then(function (predicant) {
+            return http.post('/api/predicants', selectedPredicant.predicant).then(function (response) {
+              var predicant = response.body;
               self.predicants.addPredicant(predicant);
               self.searchPredicants.reset();
               delete self.selectedPredicant;

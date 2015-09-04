@@ -1,6 +1,6 @@
 var _ = require('underscore');
 var removeFromArray = require('../../../removeFromArray');
-var http = require('../../../http');
+var http = require('../http');
 
 function Predicants() {
   this.predicants = [];
@@ -22,8 +22,8 @@ Predicants.prototype.load = function() {
         }
       })
     ]).then(function(results) {
-      var predicants = results[0];
-      var users = results[1];
+      var predicants = results[0].body;
+      var users = results[1].body;
 
       if (users) {
         users.forEach(function (user) {

@@ -16,7 +16,7 @@ var User = new Schema({
 });
 
 User.plugin(passportPlugin, {
-    usernameField: "email"
+  usernameField: "email"
 });
 
 User.index({firstName: 'text', familyName: 'text', email: 'text'});

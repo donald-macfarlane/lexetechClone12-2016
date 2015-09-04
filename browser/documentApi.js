@@ -2,12 +2,15 @@ var http = require('./http');
 var prototype = require('prote');
 
 var documentPrototype = require('./document');
+function createDocumentFromResponse(response) {
+  return documentPrototype(response.body);
+}
 
 module.exports = prototype({
   currentDocument: function () {
     var self = this;
 
-    return http.get('/api/user/documents/current', {suppressErrors: true}).then(documentPrototype, function (error) {
+    return http.get('/api/user/documents/current', {suppressErrors: true}).then(createDocumentFromResponse, function (error) {
     });
   },
 
@@ -15,12 +18,12 @@ module.exports = prototype({
     if (id instanceof Object) {
       return documentPrototype(id);
     } else {
-      return http.get('/api/user/documents/' + id, options).then(documentPrototype);
+      return http.get('/api/user/documents/' + id, options).then(createDocumentFromResponse);
     }
   },
 
   create: function () {
-    return http.post('/api/user/documents', {lexemes: []}).then(documentPrototype);
+    return http.post('/api/user/documents', {lexemes: []}).then(createDocumentFromResponse);
   },
 
   delete: function (id) {
@@ -28,8 +31,8 @@ module.exports = prototype({
   },
 
   allDocuments: function () {
-    return http.get('/api/user/documents').then(function (docs) {
-      return docs.map(documentPrototype);
+    return http.get('/api/user/documents').then(function (response) {
+      return response.body.map(documentPrototype);
     });
   }
 });

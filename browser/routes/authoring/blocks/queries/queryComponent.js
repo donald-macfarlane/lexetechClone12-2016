@@ -1,4 +1,4 @@
-var http = require('../../../../http');
+var http = require('../../http');
 var h = require('plastiq').html;
 var semanticUi = require('plastiq-semantic-ui');
 var rangeConversion = require('./rangeConversion');
@@ -30,8 +30,8 @@ function QueryComponent(options) {
   this.lastResponseId = 0;
 
   function loadBlocks() {
-    return http.get("/api/blocks").then(function(blockList) {
-      return _.indexBy(blockList, "id");
+    return http.get("/api/blocks").then(function(response) {
+      return _.indexBy(response.body, "id");
     });
   }
 

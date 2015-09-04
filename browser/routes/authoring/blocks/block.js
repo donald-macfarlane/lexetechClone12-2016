@@ -5,7 +5,7 @@ var blockName = require("./blockName");
 var queriesInHierarchyByLevel = require("./queriesInHierarchyByLevel");
 var h = require('plastiq').html;
 var throttle = require('plastiq-throttle');
-var http = require('../../../http');
+var http = require('../http');
 var routes = require('../../../routes');
 var clone = require('./queries/clone');
 var predicantsComponent = require('./predicantsComponent');
@@ -136,7 +136,8 @@ BlockComponent.prototype.createBlock = function(b) {
       var self = this;
 
       function getQueries() {
-        return http.get("/api/blocks/" + b.id + "/queries").then(function(queries) {
+        return http.get("/api/blocks/" + b.id + "/queries").then(function(response) {
+          var queries = response.body;
           return wait(200).then(function() {
             self.queries = queries;
             self.queriesHierarchy = queriesInHierarchyByLevel(queries);
@@ -160,7 +161,8 @@ BlockComponent.prototype.loadBlocks = function() {
   self.blocksLoaded = false;
 
   function getBlocks() {
-    return http.get("/api/blocks").then(function(blocks) {
+    return http.get("/api/blocks").then(function(response) {
+      var blocks = response.body;
       return blocks.map(function (b) {
         return self.createBlock(b);
       });
@@ -193,8 +195,8 @@ BlockComponent.prototype.loadBlocks = function() {
 
 BlockComponent.prototype.loadClipboard = function() {
   var self = this;
-  return http.get("/api/user/queries").then(function(clipboard) {
-    self.clipboard = clipboard;
+  return http.get("/api/user/queries").then(function(response) {
+    self.clipboard = response.body;
   });
 };
 
@@ -252,10 +254,10 @@ BlockComponent.prototype.save = function() {
 
 BlockComponent.prototype.create = function() {
   var self = this;
-  return http.post("/api/blocks", self.selectedBlock.editedBlock).then(function(savedBlock) {
+  return http.post("/api/blocks", self.selectedBlock.editedBlock).then(function(response) {
     self.clean();
     self.selectedBlock.commitEdits();
-    var id = savedBlock.id;
+    var id = response.body.id;
     self.loadBlocks();
     routes.authoringBlock({blockId: id}).replace();
   });
@@ -283,9 +285,9 @@ BlockComponent.prototype.cancel = function() {
 
 BlockComponent.prototype.createQuery = function(q) {
   var self = this;
-  return http.post("/api/blocks/" + self.blockId + "/queries", q).then(function(savedQuery) {
+  return http.post("/api/blocks/" + self.blockId + "/queries", q).then(function(response) {
     self.selectedBlock.updateQueries();
-    routes.authoringQuery({blockId: self.blockId, queryId: savedQuery.id}).replace();
+    routes.authoringQuery({blockId: self.blockId, queryId: response.body.id}).replace();
   });
 };
 
@@ -300,9 +302,9 @@ BlockComponent.prototype.insertQueryBefore = function(q) {
   var self = this;
   q.before = q.id;
   q.id = void 0;
-  return http.post("/api/blocks/" + self.blockId + "/queries", q).then(function(query) {
+  return http.post("/api/blocks/" + self.blockId + "/queries", q).then(function(response) {
     self.selectedBlock.updateQueries();
-    routes.authoringQuery({blockId: self.blockId, queryId: query.id}).push();
+    routes.authoringQuery({blockId: self.blockId, queryId: response.body.id}).push();
   });
 };
 
@@ -310,9 +312,9 @@ BlockComponent.prototype.insertQueryAfter = function(q) {
   var self = this;
   q.after = q.id;
   q.id = void 0;
-  return http.post("/api/blocks/" + self.blockId + "/queries", q).then(function(query) {
+  return http.post("/api/blocks/" + self.blockId + "/queries", q).then(function(response) {
     self.selectedBlock.updateQueries();
-    routes.authoringQuery({blockId: self.blockId, queryId: query.id}).push();
+    routes.authoringQuery({blockId: self.blockId, queryId: response.body.id}).push();
   });
 };
 

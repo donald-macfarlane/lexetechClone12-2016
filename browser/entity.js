@@ -14,9 +14,12 @@ module.exports = prototype({
         delete this.original;
       }
       if (this.href) {
-        return http.put(this.href, this);
+        return http.put(this.href, this).then(function (response) {
+          return response.body;
+        });
       } else if (this.collectionHref) {
-        return http.post(this.collectionHref, this).then(function (result) {
+        return http.post(this.collectionHref, this).then(function (response) {
+          var result = response.body;
           if (result.id) {
             self.id = result.id;
           }

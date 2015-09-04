@@ -7,7 +7,8 @@ module.exports = function(options) {
 
   function blockQueries(n) {
     return blockQueriesCache.cacheBy(n, function() {
-      return http.get("/api/blocks/" + n + "/queries").then(function (queries) {
+      return http.get("/api/blocks/" + n + "/queries").then(function (response) {
+        var queries = response.body;
         queries.forEach(function (query) {
           queryCache.add(query.id, Promise.resolve(query));
         });
@@ -35,13 +36,17 @@ module.exports = function(options) {
 
     query: function (queryId) {
       return queryCache.cacheBy(queryId, function () {
-        return http.get('/api/queries/' + queryId);
+        return http.get('/api/queries/' + queryId).then(function (response) {
+          return response.body;
+        });
       });
     },
 
     predicants: function () {
       return this._predicants || (
-        this._predicants = http.get('/api/predicants')
+        this._predicants = http.get('/api/predicants').then(function (response) {
+          return response.body;
+        })
       );
     }
   };

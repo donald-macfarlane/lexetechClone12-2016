@@ -1,4 +1,4 @@
-var http = require('../../../http');
+var http = require('../http');
 
 module.exports = function() {
   return Promise.all([
@@ -6,13 +6,13 @@ module.exports = function() {
     http.get("/api/users", {suppressErrors: true}).then(undefined, function (error) {
       // user doesn't have admin access to see users
       // don't show users
-      if (error.status != 403) {
+      if (error.statusCode != 403) {
         throw error;
       }
     })
   ]).then(function(results) {
-    var predicants = results[0];
-    var users = results[1];
+    var predicants = results[0].body;
+    var users = results[1].body;
 
     if (users) {
       users.forEach(function (user) {

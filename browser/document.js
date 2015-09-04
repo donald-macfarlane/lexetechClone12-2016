@@ -5,6 +5,8 @@ var prototype = require('prote');
 module.exports = prototype({
   update: function (doc) {
     _.extend(this, doc);
-    return http.post(this.href, this);
+    return http.post(this.href, this).then(function (response) {
+      return response.body;
+    });
   }
 });
