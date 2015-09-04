@@ -5,6 +5,7 @@ var routes = require('./routes');
 var userApi = require('./userApi');
 var throttle = require('plastiq-throttle');
 var zeroClipboard = require('plastiq-zeroclipboard');
+var wait = require('./wait');
 
 zeroClipboard.config({ swfPath: "/static/zeroclipboard/ZeroClipboard.swf" });
 
@@ -130,17 +131,16 @@ module.exports = prototype({
                       {
                         oncopy: function () {
                           self.tokenLinkCopied = true;
-
-                          setTimeout(function () {
+                          return wait(1000).then(function () {
                             self.tokenLinkCopied = false;
-                            self.refresh();
-                          }, 2000);
+                          });
                         }
                       },
                       tokenLink,
                       h('button.ui.teal.right.labeled.icon.button.copy-token-link',
                         {
-                          onclick: function (ev) { ev.preventDefault(); }
+                          onclick: function (ev) { ev.preventDefault(); },
+                          class: {copied: self.tokenLinkCopied}
                         },
                         h('i.copy.icon'),
                         self.tokenLinkCopied? 'Copied!': 'Copy'

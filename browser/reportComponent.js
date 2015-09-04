@@ -10,6 +10,7 @@ var historyComponent = require('./history');
 var routes = require('./routes');
 var zeroClipboard = require('plastiq-zeroclipboard');
 var vdomToHtml = require('vdom-to-html');
+var wait = require('./wait');
 
 function dirtyBinding(model, name, component) {
   return {
@@ -123,17 +124,51 @@ module.exports = prototype({
           }
         ),
         h('.actions', [
-          zeroClipboard({
-            'text/plain': function () {
-              var html = vdomToHtml(self.documentComponent.render(self.documentStyle.style));
-              var element = document.createElement('div');
-              element.innerHTML = html;
-              return element.innerText;
+          zeroClipboard(
+            {
+              oncopy: function () {
+                var self = this;
+                self.copied = true;
+                return wait(1000).then(function () {
+                  self.copied = false;
+                });
+              },
+              onerror: function (e) {
+                this.noFlash = true;
+                self.selectDocument();
+                this.noFlashMessage = true;
+                return wait(1000).then(function () {
+                  this.noFlashMessage = false;
+                });
+              }
             },
-            'text/html': function () {
-              return vdomToHtml(self.documentComponent.render(self.documentStyle.style));
+            {
+              'text/plain': function () {
+                var html = vdomToHtml(self.documentComponent.render(self.documentStyle.style));
+                var element = document.createElement('div');
+                element.innerHTML = html;
+                return element.innerText;
+              },
+              'text/html': function () {
+                return vdomToHtml(self.documentComponent.render(self.documentStyle.style));
+              }
+            },
+            function () {
+              if (this.noFlash) {
+                return h(
+                  '.ui.button',
+                  {
+                    onclick: function () {
+                      self.selectDocument();
+                    }
+                  },
+                  'Select All'
+                );
+              } else {
+                return h('.ui.button', {class: {copied: this.copied}}, this.copied? 'Copied!': 'Copy');
+              }
             }
-          }, h('.ui.button', 'Copy')),
+          ),
           h('.ui.button', { 
             onclick: function() {self.print()}},
             'Print'),
@@ -141,6 +176,15 @@ module.exports = prototype({
         ])
       )
     );
+  },
+
+  selectDocument: function () {
+    var doc = document.querySelector('.document');
+    var range = document.createRange();
+    range.selectNode(doc);
+    var selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
   },
 
   print: function () {
