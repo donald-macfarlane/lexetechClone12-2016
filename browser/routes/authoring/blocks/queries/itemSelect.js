@@ -7,6 +7,8 @@ module.exports = function(options) {
   var selectedItems = options.selectedItems;
   var renderItemText = options.renderItemText;
   var placeholder = options.placeholder;
+  var itemAdded = options.itemAdded;
+  var itemRemoved = options.itemRemoved;
 
   return h.component(
     {
@@ -47,9 +49,16 @@ module.exports = function(options) {
 
       function selectItem(p) {
         if (selected[p.id]) {
+          var item = selectedItems[p.id];
           removeFromArray(p.id, selectedItems);
+          if (itemRemoved) {
+            return itemRemoved(p);
+          }
         } else {
           selectedItems.push(p.id);
+          if (itemAdded) {
+            return itemAdded(p);
+          }
         }
       }
 

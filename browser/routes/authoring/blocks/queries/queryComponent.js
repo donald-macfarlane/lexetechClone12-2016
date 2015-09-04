@@ -444,11 +444,6 @@ QueryComponent.prototype.renderAction = function(action, removeAction) {
       self.dirty();
     }
 
-    function addBlock(block) {
-      action.arguments.push(block.id);
-      self.dirty();
-    }
-
     function removeBlock(block) {
       removeFromArray(block.id, action.arguments);
       self.dirty();
@@ -508,8 +503,8 @@ QueryComponent.prototype.renderAction = function(action, removeAction) {
               }
             ),
             itemSelect({
-              onAdd: addBlock,
-              onRemove: removeBlock,
+              itemAdded: self.dirty.bind(self),
+              itemRemoved: self.dirty.bind(self),
               selectedItems: action.arguments,
               items: self.blocks,
               renderItemText: blockName,
@@ -587,11 +582,6 @@ QueryComponent.prototype.renderAction = function(action, removeAction) {
 QueryComponent.prototype.renderPredicants = function(predicants) {
   var self = this;
 
-  function addPredicant(predicant) {
-    predicants.push(predicant.id);
-    self.dirty();
-  }
-
   function removePredicant(predicant) {
     removeFromArray(predicant.id, predicants);
     self.dirty();
@@ -619,8 +609,8 @@ QueryComponent.prototype.renderPredicants = function(predicants) {
     return h("div.predicants",
       h("ol", predicants.map(renderPredicant)),
       itemSelect({
-        onAdd: addPredicant,
-        onRemove: removePredicant,
+        itemAdded: self.dirty.bind(self),
+        itemRemoved: self.dirty.bind(self),
         selectedItems: predicants,
         items: self.predicants.predicantsById,
         placeholder: "add predicant"
