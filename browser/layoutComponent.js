@@ -154,15 +154,13 @@ function footer(model) {
 }
 
 var listenToHttpErrors = _.once(function (model) {
-  http.onError(h.refreshify(function (event, jqxhr, settings) {
-    var ignoreError = settings.suppressErrors || jqxhr.statusText == 'abort';
-
-    if (!ignoreError) {
-      var errorMessage = jqxhr.statusText + (
-        jqxhr.responseJSON && jqxhr.responseJSON.message
-        ? ': ' + jqxhr.responseJSON.message
-        : jqxhr.responseText
-          ? ': ' + jqxhr.responseText
+  http.onError(h.refreshify(function (error) {
+    if (!error.aborted) {
+      var errorMessage = error.statusText + (
+        error.responseJSON && error.responseJSON.message
+        ? ': ' + error.responseJSON.message
+        : error.responseText
+          ? ': ' + error.responseText
           : ''
       );
 

@@ -1,4 +1,4 @@
-createRouter = require 'mockjax-router'
+createRouter = require 'mock-xhr-router'
 _ = require 'underscore'
 
 window._debug = require 'debug'
@@ -6,7 +6,7 @@ window._debug = require 'debug'
 module.exports() =
   router = createRouter()
 
-  model(url, hrefs = false) =
+  model(url, hrefs = false, outgoing() = nil) =
     collection = []
 
     router.get(url) @(request)
@@ -20,6 +20,8 @@ module.exports() =
             item
         else
           notDeleted
+
+      withHrefs.forEach(outgoing)
 
       {
         statusCode = 200
@@ -54,6 +56,7 @@ module.exports() =
 
     router.get(url + '/:id') @(request)
       body = collection.(Number(request.params.id) - 1)
+      outgoing(body)
       
       if (body)
         {
@@ -225,7 +228,17 @@ module.exports() =
   blocks = model('/api/blocks')
   clipboard = model('/api/user/queries', hrefs = true)
   documents = model('/api/user/documents', hrefs = true)
-  users = model('/api/users', hrefs = true)
+  users = model(
+    '/api/users'
+    hrefs = true
+    outgoing(user) =
+      user.resetPasswordTokenHref = '/api/users/' + user.id + '/resetpasswordtoken'
+  )
+
+  router.post '/api/users/:id/resetpasswordtoken' @(req)
+    {
+      body = { token = req.id + '_token' }
+    }
 
   router.get '/api/predicants' @(req)
     predicants.forEach @(pred, index)

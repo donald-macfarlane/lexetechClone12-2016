@@ -5,9 +5,14 @@ var http = httpism.api([
   function (req, next) {
     timer.start();
 
-    return next().then(undefined, function (error) {
-      errorHandler(error);
-    });
+    if (req.options.suppressErrors) {
+      return next();
+    } else {
+      return next().then(undefined, function (error) {
+        errorHandler(error);
+        throw error;
+      });
+    }
   }
 ]);
 

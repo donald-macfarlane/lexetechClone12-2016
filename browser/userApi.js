@@ -91,8 +91,9 @@ module.exports = prototype({
   },
 
   user: function (userId) {
+    var self = this;
     return http.get('/api/users/' + userId).then(function (response) {
-      return this.mapUser(response.body);
+      return self.mapUser(response.body);
     });
   },
 

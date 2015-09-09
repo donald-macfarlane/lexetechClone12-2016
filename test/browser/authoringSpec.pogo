@@ -20,7 +20,6 @@ if (karmaDebug)
   console.log 'doing snapshots'
   snapshots = createSnapshots()
   testBrowser := testBrowser.on @(evt)
-    console.log('event', evt)
     testDiv = document.querySelector 'body > div.test'
     snapshots.add(testDiv)
 
@@ -182,7 +181,8 @@ describe 'authoring'
 
       it 'can create a new block'
         retry!
-          expect(api.blocks).to.eql [
+          blocks = [b <- api.blocks, { id = b.id, name = b.name }]
+          expect(blocks).to.eql [
             {
               id = '1'
               name = 'abcd'
