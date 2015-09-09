@@ -90,7 +90,7 @@
     "passport-http": "^0.2.2",
     "passport-local": "^1.0.0",
     "passport-local-mongoose": "1.0.1",
-    "plastiq": "1.22.0",
+    "plastiq": "1.22.1",
     "plastiq-ckeditor": "1.3.0",
     "plastiq-loader": "1.1.0",
     "plastiq-medium-editor": "1.0.3",

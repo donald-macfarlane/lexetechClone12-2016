@@ -20,6 +20,7 @@ admin = testBrowser.component {
 
 user = testBrowser.component {
   firstName() = self.find('form.user .first-name input')
+  tokenLink() = self.find('form.user .token-link')
   familyName() = self.find('form.user .family-name input')
   email() = self.find('form.user .email input')
   saveButton() = self.find('form.user .button:not(.disabled)', text = 'Save')
@@ -72,6 +73,7 @@ describe 'admin'
       user.createButton().click!()
 
       admin.result('Jane').exists!()
+      user.tokenLink().shouldHave!(value: 'resetpassword/2_token')
 
       retry!
         expect([u <- api.users, "#(u.firstName) #(u.familyName): #(u.email)"]).to.eql ['Joe Trimble: joe@example.com', 'Jane Jones: janejones@example.com']

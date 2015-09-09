@@ -455,21 +455,21 @@ QueryComponent.prototype.renderAction = function(action, removeAction) {
     }
 
     var filterBlocksConversion = {
-      text: function (numbers) {
+      view: function (numbers) {
         return numbers;
       },
 
-      value: function (numbers) {
+      model: function (numbers) {
         return numbers.filter(function (n) { return self.blocks[n]; });
       }
     };
 
     var numberArray = {
-      text: function (numbers) {
+      view: function (numbers) {
         return numbers.map(Number);
       },
 
-      value: function (numbers) {
+      model: function (numbers) {
         return numbers.map(String);
       }
     };

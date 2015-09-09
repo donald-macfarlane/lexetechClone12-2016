@@ -1,7 +1,7 @@
 var _ = require("underscore");
 
 module.exports = {
-  value: function (text) {
+  model: function (text) {
     return _.flatten(text.split(/\s*,\s*/).filter(function (n) {
       return n;
     }).map(function (n) {
@@ -18,7 +18,7 @@ module.exports = {
     }));
   },
 
-  text: function (value) {
+  view: function (value) {
     if (value) {
       var ranges = [];
       var last;

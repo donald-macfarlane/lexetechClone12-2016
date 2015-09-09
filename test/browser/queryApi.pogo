@@ -237,7 +237,7 @@ module.exports() =
 
   router.post '/api/users/:id/resetpasswordtoken' @(req)
     {
-      body = { token = req.id + '_token' }
+      body = { token = req.params.id + '_token' }
     }
 
   router.get '/api/predicants' @(req)
