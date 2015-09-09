@@ -35,7 +35,7 @@ describe 'documents'
     expect(response1.body.href).to.equal(response1.headers.location)
     expect(response2.body.href).to.equal(response2.headers.location)
 
-  it.only 'when creating 6th document, deletes document with oldest last modified date'
+  it 'when creating 6th document, deletes document with oldest last modified date'
     response1 = api.post!('/api/user/documents', {name = '1'})
     response2 = api.post!('/api/user/documents', {name = '2'})
     response3 = api.post!('/api/user/documents', {name = '3'})

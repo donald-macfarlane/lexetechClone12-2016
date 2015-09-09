@@ -45,10 +45,7 @@ describe "lexicon"
     qapi = buildGraph (
       cache = false
       api = lexemeApi (
-        http = {
-          get(url) =
-            api.get(url)!.body
-        }
+        http = api
       )
     )
 
