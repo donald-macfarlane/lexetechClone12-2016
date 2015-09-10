@@ -161,36 +161,38 @@ PredicantsComponent.prototype.renderPredicantEditor = function (selectedPredican
         }
       }, 'Close')
     ),
-    h('.predicant-usages',
-      h('.predicant-usages-queries',
-        h('h3', 'Dependent Queries'),
-        h('.ui.vertical.menu.results.secondary',
-          usagesForSelectedPredicant && usagesForSelectedPredicant.queries.length
-            ? usagesForSelectedPredicant.queries.map(function (query) {
-                return h('.item.teal', routes.authoringQuery({blockId: query.block, queryId: query.id}).link(query.name));
-              })
-            : h('.item.teal', 'none')
+    selectedPredicant.predicant.id
+      ? h('.predicant-usages',
+          h('.predicant-usages-queries',
+            h('h3', 'Dependent Queries'),
+            h('.ui.vertical.menu.results.secondary',
+              usagesForSelectedPredicant && usagesForSelectedPredicant.queries.length
+                ? usagesForSelectedPredicant.queries.map(function (query) {
+                    return h('.item.teal', routes.authoringQuery({blockId: query.block, queryId: query.id}).link(query.name));
+                  })
+                : h('.item.teal', 'none')
+            )
+          ),
+          h('.predicant-usages-responses',
+            h('h3', 'Issuing Responses'),
+            h('.ui.vertical.menu.results.secondary',
+              usagesForSelectedPredicant && usagesForSelectedPredicant.responses.length
+                ? usagesForSelectedPredicant.responses.map(function (responseQuery) {
+                    var query = responseQuery.query;
+                    return h('.item.teal',
+                      h('.header', routes.authoringQuery({blockId: query.block, queryId: query.id}).link(query.name)),
+                      h('.menu',
+                        responseQuery.responses.map(function (response) {
+                          return h('.item.teal', response.text);
+                        })
+                      )
+                    );
+                  })
+                : h('.item.teal', 'none')
+            )
+          )
         )
-      ),
-      h('.predicant-usages-responses',
-        h('h3', 'Issuing Responses'),
-        h('.ui.vertical.menu.results.secondary',
-          usagesForSelectedPredicant && usagesForSelectedPredicant.responses.length
-            ? usagesForSelectedPredicant.responses.map(function (responseQuery) {
-                var query = responseQuery.query;
-                return h('.item.teal',
-                  h('.header', routes.authoringQuery({blockId: query.block, queryId: query.id}).link(query.name)),
-                  h('.menu',
-                    responseQuery.responses.map(function (response) {
-                      return h('.item.teal', response.text);
-                    })
-                  )
-                );
-              })
-            : h('.item.teal', 'none')
-        )
-      )
-    )
+      : undefined
   );
 };
 
