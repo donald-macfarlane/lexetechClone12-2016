@@ -303,6 +303,7 @@ BlockComponent.prototype.insertQueryBefore = function(q) {
   q.before = q.id;
   q.id = void 0;
   return http.post("/api/blocks/" + self.blockId + "/queries", q).then(function(response) {
+    self.dontScrollToBlockQuery();
     self.selectedBlock.updateQueries();
     routes.authoringQuery({blockId: self.blockId, queryId: response.body.id}).push();
   });
@@ -313,6 +314,7 @@ BlockComponent.prototype.insertQueryAfter = function(q) {
   q.after = q.id;
   q.id = void 0;
   return http.post("/api/blocks/" + self.blockId + "/queries", q).then(function(response) {
+    self.dontScrollToBlockQuery();
     self.selectedBlock.updateQueries();
     routes.authoringQuery({blockId: self.blockId, queryId: response.body.id}).push();
   });
@@ -322,6 +324,7 @@ BlockComponent.prototype.removeQuery = function(q) {
   var self = this;
   q.deleted = true;
   return http.post("/api/blocks/" + self.blockId + "/queries/" + q.id, q).then(function() {
+    self.dontScrollToBlockQuery();
     self.selectedBlock.updateQueries();
     routes.authoringBlock({blockId: self.blockId}).replace();
   });
@@ -490,6 +493,10 @@ BlockComponent.prototype.render = function() {
   );
 };
 
+BlockComponent.prototype.dontScrollToBlockQuery = function () {
+  this.ignoreScrollToBlockQuery = true;
+};
+
 BlockComponent.prototype.askToScrollBlockQueryMenu = function () {
   if (!this.ignoreScrollToBlockQuery) {
     this.scrollToBlockQuery = true;
@@ -550,7 +557,7 @@ BlockComponent.prototype.renderBlocksQueries = function () {
           : h("i.icon", {onclick: hide});
 
       function selectQuery(ev) {
-        self.ignoreScrollToBlockQuery = true;
+        self.dontScrollToBlockQuery();
         queryRoute.push();
         ev.stopPropagation();
         ev.preventDefault();
@@ -609,7 +616,7 @@ BlockComponent.prototype.renderBlocksQueries = function () {
                 var block = blockViewModel.block;
 
                 function selectBlock(ev) {
-                  self.ignoreScrollToBlockQuery = true;
+                  self.dontScrollToBlockQuery();
                   blockRoute.push();
                   ev.preventDefault();
                   ev.stopPropagation();
