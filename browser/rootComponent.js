@@ -35,7 +35,7 @@ var rootComponent = prototype({
     var self = this;
 
     if (docId != this.documentId) {
-      return this.documentApi.document(docId, {suppressErrors: true}).then(function (doc) {
+      return this.documentApi.document(docId, {showErrors: false}).then(function (doc) {
         self.openDocument(doc);
       }, function (error) {
         if (error.status == 404) {

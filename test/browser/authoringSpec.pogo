@@ -773,3 +773,31 @@ describe 'authoring'
 
           predicantsMenu.searchResult('Hemophilia').click()!
           predicantsEditor.queries().shouldHave(text = ['query2'])!
+
+      context 'with predicants'
+        beforeEach
+          lexicon = lexiconBuilder()
+
+          api.predicants.splice(0, api.predicants.length)
+
+          pred1 = {
+            id = '1'
+            name = 'bbbb'
+          }
+          pred2 = {
+            id = '2'
+            name = 'cccc'
+          }
+          pred3 = {
+            id = '3'
+            name = 'aaaa'
+          }
+
+          api.predicants.push (pred1, pred2, pred3)
+
+          startApp()
+
+        it 'shows predicants in alpha order'
+          page.predicantsTab().click()!
+          predicantsMenu = page.predicantsMenu()
+          predicantsMenu.searchResult().shouldHave(text = ['aaaa', 'bbbb', 'cccc'])!

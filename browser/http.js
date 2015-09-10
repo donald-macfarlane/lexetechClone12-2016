@@ -5,7 +5,7 @@ var http = httpism.api([
   function (req, next) {
     timer.start();
 
-    if (req.options.suppressErrors) {
+    if (req.options.showErrors === false) {
       return next();
     } else {
       return next().then(undefined, function (error) {

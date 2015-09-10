@@ -10,7 +10,7 @@ module.exports = prototype({
   currentDocument: function () {
     var self = this;
 
-    return http.get('/api/user/documents/current', {suppressErrors: true}).then(createDocumentFromResponse, function (error) {
+    return http.get('/api/user/documents/current', {showErrors: false}).then(createDocumentFromResponse, function (error) {
     });
   },
 

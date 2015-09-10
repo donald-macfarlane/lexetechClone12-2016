@@ -14,7 +14,7 @@ Predicants.prototype.load = function() {
     this.loading = true;
     return this.loadingPromise = Promise.all([
       http.get("/api/predicants"),
-      http.get("/api/users", {suppressErrors: true}).then(undefined, function (error) {
+      http.get("/api/users", {showErrors: false}).then(undefined, function (error) {
         // user doesn't have admin access to see users
         // don't show users
         if (error.status != 403) {
@@ -37,7 +37,7 @@ Predicants.prototype.load = function() {
       }
 
       self.predicantsById = predicants;
-      self.predicants = _.values(predicants);
+      self.predicants = _.sortBy(_.values(predicants), function (p) { return p.name; });
       self.loaded = true;
       delete self.loading;
     });

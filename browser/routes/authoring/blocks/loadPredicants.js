@@ -3,7 +3,7 @@ var http = require('../http');
 module.exports = function() {
   return Promise.all([
     http.get("/api/predicants"),
-    http.get("/api/users", {suppressErrors: true}).then(undefined, function (error) {
+    http.get("/api/users", {showErrors: false}).then(undefined, function (error) {
       // user doesn't have admin access to see users
       // don't show users
       if (error.statusCode != 403) {
