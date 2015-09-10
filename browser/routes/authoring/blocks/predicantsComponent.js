@@ -126,13 +126,8 @@ PredicantsComponent.prototype.renderPredicantEditor = function (selectedPredican
 
   var usagesForSelectedPredicant = selectedPredicant.originalPredicant && this.loadQueriesForSelectedPredicant(selectedPredicant.originalPredicant);
 
-  return h('.selected-predicant.ui.segment',
-    h('h1', 'Predicant'),
-    h('.ui.input',
-      h('label', 'Name'),
-      h('input.name', {type: 'text', binding: h.binding([selectedPredicant.predicant, 'name'], {refresh: false})})
-    ),
-    h('.buttons',
+  function buttons() {
+    return h('.buttons',
       selectedPredicant.predicant.id
       ? h('button.save.ui.button.blue', {
           onclick: function () {
@@ -160,12 +155,23 @@ PredicantsComponent.prototype.renderPredicantEditor = function (selectedPredican
           routes.authoring().push();
         }
       }, 'Close')
+    );
+  }
+
+  return h('.selected-predicant.ui.segment.form',
+    h('h1', 'Predicant'),
+    buttons(),
+    h('.ui.field',
+      h('label', 'Name'),
+      h('.ui.input',
+        h('input.name', {type: 'text', binding: h.binding([selectedPredicant.predicant, 'name'], {refresh: false})})
+      )
     ),
     selectedPredicant.predicant.id
       ? h('.predicant-usages',
           h('.predicant-usages-queries',
             h('h3', 'Dependent Queries'),
-            h('.ui.vertical.menu.results.secondary',
+            h('.ui.vertical.menu.results',
               usagesForSelectedPredicant && usagesForSelectedPredicant.queries.length
                 ? usagesForSelectedPredicant.queries.map(function (query) {
                     return h('.item.teal', routes.authoringQuery({blockId: query.block, queryId: query.id}).link(query.name));
@@ -175,7 +181,7 @@ PredicantsComponent.prototype.renderPredicantEditor = function (selectedPredican
           ),
           h('.predicant-usages-responses',
             h('h3', 'Issuing Responses'),
-            h('.ui.vertical.menu.results.secondary',
+            h('.ui.vertical.menu.results',
               usagesForSelectedPredicant && usagesForSelectedPredicant.responses.length
                 ? usagesForSelectedPredicant.responses.map(function (responseQuery) {
                     var query = responseQuery.query;

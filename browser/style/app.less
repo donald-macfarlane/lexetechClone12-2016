@@ -760,18 +760,6 @@ hr {
     }
   }
 
-  input[type=text], input[type=number], textarea {
-    border: none;
-    box-shadow: inset 2px 2px 5px #e7e8d1;
-    outline: none;
-    background-color: rgba(231, 232, 209, 0.26);
-    font-size: 16px;
-    width: 200px;
-    padding: 3px 8px;
-    vertical-align: top;
-    color: rgb(94, 90, 67);
-  }
-
   .editor {
     background-color: rgba(231, 232, 209, 0.26);
     box-shadow: inset 2px 2px 5px #e7e8d1;
@@ -1028,30 +1016,28 @@ hr {
   }
 
   .selected-predicant {
-    .ui.input {
-      margin: 10px;
-    }
 
     .buttons {
-      margin: 10px;
+      margin-top: 10px;
+      margin-bottom: 10px;
     }
-
     .predicant-usages {
       display: -webkit-flex;
       display: flex;
+      margin-top: 30px;
 
       .menu {
         width: auto;
       }
 
       .predicant-usages-queries {
-        margin: 10px;
+        margin-right: 10px;
         -webkit-flex: 1;
         flex: 1;
       }
 
       .predicant-usages-responses {
-        margin: 10px;
+        margin-left: 10px;
         -webkit-flex: 1;
         flex: 1;
       }
