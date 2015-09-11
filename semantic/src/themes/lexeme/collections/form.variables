@@ -1,0 +1,2 @@
+@inputPlaceholderColor: fadeout(@inputColor, 70%);
+@inputPlaceholderFocusColor: @inputPlaceholderColor;

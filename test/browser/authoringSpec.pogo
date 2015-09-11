@@ -72,7 +72,7 @@ authoringElement = testBrowser.component {
     self.find('.edit-query').component(editQueryComponent)
 
   responses() =
-    responsesElement.scope(self.editQuery().find('ul li.responses'))
+    responsesElement.scope(self.editQuery().find('.field.responses'))
 
   predicantsEditor() = self.find('.selected-predicant').component(predicantsEditorComponent)
   predicantsMenu() = self.find('.predicant-search').component(predicantsMenuComponent)
@@ -100,17 +100,17 @@ blockMenuItemMonkey = testBrowser.component {
 }
 
 editQueryComponent = {
-  name() = self.find('ul li.name input')
-  text() = self.find('ul li.question textarea')
-  level() = self.find('ul li.level input')
-  predicants() = predicantsMonkey.scope(self.find('ul li div.predicants'))
+  name() = self.find('.field.name input')
+  text() = self.find('.field.question textarea')
+  level() = self.find('.field.level input')
+  predicants() = self.find('.predicants').component(predicantsMonkey)
   addToClipboardButton() = self.find('button', text = 'Add to Clipboard')
   overwriteButton() = self.find('button', text = 'Overwrite')
 }
 
-predicantsMonkey = testBrowser.component {
+predicantsMonkey = {
   search() = self.find('input')
-  result(name) = self.find('ol li', text = name)
+  result(name) = self.find('.menu .item', text = name)
 }
 
 clipboardItem = {
@@ -123,13 +123,13 @@ responsesElement = testBrowser.component {
 }
 
 responseElement = testBrowser.component {
-  responseSelector() = self.find('ul li.selector textarea')
-  setLevel() = self.find('ul li.set-level input')
-  predicantSearch() = self.find('ul li div.predicants input')
-  predicant(name) = self.find('ul li div.predicants ol li', text = name)
-  style1() = self.find('ul li.style1 .editor')
-  style2() = self.find('ul li.style2 .editor')
-  actions() = actionsElement.scope(self.find('ul li.actions'))
+  responseSelector() = self.find('.field.selector input')
+  setLevel() = self.find('.field.set-level input')
+  predicantSearch() = self.find('.field div.predicants input')
+  predicant(name) = self.find('.field div.predicants .menu .item', text = name)
+  style1() = self.find('.field.style1 .editor')
+  style2() = self.find('.field.style2 .editor')
+  actions() = actionsElement.scope(self.find('.field.actions'))
 }
 
 actionsElement = testBrowser.component {
@@ -225,7 +225,7 @@ describe 'authoring'
         actions = newResponse.actions()
         actions.addActionButton().click!()
         actions.action('Set Blocks').click!()
-        actions.find('ol li.action-set-blocks .select-list ol li', text = 'abcd').click!()
+        actions.find('ol li.action-set-blocks .select-list .menu .item', text = 'abcd').click!()
 
         page.find('.edit-query button', text = 'Create').click!()
 

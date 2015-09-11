@@ -83,43 +83,41 @@ QueryComponent.prototype.renderResponse = function (response) {
     }
   }
 
-  return h("li", { key: response.id },
+  return h(".field", { key: response.id },
     [
       editing
-        ? h("div.buttons.top",
-            h("button.close", {onclick: deselect}, "Close")
+        ? h("div.buttons",
+            h("button.ui.button.close", {onclick: deselect}, "Close"),
+            h("button.ui.button.remove-response", {onclick: remove}, "Remove")
           )
         : undefined,
-      h("ul",
-        h("li.selector",
+      h(".form",
+        h(".field.selector",
           h("label", "Selector"),
-          h("textarea", {binding: self.dirtyBinding(response, 'text'), onfocus: select})
+          h('.ui.input',
+            h("input", {binding: self.dirtyBinding(response, 'text'), onfocus: select})
+          )
         ),
-        h("li.set-level",
+        h(".field.set-level",
           h("label", "Set Level"),
           self.numberInput(response, "setLevel")
         ),
-        h("li.style1",
+        h(".field.style1",
           h("label", "Style 1"),
           renderStyle('style1')
         ),
-        h("li.style2",
+        h(".field.style2",
           h("label", "Style 2"),
           renderStyle('style2')
         ),
-        h("li.actions",
+        h(".field.actions",
           h("label", "Actions"),
           self.renderActions(response.actions)
         ),
-        h("li.predicants",
+        h(".field.predicants",
           h("label", "Predicants Issued"),
           self.renderPredicants(response.predicants)
-        ),
-        self.selectedResponse === response
-          ? h("div.buttons",
-              h("button.remove-response", {onclick: remove}, "Remove")
-            )
-          : undefined
+        )
       )
     ]
   );
@@ -210,7 +208,7 @@ QueryComponent.prototype.render = function () {
             },
             "Cancel"
           ),
-          h("button.close",
+          h("button.ui.button.close",
             {
               onclick: self.close.bind(self)
             },
@@ -218,30 +216,34 @@ QueryComponent.prototype.render = function () {
           )
         ]
     ),
-    h("ul",
-      h("li.name", { key: "name" },
+    h(".ui.form",
+      h(".field.name", { key: "name" },
         h("label", "Name"),
-        h("input", { type: "text", binding: self.dirtyBinding(self.query, 'name') })
+        h('.ui.input',
+          h("input", { type: "text", binding: self.dirtyBinding(self.query, 'name') })
+        )
       ),
-      h("li.question", { key: "qtext" },
+      h(".field.question", { key: "qtext" },
         h("label", "Question"),
         h("textarea", {
           binding: self.dirtyBinding(self.query, 'text')
         })
       ),
-      h("li.level", { key: "level" },
-        h("label", "Level"),
-        self.numberInput(self.query, "level")
+      h('.two.fields',
+        h(".field.level", { key: "level" },
+          h("label", "Level"),
+          self.numberInput(self.query, "level")
+        ),
+        h(".field",
+          h("label", "Predicants Needed"),
+          self.renderPredicants(self.query.predicants)
+        )
       ),
-      h("li",
-        h("label", "Predicants Needed"),
-        self.renderPredicants(self.query.predicants)
-      ),
-      h("li.responses",
-        h("h3", "Responses"),
-        h("button.add", {onclick: self.addResponse.bind(self)}, "Add Response"),
+      h(".field.responses",
+        h("label", "Responses"),
+        h("button.ui.button.add", {onclick: self.addResponse.bind(self)}, "Add Response"),
         h('div.response-editor',
-          sortable('ol.responses',
+          sortable('.ui.vertical.menu.results',
             {
               onitemmoved: function (item, from, to) {
                 self.dirty();
@@ -261,11 +263,11 @@ QueryComponent.prototype.render = function () {
                 self.highlightedResponse = response;
               }
 
-              return h('li', {
+              return h('a.item', {
                 onclick: select,
                 onmouseenter: show,
                 onmouseleave: hide,
-                class: {selected: self.selectedResponse === response}
+                class: {active: self.selectedResponse === response}
               }, response.text);
             }
           ),
@@ -478,7 +480,7 @@ QueryComponent.prototype.renderAction = function(action, removeAction) {
       h('h4', name),
       self.blocks
         ? [
-            h('input', {type: 'text', binding: self.dirtyBinding(action, 'arguments', numberArray, filterBlocksConversion, rangeConversion)}),
+            h('input', {type: 'text', placeholder: 'e.g. 1,3,5-10', binding: self.dirtyBinding(action, 'arguments', numberArray, filterBlocksConversion, rangeConversion)}),
             sortable('ol',
               {
                 onitemmoved: function (item, from, to) {
@@ -591,13 +593,15 @@ QueryComponent.prototype.renderPredicants = function(predicants) {
     function renderPredicant(id) {
       var p = self.predicants.predicantsById[id];
 
-      function remove() {
-        return removePredicant(p);
+      function remove(ev) {
+        removePredicant(p);
+        ev.stopPropagation();
+        ev.preventDefault();
       }
 
-      return h("li",
-        h("span", p.name),
-        h.rawHtml("button.remove-predicant.remove",
+      return routes.authoringPredicant({predicantId: p.id}).link({class: 'item'},
+        p.name,
+        h.rawHtml("button.label.red.ui.remove-predicant.remove",
           {
             onclick: remove
           },
@@ -607,14 +611,15 @@ QueryComponent.prototype.renderPredicants = function(predicants) {
     }
 
     return h("div.predicants",
-      h("ol", predicants.map(renderPredicant)),
       itemSelect({
+        key: 'predicant-select',
         itemAdded: self.dirty.bind(self),
         itemRemoved: self.dirty.bind(self),
         selectedItems: predicants,
         items: self.predicants.predicantsById,
         placeholder: "add predicant"
-      })
+      }),
+      predicants.length? h(".ui.vertical.menu.results", predicants.map(renderPredicant)): undefined
     );
   }
 };

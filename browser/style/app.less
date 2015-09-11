@@ -1,3 +1,4 @@
+@import (reference) '../../semantic/src/definitions/collections/form.less';
 @backgroundColor:      #155203;
 
 html,
@@ -166,7 +167,6 @@ footer {
     a:hover {
       text-decoration:underline;
     }
-    
   }
 
   .buttons {
@@ -709,6 +709,18 @@ hr {
     }
   }
 
+  .ui.form textarea {
+    height: auto;
+    min-height: auto;
+    max-height: auto;
+  }
+
+  .buttons {
+    button {
+      margin-bottom: 5px;
+    }
+  }
+
   .btn-group {
     .btn, .dropdown-menu {
       min-width: 100px;
@@ -750,21 +762,14 @@ hr {
     &.remove {
       background-color: inherit;
       box-shadow: none;
-    }
-  }
-
-  .buttons {
-    button {
-      margin-right: 20px;
-      margin-top: 10px;
+      position: absolute;
+      right: 0;
     }
   }
 
   .editor {
-    background-color: rgba(231, 232, 209, 0.26);
-    box-shadow: inset 2px 2px 5px #e7e8d1;
-    padding: 3px 8px;
-    outline: none;
+    &:extend(.ui.form textarea);
+    &:extend(.edit-lexicon .ui.form textarea);
   }
 
   .editor > *:last-child {
@@ -966,38 +971,19 @@ hr {
       display: -webkit-flex;
       display: flex;
       align-items: flex-start;
+      margin-top: 10px;
 
-      > ol.responses {
-        -webkit-flex: 0 0 30%;
-        flex: 0 0 30%;
-        list-style-type: none;
-        padding-left: 0;
-        box-shadow: inset 2px 2px 5px #e7e8d1;
-        background-color: rgba(231, 232, 209, 0.26);
+      > *:first-child {
+        margin-left: 0;
+      }
 
-        > li {
-          cursor: pointer;
+      > *:last-child {
+        margin-right: 0;
+      }
 
-          &.selected {
-            background-color: rgba(149, 153, 86, 0.16);
-          }
-
-          ul {
-            padding-left: 17px;
-
-            li {
-              &.selector {
-                textarea {
-                  height: 18px;
-                }
-              }
-            }
-          }
-
-          div.response-text {
-            background-color: blue;
-          }
-        }
+      > * {
+        margin-left: 5px;
+        margin-right: 5px;
       }
 
       .selected-response {
@@ -1017,10 +1003,6 @@ hr {
 
   .selected-predicant {
 
-    .buttons {
-      margin-top: 10px;
-      margin-bottom: 10px;
-    }
     .predicant-usages {
       display: -webkit-flex;
       display: flex;
@@ -1101,23 +1083,17 @@ hr {
     display: inline-block;
     vertical-align: top;
 
-    & > ol {
-      list-style-type: none;
-      padding-left: 0;
-      margin: 0;
-      
-      & > li {
-        padding: 5px;
-        position: relative;
-
-        span {
-          background-color: rgba(231, 232, 209, 0.41);
-          padding: 2px 4px;
-          border-radius: 6px;
+    .menu {
+      .item {
+        .remove {
+          display: none;
+          right: 5px;
         }
 
-        &:last-child {
-          margin-bottom: 10px;
+        &:hover {
+          .remove {
+            display: inline-block;
+          }
         }
       }
     }
@@ -1136,31 +1112,23 @@ hr {
     div.select-list {
       position: relative;
 
-      ol {
+      .menu {
+        display: none;
         position: absolute;
-        background-color: white;
         max-height: 200px;
         overflow-y: scroll;
-        margin: 0;
-        list-style-type: none;
-        padding-left: 0;
-        box-shadow: 2px 2px 20px rgba(0, 0, 0, 0.1);
-        width: 206px;
+        box-shadow: 0px 0px 0px 1px #155203, 0px 1px 2px 0 rgba(0, 0, 0, 0.05), 2px 2px 20px rgba(0, 0, 0, 0.1);
         z-index: 1;
+        top: 6px;
 
-        li {
-          position: relative;
-          padding: 5px;
+        &.show {
+          display: block;
+        }
 
-          &:hover {
-            cursor: pointer;
-            background-color: rgba(0, 0, 0, 0.1);
-          }
-
+        .item {
           .selected {
             position: absolute;
-            right: 0;
-            color: green;
+            right: 10px;
             margin-left: 20px;
           }
         }

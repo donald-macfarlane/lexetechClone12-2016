@@ -6,6 +6,7 @@ var fs = require('fs-promise');
 var _ = require('underscore');
 var promisify = require('./server/promisify');
 var Promise = require('bluebird');
+var pathUtils = require('path');
 
 var glob = Promise.promisify(require('glob'));
 
@@ -224,4 +225,26 @@ task('api-delete <href>', function (args, options) {
 
 task('semantic-ie9', function () {
   return shell('blessc semantic/dist/semantic.css semantic/dist/semantic.ie.css');
+});
+
+task('less-vars definition.less', function (args) {
+  var file = args[0];
+
+  return glob('semantic/src/definitions/**/*.less').then(function (paths) {
+    for (var n = 0; n < paths.length; n++) {
+      var path = paths[n];
+      if (pathUtils.basename(path) == file) {
+        return shell('less-vars', [path]);
+      }
+    }
+
+    console.log('no such definition, try one of:');
+    console.log();
+    var basenames = paths.map(pathUtils.basename);
+    basenames.forEach(function (name) {
+      console.log('    ' + name);
+    });
+
+    console.log();
+  });
 });

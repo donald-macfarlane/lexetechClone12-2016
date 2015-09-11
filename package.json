@@ -37,7 +37,7 @@
     "karma-cli": "0.0.4",
     "karma-mocha": "^0.1.9",
     "karma-mocha-reporter": "1.0.0",
-    "less": "^2.1.1",
+    "less": "2.5.1",
     "lessify": "1.0.0",
     "mailparser": "0.5.1",
     "mocha": "2.2.1",

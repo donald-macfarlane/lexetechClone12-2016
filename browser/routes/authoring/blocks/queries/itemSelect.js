@@ -12,6 +12,7 @@ module.exports = function(options) {
 
   return h.component(
     {
+      key: options && options.key,
       onadd: function () {
         this.search = '';
       }
@@ -82,8 +83,8 @@ module.exports = function(options) {
           ? renderItemText(p)
           : p.name;
 
-        return h("li", {onclick: select},
-          h("span", text),
+        return h("a.item", {href: '#', onclick: select},
+          text,
           selected[p.id]
             ? h.rawHtml("span.selected", "&#x2713;")
             : undefined
@@ -113,7 +114,7 @@ module.exports = function(options) {
           }
         ),
         h("div.select-list",
-          h("ol", {class: {show: state.show}}, matchingItems.map(renderMatchingItem))
+          h(".ui.menu.vertical", {class: {hidden: state.show}}, matchingItems.map(renderMatchingItem))
         )
       );
     }
