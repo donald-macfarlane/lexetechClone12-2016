@@ -114,7 +114,7 @@ module.exports = function(options) {
           }
         ),
         h("div.select-list",
-          h(".ui.menu.vertical", {class: {hidden: state.show}}, matchingItems.map(renderMatchingItem))
+          h(".ui.menu.vertical", {class: {hidden: !state.show}}, matchingItems.map(renderMatchingItem))
         )
       );
     }
