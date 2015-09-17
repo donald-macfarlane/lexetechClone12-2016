@@ -42,6 +42,8 @@ var rootComponent = prototype({
           self.documentNotFound = true;
         }
       });
+    } else {
+      self.openDocument(self.document);
     }
   },
 

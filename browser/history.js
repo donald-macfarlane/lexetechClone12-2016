@@ -3,15 +3,22 @@ var createContext = require('./context');
 
 module.exports = prototype({
   constructor: function (options) {
+    var self = this;
+
     this.document = options.document;
     this.responsesByQueryId = {};
     this.lexemes = [];
     this.index = -1;
     this.queryGraph = options.queryGraph;
+    this.lexemeApi = options.lexemeApi;
 
-    this.rebuildHistory();
+    this.rebuildHistory().then(function () {
+      self.refresh();
+    });
 
     this.setQuery = this.setQuery.bind(this);
+
+    this.refresh = options.refresh;
   },
 
   rebuildHistory: function () {
@@ -25,6 +32,33 @@ module.exports = prototype({
     if (this.document.index !== undefined) {
       this.index = this.document.index;
     }
+
+    return Promise.all(
+      this.document.lexemes.map(function (lexeme) {
+        if (lexeme.response) {
+
+          var unchangedStyles = Object.keys(lexeme.response.styles).filter(function (style) {
+            return !lexeme.response.changedStyles[style];
+          });
+
+          if (unchangedStyles.length > 0) {
+            return self.lexemeApi.query(lexeme.query.id).then(function (query) {
+              Object.keys(lexeme.response.styles).forEach(function (style) {
+                if (!lexeme.response.changedStyles[style]) {
+                  var response = query.responses.filter(function (r) {
+                    return r.id == lexeme.response.id;
+                  })[0];
+
+                  if (response) {
+                    lexeme.response.styles[style] = response.styles[style];
+                  }
+                }
+              });
+            });
+          }
+        }
+      })
+    );
   },
 
   acceptLexeme: function (lexeme) {

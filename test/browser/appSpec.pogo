@@ -353,6 +353,7 @@ describe 'report'
 
           queries = [
             {
+              id = '1'
               name = 'query1'
               text = 'Where does it hurt?'
 
@@ -377,6 +378,7 @@ describe 'report'
               ]
             }
             {
+              id = '2'
               name = 'query2'
               text = 'Is it bleeding?'
 
@@ -398,6 +400,7 @@ describe 'report'
 
           queries = [
             {
+              id = '3'
               name = 'query3'
               text = 'are you dizzy?'
               predicants = ['dizzy']
@@ -585,6 +588,36 @@ describe 'report'
         shouldHaveQuery 'Is it aching?'!
         selectResponse 'yes'!
         shouldBeFinished()!
+
+      context 'given a existing document with some style changes'
+        beforeEach
+          retry!
+            expect(api.documents.length).to.eql 0
+
+          rootBrowser.newDocumentButton().click!()
+          reportBrowser.reportNameInput().typeIn!("bob's report")
+          shouldHaveQuery 'Where does it hurt?'!
+          selectResponse 'left leg'!
+          shouldHaveQuery 'Is it bleeding?'!
+          response = reportBrowser.query().response('yes')
+          response.editButton().click!()
+          editor = reportBrowser.responseEditor()
+          editor.responseTextEditor('style1').typeInCkEditorHtml!('bleeding badly')
+          editor.okButton().click!()
+          shouldHaveQuery 'Is it aching?'!
+
+          retry!
+            expect(api.documents.length).to.eql 1
+            expect(api.documents.0.lexemes.length).to.eql 2
+
+          window.history.back()
+
+        it 'can create a document, save it, make some changes to the lexicon, '
+          api.queriesById.(1).responses.(0).styles.style1 = 'the left leg '
+
+          rootBrowser.document("bob's report").click!()
+
+          notesShouldBe! "the left leg bleeding badly"
 
   context 'logged in with lexicon with user specific queries'
     beforeEach

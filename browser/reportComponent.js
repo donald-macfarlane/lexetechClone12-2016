@@ -6,7 +6,7 @@ var _ = require('underscore');
 var queryComponent = require('./queryComponent');
 var debugComponent = require('./debugComponent');
 var documentComponent = require('./documentComponent');
-var historyComponent = require('./history');
+var createHistory = require('./history');
 var routes = require('./routes');
 var zeroClipboard = require('plastiq-zeroclipboard');
 var vdomToHtml = require('vdom-to-html');
@@ -48,10 +48,18 @@ module.exports = prototype({
       self.query.setQuery(query);
     }
 
-    this.history = historyComponent({
+    function refresh() {
+      if (self.refresh) {
+        self.refresh();
+      }
+    }
+
+    this.history = createHistory({
       document: options.document,
       queryGraph: options.queryGraph,
-      setQuery: setQuery
+      setQuery: setQuery,
+      refresh: refresh,
+      lexemeApi: options.lexemeApi
     });
 
     this.documentStyle = {

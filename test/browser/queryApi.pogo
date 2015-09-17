@@ -288,6 +288,7 @@ module.exports() =
     clipboard = clipboard
     documents = documents
     users = users
+    queriesById = queriesById
 
     setLexicon(lexicon) =
       lexiconBlocks = lexicon.blocks.map @(b)
