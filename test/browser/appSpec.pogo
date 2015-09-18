@@ -612,12 +612,22 @@ describe 'report'
 
           window.history.back()
 
-        it 'can create a document, save it, make some changes to the lexicon, '
+        it 'reloads the document and updates styles from new lexicon'
           api.queriesById.(1).responses.(0).styles.style1 = 'the left leg '
+
+          retry!
+            expect(api.documents.length).to.eql 1
+            expect(api.documents.0.lexemes.length).to.eql 2
+            expect(api.documents.0.lexemes.0.response.styles.style1).to.equal "Complaint\n---------\nleft leg "
 
           rootBrowser.document("bob's report").click!()
 
           notesShouldBe! "the left leg bleeding badly"
+
+          retry!
+            expect(api.documents.length).to.eql 1
+            expect(api.documents.0.lexemes.length).to.eql 2
+            expect(api.documents.0.lexemes.0.response.styles.style1).to.equal 'the left leg '
 
   context 'logged in with lexicon with user specific queries'
     beforeEach

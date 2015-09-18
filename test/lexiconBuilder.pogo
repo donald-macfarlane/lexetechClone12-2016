@@ -14,10 +14,10 @@ module.exports () =
       predicants = []
     } (q)
 
-    query.responses = [r <- q.responses @or [], buildResponse(r)]
+    query.responses = [r <- q.responses @or [], buildResponse(r, q.id)]
     query
 
-  buildResponse(r) =
+  buildResponse(r, queryId) =
     ++responseId
 
     _.extend {
@@ -27,6 +27,11 @@ module.exports () =
       predicants = []
 
       actions = []
+
+      styles = {
+        style1 = "query #(queryId), response #(responseId), style1"
+        style1 = "query #(queryId), response #(responseId), style2"
+      }
     } (r)
 
   {

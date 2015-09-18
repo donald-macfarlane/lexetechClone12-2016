@@ -23,6 +23,8 @@ module.exports = function simpleLexicon() {
                 {name: 'setVariable', arguments: ['his', 'his']},
                 {name: 'setVariable', arguments: ['he', 'he']}
               ],
+
+              styles: {}
             },
             {
               id: '2',
@@ -34,6 +36,8 @@ module.exports = function simpleLexicon() {
                 {name: 'setVariable', arguments: ['his', 'her']},
                 {name: 'setVariable', arguments: ['he', 'she']}
               ],
+
+              styles: {}
             }
           ]
         },
@@ -49,6 +53,8 @@ module.exports = function simpleLexicon() {
               actions: [
                 {name: 'setVariable', arguments: ['leg', 'left']}
               ],
+
+              styles: {}
             },
             {
               id: '2',
@@ -57,6 +63,8 @@ module.exports = function simpleLexicon() {
               actions: [
                 {name: 'setVariable', arguments: ['leg', 'right']}
               ],
+
+              styles: {}
             }
           ]
         },

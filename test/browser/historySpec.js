@@ -10,6 +10,7 @@ var loopingLexicon = require('../loopingLexicon');
 var substitutingLexicon = require('../substitutingLexicon');
 var Promise = require('bluebird');
 var _ = require('underscore');
+var lexemeApi = require('../../browser/lexemeApi');
 
 describe('history', function () {
   var documentApi;
@@ -42,7 +43,8 @@ describe('history', function () {
           document: document,
           setQuery: function (q) {
             query = q;
-          }
+          },
+          lexemeApi: lexemeApi()
         });
       }
 

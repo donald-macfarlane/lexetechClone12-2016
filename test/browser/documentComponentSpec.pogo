@@ -21,6 +21,7 @@ describe 'document component'
     }
     history = createHistory {
       document = document
+      dontUpdateStyles = true
     }
     docComponent = documentComponent(history: history)
     component = {

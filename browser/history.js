@@ -11,14 +11,63 @@ module.exports = prototype({
     this.index = -1;
     this.queryGraph = options.queryGraph;
     this.lexemeApi = options.lexemeApi;
+    this.dontUpdateStyles = options.dontUpdateStyles;
 
-    this.rebuildHistory().then(function () {
-      self.refresh();
-    });
+    var rebuildPromise = this.rebuildHistory()
+    if (rebuildPromise) {
+      rebuildPromise.then(function (changed) {
+        if (self.refresh) {
+          self.refresh();
+        }
+
+        if (changed) {
+          return self.updateDocument();
+        }
+      });
+    }
 
     this.setQuery = this.setQuery.bind(this);
 
     this.refresh = options.refresh;
+  },
+
+  updateStyles: function () {
+    var self = this;
+    var changed = false;
+
+    var testName = window.mochaTestName;
+
+    return Promise.all(
+      this.document.lexemes.map(function (lexeme) {
+        if (lexeme.response) {
+
+          var unchangedStyles = Object.keys(lexeme.response.styles).filter(function (style) {
+            return !(lexeme.response.changedStyles && lexeme.response.changedStyles[style]);
+          });
+
+          if (unchangedStyles.length > 0) {
+            return self.lexemeApi.query(lexeme.query.id).then(function (query) {
+              Object.keys(lexeme.response.styles).forEach(function (style) {
+                if (!lexeme.response.changedStyles[style]) {
+                  var response = query.responses.filter(function (r) {
+                    return r.id == lexeme.response.id;
+                  })[0];
+
+                  if (response) {
+                    if (lexeme.response.styles[style] != response.styles[style]) {
+                      lexeme.response.styles[style] = response.styles[style];
+                      changed = true;
+                    }
+                  }
+                }
+              });
+            });
+          }
+        }
+      })
+    ).then(function () {
+      return changed;
+    });
   },
 
   rebuildHistory: function () {
@@ -33,32 +82,9 @@ module.exports = prototype({
       this.index = this.document.index;
     }
 
-    return Promise.all(
-      this.document.lexemes.map(function (lexeme) {
-        if (lexeme.response) {
-
-          var unchangedStyles = Object.keys(lexeme.response.styles).filter(function (style) {
-            return !lexeme.response.changedStyles[style];
-          });
-
-          if (unchangedStyles.length > 0) {
-            return self.lexemeApi.query(lexeme.query.id).then(function (query) {
-              Object.keys(lexeme.response.styles).forEach(function (style) {
-                if (!lexeme.response.changedStyles[style]) {
-                  var response = query.responses.filter(function (r) {
-                    return r.id == lexeme.response.id;
-                  })[0];
-
-                  if (response) {
-                    lexeme.response.styles[style] = response.styles[style];
-                  }
-                }
-              });
-            });
-          }
-        }
-      })
-    );
+    if (!this.dontUpdateStyles) {
+      return this.updateStyles();
+    }
   },
 
   acceptLexeme: function (lexeme) {
@@ -229,7 +255,7 @@ module.exports = prototype({
       skip: true
     };
 
-    this.pushLexeme(lexeme, options);
+    return this.pushLexeme(lexeme, options);
   },
 
   addQueryOmit: function (query, context, options) {
@@ -239,7 +265,7 @@ module.exports = prototype({
       omit: true
     };
 
-    this.pushLexeme(lexeme, options);
+    return this.pushLexeme(lexeme, options);
   },
 
   checkedResponses: function () {
