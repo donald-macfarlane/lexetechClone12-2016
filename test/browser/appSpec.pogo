@@ -28,9 +28,9 @@ describe 'report'
   testBrowser = browser.find('.test').component(ckeditorMonkey)
 
   rootBrowser = testBrowser.component {
-    newDocumentButton() = self.find('.button', text = 'New Document')
-    reportTab() = self.find('.ui.button', text = 'Report')
-    authoringTab() = self.find('.top-menu .buttons a', text = 'Authoring')
+    newDocumentButton() = self.find('.button', text = 'NEW DOCUMENT')
+    reportTab() = self.find('.ui.button', text = 'REPORT')
+    authoringTab() = self.find('.top-menu .buttons a', text = 'AUTHORING')
     document(name) =
       self.find(".documents tr.document").containing('.name', text: name).component {
         deleteButton() = self.find('.delete.button')
@@ -44,7 +44,7 @@ describe 'report'
 
   reportBrowser = testBrowser.component {
     reportNameInput() = self.find('input.report-name')
-    undoButton() = self.find('.query .button', text = 'undo')
+    undoButton() = self.find('.query .button', text = 'UNDO')
     acceptButton() = self.find('.button.accept')
     debugTab() = self.find('.tabular .debug')
     normalTab() = self.find('.tabular .style-normal')
@@ -54,7 +54,7 @@ describe 'report'
     document() = documentBrowser.scope(self.find('.document'))
     query() = queryElement.scope(self.find '.query')
     queryText() = self.find('.query-text')
-    responseEditor() = responseEditorElement.scope(self.find('.response-editor'))
+    responseEditor() = self.find('.response-editor').component(responseEditorElement)
   }
 
   debugBrowser = testBrowser.component {
@@ -79,10 +79,10 @@ describe 'report'
     shouldBeChecked() = self.shouldHave!(css = '.checked')
   }
 
-  responseEditorElement = testBrowser.component {
+  responseEditorElement = {
     tab(style) = self.find(".ui.tabular.menu a.item.style-#(style)")
     responseTextEditor(style) = self.find(".tab.style-#(style) .response-text-editor")
-    okButton() = self.find('button', text = 'ok')
+    okButton() = self.find('button', text = 'OK')
     cancelButton() = self.find('button', text = 'cancel')
   }
 
@@ -102,14 +102,14 @@ describe 'report'
       e
 
   shouldHaveQuery(query) =
-    reportBrowser.queryText().shouldHave!(text: query)
+    reportBrowser.queryText().shouldHave!(text: query.toUpperCase())
 
   shouldBeFinished() =
     retry!
       reportBrowser.find('.finished').exists!()
 
   selectResponse(response) =
-    reportBrowser.find ".query .response:contains(#(JSON.stringify(response))) a".click!()
+    reportBrowser.find ".query .response a" (text = response).click!()
 
   notesShouldBe(notes) =
     retry!

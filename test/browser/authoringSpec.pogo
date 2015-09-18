@@ -33,13 +33,13 @@ authoringElement = testBrowser.component {
     }
 
   clipboardTab() =
-    self.find('.tabular a', text = 'Clipboard')
+    self.find('.tabular a', text = 'CLIPBOARD')
 
   blocksTab() =
-    self.find('.tabular a', text = 'Blocks')
+    self.find('.tabular a', text = 'BLOCKS')
     
   predicantsTab() =
-    self.find('.tabular a', text = 'Predicants')
+    self.find('.tabular a', text = 'PREDICANTS')
 
   dropdownMenuItem(name) =
     self.find('ul.dropdown-menu li a', text = name)
@@ -63,7 +63,7 @@ authoringElement = testBrowser.component {
     self.find('button', text = 'Add Query')
 
   addBlockButton() =
-    self.find('.button', text = 'Add Block')
+    self.find('.button', text = 'ADD BLOCK')
 
   closeBlockButton() =
     self.find('button', text = 'Close')
@@ -79,7 +79,7 @@ authoringElement = testBrowser.component {
 }
 
 predicantsMenuComponent = {
-  createButton() = self.find('.button', text = 'Create')
+  createButton() = self.find('.button', text = 'CREATE')
   search() = self.find('input.search')
   searchResults() = self.find('.results')
   searchResult(name) = self.find('.results a', text = name)
@@ -101,11 +101,14 @@ blockMenuItemMonkey = testBrowser.component {
 
 editQueryComponent = {
   name() = self.find('.field.name input')
+  insertBeforeButton() = self.find('button', text = 'INSERT BEFORE')
+  insertAfterButton() = self.find('button', text = 'INSERT AFTER')
   text() = self.find('.field.question textarea')
   level() = self.find('.field.level input')
   predicants() = self.find('.predicants').component(predicantsMonkey)
-  addToClipboardButton() = self.find('button', text = 'Add to Clipboard')
-  overwriteButton() = self.find('button', text = 'Overwrite')
+  addToClipboardButton() = self.find('button', text = 'ADD TO CLIPBOARD')
+  overwriteButton() = self.find('button', text = 'OVERWRITE')
+  deleteButton() = self.find('button', text = 'DELETE')
 }
 
 predicantsMonkey = {
@@ -118,7 +121,7 @@ clipboardItem = {
 }
 
 responsesElement = testBrowser.component {
-  addResponseButton() = self.find('button', text = 'Add Response')
+  addResponseButton() = self.find('button', text = 'ADD RESPONSE')
   selectedResponse() = responseElement.scope(self.find('.selected-response'))
 }
 
@@ -134,7 +137,7 @@ responseElement = testBrowser.component {
 
 actionsElement = testBrowser.component {
   action(name) = self.find('.dropdown .menu .item', text = name)
-  addActionButton() = self.find('.button', text = 'Add Action')
+  addActionButton() = self.find('.button', text = 'ADD ACTION')
 }
 
 describe 'authoring'
@@ -197,7 +200,7 @@ describe 'authoring'
         page.addBlockButton().click!()
         page.createBlockButton().shouldExist!()
 
-        page.blockName().shouldHave(value = '')!
+        page.blockName().shouldHave(exactValue = '')!
 
         page.blockName().typeIn!('xyz')
         page.createBlockButton().click!()
@@ -467,12 +470,9 @@ describe 'authoring'
 
         page.find('.block-query-menu').shouldHaveElement! @(menu)
           menuTop = $(menu).offset().top
-          console.log('menu top', menuTop)
 
           menuItem = page.queryMenuItem('block 26', 'query 12').link().element()!
           menuItemTop = $(menuItem).offset().top
-          console.log('menu item top', menuItemTop)
-          console.log('difference', menuItemTop - menuTop)
 
           expect(menuItemTop - menuTop).to.be.within(30, 80)
 
@@ -531,7 +531,7 @@ describe 'authoring'
         page.blockMenuItem('one').expand().click!()
         page.queryMenuItem('one', 'query 1').link().click!()
         page.editQuery().name().typeIn!('query 1 (updated)')
-        page.editQuery().find('button', text = 'Overwrite').click!()
+        page.editQuery().overwriteButton().click!()
 
         page.queryMenuItem('one', 'query 1 (updated)').exists!()
 
@@ -545,7 +545,7 @@ describe 'authoring'
         responses.addResponseButton().click!()
         newResponse = responses.selectedResponse()
         newResponse.responseSelector().typeIn!('response 2')
-        page.editQuery().find('button', text = 'Overwrite').click!()
+        page.editQuery().overwriteButton().click!()
 
         retry!
           actual = [r <- api.lexicon().blocks.0.queries.0.responses, {id = r.id, text = r.text}]
@@ -564,7 +564,7 @@ describe 'authoring'
         page.blockMenuItem('one').expand().click!()
         page.queryMenuItem('one', 'query 1').link().click!()
         page.editQuery().name().typeIn!('query 2 (before 1)')
-        page.editQuery().find('button', text = 'Insert Before').click!()
+        page.editQuery().insertBeforeButton().click!()
 
         page.queryMenuItem('one', 'query 2 (before 1)').exists!()
         page.queryMenuItem('one', 'query 1').exists!()
@@ -577,7 +577,7 @@ describe 'authoring'
         page.blockMenuItem('one').expand().click!()
         page.queryMenuItem('one', 'query 1').link().click!()
         page.editQuery().name().typeIn!('query 2 (after 1)')
-        page.editQuery().find('button', text = 'Insert After').click!()
+        page.editQuery().insertAfterButton().click!()
 
         page.queryMenuItem('one', 'query 2 (after 1)').exists!()
         page.queryMenuItem('one', 'query 1').exists!()
@@ -589,7 +589,7 @@ describe 'authoring'
       it 'can delete a query'
         page.blockMenuItem('one').expand().click!()
         page.queryMenuItem('one', 'query 1').link().click!()
-        page.editQuery().find('button', text = 'Delete').click!()
+        page.editQuery().deleteButton().click!()
 
         page.queryMenuItem('one', 'query 1').shouldNotExist!()
 

@@ -8,7 +8,7 @@ rootComponent = require '../../browser/rootComponent'
 testBrowser = browser.scope '.test'
 
 app = testBrowser.component {
-  adminTab() = self.find('.top-menu a', text = 'Admin')
+  adminTab() = self.find('.top-menu a', text = 'ADMIN')
 }
 
 admin = testBrowser.component {
@@ -23,8 +23,8 @@ user = testBrowser.component {
   tokenLink() = self.find('form.user .token-link')
   familyName() = self.find('form.user .family-name input')
   email() = self.find('form.user .email input')
-  saveButton() = self.find('form.user .button:not(.disabled)', text = 'Save')
-  createButton() = self.find('form.user .button:not(.disabled)', text = 'Create')
+  saveButton() = self.find('form.user .button:not(.disabled)', text = 'SAVE')
+  createButton() = self.find('form.user .button:not(.disabled)', text = 'CREATE')
 }
 
 describe 'admin'

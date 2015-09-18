@@ -60,7 +60,7 @@ describe 'document component'
           response = { styles = { style1 = '<p>, two</p>' } }
         }
       ]
-      documentBrowser.document().shouldHave! { text = 'onetwo' }
+      documentBrowser.document().shouldHave! { text = "one\ntwo" }
 
   describe 'variables'
     it 'substitutes variables, forward and back'

@@ -35,8 +35,6 @@ module.exports = prototype({
     var self = this;
     var changed = false;
 
-    var testName = window.mochaTestName;
-
     return Promise.all(
       this.document.lexemes.map(function (lexeme) {
         if (lexeme.response) {
