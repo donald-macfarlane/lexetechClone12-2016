@@ -149,7 +149,9 @@ function authStatus(user) {
 
 function footer(model) {
   return h('footer',
-    'LEXeNOTES is  the registered trademark of Lexeme Technologies LLC. Copyright 2015 Lexeme Technologies LLC. All rights protected. US Patent #8,706,680.'
+    'LEXeNOTES is  the registered trademark of Lexeme Technologies LLC.',
+    h('br'),
+    'Copyright 2015 Lexeme Technologies LLC. All rights protected. US Patent #8,706,680.'
   );
 }
 
