@@ -9,9 +9,9 @@ var routes = require('./routes');
 var buildGraph = require('./buildGraph');
 var lexemeApi = require('./lexemeApi');
 var documentsComponent = require('./documentsComponent');
-var throttle = require('plastiq-throttle');
 var adminComponent = require('./adminComponent');
 var authoringComponent = require('./routes/authoring/blocks/block');
+var http = require('./http');
 
 var rootComponent = prototype({
   constructor: function (pageData) {
@@ -167,50 +167,62 @@ var rootComponent = prototype({
       return self.documentsComponent.loadDocuments();
     }
 
-    return layoutComponent(self, whenLoggedIn(function () {
-      return [
-        routes.report.under(
-          {
-            documentId: {
-              set: function (docId) {
-                return self.openDocumentById(docId);
-              }
-            },
-          },
-          function () {
-            if (self.documentNotFound) {
-              return h('h1.center', "Very sorry! We couldn't find this document.");
-            } else if (self.report) {
-              return [
-                routes.report(function () {
-                  return self.report.render();
-                }),
-                routes.printReport(function () {
-                  return self.report.renderPrint();
-                })
-              ];
-            } else {
-              return h('h1.center', 'loading');
-            }
+    return h.component(
+      {
+        on: function (eventType, handler) {
+          return function () {
+            http.extendSession();
+            return handler.apply(this, arguments);
           }
-        ),
-        routes.root({onarrival: refreshDocuments}, function () {
-          return self.documentsComponent.render();
-        }),
-        routes.admin(adminAuth(function () {
-          return self.admin.render();
-        })),
-        routes.adminUser(adminAuth(function (params) {
-          return self.admin.render(params.userId);
-        })),
-        routes.authoring.under(authorAuth(function () {
-          return self.authoringComponent().render();
-        })),
-        routes.resetPassword(function () {
-          return h('h1', 'you have already logged in');
-        })
-      ];
-    }));
+        }
+      },
+      function () {
+        return layoutComponent(self, whenLoggedIn(function () {
+          return [
+            routes.report.under(
+              {
+                documentId: {
+                  set: function (docId) {
+                    return self.openDocumentById(docId);
+                  }
+                },
+              },
+              function () {
+                if (self.documentNotFound) {
+                  return h('h1.center', "Very sorry! We couldn't find this document.");
+                } else if (self.report) {
+                  return [
+                    routes.report(function () {
+                      return self.report.render();
+                    }),
+                    routes.printReport(function () {
+                      return self.report.renderPrint();
+                    })
+                  ];
+                } else {
+                  return h('h1.center', 'loading');
+                }
+              }
+            ),
+            routes.root({onarrival: refreshDocuments}, function () {
+              return self.documentsComponent.render();
+            }),
+            routes.admin(adminAuth(function () {
+              return self.admin.render();
+            })),
+            routes.adminUser(adminAuth(function (params) {
+              return self.admin.render(params.userId);
+            })),
+            routes.authoring.under(authorAuth(function () {
+              return self.authoringComponent().render();
+            })),
+            routes.resetPassword(function () {
+              return h('h1', 'you have already logged in');
+            })
+          ];
+        }));
+      }
+    );
   }
 });
 

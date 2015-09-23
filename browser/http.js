@@ -1,5 +1,6 @@
 var inactivityTimeout = require('../server/inactivityTimeout');
 var httpism = require('httpism');
+var _ = require('underscore');
 
 var http = httpism.api([
   function (req, next) {
@@ -25,6 +26,11 @@ http.onError = function (handler) {
 var timer = makeTimer(function () {
   http.onInactivity();
 }, inactivityTimeout.timeout - 2000);
+
+http.extendSession = _.throttle(function () {
+  timer.start();
+  httpism.post('/stayalive');
+}, 500, {leading: false});
 
 function makeTimer(callback, duration) {
   var timeout;

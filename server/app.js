@@ -152,6 +152,10 @@ function page(req, js) {
 
 app.use(printReport);
 
+app.post('/stayalive', function (req, res) {
+  res.send();
+});
+
 app.get("*", function(req, res) {
   res.render("index.html", page(req, "/app.js"));
 });
