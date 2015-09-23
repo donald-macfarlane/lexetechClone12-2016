@@ -95,7 +95,7 @@ QueryComponent.prototype.renderResponse = function (response) {
         h(".field.selector",
           h("label", "Selector"),
           h('.ui.input',
-            h("input", {binding: self.dirtyBinding(response, 'text'), onfocus: select})
+            h("input", {type: 'text', binding: self.dirtyBinding(response, 'text'), onfocus: select})
           )
         ),
         h(".field.set-level",
