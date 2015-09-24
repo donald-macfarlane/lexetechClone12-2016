@@ -79,7 +79,7 @@ QueryComponent.prototype.renderResponse = function (response) {
     if (editing) {
       return responseHtmlEditor({ class: 'editor', binding: self.dirtyBinding(response.styles, style)});
     } else {
-      return h.rawHtml('div.editor', response.styles[style]);
+      return h.rawHtml('div.editor', response.styles[style] || '&nbsp;');
     }
   }
 
@@ -320,267 +320,239 @@ QueryComponent.prototype.renderActions = function(actions) {
     self.dirty();
   }
 
-  function addActionClick(createAction) {
+  function addActionClick(actionId, action) {
     return function(ev) {
-      var action;
-      action = createAction();
-      addAction(action);
+      addAction({
+        name: actionId,
+        arguments: action.createArguments && action.createArguments() || []
+      });
       ev.preventDefault();
     };
   }
+
+  var existingActionNames = _.indexBy(actions, 'name');
 
   var hasRepeat = actions.filter(function (a) { return a.name == 'repeatLexeme'; }).length > 0;
   var hasSetOrAddBlocks = actions.filter(function (a) {
     return a.name == 'setBlocks' || a.name == 'addBlocks';
   }).length > 0;
 
-  return h("div",
-    h("ol",
-      actions.map(function (action) {
-        function remove() {
-          removeAction(action);
-        }
-        return self.renderAction(action, remove);
-      })
-    ),
+  function actionMenuItem(actionId, action) {
+    return menuItem(
+      {
+        onclick: addActionClick(actionId, action)
+      },
+      action.name
+    );
+  }
+
+  var actionDefinitionList = Object.keys(actionDefinitions).map(function (key) {
+    return {
+      id: key,
+      definition: actionDefinitions[key]
+    };
+  });
+
+  return [
     semanticUi.dropdown(
       h('.ui.floating.dropdown.icon.button',
         h('i.dropdown', 'Add Action'),
         h('.menu',
-          !hasRepeat && !hasSetOrAddBlocks
-            ? menuItem({
-                onclick: addActionClick(function() {
-                  return {
-                    name: "setBlocks",
-                    arguments: []
-                  };
-                })
-              }, "Set Blocks")
-            : undefined,
-
-          !hasRepeat && !hasSetOrAddBlocks
-            ? menuItem({
-                onclick: addActionClick(function() {
-                  return {
-                    name: "addBlocks",
-                    arguments: []
-                  };
-                })
-              }, "Add Blocks")
-            : undefined,
-
-          menuItem(
-            {
-              onclick: addActionClick(function() {
-                return {
-                  name: "repeatLexeme",
-                  arguments: []
-                };
-              })
-            },
-            "Repeat"
-          ),
-          menuItem(
-            {
-              onclick: addActionClick(function() {
-                return {
-                  name: "setVariable",
-                  arguments: [ "", "" ]
-                };
-              })
-            },
-            "Set Variable"
-          ),
-          menuItem(
-            {
-              onclick: addActionClick(function() {
-                return {
-                  name: "suppressPunctuation",
-                  arguments: []
-                };
-              })
-            },
-            "Suppress Punctuation"
-          ),
-          menuItem(
-            {
-              onclick: addActionClick(function() {
-                return {
-                  name: "loadFromFile",
-                  arguments: []
-                };
-              })
-            },
-            "Load from File"
-          ),
-          menuItem(
-            {
-              onclick: addActionClick(function() {
-                return {
-                  name: "loopBack",
-                  arguments: []
-                };
-              })
-            },
-            "Loop Back"
-          )
+          actionDefinitionList.filter(function (action) {
+            if (!existingActionNames[action.id]) {
+              if (action.definition.incompatibleWith) {
+                return !action.definition.incompatibleWith.some(function (incompatible) {
+                  return existingActionNames[incompatible];
+                });
+              } else {
+                return true;
+              }
+            }
+          }).map(function (action) {
+            return actionMenuItem(action.id, action.definition);
+          })
         )
       )
+    ),
+    h(".ui.fluid.vertical.menu",
+      actions.map(function (action) {
+        function remove() {
+          removeAction(action);
+        }
+
+        if (action.name != 'none') {
+          var actionDefinition = actionDefinitions[action.name];
+          return self.renderAction(actionDefinition, action, remove);
+        }
+      })
     )
-  );
+  ];
 };
 
-QueryComponent.prototype.renderAction = function(action, removeAction) {
-  var self = this;
-
-  function removeButton() {
-    return h("div.buttons",
-      h("button.remove-action", {
-        onclick: removeAction
-      }, "Remove")
-    );
+function renderBlocksAction(component, action) {
+  function setArguments(blockIds) {
+    action.arguments.splice(0, action.arguments.length);
+    action.arguments.push.apply(action.arguments, blockIds.filter(function (id) { return component.blocks[id]; }));
+    component.dirty();
   }
 
-  function blocks(name, $class) {
-    function setArguments(blockIds) {
-      action.arguments.splice(0, action.arguments.length);
-      action.arguments.push.apply(action.arguments, blockIds.filter(function (id) { return self.blocks[id]; }));
-      self.dirty();
-    }
-
-    function removeBlock(block) {
-      removeFromArray(block.id, action.arguments);
-      self.dirty();
-    }
-
-    function itemMoved(from, to) {
-      moveItemInFromTo(action.arguments, from, to);
-      self.dirty();
-    }
-
-    var filterBlocksConversion = {
-      view: function (numbers) {
-        return numbers;
-      },
-
-      model: function (numbers) {
-        return numbers.filter(function (n) { return self.blocks[n]; });
-      }
-    };
-
-    var numberArray = {
-      view: function (numbers) {
-        return numbers.map(Number);
-      },
-
-      model: function (numbers) {
-        return numbers.map(String);
-      }
-    };
-
-    return h('li', {class: $class},
-      h('h4', name),
-      self.blocks
-        ? [
-            h('input', {type: 'text', placeholder: 'e.g. 1,3,5-10', binding: self.dirtyBinding(action, 'arguments', numberArray, filterBlocksConversion, rangeConversion)}),
-            sortable('ol',
-              {
-                onitemmoved: function (item, from, to) {
-                  self.dirty();
-                }
-              },
-              action.arguments,
-              function (id) {
-                var b = self.blocks[id];
-
-                function remove() {
-                  removeBlock(b);
-                }
-
-                return h("li",
-                  h("span", blockName(b)),
-                  h.rawHtml("button.remove-block.remove",
-                    { onclick: remove },
-                    "&cross;"
-                  )
-                );
-              }
-            ),
-            itemSelect({
-              itemAdded: self.dirty.bind(self),
-              itemRemoved: self.dirty.bind(self),
-              selectedItems: action.arguments,
-              items: self.blocks,
-              renderItemText: blockName,
-              placeholder: "add block"
-            })
-          ]
-        : undefined,
-      removeButton()
-    );
+  function removeBlock(block) {
+    removeFromArray(block.id, action.arguments);
+    component.dirty();
   }
 
-  var renderAction = {
-    setBlocks: function(action) {
-      return blocks("Set Blocks", "action-set-blocks");
+  function itemMoved(from, to) {
+    moveItemInFromTo(action.arguments, from, to);
+    component.dirty();
+  }
+
+  var filterBlocksConversion = {
+    view: function (numbers) {
+      return numbers;
     },
 
-    addBlocks: function(action) {
-      return blocks("Add Blocks", "action-add-blocks");
+    model: function (numbers) {
+      return numbers.filter(function (n) { return component.blocks[n]; });
+    }
+  };
+
+  var numberArray = {
+    view: function (numbers) {
+      return numbers.map(Number);
     },
 
-    setVariable: function(action) {
-      return h("li",
-        h("h4", "Set Variable"),
-        h("ul",
-          h("li",
-            h("label", "Name"),
-            h("input",
-              {
-                type: "text",
-                binding: self.dirtyBinding(action, 0)
+    model: function (numbers) {
+      return numbers.map(String);
+    }
+  };
+
+  if (component.blocks) {
+    return [
+      h('.field .input',
+        h('input', {type: 'text', placeholder: 'e.g. 1,3,5-10', binding: component.dirtyBinding(action, 'arguments', numberArray, filterBlocksConversion, rangeConversion)})
+      ),
+      action.arguments.length > 0
+      ? h('.field',
+          sortable('.ui.menu',
+            {
+              onitemmoved: function (item, from, to) {
+                component.dirty();
               }
-            )
-          ),
-          h("li",
-            h("label","Value"),
-            h("input",
-              {
-                type: "text",
-                binding: self.dirtyBinding(action, 1)
+            },
+            action.arguments,
+            function (id) {
+              var b = component.blocks[id];
+
+              function remove() {
+                removeBlock(b);
               }
-            )
+
+              return h(".item",
+                h("span", blockName(b)),
+                h.rawHtml("button.label.red.ui.remove-block.small.remove",
+                  { onclick: remove },
+                  "&cross;"
+                )
+              );
+            }
+          )
+        )
+      : undefined,
+      h('.field',
+        itemSelect({
+          itemAdded: component.dirty.bind(component),
+          itemRemoved: component.dirty.bind(component),
+          selectedItems: action.arguments,
+          items: component.blocks,
+          renderItemText: blockName,
+          placeholder: "add block"
+        })
+      )
+    ];
+  }
+}
+
+var actionDefinitions = {
+  setBlocks: {
+    name: 'Set Blocks',
+
+    incompatibleWith: ['repeatLexeme', 'addBlocks'],
+
+    render: function(component, action) {
+      return renderBlocksAction(component, action);
+    }
+  },
+
+  addBlocks: {
+    name: 'Add Blocks',
+
+    incompatibleWith: ['repeatLexeme', 'setBlocks'],
+
+    render: function(component, action) {
+      return renderBlocksAction(component, action);
+    }
+  },
+
+  setVariable: {
+    name: 'Set Variable',
+
+    createArguments: function() {
+      return ['', ''];
+    },
+
+    render: function(component, action) {
+      return [
+        h(".field",
+          h("label", "Name"),
+          h(".ui.input input",
+            {
+              type: "text",
+              binding: component.dirtyBinding(action.arguments, 0)
+            }
           )
         ),
-        removeButton()
-      );
-    },
-
-    repeatLexeme: function(action) {
-      return h("li",
-        h("h4", "Repeat Lexeme"),
-        removeButton()
-      );
-    },
-
-    suppressPunctuation: function(action) {
-      return h("li",
-        h("h4", "Suppress Punctuation"),
-        removeButton()
-      );
-    },
-
-    loadFromFile: function(action) {
-      return h("li",
-        h("h4", "Load from File"),
-        removeButton()
-      );
+        h(".field",
+          h("label","Value"),
+          h(".ui.input input",
+            {
+              type: "text",
+              binding: component.dirtyBinding(action.arguments, 1)
+            }
+          )
+        )
+      ];
     }
-  }[action.name];
+  },
 
-  if (renderAction) {
-    return renderAction.call(self, action);
+  repeatLexeme: {
+    name: 'Repeat Lexeme',
+
+    incompatibleWith: ['addBlocks', 'setBlocks']
+  },
+
+  suppressPunctuation: {
+    name: 'Suppress Punctuation'
+  },
+
+  loopBack: {
+    name: 'Loop Back'
   }
+};
+
+QueryComponent.prototype.renderAction = function(actionDefinition, action, removeAction) {
+  var self = this;
+
+  function removeActionButton() {
+    return h("button.ui.label.red.remove.remove-action", {
+      onclick: removeAction
+    }, "Remove")
+  }
+
+  return h('.item',
+    h('h4.ui.header', actionDefinition.name),
+    actionDefinition.render? actionDefinition.render(this, action): undefined,
+    removeActionButton()
+  );
 };
 
 QueryComponent.prototype.renderPredicants = function(predicantIds) {
@@ -601,7 +573,7 @@ QueryComponent.prototype.renderPredicants = function(predicantIds) {
 
       return routes.authoringPredicant({predicantId: p.id}).link({class: 'item'},
         p.name,
-        h.rawHtml("button.label.red.ui.remove-predicant.remove",
+        h.rawHtml("button.label.red.ui.remove-predicant.small.remove",
           {
             onclick: remove
           },

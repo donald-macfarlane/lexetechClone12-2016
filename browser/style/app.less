@@ -671,16 +671,21 @@ hr {
   margin: 20px;
 }
 
+.edit-query, .edit-block {
+  .input, .field {
+    > input[type=text], > textarea {
+      font-family: courier !important;
+    }
+  }
+}
+
 .edit-lexicon {
   display: -webkit-flex;
   display: flex;
   margin-bottom: 100vh;
 
-  .input, .field {
-    > input[type=text], > textarea {
-      font-family: courier !important;
-      padding: 2px 8px;
-    }
+  input[type=text], textarea {
+    padding: 2px 8px !important;
   }
   
   > * {
@@ -778,6 +783,8 @@ hr {
   .editor {
     &:extend(.ui.form textarea);
     &:extend(.edit-lexicon .ui.form textarea);
+
+    padding: 2px 8px;
   }
 
   .editor > *:last-child {
@@ -855,7 +862,6 @@ hr {
     }
 
     .item > .header {
-      padding-left: 5px;
       a {
         padding: 3px;
         font-size: 12px;
@@ -1037,53 +1043,50 @@ hr {
 
 .edit-query {
   .actions {
-    > div {
-      display: inline-block;
-      vertical-align: top;
-      margin-top: 5px;
+    .menu {
+      > .item {
+        padding: 9px;
+      }
+    }
+  }
 
-      & > ol, & > ul {
-        list-style-type: none;
-        padding-left: 0;
-        margin: 0;
+  .menu {
+    > .item {
+      > .remove {
+        display: none;
+        position: absolute;
+        top: 2px;
 
-        > li {
-          padding: 6px 0;
-          border-bottom: 1pt solid rgb(235, 235, 218);
-          position: relative;
+        padding: 3px 9px;
+        border-top-left-radius: 0;
 
-          &:first-child {
-            padding-top: 0;
-          }
+        &.small {
+          bottom: 2px;
+          border-bottom-left-radius: 0;
+        }
 
-          > h4 {
-            margin: 0;
-          }
-
-          &> ul, &> ol {
-            list-style-type: none;
-            padding: 4px 0;
-
-            > li {
-              padding: 2px 3px;
-              position: relative;
-              font-weight: 200;
-            }
-          }
+        &:not(.small) {
+          border-bottom-right-radius: 0;
         }
       }
 
-      label {
-        font-size: 13px;
-        font-weight: 200;
-      }
-
-      .action-set-gender {
-        label {
-          min-width: initial;
+      &:hover {
+        > .remove {
+          display: inline-block;
         }
       }
 
+      &:not(:first-child) {
+        > .remove {
+          border-top-right-radius: 0;
+        }
+      }
+
+      &:not(:last-child) {
+        > .remove {
+          border-bottom-right-radius: 0;
+        }
+      }
     }
   }
 
@@ -1091,27 +1094,16 @@ hr {
     display: inline-block;
     vertical-align: top;
     width: 100%;
-
-    .menu {
-      .item {
-        .remove {
-          display: none;
-          right: 5px;
-        }
-
-        &:hover {
-          .remove {
-            display: inline-block;
-          }
-        }
-      }
-    }
   }
 
   .two.fields {
     .item-select {
       width:100%;
     }
+  }
+
+  .menu .item {
+    padding: 2px 4px;
   }
 
   .item-select {
