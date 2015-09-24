@@ -281,6 +281,10 @@ module.exports() =
       }
     }
 
+  router.post '/stayalive'
+    {
+    }
+
   {
     blocks = blocks
     predicants = predicants

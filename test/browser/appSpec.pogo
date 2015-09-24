@@ -18,6 +18,7 @@ substitutingLexicon = require '../substitutingLexicon'
 punctuationLexicon = require '../punctuationLexicon'
 predicantLexicon = require '../predicantLexicon'
 ckeditorMonkey = require './ckeditorMonkey'
+hardstop = require './hardstop'
 
 describe 'report'
   div = nil
@@ -87,10 +88,14 @@ describe 'report'
   }
 
   beforeEach
+    hardstop.start()
     div := createTestDiv()
     api := queryApi()
     lexicon := lexiconBuilder()
     originalLocation := location.pathname + location.search + location.hash
+
+  afterEach
+    hardstop.stop()
 
   after
     mountApp.stop()
