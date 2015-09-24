@@ -679,6 +679,7 @@ hr {
   .input, .field {
     > input[type=text], > textarea {
       font-family: courier !important;
+      padding: 2px 8px;
     }
   }
   
@@ -1089,6 +1090,7 @@ hr {
   div.predicants {
     display: inline-block;
     vertical-align: top;
+    width: 100%;
 
     .menu {
       .item {
@@ -1106,6 +1108,12 @@ hr {
     }
   }
 
+  .two.fields {
+    .item-select {
+      width:100%;
+    }
+  }
+
   .item-select {
     display: inline-block;
 
@@ -1113,7 +1121,6 @@ hr {
       &::-webkit-input-placeholder { color: rgba(94, 90, 67, 0.28); }
       &::-moz-placeholder { color: rgba(94, 90, 67, 0.28); }
       outline: none;
-      width: 200px;
     }
 
     div.select-list {

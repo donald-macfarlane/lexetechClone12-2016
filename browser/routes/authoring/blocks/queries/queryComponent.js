@@ -217,10 +217,16 @@ QueryComponent.prototype.render = function () {
         ]
     ),
     h(".ui.form",
-      h(".field.name", { key: "name" },
-        h("label", "Name"),
-        h('.ui.input',
-          h("input", { type: "text", binding: self.dirtyBinding(self.query, 'name') })
+      h('.two.fields',
+        h(".field.name", { key: "name" },
+          h("label", "Name"),
+          h('.ui.input',
+            h("input", { type: "text", binding: self.dirtyBinding(self.query, 'name') })
+          )
+        ),
+        h(".field.level", { key: "level" },
+          h("label", "Level"),
+          self.numberInput(self.query, "level")
         )
       ),
       h(".field.question", { key: "qtext" },
@@ -229,13 +235,9 @@ QueryComponent.prototype.render = function () {
           binding: self.dirtyBinding(self.query, 'text')
         })
       ),
-      h('.two.fields',
-        h(".field.level", { key: "level" },
-          h("label", "Level"),
-          self.numberInput(self.query, "level")
-        ),
-        h(".field",
-          h("label", "Predicants Needed"),
+      h(".field",
+        h("label", "Predicants Needed"),
+        h(".two.fields.predicants",
           self.renderPredicants(self.query.predicants)
         )
       ),
@@ -581,18 +583,16 @@ QueryComponent.prototype.renderAction = function(action, removeAction) {
   }
 };
 
-QueryComponent.prototype.renderPredicants = function(predicants) {
+QueryComponent.prototype.renderPredicants = function(predicantIds) {
   var self = this;
 
   function removePredicant(predicant) {
-    removeFromArray(predicant.id, predicants);
+    removeFromArray(predicant.id, predicantIds);
     self.dirty();
   }
 
   if (self.predicants.loaded) {
-    function renderPredicant(id) {
-      var p = self.predicants.predicantsById[id];
-
+    function renderPredicant(p) {
       function remove(ev) {
         removePredicant(p);
         ev.stopPropagation();
@@ -610,17 +610,27 @@ QueryComponent.prototype.renderPredicants = function(predicants) {
       );
     }
 
-    return h("div.predicants",
-      itemSelect({
-        key: 'predicant-select',
-        itemAdded: self.dirty.bind(self),
-        itemRemoved: self.dirty.bind(self),
-        selectedItems: predicants,
-        items: self.predicants.predicantsById,
-        placeholder: "add predicant"
-      }),
-      predicants.length? h(".ui.vertical.menu.results", predicants.map(renderPredicant)): undefined
-    );
+    var predicants = _.sortBy(predicantIds.map(function (id) {
+      return self.predicants.predicantsById[id];
+    }), function (p) {
+      return p.name.toLowerCase();
+    });
+
+    return [
+      h('.field',
+        itemSelect({
+          key: 'predicant-select',
+          itemAdded: self.dirty.bind(self),
+          itemRemoved: self.dirty.bind(self),
+          selectedItems: predicantIds,
+          items: self.predicants.predicantsById,
+          placeholder: "add predicant"
+        })
+      ),
+      h('.field',
+        predicants.length? h(".ui.vertical.menu.results", predicants.map(renderPredicant)): undefined
+      )
+    ];
   }
 };
 
