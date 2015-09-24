@@ -548,7 +548,7 @@ QueryComponent.prototype.renderAction = function(actionDefinition, action, remov
     }, "Remove")
   }
 
-  return h('.item',
+  return h('.item.action-' + action.name.replace(/[A-Z]/g, function (c) { return '-' + c.toLowerCase(); }),
     h('h4.ui.header', actionDefinition.name),
     actionDefinition.render? actionDefinition.render(this, action): undefined,
     removeActionButton()

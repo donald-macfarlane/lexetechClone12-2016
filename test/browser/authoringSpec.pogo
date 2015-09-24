@@ -228,7 +228,7 @@ describe 'authoring'
         actions = newResponse.actions()
         actions.addActionButton().click!()
         actions.action('Set Blocks').click!()
-        actions.find('ol li.action-set-blocks .select-list .menu .item', text = 'abcd').click!()
+        actions.find('.menu .item.action-set-blocks .select-list .menu .item', text = 'abcd').click!()
 
         page.find('.edit-query button', text = 'Create').click!()
 
