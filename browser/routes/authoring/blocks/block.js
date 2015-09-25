@@ -70,7 +70,8 @@ BlockComponent.prototype.loadQuery = function (queryId, creatingQuery) {
         insertQueryAfter: this.insertQueryAfter.bind(this),
         pasteQueryFromClipboard: this.pasteQueryFromClipboard.bind(this),
         addToClipboard: this.addToClipboard.bind(this)
-      }
+      },
+      blocks: this
     });
   } else {
     delete this.queryComponent;
@@ -161,8 +162,12 @@ BlockComponent.prototype.loadBlocks = function() {
   self.blocksLoaded = false;
 
   function getBlocks() {
+    console.log('here again');
     return http.get("/api/blocks").then(function(response) {
       var blocks = response.body;
+
+      self.blocksById = _.indexBy(response.body, "id");
+
       return blocks.map(function (b) {
         return self.createBlock(b);
       });

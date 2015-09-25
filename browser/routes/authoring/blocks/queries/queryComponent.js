@@ -28,16 +28,7 @@ function QueryComponent(options) {
   this.blockId = options.blockId;
   this.predicants = options.predicants;
   this.lastResponseId = 0;
-
-  function loadBlocks() {
-    return http.get("/api/blocks").then(function(response) {
-      return _.indexBy(response.body, "id");
-    });
-  }
-
-  loadBlocks().then(function (blocks) {
-    self.blocks = blocks;
-  });
+  this.blocks = options.blocks;
 
   if (!this.predicants.loaded) {
     this.predicants.load().then(function () {
@@ -392,7 +383,7 @@ QueryComponent.prototype.renderActions = function(actions) {
 function renderBlocksAction(component, action) {
   function setArguments(blockIds) {
     action.arguments.splice(0, action.arguments.length);
-    action.arguments.push.apply(action.arguments, blockIds.filter(function (id) { return component.blocks[id]; }));
+    action.arguments.push.apply(action.arguments, blockIds.filter(function (id) { return component.blocks.blocksById[id]; }));
     component.dirty();
   }
 
@@ -412,7 +403,7 @@ function renderBlocksAction(component, action) {
     },
 
     model: function (numbers) {
-      return numbers.filter(function (n) { return component.blocks[n]; });
+      return numbers.filter(function (n) { return component.blocks.blocksById[n]; });
     }
   };
 
@@ -426,7 +417,7 @@ function renderBlocksAction(component, action) {
     }
   };
 
-  if (component.blocks) {
+  if (component.blocks.blocksById) {
     return [
       h('.field .input',
         h('input', {type: 'text', placeholder: 'e.g. 1,3,5-10', binding: component.dirtyBinding(action, 'arguments', numberArray, filterBlocksConversion, rangeConversion)})
@@ -441,7 +432,7 @@ function renderBlocksAction(component, action) {
             },
             action.arguments,
             function (id) {
-              var b = component.blocks[id];
+              var b = component.blocks.blocksById[id];
 
               function remove() {
                 removeBlock(b);
@@ -463,7 +454,7 @@ function renderBlocksAction(component, action) {
           itemAdded: component.dirty.bind(component),
           itemRemoved: component.dirty.bind(component),
           selectedItems: action.arguments,
-          items: component.blocks,
+          items: component.blocks.blocksById,
           renderItemText: blockName,
           placeholder: "add block"
         })
