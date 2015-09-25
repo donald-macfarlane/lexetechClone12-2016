@@ -365,18 +365,18 @@ QueryComponent.prototype.renderActions = function(actions) {
         )
       )
     ),
-    h(".ui.fluid.vertical.menu",
-      actions.map(function (action) {
-        function remove() {
-          removeAction(action);
-        }
+    actions.length
+    ?  h(".ui.fluid.vertical.menu",
+        actions.map(function (action) {
+          function remove() {
+            removeAction(action);
+          }
 
-        if (action.name != 'none') {
           var actionDefinition = actionDefinitions[action.name];
           return self.renderAction(actionDefinition, action, remove);
-        }
-      })
-    )
+        })
+      )
+    : undefined
   ];
 };
 

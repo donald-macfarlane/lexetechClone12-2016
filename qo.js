@@ -248,3 +248,25 @@ task('less-vars definition.less', function (args) {
     console.log();
   });
 });
+
+task('remove-none-actions', function (args) {
+  var file = args[0];
+
+  var json = require('./' + file);
+
+  return fs.writeFile(file + '.old', JSON.stringify(json, null, 2)).then(function () {
+    json.blocks.forEach(function (block) {
+      block.queries.forEach(function (query) {
+        query.responses.forEach(function (response) {
+          response.actions = response.actions.filter(function (action) {
+            return action.name != 'none';
+          });
+        });
+      });
+    });
+
+    return fs.writeFile(file + '.new', JSON.stringify(json, null, 2)).then(function () {
+      return shell('diff ' + file + '.old ' + file + '.new | less');
+    });
+  });
+});
