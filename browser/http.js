@@ -34,7 +34,7 @@ var timer = makeTimer(function () {
 http.extendSession = _.throttle(function () {
   timer.start();
   httpism.post('/stayalive');
-}, 500, {leading: false});
+}, 60000, {leading: false});
 
 function makeTimer(callback, duration) {
   var timeout;
