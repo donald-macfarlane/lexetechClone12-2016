@@ -10,8 +10,12 @@ var http = httpism.api([
       return next();
     } else {
       return next().then(undefined, function (error) {
-        errorHandler(error);
-        throw error;
+        if (error.statusCode == 400 && error.body.unauthorized) {
+          http.onInactivity();
+        } else {
+          errorHandler(error);
+          throw error;
+        }
       });
     }
   }

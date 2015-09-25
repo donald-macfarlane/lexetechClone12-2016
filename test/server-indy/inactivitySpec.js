@@ -51,4 +51,72 @@ describe('inactivity', function () {
       });
     });
   });
+
+  describe.only('xhr and non-xhr requests', function () {
+    beforeEach(function () {
+      app.set('apiUsers', {
+        'user:password': true
+      });
+    });
+
+    it("doesn't return 401 for XHR request", function () {
+      this.timeout(10000);
+
+      var xhr = client.api({headers: {'X-Requested-With': 'XMLHttpRequest'}});
+
+      return client.post('/signup', {email: 'author@example.com', password: 'password1'}, {form: true}).then(function (response) {
+        return xhr.get('/api/blocks').then(function () {
+          return wait(6000).then(function () {
+            return xhr.get('/api/blocks', {exceptions: false}).then(function (response) {
+              expect(response.statusCode).to.equal(400);
+            });
+          });
+        });
+      });
+    });
+
+    it("can access when XHR and basic creds supplied", function () {
+      this.timeout(10000);
+
+      var xhr = client.api({headers: {'X-Requested-With': 'XMLHttpRequest'}});
+
+      return client.post('/signup', {email: 'author@example.com', password: 'password1'}, {form: true}).then(function (response) {
+        return xhr.get('/api/blocks').then(function () {
+          return wait(6000).then(function () {
+            return xhr.get('/api/blocks', {exceptions: false, basicAuth: {username: 'user', password: 'password'}}).then(function (response) {
+              expect(response.statusCode).to.equal(200);
+            });
+          });
+        });
+      });
+    });
+
+    it("returns 401 when not XHR and no Basic creds supplied", function () {
+      this.timeout(10000);
+
+      return client.post('/signup', {email: 'author@example.com', password: 'password1'}, {form: true}).then(function (response) {
+        return client.get('/api/blocks').then(function () {
+          return wait(6000).then(function () {
+            return client.get('/api/blocks', {exceptions: false}).then(function (response) {
+              expect(response.statusCode).to.equal(401);
+            });
+          });
+        });
+      });
+    });
+
+    it("can access when not XHR and Basic creds supplied", function () {
+      this.timeout(10000);
+
+      return client.post('/signup', {email: 'author@example.com', password: 'password1'}, {form: true}).then(function (response) {
+        return client.get('/api/blocks').then(function () {
+          return wait(6000).then(function () {
+            return client.get('/api/blocks', {exceptions: false, basicAuth: {username: 'user', password: 'password'}}).then(function (response) {
+              expect(response.statusCode).to.equal(200);
+            });
+          });
+        });
+      });
+    });
+  });
 });

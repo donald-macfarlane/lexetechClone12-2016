@@ -77,8 +77,13 @@ var basicAuth = passport.authenticate("basic", {
 app.use("/api", function(req, res, next) {
   if (req.user) {
     next();
-  } else {
+  } else if (req.headers.authorization || (!req.headers.authorization && !req.xhr)) {
     basicAuth(req, res, next);
+  } else {
+    res.status(400).json({
+      message: 'not authorized',
+      unauthorized: true
+    });
   }
 });
 

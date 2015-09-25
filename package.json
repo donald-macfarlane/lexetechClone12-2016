@@ -41,7 +41,7 @@
     "lessify": "1.0.0",
     "mailparser": "0.5.1",
     "mocha": "2.2.1",
-    "mock-xhr-router": "1.4.0",
+    "mock-xhr-router": "1.5.1",
     "mockjax-router": "1.1.0",
     "mssql": "2.1.0",
     "qo": "1.1.0",
