@@ -162,7 +162,6 @@ BlockComponent.prototype.loadBlocks = function() {
   self.blocksLoaded = false;
 
   function getBlocks() {
-    console.log('here again');
     return http.get("/api/blocks").then(function(response) {
       var blocks = response.body;
 

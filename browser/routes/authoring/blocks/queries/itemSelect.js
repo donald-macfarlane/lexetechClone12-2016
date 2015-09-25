@@ -83,7 +83,7 @@ module.exports = function(options) {
           ? renderItemText(p)
           : p.name;
 
-        return h("a.item", {href: '#', onclick: select},
+        return h("a.item", {onclick: select},
           text,
           selected[p.id]
             ? h.rawHtml("span.selected", "&#x2713;")
