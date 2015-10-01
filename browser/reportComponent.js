@@ -143,11 +143,10 @@ module.exports = prototype({
               },
               onerror: function (e) {
                 this.noFlash = true;
-                self.selectDocument();
-                this.noFlashMessage = true;
-                return wait(1000).then(function () {
-                  this.noFlashMessage = false;
-                });
+
+                if (this.clicked) {
+                  self.selectDocument();
+                }
               }
             },
             {
@@ -162,11 +161,13 @@ module.exports = prototype({
               }
             },
             function () {
-              if (this.noFlash) {
+              var copyButton = this;
+              if (copyButton.noFlash) {
                 return h(
                   '.ui.button',
                   {
                     onclick: function () {
+                      copyButton.clicked = true;
                       self.selectDocument();
                     }
                   },
