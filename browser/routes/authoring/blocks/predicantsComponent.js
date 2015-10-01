@@ -68,7 +68,6 @@ PredicantsComponent.prototype.loadPredicant = function (predicantId) {
 };
 
 PredicantsComponent.prototype.refresh = function () {
-  console.warn("refreshing, but haven't rendered yet!");
 };
 
 PredicantsComponent.prototype.renderEditor = function () {
