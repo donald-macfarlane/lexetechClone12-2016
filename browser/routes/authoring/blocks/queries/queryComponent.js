@@ -13,12 +13,6 @@ var removeFromArray = require('../../../../removeFromArray');
 var dirtyBinding = require('../dirtyBinding');
 var sortable = require('plastiq-sortable');
 
-function menuItem() {
-  var args = Array.prototype.slice.call(arguments);
-  args.unshift('.item');
-  return h.apply(undefined, args);
-}
-
 function QueryComponent(options) {
   var self = this;
 
@@ -329,7 +323,7 @@ QueryComponent.prototype.renderActions = function(actions) {
   }).length > 0;
 
   function actionMenuItem(actionId, action) {
-    return menuItem(
+    return h('.item',
       {
         onclick: addActionClick(actionId, action)
       },
