@@ -66,7 +66,7 @@ exports.deleteDocument = function (userId, docId) {
 exports.allUsers = function (options) {
   var max = options && options.max;
 
-  var usersCollection = User.find();
+  var usersCollection = User.find().sort({firstName: 1, familyName: 1, email: 1});
 
   if (max) {
     usersCollection = usersCollection.limit(max)
@@ -98,6 +98,7 @@ exports.user = function (userId) {
 
 exports.updateUser = function (userId, user) {
   var password = user.password;
+
   return User.update({_id: userId}, {$set: user}, {overwrite: true}).exec().then(function () {
     if (password) {
       return User.findOne({_id: userId}).then(function (user) {

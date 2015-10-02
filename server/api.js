@@ -334,11 +334,24 @@ app.use('/users', function (req, res, next) {
   }
 });
 
-app.post('/users', function (req, res) {
-  mongoDb.addUser(req.body).then(function (user) {
+function handleEmailAlreadyExists(req, res, error) {
+  if (error.code == 11000) {
+    res.status(400).send({
+      alreadyExists: true,
+      message: 'user with email address <' + req.body.email + '> already exists'
+    });
+  } else {
+    throw error;
+  }
+}
+
+app.post('/users', handleErrors(function (req, res) {
+  return mongoDb.addUser(req.body).then(function (user) {
     res.send(outgoingUser(user, req));
+  }, function (error) {
+    handleEmailAlreadyExists(req, res, error);
   });
-});
+}));
 
 app.get('/users', handleErrors(function (req, res) {
   return mongoDb.allUsers({max: Number(req.query.max)}).then(function(u) {
@@ -400,6 +413,8 @@ app.post('/users/resetpassword', handleErrors(function (req, res) {
 app.put('/users/:userId', handleErrors(function (req, res) {
   return mongoDb.updateUser(req.params.userId, incomingUser(req.body)).then(function () {
     res.send(outgoingUser(req.body, req));
+  }, function (error) {
+    handleEmailAlreadyExists(req, res, error);
   });
 }));
 

@@ -9,16 +9,16 @@ module.exports = prototype({
     if (this.original) {
       return this.original.save(this);
     } else {
-      if (update) {
-        updateObject(this, update);
-        delete this.original;
-      }
       if (this.href) {
-        return http.put(this.href, this).then(function (response) {
+        return http.put(this.href, update || this, {showErrors: false}).then(function (response) {
+          if (update) {
+            updateObject(self, update);
+          }
+          delete self.original;
           return response.body;
         });
       } else if (this.collectionHref) {
-        return http.post(this.collectionHref, this).then(function (response) {
+        return http.post(this.collectionHref, this, {showErrors: false}).then(function (response) {
           var result = response.body;
           if (result.id) {
             self.id = result.id;

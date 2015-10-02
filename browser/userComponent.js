@@ -41,6 +41,12 @@ module.exports = prototype({
 
         return self.user.save().then(function (user) {
           routes.adminUser({userId: user.id}).push();
+        }, function (error) {
+          if (error.body.alreadyExists) {
+            form.formElement.form('add prompt', 'email', 'email address already exists');
+          } else {
+            throw error;
+          }
         });
       }
     }
@@ -101,77 +107,77 @@ module.exports = prototype({
         type: 'empty',
         prompt: 'please enter a valid cell phone number'
       });
-
-      fields.stateLicenseNumber.rules.push({
-        type: 'empty',
-        prompt: 'please enter a valid state license number'
-      });
     }
 
     function deleteUser() {
-      return self.userApi.deleteUser(user);
+      return self.userApi.deleteUser(user).then(function () {
+        routes.admin().push();
+      });
     }
 
-    return form.form(
-      {
-        key: user.id || 'new',
-        fields: fields,
-        inline: true
-      },
-      function (validationForm) {
-        return h('form.ui.form.user',
-          newUser
-            ? h('h2', 'New User')
-            : h('h2',
-              self.user.firstName, ' ', self.user.familyName
-            ),
-          tokenLink
-            ? [
-                h('.field',
-                  h('label', 'Login Link'),
-                  h('.ui.action.input',
-                    h('input.token-link', {type: 'text', value: tokenLink, onclick: function () { this.select(); }}),
-                    zeroClipboard(
-                      {
-                        oncopy: function () {
-                          self.tokenLinkCopied = true;
-                          return wait(1000).then(function () {
-                            self.tokenLinkCopied = false;
-                          });
-                        }
-                      },
-                      tokenLink,
-                      h('button.ui.teal.right.labeled.icon.button.copy-token-link',
+    return h('form.user',
+      form.form(
+        {
+          key: user.id || 'new',
+          fields: fields,
+          inline: true,
+          v1: true
+        },
+        function (validationForm) {
+          return h('.ui.form',
+            newUser
+              ? h('h2', 'New User')
+              : h('h2',
+                self.user.firstName, ' ', self.user.familyName
+              ),
+            tokenLink
+              ? [
+                  h('.field',
+                    h('label', 'Login Link'),
+                    h('.ui.action.input',
+                      h('input.token-link', {type: 'text', value: tokenLink, onclick: function () { this.select(); }}),
+                      zeroClipboard(
                         {
-                          onclick: function (ev) { ev.preventDefault(); },
-                          class: {copied: self.tokenLinkCopied}
+                          oncopy: function () {
+                            self.tokenLinkCopied = true;
+                            return wait(1000).then(function () {
+                              self.tokenLinkCopied = false;
+                            });
+                          }
                         },
-                        h('i.copy.icon'),
-                        self.tokenLinkCopied? 'Copied!': 'Copy'
+                        tokenLink,
+                        h('button.ui.teal.right.labeled.icon.button.copy-token-link',
+                          {
+                            onclick: function (ev) { ev.preventDefault(); },
+                            class: {copied: self.tokenLinkCopied}
+                          },
+                          h('i.copy.icon'),
+                          self.tokenLinkCopied? 'Copied!': 'Copy'
+                        )
                       )
                     )
-                  )
-                ),
-              ]
-            : h('span.no-token-link'),
-          h('.two.fields',
-            form.text('First Name', [self.user, 'firstName', dirtyUser], {class: 'first-name', placeholder: 'first name', name: 'first-name'}),
-            form.text('Family Name', [self.user, 'familyName', dirtyUser], {class: 'family-name', placeholder: 'family name', name: 'family-name'})
-          ),
-          form.text('Email', [self.user, 'email', dirtyUser], {class: 'email', placeholder: 'email', name: 'email'}),
-          form.textarea('Address', [self.user, 'address', dirtyUser]),
-          h('.two.fields',
-            form.text('Office Phone Number', [self.user, 'officePhoneNumber', dirtyUser], {placeholder: 'office phone number', name: 'office-phone-number'}),
-            form.text('Cell Phone Number', [self.user, 'cellPhoneNumber', dirtyUser], {placeholder: 'cell phone number', name: 'cell-phone-number'})
-          ),
-          form.text('State License Number', [self.user, 'stateLicenseNumber', dirtyUser], {placeholder: 'state license number', name: 'state-license-number'}),
-          form.boolean('Author', [self.user, 'author', dirtyUser]),
-          form.boolean('Admin', [self.user, 'admin', dirtyUser]),
-          h('.ui.button', {class: {disabled: !self.user.dirty, blue: !newUser, green: newUser}, onclick: function () { return saveUser(validationForm); }}, newUser? 'Create': 'Save'),
-          !newUser? h('.ui.button', {onclick: deleteUser}, 'Delete'): undefined,
-          h('.ui.button', {onclick: routes.admin().push}, 'Close')
-        );
-      }
+                  ),
+                ]
+              : h('span.no-token-link'),
+            h('.two.fields',
+              form.text('First Name', [self.user, 'firstName', dirtyUser], {class: 'first-name', placeholder: 'first name', name: 'first-name'}),
+              form.text('Family Name', [self.user, 'familyName', dirtyUser], {class: 'family-name', placeholder: 'family name', name: 'family-name'})
+            ),
+            form.text('Email', [self.user, 'email', dirtyUser], {class: 'email', placeholder: 'email', name: 'email'}),
+            form.textarea('Address', [self.user, 'address', dirtyUser]),
+            h('.two.fields',
+              form.text('Office Phone Number', [self.user, 'officePhoneNumber', dirtyUser], {placeholder: 'office phone number', name: 'office-phone-number'}),
+              form.text('Cell Phone Number', [self.user, 'cellPhoneNumber', dirtyUser], {placeholder: 'cell phone number', name: 'cell-phone-number'})
+            ),
+            form.text('State License Number', [self.user, 'stateLicenseNumber', dirtyUser], {placeholder: 'state license number', name: 'state-license-number'}),
+            form.boolean('Author', [self.user, 'author', dirtyUser]),
+            form.boolean('Admin', [self.user, 'admin', dirtyUser]),
+            h('.ui.button', {class: {disabled: !self.user.dirty, blue: !newUser, green: newUser}, onclick: function () { return saveUser(validationForm); }}, newUser? 'Create': 'Save'),
+            !newUser? h('.ui.button', {onclick: deleteUser}, 'Delete'): undefined,
+            h('.ui.button', {onclick: routes.admin().push}, 'Close')
+          );
+        }
+      )
     );
   }
 });

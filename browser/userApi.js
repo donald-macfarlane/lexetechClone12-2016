@@ -114,8 +114,7 @@ module.exports = prototype({
   deleteUser: function (user) {
     var self = this;
 
-    user.deleted = true;
-    return http.put(user.href, user).then(function () {
+    return http.delete(user.href).then(function () {
       self.mapUser.delete(user);
     });
   }

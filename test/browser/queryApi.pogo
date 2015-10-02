@@ -6,7 +6,7 @@ window._debug = require 'debug'
 module.exports() =
   router = createRouter()
 
-  model(url, hrefs = false, outgoing() = nil) =
+  model(url, hrefs = false, outgoing() = nil, unique(collection) = true) =
     collection = []
 
     router.get(url) @(request)
@@ -29,16 +29,25 @@ module.exports() =
       }
 
     router.post(url) @(request)
-      collection.push(request.body)
-      request.body.id = String(collection.length)
+      if (unique(collection.concat([request.body])))
+        collection.push(request.body)
+        request.body.id = String(collection.length)
 
-      if (hrefs)
-        request.body.href = url + '/' + request.body.id
+        if (hrefs)
+          request.body.href = url + '/' + request.body.id
 
-      {
-        statusCode = 201
-        body = request.body
-      }
+        {
+          statusCode = 201
+          body = request.body
+        }
+      else
+        {
+          statusCode = 400
+          body = {
+            alreadyExists = true
+            message = 'already exists'
+          }
+        }
 
     postPut(request) =
       collection.(Number(request.params.id) - 1) = request.body
@@ -225,12 +234,17 @@ module.exports() =
 
   userQueries = []
 
+  isFieldUnique(collection, field) =
+    _.uniq(_.map(collection, field)).length == collection.length
+
   blocks = model('/api/blocks')
   clipboard = model('/api/user/queries', hrefs = true)
   documents = model('/api/user/documents', hrefs = true)
   users = model(
     '/api/users'
     hrefs = true
+    unique(collection) = isFieldUnique(collection, 'email')
+
     outgoing(user) =
       user.resetPasswordTokenHref = '/api/users/' + user.id + '/resetpasswordtoken'
   )

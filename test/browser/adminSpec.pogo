@@ -15,17 +15,21 @@ admin = testBrowser.component {
   searchTextBox() = self.find('.search .ui.input input')
   createUser() = self.find('.button.create')
   searchResults() = self.find('.search .results')
-  result(name) = self.find('.search .results h5', text = name)
+  result(name) = self.find('.search .results a', text = name)
 }
 
 user = testBrowser.find('form.user').component {
   firstName() = self.find('.first-name input')
+  firstNameMessage() = self.find('.first-name .prompt')
   tokenLink() = self.find('.token-link')
   familyName() = self.find('.family-name input')
+  familyNameMessage() = self.find('.family-name .prompt')
   email() = self.find('.email input')
+  emailMessage() = self.find('.email .prompt')
   saveButton() = self.find('.button:not(.disabled)', text = 'SAVE')
   createButton() = self.find('.button:not(.disabled)', text = 'CREATE')
   deleteButton() = self.find('.button:not(.disabled)', text = 'DELETE')
+  alreadyExistsMessage() = self.find('.already-exists-message')
 }
 
 describe 'admin'
@@ -94,6 +98,31 @@ describe 'admin'
 
       user.tokenLink().shouldHave!(value: "resetpassword/#(userObject.id)_token")
 
+    it 'must have first name, family name and email address' =>
+      self.timeout 100000
+      app.adminTab().click!()
+      admin.createUser().click!()
+
+      user.firstName().typeIn!('Jane')
+      user.createButton().click!()
+      user.familyNameMessage().shouldHave!(text: 'please enter a family name')
+      user.emailMessage().shouldHave!(text: 'please enter a valid email address')
+
+      admin.result('Jane').shouldNotExist!()
+
+    it "can't create a new user with the same email as another" =>
+      self.timeout 100000
+      app.adminTab().click!()
+      admin.createUser().click!()
+
+      user.firstName().typeIn!('Bobby')
+      user.familyName().typeIn!('Jones')
+      user.email().typeIn!('bob@example.com')
+      user.createButton().click!()
+
+      user.emailMessage().shouldHave!(text: 'email address already exists')
+      admin.result('bob@example.com').shouldHave!(length: 1)
+
     it 'can delete a user' =>
       self.timeout 100000
       app.adminTab().click!()
@@ -103,7 +132,9 @@ describe 'admin'
       admin.result('Joe').shouldExist!()
       admin.result('Bob').shouldNotExist!()
 
+      user.shouldNotExist!()
+
       retry!
-        expect([u <- api.users, @not u.deleted, "#(u.firstName) #(u.familyName) <#(u.email)>"]).to.eql [
+        expect([u <- api.users, "#(u.firstName) #(u.familyName) <#(u.email)>"]).to.eql [
           'Joe Trimble <joe@example.com>'
         ]

@@ -51,6 +51,64 @@ describe 'users'
       ]
       expect(user).to.eql(postedUser)
 
+    context 'when there are users'
+      beforeEach
+        api.post! '/api/users' {
+          email = 'joe@example.com'
+          password = 'joey'
+        }.body
+        api.post! '/api/users' {
+          email = 'bob@example.com'
+          password = 'bobby'
+        }.body
+
+    it "can't create two users with the same email address"
+      api.post! '/api/users' {
+        firstName = 'Joe'
+        familyName = 'Fox'
+        email = 'joe@example.com'
+      }.body
+
+      response = api.post! '/api/users' {
+        firstName = 'Joe'
+        familyName = 'Rabbit'
+        email = 'joe@example.com'
+      } (exceptions: false)
+      
+      expect(response.statusCode).to.equal 400
+      expect(response.body.alreadyExists).to.be.true
+
+      userList = api.get! '/api/users'.body
+      expect(userList.length).to.equal 1
+      joe = userList.0
+
+      expect(joe.familyName).to.equal 'Fox'
+
+    it "can't update a user to have the same email address as another"
+      api.post! '/api/users' {
+        firstName = 'Joe'
+        familyName = 'Fox'
+        email = 'joe@example.com'
+      }.body
+
+      joey = api.post! '/api/users' {
+        firstName = 'Joey'
+        familyName = 'Rabbit'
+        email = 'joey@example.com'
+      } (exceptions: false).body
+
+      joey.email = 'joe@example.com'
+      response = api.put!(joey.href, joey, exceptions = false)
+      
+      expect(response.statusCode).to.equal 400
+      expect(response.body.alreadyExists).to.be.true
+
+      userList = api.get! '/api/users'.body
+      expect([u <- userList, u.email]).to.eql [
+        'joe@example.com'
+        'joey@example.com'
+      ]
+
     it 'lists only max users'
       [
         n <- [1..5]
@@ -181,8 +239,8 @@ describe 'users'
         userList = api.get! '/api/users'.body
 
         expect [u <- userList, u.email].to.eql [
-          'joe@example.com'
           'jane@example.com'
+          'joe@example.com'
         ]
 
         response = api.delete! (joe.href)
