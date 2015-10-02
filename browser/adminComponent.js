@@ -20,10 +20,10 @@ module.exports = prototype({
 
     this.loadUser = throttle(function (userId) {
       if (userId == 'new') {
-        self.user = userComponent(self.userApi.create());
+        self.user = userComponent({user: self.userApi.create(), userApi: self.userApi});
       } else if (userId) {
         return self.userApi.user(userId).then(function (user) {
-          self.user = userComponent(user.edit());
+          self.user = userComponent({user: user.edit(), userApi: self.userApi});
         });
       } else {
         delete self.user;

@@ -10,9 +10,9 @@ var wait = require('./wait');
 zeroClipboard.config({ swfPath: "/static/zeroclipboard/ZeroClipboard.swf" });
 
 module.exports = prototype({
-  constructor: function (user) {
-    this.user = user;
-    this.userApi = userApi();
+  constructor: function (options) {
+    this.user = options.user;
+    this.userApi = options.userApi;
     this.validationPromises = 0;
 
     this.getResetPasswordToken = throttle(function (user) {
@@ -108,6 +108,10 @@ module.exports = prototype({
       });
     }
 
+    function deleteUser() {
+      return self.userApi.deleteUser(user);
+    }
+
     return form.form(
       {
         key: user.id || 'new',
@@ -164,6 +168,7 @@ module.exports = prototype({
           form.boolean('Author', [self.user, 'author', dirtyUser]),
           form.boolean('Admin', [self.user, 'admin', dirtyUser]),
           h('.ui.button', {class: {disabled: !self.user.dirty, blue: !newUser, green: newUser}, onclick: function () { return saveUser(validationForm); }}, newUser? 'Create': 'Save'),
+          !newUser? h('.ui.button', {onclick: deleteUser}, 'Delete'): undefined,
           h('.ui.button', {onclick: routes.admin().push}, 'Close')
         );
       }

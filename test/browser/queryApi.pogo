@@ -217,7 +217,7 @@ module.exports() =
     query = req.params.q
 
     foundUsers = users.filter @(user)
-      user.email.indexOf(query) >= 0 @or user.firstName.indexOf(query) >= 0 @or user.familyName.indexOf(query)
+      user.email.indexOf(query) >= 0 @or user.firstName.indexOf(query) >= 0 @or user.familyName.indexOf(query) >= 0
 
     {
       body = foundUsers

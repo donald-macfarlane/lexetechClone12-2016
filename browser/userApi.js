@@ -18,12 +18,6 @@ function identityMap(options) {
       return entity[idField || 'id'];
     }
 
-  function add(entity) {
-    entities[id(entity)] = entity;
-    onChange();
-    return entity;
-  }
-
   function create(entity) {
     var entityId = id(entity);
     var existing = entities[entityId];
@@ -36,7 +30,17 @@ function identityMap(options) {
     }
   };
 
-  create.add = add;
+  create.add = function (entity) {
+    entities[id(entity)] = entity;
+    onChange();
+    return entity;
+  };
+
+  create.delete = function (entity) {
+    delete entities[id(entity)];
+    onChange();
+    return entity;
+  };
 
   return create;
 }
@@ -85,7 +89,7 @@ module.exports = prototype({
 
   search: function(query) {
     var self = this;
-    return http.get('/api/users/search', {params: {q: query}}).then(function (response) {
+    return http.get('/api/users/search', {querystring: {q: query}}).then(function (response) {
       return response.body.map(self.mapUser);
     });
   },
@@ -104,6 +108,15 @@ module.exports = prototype({
   resetPasswordToken: function (user) {
     return http.post(user.resetPasswordTokenHref).then(function (r) {
       return r.body;
+    });
+  },
+
+  deleteUser: function (user) {
+    var self = this;
+
+    user.deleted = true;
+    return http.put(user.href, user).then(function () {
+      self.mapUser.delete(user);
     });
   }
 });

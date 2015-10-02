@@ -18,13 +18,14 @@ admin = testBrowser.component {
   result(name) = self.find('.search .results h5', text = name)
 }
 
-user = testBrowser.component {
-  firstName() = self.find('form.user .first-name input')
-  tokenLink() = self.find('form.user .token-link')
-  familyName() = self.find('form.user .family-name input')
-  email() = self.find('form.user .email input')
-  saveButton() = self.find('form.user .button:not(.disabled)', text = 'SAVE')
-  createButton() = self.find('form.user .button:not(.disabled)', text = 'CREATE')
+user = testBrowser.find('form.user').component {
+  firstName() = self.find('.first-name input')
+  tokenLink() = self.find('.token-link')
+  familyName() = self.find('.family-name input')
+  email() = self.find('.email input')
+  saveButton() = self.find('.button:not(.disabled)', text = 'SAVE')
+  createButton() = self.find('.button:not(.disabled)', text = 'CREATE')
+  deleteButton() = self.find('.button:not(.disabled)', text = 'DELETE')
 }
 
 describe 'admin'
@@ -42,10 +43,15 @@ describe 'admin'
     beforeEach =>
       api.users.push {
         id = 1
-        href = '/api/users/1'
         email = 'joe@example.com'
         firstName = 'Joe'
         familyName = 'Trimble'
+      }
+      api.users.push {
+        id = 2
+        email = 'bob@example.com'
+        firstName = 'Bob'
+        familyName = 'Yeoman'
       }
 
     it 'can search for, find and edit a user' =>
@@ -53,6 +59,8 @@ describe 'admin'
       admin.searchTextBox().click!()
 
       admin.searchTextBox().typeIn!('joe')
+      admin.result('Joe').shouldExist!()
+      admin.result('Bob').shouldNotExist!()
       admin.result('Joe').click!()
 
       user.firstName().shouldHave! { value = 'Joe' }
@@ -60,7 +68,7 @@ describe 'admin'
       user.saveButton().click!()
 
       retry!
-        expect([u <- api.users, u.firstName]).to.eql ['Jack']
+        expect([u <- api.users, u.firstName]).to.eql ['Jack', 'Bob']
 
     it 'can create a new user' =>
       self.timeout 100000
@@ -73,7 +81,29 @@ describe 'admin'
       user.createButton().click!()
 
       admin.result('Jane').exists!()
-      user.tokenLink().shouldHave!(value: 'resetpassword/2_token')
+
+      userObject = retry!
+        users = [u <- api.users, "#(u.firstName) #(u.familyName) <#(u.email)>"]
+        expect(users).to.eql [
+          'Joe Trimble <joe@example.com>'
+          'Bob Yeoman <bob@example.com>'
+          'Jane Jones <janejones@example.com>'
+        ]
+
+        api.users.2
+
+      user.tokenLink().shouldHave!(value: "resetpassword/#(userObject.id)_token")
+
+    it 'can delete a user' =>
+      self.timeout 100000
+      app.adminTab().click!()
+      admin.result('Bob').click!()
+      user.deleteButton().click!()
+
+      admin.result('Joe').shouldExist!()
+      admin.result('Bob').shouldNotExist!()
 
       retry!
-        expect([u <- api.users, "#(u.firstName) #(u.familyName): #(u.email)"]).to.eql ['Joe Trimble: joe@example.com', 'Jane Jones: janejones@example.com']
+        expect([u <- api.users, @not u.deleted, "#(u.firstName) #(u.familyName) <#(u.email)>"]).to.eql [
+          'Joe Trimble <joe@example.com>'
+        ]
