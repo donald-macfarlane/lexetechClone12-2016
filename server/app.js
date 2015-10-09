@@ -21,6 +21,7 @@ var routes = require('../browser/routes');
 var printReport = require('./printReport');
 var httpsRedirect = require('./httpsRedirect');
 var sendEmail = require('./sendEmail');
+var baseUrl = require('./baseUrl');
 
 var mongoDb = require("./mongoDb")
 mongoDb.connect();
@@ -120,10 +121,13 @@ app.post('/forgotpassword', handleErrors(function (req, res) {
           email: {
             from: app.get('system email'),
             to: req.body.email,
-            subject: 'response change'
+            subject: 'Password reset'
           },
           template: 'forgotPassword',
-          data: {resetLink: urlUtils.resolve(req.protocol + '://' + req.get('host'), routes.resetPassword({token: token}).href)}
+          data: {
+            resetLink: urlUtils.resolve(baseUrl, routes.resetPassword({token: token}).href),
+            user: user
+          }
         }).then(function () {
           req.flash('info', 'an email has been sent to <b>' + req.body.email + '</b> containing a link to reset your password');
           res.redirect(routes.forgotPassword().href);

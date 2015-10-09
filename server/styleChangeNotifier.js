@@ -4,6 +4,7 @@ var debug = require('debug')('lexenotes:style-change-notification');
 var diff = require('diff');
 var routes = require('../browser/routes');
 var emailTemplates = require('./emailTemplates');
+var baseUrl = require('./baseUrl');
 
 function StyleChangeNotifier(options) {
   this.smtpUrl = options.smtpUrl;
@@ -38,7 +39,6 @@ StyleChangeNotifier.prototype.notifyOnStyleChange = function(document, originalD
 
 StyleChangeNotifier.prototype.lexemeDifferences = function(updatedLexemes) {
   var self = this;
-  var baseUrl = process.env.BASEURL || 'http://localhost:8000';
 
   return Promise.all(updatedLexemes.map(function (updatedLexeme) {
     debug('queryId', updatedLexeme.queryId);

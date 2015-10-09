@@ -226,6 +226,7 @@ describe 'users'
 
         it 'sends a reset password email'
           user = api.post! '/api/users' {
+            firstName = 'Joe'
             email = 'joe@example.com'
             password = 'joes secret'
           }.body
@@ -240,7 +241,9 @@ describe 'users'
           expect(email.from).to.eql [{address = 'system@lexenotes.com', name = ''}]
           linkRegex = r/http:\/\/localhost:12345\/resetpassword\/(\w*)/
           expect(email.text).to.match (linkRegex)
+          expect(email.text).to.contain 'Joe'
           expect(email.html).to.match (linkRegex)
+          expect(email.html).to.contain 'Joe'
 
           token = linkRegex.exec(email.text).1
           api.post!('/resetpassword', { password = 'newpassword', token = token }, form = true)
