@@ -1,6 +1,8 @@
 mongoDb = require '../../server/mongoDb'
 users = require '../../server/users'
 expect = require '../expect'
+startSmtpServer = require './smtpServer'
+retry = require 'trytryagain'
 
 httpism = require 'httpism'
 app = require '../../server/app'
@@ -210,6 +212,39 @@ describe 'users'
         api.post!(user.resetPasswordHref, { password = 'mypassword1', token = token})
         response = api.post!(user.resetPasswordHref, { password = 'myotherpassword', token = token}, exceptions = false)
         expect(response.statusCode).to.equal 400
+
+      context 'forgetting passwords'
+        smtpServer = nil
+
+        beforeEach
+          smtpServer := startSmtpServer!()
+          app.set 'smtp url' (smtpServer.url)
+          app.set 'system email' 'system@lexenotes.com'
+
+        afterEach
+          smtpServer.stop()
+
+        it 'sends a reset password email'
+          user = api.post! '/api/users' {
+            email = 'joe@example.com'
+            password = 'joes secret'
+          }.body
+
+          api.post!('/forgotpassword', { email = 'joe@example.com' }, form = true)
+
+          email = retry!
+            expect(smtpServer.emails.length).to.equal 1
+            smtpServer.emails.0
+
+          expect(email.to).to.eql [{address = 'joe@example.com', name = ''}]
+          expect(email.from).to.eql [{address = 'system@lexenotes.com', name = ''}]
+          linkRegex = r/http:\/\/localhost:12345\/resetpassword\/(\w*)/
+          expect(email.text).to.match (linkRegex)
+          expect(email.html).to.match (linkRegex)
+
+          token = linkRegex.exec(email.text).1
+          api.post!('/resetpassword', { password = 'newpassword', token = token }, form = true)
+          users.authenticate! 'joe@example.com' 'newpassword'
 
     context 'given an existing user'
       joe = nil

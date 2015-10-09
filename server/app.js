@@ -1,7 +1,7 @@
 var express = require("express");
 var bodyParser = require("body-parser");
 var passport = require("passport");
-var flash = require("connect-flash");
+var flash = require('flash');
 var session = require("express-session");
 var RedisStore = require('connect-redis')(session);
 var BasicStrategy = require("passport-http").BasicStrategy;
@@ -20,6 +20,7 @@ var inactivityTimeout = require('./inactivityTimeout');
 var routes = require('../browser/routes');
 var printReport = require('./printReport');
 var httpsRedirect = require('./httpsRedirect');
+var sendEmail = require('./sendEmail');
 
 var mongoDb = require("./mongoDb")
 mongoDb.connect();
@@ -108,6 +109,33 @@ app.post("/resetpassword", handleErrors(function (req, res) {
   });
 }));
 
+app.post('/forgotpassword', handleErrors(function (req, res) {
+  return mongoDb.userByEmail(req.body.email).then(function (user) {
+    if (user) {
+      debug('user forgot password', user);
+      return mongoDb.resetPasswordToken(user.id, {newuser: false}).then(function (token) {
+        debug('token for user', token);
+        return sendEmail({
+          smtp: app.get('smtp url'),
+          email: {
+            from: app.get('system email'),
+            to: req.body.email,
+            subject: 'response change'
+          },
+          template: 'forgotPassword',
+          data: {resetLink: urlUtils.resolve(req.protocol + '://' + req.get('host'), routes.resetPassword({token: token}).href)}
+        }).then(function () {
+          req.flash('info', 'an email has been sent to <b>' + req.body.email + '</b> containing a link to reset your password');
+          res.redirect(routes.forgotPassword().href);
+        });
+      });
+    } else {
+      req.flash('error', 'email address not found');
+      res.redirect(routes.forgotPassword().href);
+    }
+  });
+}));
+
 app.post("/signup", function(req, res) {
   var user;
 
@@ -122,7 +150,7 @@ app.post("/signup", function(req, res) {
     res.redirect("/");
   }, function(e) {
     logger.error("could not sign up", e);
-    req.flash("error", "that email address is already used");
+    req.flash('error', 'that email address is already used');
     res.redirect("/signup");
   });
 });
@@ -145,13 +173,16 @@ app.use("/static", function (req, res) {
   res.status(404).send('no such page');
 });
 
-function page(req, js) {
+function page(req, res, js) {
+  var flash = res.locals.flash;
+  req.session.flash = [];
+
   return {
     script: js,
     user: req.user
       ? _.pick(req.user, 'email', 'author', 'admin', 'id')
       : undefined,
-    flash: req.flash("error")
+    flash: flash
   };
 };
 
@@ -162,7 +193,7 @@ app.post('/stayalive', function (req, res) {
 });
 
 app.get("*", function(req, res) {
-  res.render("index.html", page(req, "/app.js"));
+  res.render("index.html", page(req, res, "/app.js"));
 });
 
 module.exports = app;

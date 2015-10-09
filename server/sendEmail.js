@@ -3,6 +3,8 @@ var nodemailer = require('nodemailer');
 var urlUtils = require('url');
 var promisify = require('./promisify');
 var debug = require('debug')('lexenotes:sendemail');
+var nodemailerDebug = require('debug')('nodemailer:smtp');
+var emailTemplates = require('./emailTemplates');
 
 var connectionCache = cache();
 var connections = [];
@@ -12,7 +14,8 @@ function parseSmtpUrl(url) {
 
   var connection = {
     port: parseInt(parsedUrl.port) || 25,
-    host: parsedUrl.hostname
+    host: parsedUrl.hostname,
+    debug: nodemailerDebug.enabled
   }
 
   if (parsedUrl.auth) {
@@ -29,16 +32,29 @@ function parseSmtpUrl(url) {
 function connection(url) {
   return connectionCache.cacheBy(url, function () {
     var c = nodemailer.createTransport(parseSmtpUrl(url));
+    c.on('log', nodemailerDebug);
     connections.push(c);
     return c;
   });
 }
 
-module.exports = function (url, email) {
+function sendEmail(url, email) {
   return promisify(function (cb) {
-    debug('sending email', email);
+    debug('sending email', url, email);
     connection(url).sendMail(email, cb);
   });
+}
+
+module.exports = function (url, email) {
+  if (typeof url == 'object') {
+    var options = url;
+
+    return emailTemplates.buildEmail(options.template, options.email, options.data).then(function (email) {
+      return sendEmail(options.smtp, email);
+    });
+  } else {
+    return sendEmail(url, email);
+  }
 };
 
 module.exports.closeAll = function () {

@@ -10,7 +10,7 @@ server.use(app);
 server.set("apiUsers", apiUsers);
 server.set("backupDelay", 1000);
 server.set("backupHttpism", githubBackupHttpism());
-server.set('smtp url', smtpUrl());
+server.set('smtp url', process.env.SMTP_SERVER || smtpUrl());
 server.set('admin email', process.env.ADMIN_EMAIL);
 server.set('system email', process.env.SYSTEM_EMAIL);
 

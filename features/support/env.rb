@@ -12,5 +12,9 @@ Cappie.start(
   await: %r{http://localhost:8001/},
   host: 'http://localhost:8001',
   driver: :selenium,
-  environment: { PORT: 8001 }
+  environment: {
+    PORT: 8001,
+    SMTP_SERVER: 'smtp://localhost:1025/',
+    DEBUG: 'lexenotes:*'
+  }
 )

@@ -2,9 +2,8 @@ var documentHasChangedStyles = require('./documentHasChangedStyles');
 var sendEmail = require('./sendEmail');
 var debug = require('debug')('lexenotes:style-change-notification');
 var diff = require('diff');
-var handlebars = require('handlebars');
-var fs = require('fs-promise');
 var routes = require('../browser/routes');
+var emailTemplates = require('./emailTemplates');
 
 function StyleChangeNotifier(options) {
   this.smtpUrl = options.smtpUrl;
@@ -17,42 +16,24 @@ function StyleChangeNotifier(options) {
 StyleChangeNotifier.prototype.notifyOnStyleChange = function(document, originalDocument) {
   var self = this;
 
-  debug('notifying');
   var updatedLexemes = documentHasChangedStyles(document, originalDocument);
 
   if (updatedLexemes) {
     if (this.smtpUrl) {
       return this.lexemeDifferences(updatedLexemes).then(function (lexemeDifferences) {
-        return self.loadTemplates().then(function (templates) {
-          return sendEmail(self.smtpUrl, {
+        return sendEmail({
+          smtp: self.smtpUrl,
+          email: {
             from: self.systemEmail,
             to: self.adminEmail,
-            subject: 'response change',
-            text: templates.text(lexemeDifferences),
-            html: templates.html(lexemeDifferences)
-          });
+            subject: 'response change'
+          },
+          template: 'styleChangeNotification',
+          data: lexemeDifferences
         });
       });
     }
   }
-};
-
-StyleChangeNotifier.prototype.loadTemplates = function() {
-  function loadTemplate(name) {
-    return fs.readFile(__dirname + '/emailTemplates/' + name, 'utf-8').then(function (text) {
-      return handlebars.compile(text);
-    });
-  }
-
-  return Promise.all([
-    loadTemplate('styleChangeNotification.txt'),
-    loadTemplate('styleChangeNotification.html')
-  ]).then(function (templates) {
-    return {
-      text: templates[0],
-      html: templates[1]
-    };
-  });
 };
 
 StyleChangeNotifier.prototype.lexemeDifferences = function(updatedLexemes) {

@@ -91,11 +91,9 @@ var mandrill = {
 
 function runServer(done) {
   var env = {
-    DEBUG: 'lexenotes:*',
-    MANDRILL_USERNAME: mandrill.username,
-    MANDRILL_APIKEY: mandrill.apikey,
     ADMIN_EMAIL: 'Tim Macfarlane <tim+lexenotes-admin@featurist.co.uk>',
-    SYSTEM_EMAIL: 'Tim Macfarlane <tim+lexenotes-system@featurist.co.uk>'
+    SYSTEM_EMAIL: 'Tim Macfarlane <tim+lexenotes-system@featurist.co.uk>',
+    SMTP_SERVER: 'smtp://localhost:1025/'
   };
 
   shell('node server/server.js', {env: env}).then(done);

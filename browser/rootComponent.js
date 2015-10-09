@@ -146,7 +146,8 @@ var rootComponent = prototype({
           routes.login(authComponents.login),
           routes.resetPassword(function (params) {
             return authComponents.resetPassword(params.token);
-          })
+          }),
+          routes.forgotPassword(authComponents.forgotPassword)
         ]);
 
         if (authPage) {

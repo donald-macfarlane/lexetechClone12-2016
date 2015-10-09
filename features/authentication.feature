@@ -21,3 +21,16 @@ Feature: Authentication
     And I can start a new document
     When they have logged out
     Then can log back in with the same password "password123"
+
+  @smtp
+  Scenario: Forgot my password
+    Given there is a user with email "jane@example.com" with password "something hard to remember"
+    When she clicks on the forgot my password link
+    And she enters her email address "jane@example.com"
+    Then she receives an email with a reset password link
+    When she clicks on the reset password link
+    Then she can enter a new password "janessecret"
+    Then she can start a new document
+    Given she has logged out
+    When she logs in with email address "jane@example.com" and password "janessecret"
+    Then she can start a new document

@@ -22,10 +22,8 @@ module.exports = function (model, contents) {
           )
         ),
         h('div.shadow'),
-        model.flash && (!(model.flash instanceof Array) || (model.flash.length > 0))
-          ? h('div.ignored.ui.warning.message', renderFlash(model.flash),
-              h('a.close', {onclick: function () { delete model.flash; }})
-            )
+        model.flash
+          ? renderFlash(model)
           : undefined,
         h('div.content', contents)
       ),
@@ -38,18 +36,25 @@ module.exports = function (model, contents) {
   }
 };
 
-function renderFlash(flash) {
+function renderFlash(model) {
+  var flash = model.flash;
+  
+  function close() {
+    return h('a.close', {onclick: function () { delete model.flash; }});
+  }
+
   if (flash instanceof Array) {
-    return flash.map(function (text) {
-      return h('.message', text);
+    return flash.map(function (flashMessage) {
+      return h('div.ignored.ui.message', {class: flashMessage.type}, h.rawHtml('span', flashMessage.message), close());
     });
   } else if (flash instanceof Object) {
-    return [
+    return h('div.ignored.ui.message.warning',
       h('.message', flash.message),
-      h('.detail', flash.detail)
-    ];
+      h('.detail', flash.detail),
+      close()
+    );
   } else if (flash) {
-    return h('.message', flash);
+    return h('div.ignored.ui.message.warning', flash, close());
   }
 }
 

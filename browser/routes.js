@@ -3,6 +3,7 @@ var router = require('plastiq-router');
 module.exports = {
   login:                router.route('/login'),
   signup:               router.route('/signup'),
+  forgotPassword:       router.route('/forgotpassword'),
   report:               router.route('/reports/:documentId'),
   printReport:          router.route('/reports/:documentId/print/:style'),
   root:                 router.route('/'),

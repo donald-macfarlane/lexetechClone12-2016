@@ -34,7 +34,7 @@ Then(/^I can see the first question$/) do
   expect(page).to have_content('What hurts?')
 end
 
-Then(/^I can start a new document$/) do
+Then(/^(I|she|he) can start a new document$/) do |arg1|
   expect(page).to have_content('NEW DOCUMENT')
 end
 
@@ -42,11 +42,11 @@ Given(/^I have created a user previously with email address "(.*?)" and password
   create_user(email, password)
 end
 
-Given(/^(I|they) have logged out$/) do |arg|
+Given(/^(I|they|she|he) (have|has) logged out$/) do |arg1, arg2|
   logout
 end
 
-When(/^I log in with email address "(.*?)" and password "(.*?)"$/) do |email, password|
+When(/^(I|she|he) logs? in with email address "(.*?)" and password "(.*?)"$/) do |arg1, email, password|
   login(email, password)
 end
 

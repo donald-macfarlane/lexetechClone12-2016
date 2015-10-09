@@ -9,3 +9,6 @@ gem 'pry-byebug'
 gem "chromedriver-helper"
 gem 'capybara-screenshot', :group => :test
 gem 'capybara-webkit', :group => :test
+gem 'eventmachine', :group => :test
+gem 'mail', :group => :test
+gem 'nokogiri', :group => :test

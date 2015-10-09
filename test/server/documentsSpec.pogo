@@ -176,14 +176,9 @@ describe 'documents'
 
   describe 'emailing administrator when changes are made to responses'
     smtpServer = nil
-    emailsReceived = nil
 
     beforeEach
-      emailsReceived := []
-      smtpServer := startSmtpServer! {
-        emailReceived(email) =
-          emailsReceived.push(email)
-      }
+      smtpServer := startSmtpServer!()
       app.set 'smtp url' (smtpServer.url)
       db = app.get 'db'
       lexicon = lexiconBuilder()
@@ -299,7 +294,7 @@ describe 'documents'
           })
 
           retry!
-            expect(emailsReceived.length).to.equal 1
+            expect(smtpServer.emails.length).to.equal 1
           
         it "doesn't email the administrator when no changes are made to the responses"
           api.post!('/api/user/documents', {
@@ -309,7 +304,7 @@ describe 'documents'
           })
 
           retry.ensuring!
-            expect(emailsReceived.length).to.equal 0
+            expect(smtpServer.emails.length).to.equal 0
 
       describe 'when updating a document with changed styles'
         document = nil
@@ -322,23 +317,23 @@ describe 'documents'
           }).body
 
           retry!
-            expect(emailsReceived.length).to.equal 1
-            
-          emailsReceived := []
+            expect(smtpServer.emails.length).to.equal 1
 
+          smtpServer.clear()
+            
         it 'sends an email when the update contains a changed style'
           document.lexemes.push(lexemeWithChangedStyles(queryId = 2, responseId = 1))
           api.put!(document.href, document)
 
           retry!
-            expect(emailsReceived.length).to.equal 1
+            expect(smtpServer.emails.length).to.equal 1
           
         it "doesn't send an email when the update doesn't contain a changed style"
           document.lexemes.push(lexemeWithOriginalStyles(queryId = 2, responseId = 1))
           api.put!(document.href, document)
 
           retry.ensuring!
-            expect(emailsReceived.length).to.equal 0
+            expect(smtpServer.emails.length).to.equal 0
 
     describe 'showing differences'
       fs = require 'fs-promise'
@@ -399,9 +394,9 @@ describe 'documents'
         }).body
 
         retry!
-          expect(emailsReceived.length).to.equal 1
+          expect(smtpServer.emails.length).to.equal 1
 
-        email = emailsReceived.0
+        email = smtpServer.emails.0
 
         (content) hasRelevantInfo =
           expect(content).to.contain('query 1')

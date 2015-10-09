@@ -96,6 +96,10 @@ exports.user = function (userId) {
   return User.findOne({_id: userId}).then(objectify);
 };
 
+exports.userByEmail = function (email) {
+  return User.findOne({email: email}).then(objectify);
+};
+
 exports.updateUser = function (userId, user) {
   var password = user.password;
 
@@ -124,9 +128,11 @@ function generateResetPasswordToken() {
   });
 }
 
-exports.resetPasswordToken = function (userId) {
+exports.resetPasswordToken = function (userId, options) {
+  var newuser = options && options.hasOwnProperty('newuser')? options.newuser: true;
+
   return User.findOne({_id: userId}).then(function (user) {
-    if (!user.hash) {
+    if (!newuser || !user.hash) {
       if (!user.resetPasswordToken) {
         return generateResetPasswordToken().then(function (resetPasswordToken) {
           user.resetPasswordToken = resetPasswordToken;
@@ -138,7 +144,7 @@ exports.resetPasswordToken = function (userId) {
         return user.resetPasswordToken;
       }
     } else {
-      var error = new Error();
+      var error = new Error('token for user who already has password');
       error.alreadyHasPassword = true;
       throw error;
     }

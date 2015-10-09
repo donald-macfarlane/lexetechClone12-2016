@@ -15,6 +15,7 @@ module LoginAutomation
 
   def logout
     click_on 'Logout'
+    expect(page).to have_css('button', text: 'LOG IN')
   end
 end
 

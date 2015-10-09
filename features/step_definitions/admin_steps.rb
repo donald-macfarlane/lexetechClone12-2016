@@ -32,7 +32,7 @@ end
 Then(/^they can set their password "(.*?)" and login$/) do |password|
   @new_user_password = password
   fill_in "Password", with: password
-  find('button', text: 'Login').click
+  find('button', text: 'LOGIN').click
 end
 
 Then(/^can log back in with the same password "(.*?)"$/) do |arg1|

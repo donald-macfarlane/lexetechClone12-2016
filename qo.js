@@ -36,16 +36,24 @@ task('test', function () {
   return runAllThenThrow(mocha, karma, cucumber);
 });
 
-task('add-author <user-query> ' + envArg + ' [--id <user-id>]', function (args, options) {
-  return findAndModifyUser(createApi(options.env), args[0], function (user) {
+function addAuthor(username, options) {
+  return findAndModifyUser(createApi(options.env), username, function (user) {
     user.author = true;
   }, options);
+}
+
+function addAdmin(username, options) {
+  return findAndModifyUser(createApi(options.env), username, function (user) {
+    user.admin = true;
+  }, options);
+}
+
+task('add-author <user-query> ' + envArg + ' [--id <user-id>]', function (args, options) {
+  return addAuthor(args[0], options);
 });
 
 task('add-admin <user-query> ' + envArg + ' [--id <user-id>]', function (args, options) {
-  return findAndModifyUser(createApi(options.env), args[0], function (user) {
-    user.admin = true;
-  }, options);
+  return addAdmin(args[0], options);
 });
 
 task('undelete <href> ' + envArg, function (args, options) {
@@ -72,15 +80,18 @@ task('clear-lexicon ' + envArg, function (args, options) {
   });
 });
 
-task('put-lexicon ' + envArg + ' <lexicon.json>', function (args, options) {
-  var file = args[0];
+function putLexeme(file, options) {
   return fs.readFile(file, 'utf-8').then(function (content) {
     var lexicon = JSON.parse(content);
     var api = createApi(options.env);
     return api.post('lexicon', lexicon).then(function (response) {
-      return response.statusCode + ' => ' + JSON.stringify(response.body, null, 2);
+      console.log(response.statusCode + ' => ' + JSON.stringify(response.body, null, 2));
     });
   });
+}
+
+task('put-lexicon ' + envArg + ' <lexicon.json>', function (args, options) {
+  return putLexeme(args[0], options);
 });
 
 task('clear-documents', function () {
@@ -249,7 +260,7 @@ task('less-vars definition.less', function (args) {
   });
 });
 
-task('remove-none-actions', function (args) {
+task("remove-none-actions # at one point we had 'none' actions, which weren't that useful so we removed them", function (args) {
   var file = args[0];
 
   var json = require('./' + file);
@@ -268,5 +279,15 @@ task('remove-none-actions', function (args) {
     return fs.writeFile(file + '.new', JSON.stringify(json, null, 2)).then(function () {
       return shell('diff ' + file + '.old ' + file + '.new | less');
     });
+  });
+});
+
+task('test-data', function () {
+  var options = {};
+
+  return addAuthor('author@surgery.com', options).then(function () {
+    return addAdmin('author@surgery.com', options);
+  }).then(function () {
+    return putLexeme('lexicon.json', options);
   });
 });
