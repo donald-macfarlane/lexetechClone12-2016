@@ -1,9 +1,3 @@
-require 'anticipate'
-
-def blah()
-  create_user(email, password)
-end
-
 Given(/^there is a user with email "(.*?)" with password "(.*?)"$/) do |email, password|
   create_user(email, password)
 end
