@@ -22,7 +22,6 @@ Feature: Authentication
     When they have logged out
     Then can log back in with the same password "password123"
 
-  @smtp
   Scenario: Forgot my password
     Given there is a user with email "jane@example.com" with password "something hard to remember"
     When she clicks on the forgot my password link

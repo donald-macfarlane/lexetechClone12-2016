@@ -13,10 +13,17 @@ When(/^she enters her email address "(.*?)"$/) do |email|
 end
 
 Then(/^she receives an email with a reset password link$/) do
-  wait_for do
-    expect(received_emails.size).to be > 0
+  def password_reset_emails
+    received_emails.select do |mail|
+      mail.subject =~ /password reset/i
+    end
   end
-  html = received_emails[0].html_part.decoded
+
+  wait_for do
+    expect(password_reset_emails.size).to be > 0
+  end
+
+  html = password_reset_emails[0].html_part.decoded
   @reset_password_link = Nokogiri::HTML(html).css('a').attr('href').value
 end
 
