@@ -1,7 +1,6 @@
 require 'pry-byebug'
 require 'cappie'
 require 'capybara-screenshot/cucumber'
-require 'capybara-webkit'
 
 Capybara.register_driver :selenium do |app|
   Capybara::Selenium::Driver.new(app, :browser => :chrome)

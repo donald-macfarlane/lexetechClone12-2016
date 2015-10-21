@@ -105,6 +105,16 @@ app.post("/resetpassword", handleErrors(function (req, res) {
       debug('logging in', user);
       req.login(user, cb);
     }).then(function () {
+      return sendEmail(app.get('smtp url'), {
+        from: app.get('system email'),
+        to: app.get('admin email'),
+        subject: 'User Changed Email',
+        template: 'userChangedPassword',
+        data: {
+          user: user
+        }
+      });
+    }).then(function () {
       res.redirect("/");
     });
   });
@@ -116,16 +126,13 @@ app.post('/forgotpassword', handleErrors(function (req, res) {
       debug('user forgot password', user);
       return mongoDb.resetPasswordToken(user.id, {newuser: false}).then(function (token) {
         debug('token for user', token);
-        return sendEmail({
-          smtp: app.get('smtp url'),
-          email: {
-            from: app.get('system email'),
-            to: req.body.email,
-            subject: 'Password reset'
-          },
+        return sendEmail(app.get('smtp url'), {
+          from: app.get('system email'),
+          to: req.body.email,
+          subject: 'Password reset',
           template: 'forgotPassword',
           data: {
-            resetLink: urlUtils.resolve(baseUrl, routes.resetPassword({token: token}).href),
+            resetLink: urlUtils.resolve(baseUrl(req), routes.resetPassword({token: token}).href),
             user: user
           }
         }).then(function () {
@@ -149,6 +156,16 @@ app.post("/signup", function(req, res) {
     return promisify(function (cb) {
       debug('logging in', user);
       req.login(user, cb);
+    });
+  }).then(function() {
+    return sendEmail(app.get('smtp url'), {
+      from: app.get('system email'),
+      to: app.get('admin email'),
+      subject: 'User Signup',
+      template: 'signup',
+      data: {
+        userEmail: req.body.email
+      }
     });
   }).then(function() {
     res.redirect("/");

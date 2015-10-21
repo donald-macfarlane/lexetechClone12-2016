@@ -40,6 +40,35 @@ describe 'users'
     afterEach
       server.close()
 
+    describe 'signup'
+      browser = nil
+      smtpServer = nil
+
+      beforeEach
+        browser := httpism.api "http://localhost:#(port)/" (cookies: true)
+        smtpServer := startSmtpServer!()
+        app.set 'smtp url' (smtpServer.url)
+        app.set 'system email' 'system@lexenotes.com'
+        app.set 'admin email' 'admin@lexenotes.com'
+
+      afterEach
+        smtpServer.stop()!
+
+      it 'can sign up a user'
+        expect(browser.get!('/api/user/documents', exceptions = false).statusCode).to.equal 401
+        browser.post!('/signup', {email = 'bob@example.com', password = 'mypassword'}, form: true)
+        documents = browser.get!('/api/user/documents').body
+        expect(documents).to.eql []
+
+        email = retry!
+          expect(smtpServer.emails.length).to.equal 1
+          smtpServer.emails.0
+
+        expect(email.to).to.eql [{address = 'admin@lexenotes.com', name = ''}]
+        expect(email.from).to.eql [{address = 'system@lexenotes.com', name = ''}]
+        expect(email.text).to.contain 'bob@example.com'
+        expect(email.html).to.contain 'bob@example.com'
+
     it 'can add a user and list it'
       postedUser = api.post! '/api/users' {
         email = 'joe@example.com'
@@ -220,11 +249,13 @@ describe 'users'
           smtpServer := startSmtpServer!()
           app.set 'smtp url' (smtpServer.url)
           app.set 'system email' 'system@lexenotes.com'
+          app.set 'admin email' 'admin@lexenotes.com'
 
         afterEach
-          smtpServer.stop()
+          smtpServer.stop()!
 
-        it 'sends a reset password email'
+        it 'sends a reset password email' =>
+          self.timeout 4000
           user = api.post! '/api/users' {
             firstName = 'Joe'
             email = 'joe@example.com'
@@ -248,6 +279,15 @@ describe 'users'
           token = linkRegex.exec(email.text).1
           api.post!('/resetpassword', { password = 'newpassword', token = token }, form = true)
           users.authenticate! 'joe@example.com' 'newpassword'
+
+          adminEmail = retry!
+            expect(smtpServer.emails.length).to.equal 2
+            smtpServer.emails.1
+
+          expect(adminEmail.to).to.eql [{address = 'admin@lexenotes.com', name = ''}]
+          expect(adminEmail.from).to.eql [{address = 'system@lexenotes.com', name = ''}]
+          expect(adminEmail.text).to.contain 'joe@example.com'
+          expect(adminEmail.html).to.contain 'joe@example.com'
 
     context 'given an existing user'
       joe = nil

@@ -406,8 +406,8 @@ describe 'documents'
           expect(content).to.contain('style1')
           expect(content).to.contain('style3')
           expect(content).to.not.contain('style2')
-          expect(content).to.contain('http://localhost:8000/admin/users/bob')
-          expect(content).to.contain('http://localhost:8000/authoring/blocks/1/queries/1')
+          expect(content).to.contain("http://localhost:#(port)/admin/users/bob")
+          expect(content).to.contain("http://localhost:#(port)/authoring/blocks/1/queries/1")
 
         (email.html) hasRelevantInfo
         (email.text) hasRelevantInfo

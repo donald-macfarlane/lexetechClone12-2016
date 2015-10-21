@@ -4,7 +4,7 @@ var debug = require('debug')('lexenotes:style-change-notification');
 var diff = require('diff');
 var routes = require('../browser/routes');
 var emailTemplates = require('./emailTemplates');
-var baseUrl = require('./baseUrl');
+var urlUtils = require('url');
 
 function StyleChangeNotifier(options) {
   this.smtpUrl = options.smtpUrl;
@@ -12,6 +12,7 @@ function StyleChangeNotifier(options) {
   this.adminEmail = options.adminEmail || 'Lexetech Admin <admin@lexetech.com>';
   this.db = options.db;
   this.user = options.user;
+  this.baseUrl = options.baseUrl;
 }
 
 StyleChangeNotifier.prototype.notifyOnStyleChange = function(document, originalDocument) {
@@ -22,13 +23,10 @@ StyleChangeNotifier.prototype.notifyOnStyleChange = function(document, originalD
   if (updatedLexemes) {
     if (this.smtpUrl) {
       return this.lexemeDifferences(updatedLexemes).then(function (lexemeDifferences) {
-        return sendEmail({
-          smtp: self.smtpUrl,
-          email: {
-            from: self.systemEmail,
-            to: self.adminEmail,
-            subject: 'response change'
-          },
+        return sendEmail(self.smtpUrl, {
+          from: self.systemEmail,
+          to: self.adminEmail,
+          subject: 'response change',
           template: 'styleChangeNotification',
           data: lexemeDifferences
         });
@@ -54,7 +52,7 @@ StyleChangeNotifier.prototype.lexemeDifferences = function(updatedLexemes) {
           return {style: style, diffs: diffs};
         });
 
-        query.authoringHref = baseUrl + routes.authoringQuery({blockId: query.block, queryId: query.id}).href;
+        query.authoringHref = urlUtils.resolve(self.baseUrl, routes.authoringQuery({blockId: query.block, queryId: query.id}).href);
 
         return {
           query: query,
@@ -64,7 +62,7 @@ StyleChangeNotifier.prototype.lexemeDifferences = function(updatedLexemes) {
       }
     });
   })).then(function (allLexemeDifferences) {
-    self.user.adminHref = baseUrl + routes.adminUser({userId: self.user.id}).href;
+    self.user.adminHref = urlUtils.resolve(self.baseUrl, routes.adminUser({userId: self.user.id}).href);
 
     return {
       user: self.user,

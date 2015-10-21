@@ -8,6 +8,7 @@ var errorhandler = require('errorhandler');
 var debug = require('debug')('lexenotes:api');
 var handleErrors = require('./handleErrors');
 var styleChangeNotifier = require('./styleChangeNotifier');
+var baseUrl = require('./baseUrl');
 
 function backup(redisDb, backupHttpism) {
   var github = githubContent(backupHttpism);
@@ -507,6 +508,7 @@ app.get('/user/documents', function (req, res) {
 
 function createStyleChangeNotifier(req) {
   return styleChangeNotifier({
+    baseUrl: baseUrl(req),
     smtpUrl: app.get('smtp url'),
     systemEmail: app.get('system email'),
     adminEmail: app.get('admin email'),

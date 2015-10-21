@@ -25,9 +25,6 @@ GEM
       capybara (>= 1.0, < 3)
       colored
       launchy
-    capybara-webkit (1.4.1)
-      capybara (>= 2.3.0, < 2.5.0)
-      json
     childprocess (0.5.5)
       ffi (~> 1.0, >= 1.0.11)
     chromedriver-helper (0.0.8)
@@ -48,7 +45,6 @@ GEM
     ffi (1.9.6)
     gherkin (2.12.2)
       multi_json (~> 1.3)
-    json (1.8.2)
     launchy (2.4.3)
       addressable (~> 2.3)
     mail (2.6.3)
@@ -107,7 +103,6 @@ DEPENDENCIES
   bson_ext
   cappie
   capybara-screenshot
-  capybara-webkit
   chromedriver-helper
   eventmachine
   mail

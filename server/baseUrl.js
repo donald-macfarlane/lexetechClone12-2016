@@ -1,1 +1,3 @@
-module.exports = process.env.BASEURL || 'http://localhost:8000';
+module.exports = function (req) {
+  return process.env.BASEURL || (req.headers['x-forwarded-proto'] || req.protocol) + '://' + req.get('host') + '/';
+}

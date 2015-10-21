@@ -5,6 +5,7 @@ var promisify = require('./promisify');
 var debug = require('debug')('lexenotes:sendemail');
 var nodemailerDebug = require('debug')('nodemailer:smtp');
 var emailTemplates = require('./emailTemplates');
+var _ = require('underscore');
 
 var connectionCache = cache();
 var connections = [];
@@ -46,11 +47,17 @@ function sendEmail(url, email) {
 }
 
 module.exports = function (url, email) {
-  if (typeof url == 'object') {
-    var options = url;
+  if (!url) {
+    debug('no smtp server provided, not sending email', email);
+    return;
+  }
 
-    return emailTemplates.buildEmail(options.template, options.email, options.data).then(function (email) {
-      return sendEmail(options.smtp, email);
+  if (email.template) {
+    var options = email;
+    var baseEmail = _.omit(options, 'template', 'data');
+
+    return emailTemplates.buildEmail(options.template, baseEmail, options.data).then(function (email) {
+      return sendEmail(url, email);
     });
   } else {
     return sendEmail(url, email);

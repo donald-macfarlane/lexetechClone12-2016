@@ -11,16 +11,13 @@ var wait = require('../../browser/wait');
 describe('inactivity', function () {
   var server;
   var port = 12345;
-  var cookies;
-
   var client;
-  var cookies;
 
   beforeEach(function () {
     server = app.listen(port);
-    cookies = new toughCookie.CookieJar();
+    var cookies = new toughCookie.CookieJar();
     client = httpism.api('http://localhost:' + port, {cookies: cookies});
-    return users.deleteAll()
+    return users.deleteAll();
   });
 
   afterEach(function () {
@@ -52,7 +49,7 @@ describe('inactivity', function () {
     });
   });
 
-  describe.only('xhr and non-xhr requests', function () {
+  describe('xhr and non-xhr requests', function () {
     beforeEach(function () {
       app.set('apiUsers', {
         'user:password': true
