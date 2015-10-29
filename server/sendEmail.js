@@ -43,6 +43,8 @@ function sendEmail(url, email) {
   return promisify(function (cb) {
     debug('sending email', url, email);
     connection(url).sendMail(email, cb);
+  }).then(undefined, function (e) {
+    debug('could not send email', e)
   });
 }
 
