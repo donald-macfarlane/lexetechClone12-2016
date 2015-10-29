@@ -22,7 +22,13 @@ var printReport = require('./printReport');
 var httpsRedirect = require('./httpsRedirect');
 var sendEmail = require('./sendEmail');
 var baseUrl = require('./baseUrl');
-var release = require('./release.json');
+
+var release;
+try {
+  release = require('./release.json');
+} catch(e) {
+  release = {};
+}
 
 var mongoDb = require("./mongoDb")
 mongoDb.connect();

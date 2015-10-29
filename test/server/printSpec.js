@@ -43,7 +43,7 @@ describe('print', function () {
 
     return browser.post('/signup', {email: 'bob@example.com', password: 'password'}).then(function (response) {
       return browser.post('/api/user/documents', document).then(function (response) {
-        return browser.get('http://localhost:12345/reports/' + response.body.id + '/print/style1').then(function (response) {
+        return browser.get('http://localhost:12345/enotes/' + response.body.id + '/print/style1').then(function (response) {
           var $ = cheerio.load(response.body);
           var sections = $('.document-outer .document .section').toArray().map(function (section) {
             return $(section).text();
