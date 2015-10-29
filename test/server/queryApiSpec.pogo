@@ -850,3 +850,6 @@ describe "query api"
       expectUnauthorised(api.post!('/api/blocks', {}, exceptions = false))
       expectUnauthorised(api.post!('/api/predicants', {}, exceptions = false))
       expectUnauthorised(api.post!('/api/lexicon', {}, exceptions = false))
+
+    it "doesn't allow reading of entire lexicon unless the user is an author"
+      expectUnauthorised(api.get!('/api/lexicon', exceptions = false))

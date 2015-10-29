@@ -217,13 +217,17 @@ app.post("/lexicon", function(req, res) {
   });
 });
 
-app.get("/lexicon", function(req, res) {
+app.get("/lexicon", handleErrors(function(req, res) {
   var db = app.get("db");
 
-  db.getLexicon(req.body).then(function(lexicon) {
-    res.send(lexicon);
-  });
-});
+  if (req.user.author) {
+    return db.getLexicon(req.body).then(function(lexicon) {
+      res.send(lexicon);
+    });
+  } else {
+    res.status(403).send({message: 'not authorised'});
+  }
+}));
 
 app.get("/predicants", function(req, res) {
   var db = app.get("db");
