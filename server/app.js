@@ -108,7 +108,7 @@ app.post("/resetpassword", handleErrors(function (req, res) {
       return sendEmail(app.get('smtp url'), {
         from: app.get('system email'),
         to: app.get('admin email'),
-        subject: 'User Changed Email',
+        subject: 'User Changed Password',
         template: 'userChangedPassword',
         data: {
           user: user

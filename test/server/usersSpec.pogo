@@ -64,6 +64,7 @@ describe 'users'
           expect(smtpServer.emails.length).to.equal 1
           smtpServer.emails.0
 
+        expect(email.subject).to.eql 'User Signup'
         expect(email.to).to.eql [{address = 'admin@lexenotes.com', name = ''}]
         expect(email.from).to.eql [{address = 'system@lexenotes.com', name = ''}]
         expect(email.text).to.contain 'bob@example.com'
@@ -268,6 +269,7 @@ describe 'users'
             expect(smtpServer.emails.length).to.equal 1
             smtpServer.emails.0
 
+          expect(email.subject).to.eql 'Password reset'
           expect(email.to).to.eql [{address = 'joe@example.com', name = ''}]
           expect(email.from).to.eql [{address = 'system@lexenotes.com', name = ''}]
           linkRegex = r/http:\/\/localhost:12345\/resetpassword\/(\w*)/
@@ -284,6 +286,7 @@ describe 'users'
             expect(smtpServer.emails.length).to.equal 2
             smtpServer.emails.1
 
+          expect(adminEmail.subject).to.eql 'User Changed Password'
           expect(adminEmail.to).to.eql [{address = 'admin@lexenotes.com', name = ''}]
           expect(adminEmail.from).to.eql [{address = 'system@lexenotes.com', name = ''}]
           expect(adminEmail.text).to.contain 'joe@example.com'
