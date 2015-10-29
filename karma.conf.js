@@ -19,13 +19,13 @@ module.exports = function(config) {
       "node_modules/medium-editor/dist/css/medium-editor.min.css",
       "node_modules/medium-editor/dist/css/themes/default.min.css",
       "node_modules/jquery/dist/jquery.js",
-      // "semantic/dist/themes/default/assets/fonts/icons.woff2",
-      // "semantic/dist/themes/default/assets/fonts/icons.woff",
       "bower_components/ckeditor/ckeditor.js",
       {pattern: 'bower_components/ckeditor/**', watched: false, included: false, served: true},
       "semantic/dist/semantic.js",
       "semantic/dist/semantic.min.css",
-      "test/browser/**/*Spec.{js,pogo}"
+      {pattern: "semantic/dist/themes/**", watched: false, included: false, served: true},
+      "test/browser/**/*Spec.{js,pogo}",
+      {pattern: 'browser/style/**', watched: false, included: false, served: true}
     ],
 
     preprocessors: {
@@ -43,6 +43,9 @@ module.exports = function(config) {
       '**/*.sw?'
     ],
 
+    proxies: {
+      '/source/': '/base/browser/style/'
+    },
 
     // test results reporter to use
     // possible values: 'dots', 'progress'

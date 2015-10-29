@@ -30,7 +30,7 @@ describe 'report'
 
   rootBrowser = testBrowser.component {
     newDocumentButton() = self.find('.button', text = 'NEW DOCUMENT')
-    reportTab() = self.find('.ui.button', text = 'REPORT')
+    reportTab() = self.find('.ui.button', text = 'eNOTE')
     authoringTab() = self.find('.top-menu .buttons a', text = 'AUTHORING')
     document(name) =
       self.find(".documents tr.document").containing('.name', text: name).component {

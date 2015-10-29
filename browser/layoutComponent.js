@@ -119,10 +119,10 @@ function topMenuButtons(model) {
     if (currentDocument) {
       if (routes.authoring.under().active) {
         var href = routes.report({documentId: currentDocument.id}).href;
-        return h('a.ui.button', {href: href, title: currentDocument.name}, 'Report');
+        return h('a.ui.button.enote', {href: href, title: currentDocument.name}, 'eNOTE');
       } else {
         var route = routes.report({documentId: currentDocument.id});
-        return route.link({class: {ui: true, button: true, active: route.active}}, 'Report');
+        return route.link({class: {ui: true, button: true, active: route.active, enote: true}}, 'eNOTE');
       }
     }
   }
