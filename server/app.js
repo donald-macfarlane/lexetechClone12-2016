@@ -22,6 +22,7 @@ var printReport = require('./printReport');
 var httpsRedirect = require('./httpsRedirect');
 var sendEmail = require('./sendEmail');
 var baseUrl = require('./baseUrl');
+var release = require('./release.json');
 
 var mongoDb = require("./mongoDb")
 mongoDb.connect();
@@ -203,7 +204,8 @@ function page(req, res, js) {
     user: req.user
       ? _.pick(req.user, 'email', 'author', 'admin', 'id')
       : undefined,
-    flash: flash
+    flash: flash,
+    releaseTime: release.time
   };
 };
 

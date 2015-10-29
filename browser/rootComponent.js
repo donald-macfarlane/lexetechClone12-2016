@@ -17,6 +17,7 @@ var rootComponent = prototype({
   constructor: function (pageData) {
     this.user = pageData.user;
     this.flash = pageData.flash;
+    this.releaseTime = pageData.releaseTime;
 
     if (pageData.user) {
       this.documentApi = documentApi;

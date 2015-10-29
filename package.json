@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "mocha test/*Spec.* test/server/**Spec.*",
-    "postinstall": "bower install && gulp build"
+    "postinstall": "date '+{\"time\": %s000}' > server/release.json && bower install && gulp build"
   },
   "repository": {
     "type": "git",

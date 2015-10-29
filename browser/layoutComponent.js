@@ -156,7 +156,8 @@ function footer(model) {
   return h('footer',
     'LEXeNOTES is  the registered trademark of Lexeme Technologies LLC.',
     h('br'),
-    'Copyright 2015 Lexeme Technologies LLC. All rights protected. US Patent #8,706,680.'
+    'Copyright 2015 Lexeme Technologies LLC. All rights protected. US Patent #8,706,680.',
+    h('span.release-time', 'Released: ' + new Date(model.releaseTime))
   );
 }
 
