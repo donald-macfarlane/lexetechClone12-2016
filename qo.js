@@ -11,6 +11,7 @@ var less = require('./tools/less');
 var browserify = require('./tools/browserify');
 
 var glob = Promise.promisify(require('glob'));
+var mkdirp = Promise.promisify(require('mkdirp'));
 
 function runIndySpecs() {
   return glob('test/server-indy/*Spec.*').then(function (files) {
@@ -310,17 +311,25 @@ task('watch-css', function () {
 });
 
 function buildCss() {
-  return Promise.all(lessFiles.map(function (file) {
-    return less.compile(file, outputDir, lessOptions);
-  }));
+  return ensureOutputDir().then(function () {
+    return Promise.all(lessFiles.map(function (file) {
+      return less.compile(file, outputDir, lessOptions);
+    }));
+  });
 }
 
 task('build-css', function () {
   return buildCss();
 });
 
+function ensureOutputDir() {
+  return mkdirp(outputDir);
+}
+
 function buildJs() {
-  return browserify('browser/app.js', 'server/generated');
+  return ensureOutputDir().then(function () {
+    return browserify('browser/app.js', outputDir);
+  });
 }
 
 task('build-js', function () {
