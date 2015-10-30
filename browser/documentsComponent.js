@@ -4,7 +4,7 @@ var prototype = require('prote');
 var semanticUi = require('plastiq-semantic-ui');
 var moment = require('moment');
 var throttle = require('plastiq-throttle');
-var debug = require('debug')('start-report');
+var debug = require('debug')('start-enote');
 var removeFromArray = require('./removeFromArray');
 var _ = require('underscore');
 var routes = require('./routes');
@@ -31,7 +31,7 @@ module.exports = prototype({
     var self = this;
 
     return this.documentApi.create().then(function (doc) {
-      routes.report({documentId: doc.id}).push();
+      routes.enote({documentId: doc.id}).push();
     });
   },
 
@@ -49,7 +49,7 @@ module.exports = prototype({
   },
 
   loadDocument: function (id) {
-    routes.report({documentId: id}).push();
+    routes.enote({documentId: id}).push();
   },
 
   deleteDocument: function (docToDelete) {

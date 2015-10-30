@@ -36,5 +36,5 @@ Then(/^they can set their password "(.*?)" and login$/) do |password|
 end
 
 Then(/^can log back in with the same password "(.*?)"$/) do |arg1|
-  login(@new_user_password, @new_user_password)
+  login(@new_user_email, @new_user_password)
 end

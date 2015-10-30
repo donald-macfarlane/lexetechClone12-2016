@@ -1,6 +1,6 @@
 var plastiq = require('plastiq');
 var h = plastiq.html;
-var reportComponent = require('./reportComponent');
+var enoteComponent = require('./enoteComponent');
 var prototype = require('prote');
 var authComponents = require('./authComponents');
 var layoutComponent = require('./layoutComponent');
@@ -49,7 +49,7 @@ var rootComponent = prototype({
   },
 
   query: function () {
-    return this.report && this.report.history.query;
+    return this.enote && this.enote.history.query;
   },
 
   lexemeApi: function () {
@@ -73,7 +73,7 @@ var rootComponent = prototype({
     this.document = doc;
     this.setCurrentDocument(doc);
     this.documentId = doc.id;
-    this.report = reportComponent({
+    this.enote = enoteComponent({
       user: this.user,
       document: doc,
       queryGraph: this.queryGraph(),
@@ -181,7 +181,7 @@ var rootComponent = prototype({
       function () {
         return layoutComponent(self, whenLoggedIn(function () {
           return [
-            routes.report.under(
+            routes.enote.under(
               {
                 documentId: {
                   set: function (docId) {
@@ -192,13 +192,13 @@ var rootComponent = prototype({
               function () {
                 if (self.documentNotFound) {
                   return h('h1.center', "Very sorry! We couldn't find this document.");
-                } else if (self.report) {
+                } else if (self.enote) {
                   return [
-                    routes.report(function () {
-                      return self.report.render();
+                    routes.enote(function () {
+                      return self.enote.render();
                     }),
-                    routes.printReport(function () {
-                      return self.report.renderPrint();
+                    routes.printEnote(function () {
+                      return self.enote.renderPrint();
                     })
                   ];
                 } else {

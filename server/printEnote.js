@@ -8,7 +8,7 @@ var vdomToHtml = require('vdom-to-html');
 
 app.set("views", __dirname + "/views");
 
-app.get(routes.printReport.pattern, function (req, res) {
+app.get(routes.printEnote.pattern, function (req, res) {
   var documentId = req.params.documentId;
   var style = req.params.style;
 

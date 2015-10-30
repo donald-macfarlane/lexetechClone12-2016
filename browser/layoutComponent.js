@@ -113,15 +113,15 @@ function topMenuButtons(model) {
     }
   }
 
-  function reportTab() {
+  function enoteTab() {
     var currentDocument = model.currentDocument();
 
     if (currentDocument) {
       if (routes.authoring.under().active) {
-        var href = routes.report({documentId: currentDocument.id}).href;
+        var href = routes.enote({documentId: currentDocument.id}).href;
         return h('a.ui.button.enote', {href: href, title: currentDocument.name}, 'eNOTE');
       } else {
-        var route = routes.report({documentId: currentDocument.id});
+        var route = routes.enote({documentId: currentDocument.id});
         return route.link({class: {ui: true, button: true, active: route.active, enote: true}}, 'eNOTE');
       }
     }
@@ -131,7 +131,7 @@ function topMenuButtons(model) {
     model.user
       ? [
         routeTab(routes.root(), 'Home', routes.root().active),
-        reportTab(),
+        enoteTab(),
         authoringTab(),
         adminTab()
       ]

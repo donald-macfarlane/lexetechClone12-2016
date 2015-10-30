@@ -96,8 +96,8 @@ module.exports = prototype({
     var self = this;
     this.refresh = h.refresh;
 
-    return h('div.report',
-      self.renderReportName(),
+    return h('div.enote',
+      self.renderEnoteName(),
       h('.query-response-editor',
         self.query.render()
       ),
@@ -197,17 +197,17 @@ module.exports = prototype({
   },
 
   print: function () {
-    location.href = routes.printReport({documentId: this.document.id, style: this.documentStyle.style}).href;
+    location.href = routes.printEnote({documentId: this.document.id, style: this.documentStyle.style}).href;
   },
 
   renderPrint: function () {
     return this.documentComponent.render(this.documentStyle.style);
   },
 
-  renderReportName: function () {
+  renderEnoteName: function () {
     var self = this;
 
-    var reportNameComponent = h.component(function () {
+    return h.component(function (component) {
       if (self.document.dirty) {
         self.throttledSaveDocument();
       }
@@ -215,12 +215,10 @@ module.exports = prototype({
       return h('.field.inline.document-name',
         h('label', 'Document Name'),
         h('.ui.icon.right.labeled.input', {class: {loading: self.document.dirty}},
-          h('input.report-name', {type: 'text', placeholder: 'Untitled', binding: dirtyBinding(self.document, 'name', reportNameComponent)}),
+          h('input.enote-name', {type: 'text', placeholder: 'Untitled', binding: dirtyBinding(self.document, 'name', component)}),
           h('.ui.green.label', self.document.dirty? 'saving...': 'saved')
         )
       )
     });
-
-    return reportNameComponent;
   }
 });

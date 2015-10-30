@@ -11,6 +11,7 @@ module LoginAutomation
     fill_in "Email", with: email
     fill_in "Password", with: password
     click_button "Log in"
+    expect(page).to have_css('.button', text: 'NEW DOCUMENT')
   end
 
   def logout

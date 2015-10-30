@@ -18,7 +18,7 @@ var urlUtils = require('url');
 var redisClient = require('./redisClient');
 var inactivityTimeout = require('./inactivityTimeout');
 var routes = require('../browser/routes');
-var printReport = require('./printReport');
+var printEnote = require('./printEnote');
 var httpsRedirect = require('./httpsRedirect');
 var sendEmail = require('./sendEmail');
 var baseUrl = require('./baseUrl');
@@ -201,12 +201,11 @@ app.use("/static", function (req, res) {
   res.status(404).send('no such page');
 });
 
-function page(req, res, js) {
+function page(req, res) {
   var flash = res.locals.flash;
   req.session.flash = [];
 
   return {
-    script: js,
     user: req.user
       ? _.pick(req.user, 'email', 'author', 'admin', 'id')
       : undefined,
@@ -215,14 +214,14 @@ function page(req, res, js) {
   };
 };
 
-app.use(printReport);
+app.use(printEnote);
 
 app.post('/stayalive', function (req, res) {
   res.send();
 });
 
 app.get("*", function(req, res) {
-  res.render("index.html", page(req, res, "/app.js"));
+  res.render("index.html", page(req, res));
 });
 
 module.exports = app;

@@ -20,7 +20,7 @@ predicantLexicon = require '../predicantLexicon'
 ckeditorMonkey = require './ckeditorMonkey'
 hardstop = require './hardstop'
 
-describe 'report'
+describe 'enote'
   div = nil
   api = nil
   originalLocation = nil
@@ -30,7 +30,7 @@ describe 'report'
 
   rootBrowser = testBrowser.component {
     newDocumentButton() = self.find('.button', text = 'NEW DOCUMENT')
-    reportTab() = self.find('.ui.button', text = 'eNOTE')
+    enoteTab() = self.find('.ui.button', text = 'eNOTE')
     authoringTab() = self.find('.top-menu .buttons a', text = 'AUTHORING')
     document(name) =
       self.find(".documents tr.document").containing('.name', text: name).component {
@@ -43,8 +43,8 @@ describe 'report'
       }
   }
 
-  reportBrowser = testBrowser.component {
-    reportNameInput() = self.find('input.report-name')
+  enoteBrowser = testBrowser.component {
+    enoteNameInput() = self.find('input.enote-name')
     undoButton() = self.find('.query .button', text = 'UNDO')
     acceptButton() = self.find('.button.accept')
     debugTab() = self.find('.tabular .debug')
@@ -107,14 +107,14 @@ describe 'report'
       e
 
   shouldHaveQuery(query) =
-    reportBrowser.queryText().shouldHave!(text: query.toUpperCase())
+    enoteBrowser.queryText().shouldHave!(text: query.toUpperCase())
 
   shouldBeFinished() =
     retry!
-      reportBrowser.find('.finished').exists!()
+      enoteBrowser.find('.finished').exists!()
 
   selectResponse(response) =
-    reportBrowser.find ".query .response a" (text = response).click!()
+    enoteBrowser.find ".query .response a" (text = response).click!()
 
   notesShouldBe(notes) =
     retry!
@@ -204,7 +204,7 @@ describe 'report'
       shouldHaveQuery 'Where does it hurt?'!
       selectResponse 'left leg'!
       shouldHaveQuery 'Is it bleeding?'!
-      reportBrowser.undoButton().click!()
+      enoteBrowser.undoButton().click!()
       shouldHaveQuery 'Where does it hurt?'!
       selectResponse 'right leg'!
       shouldHaveQuery 'Is it bleeding?'!
@@ -223,10 +223,10 @@ describe 'report'
       shouldHaveQuery 'Where does it hurt?'!
       selectResponse 'left leg'!
       shouldHaveQuery 'Is it bleeding?'!
-      reportBrowser.undoButton().click!()
+      enoteBrowser.undoButton().click!()
       shouldHaveQuery 'Where does it hurt?'!
-      reportBrowser.query().response('left leg').shouldBeSelected()!
-      reportBrowser.acceptButton().click!()
+      enoteBrowser.query().response('left leg').shouldBeSelected()!
+      enoteBrowser.acceptButton().click!()
       shouldHaveQuery 'Is it bleeding?'!
       selectResponse 'yes'!
       shouldHaveQuery 'Is it aching?'!
@@ -246,13 +246,13 @@ describe 'report'
       selectResponse 'yes'!
       shouldHaveQuery 'Is it aching?'!
       selectResponse 'yes'!
-      reportBrowser.document().section('bleeding').click!()
+      enoteBrowser.document().section('bleeding').click!()
       shouldHaveQuery 'Is it bleeding?'!
-      reportBrowser.query().response('yes').shouldBeSelected()!
-      reportBrowser.acceptButton().click!()
+      enoteBrowser.query().response('yes').shouldBeSelected()!
+      enoteBrowser.acceptButton().click!()
       shouldHaveQuery 'Is it aching?'!
-      reportBrowser.query().response('yes').shouldBeSelected()!
-      reportBrowser.acceptButton().click!()
+      enoteBrowser.query().response('yes').shouldBeSelected()!
+      enoteBrowser.acceptButton().click!()
       shouldBeFinished()!
 
       notesShouldBe! "Complaint
@@ -270,7 +270,7 @@ describe 'report'
       selectResponse 'yes'!
       shouldBeFinished()!
 
-      reportBrowser.abbreviatedTab().click!()
+      enoteBrowser.abbreviatedTab().click!()
 
       notesShouldBe! "lft leg, bleed, ache"
 
@@ -280,9 +280,9 @@ describe 'report'
       shouldHaveQuery 'Where does it hurt?'!
       selectResponse 'left leg'!
       shouldHaveQuery 'Is it bleeding?'!
-      response = reportBrowser.query().response('yes')
+      response = enoteBrowser.query().response('yes')
       response.editButton().click!()
-      editor = reportBrowser.responseEditor()
+      editor = enoteBrowser.responseEditor()
       style1Editor = editor.responseTextEditor('style1')
       style1Editor.typeInCkEditorHtml!('bleeding badly')
       style1Tab = editor.tab('style1')
@@ -456,7 +456,7 @@ describe 'report'
 
     it 'displays debugging information' =>
       self.timeout 100000
-      reportBrowser.debugTab().click!()
+      enoteBrowser.debugTab().click!()
 
       shouldHaveQuery 'Where does it hurt?'!
       selectResponse 'left leg'!
@@ -464,15 +464,15 @@ describe 'report'
       selectResponse 'yes'!
       shouldHaveQuery 'Is it aching?'!
 
-      reportBrowser.debug().blockQuery('Block 1', 'query1').shouldHave!(css: '.before')
-      reportBrowser.debug().blockQuery('Block 1', 'query2').shouldHave!(css: '.previous')
-      reportBrowser.debug().blockQuery('Block 2', 'query3').shouldHave!(css: '.skipped')
-      reportBrowser.debug().blockQuery('Block 3', 'query4').shouldHave!(css: '.found')
+      enoteBrowser.debug().blockQuery('Block 1', 'query1').shouldHave!(css: '.before')
+      enoteBrowser.debug().blockQuery('Block 1', 'query2').shouldHave!(css: '.previous')
+      enoteBrowser.debug().blockQuery('Block 2', 'query3').shouldHave!(css: '.skipped')
+      enoteBrowser.debug().blockQuery('Block 3', 'query4').shouldHave!(css: '.found')
 
       selectResponse 'yes'!
       shouldBeFinished()!
 
-      reportBrowser.normalTab().click!()
+      enoteBrowser.normalTab().click!()
 
       notesShouldBe! "Complaint
                       ---------
@@ -495,7 +495,7 @@ describe 'report'
           expect(api.documents.length).to.eql 0
 
         rootBrowser.newDocumentButton().click!()
-        reportBrowser.reportNameInput().typeIn!("bob's report")
+        enoteBrowser.enoteNameInput().typeIn!("bob's enote")
         shouldHaveQuery 'Where does it hurt?'!
         selectResponse 'left leg'!
         shouldHaveQuery 'Is it bleeding?'!
@@ -505,15 +505,15 @@ describe 'report'
 
         history.back()
 
-        bobsReport = rootBrowser.document("bob's report")
-        bobsReport.shouldExist!()
+        bobsEnote = rootBrowser.document("bob's enote")
+        bobsEnote.shouldExist!()
 
-        bobsReport.click!()
+        bobsEnote.click!()
         shouldHaveQuery 'Is it bleeding?'!
         selectResponse 'yes'!
         shouldHaveQuery 'Is it aching?'!
         selectResponse 'yes'!
-        reportBrowser.reportNameInput().shouldHave!(value: "bob's report")
+        enoteBrowser.enoteNameInput().shouldHave!(value: "bob's enote")
         shouldBeFinished()!
 
       it 'can create a document and delete it'
@@ -521,7 +521,7 @@ describe 'report'
           expect(api.documents.length).to.eql 0
 
         rootBrowser.newDocumentButton().click!()
-        reportBrowser.reportNameInput().typeIn!("bob's report")
+        enoteBrowser.enoteNameInput().typeIn!("bob's enote")
         shouldHaveQuery 'Where does it hurt?'!
         selectResponse 'left leg'!
         shouldHaveQuery 'Is it bleeding?'!
@@ -531,18 +531,18 @@ describe 'report'
 
         history.back()
 
-        bobsReport = rootBrowser.document("bob's report")
-        bobsReport.shouldExist!()
-        bobsReport.deleteButton().click()!
-        bobsReport.deleteModal().okButton().click()!
-        bobsReport.shouldNotExist!()
+        bobsEnote = rootBrowser.document("bob's enote")
+        bobsEnote.shouldExist!()
+        bobsEnote.deleteButton().click()!
+        bobsEnote.deleteModal().okButton().click()!
+        bobsEnote.shouldNotExist!()
 
-      it 'can create a document come back to it using the report link'
+      it 'can create a document come back to it using the enote link'
         retry!
           expect(api.documents.length).to.eql 0
 
         rootBrowser.newDocumentButton().click!()
-        reportBrowser.reportNameInput().typeIn!("bob's report")
+        enoteBrowser.enoteNameInput().typeIn!("bob's enote")
         shouldHaveQuery 'Where does it hurt?'!
         selectResponse 'left leg'!
         shouldHaveQuery 'Is it bleeding?'!
@@ -552,21 +552,21 @@ describe 'report'
 
         history.back()
 
-        rootBrowser.reportTab().click()!
-        reportBrowser.reportNameInput().shouldHave!(value: "bob's report")
+        rootBrowser.enoteTab().click()!
+        enoteBrowser.enoteNameInput().shouldHave!(value: "bob's enote")
 
       it 'can create a document, make some repeating responses, and come back to it'
         retry!
           expect(api.documents.length).to.eql 0
 
         rootBrowser.newDocumentButton().click!()
-        reportBrowser.reportNameInput().typeIn!("bob's report")
+        enoteBrowser.enoteNameInput().typeIn!("bob's enote")
         shouldHaveQuery 'Where does it hurt?'!
         selectResponse 'left leg'!
         shouldHaveQuery 'Is it bleeding?'!
-        response = reportBrowser.query().response('yes')
+        response = enoteBrowser.query().response('yes')
         response.editButton().click!()
-        editor = reportBrowser.responseEditor()
+        editor = enoteBrowser.responseEditor()
         editor.responseTextEditor('style1').typeInCkEditorHtml!('bleeding badly')
         editor.okButton().click!()
         shouldHaveQuery 'Is it aching?'!
@@ -576,12 +576,12 @@ describe 'report'
 
         window.history.back()
 
-        bobsReport = rootBrowser.document("bob's report")
-        bobsReport.shouldExist!()
+        bobsEnote = rootBrowser.document("bob's enote")
+        bobsEnote.shouldExist!()
 
-        bobsReport.click!()
+        bobsEnote.click!()
         shouldHaveQuery 'Is it aching?'!
-        reportBrowser.undoButton().click!()
+        enoteBrowser.undoButton().click!()
         shouldHaveQuery 'Is it bleeding?'!
 
         response.editButton().click!()
@@ -600,13 +600,13 @@ describe 'report'
             expect(api.documents.length).to.eql 0
 
           rootBrowser.newDocumentButton().click!()
-          reportBrowser.reportNameInput().typeIn!("bob's report")
+          enoteBrowser.enoteNameInput().typeIn!("bob's enote")
           shouldHaveQuery 'Where does it hurt?'!
           selectResponse 'left leg'!
           shouldHaveQuery 'Is it bleeding?'!
-          response = reportBrowser.query().response('yes')
+          response = enoteBrowser.query().response('yes')
           response.editButton().click!()
-          editor = reportBrowser.responseEditor()
+          editor = enoteBrowser.responseEditor()
           editor.responseTextEditor('style1').typeInCkEditorHtml!('bleeding badly')
           editor.okButton().click!()
           shouldHaveQuery 'Is it aching?'!
@@ -625,7 +625,7 @@ describe 'report'
             expect(api.documents.0.lexemes.length).to.eql 2
             expect(api.documents.0.lexemes.0.response.styles.style1).to.equal "Complaint\n---------\nleft leg "
 
-          rootBrowser.document("bob's report").click!()
+          rootBrowser.document("bob's enote").click!()
 
           notesShouldBe! "the left leg bleeding badly"
 
@@ -674,7 +674,7 @@ describe 'report'
         expect(api.documents.length).to.eql 0
 
       rootBrowser.newDocumentButton().click!()
-      reportBrowser.reportNameInput().typeIn!("bob's report")
+      enoteBrowser.enoteNameInput().typeIn!("bob's enote")
       shouldHaveQuery 'One'!
       selectResponse 'A'!
       shouldHaveQuery 'One'!
@@ -686,13 +686,13 @@ describe 'report'
 
       window.history.back()
 
-      bobsReport = rootBrowser.document("bob's report")
-      bobsReport.shouldExist!()
+      bobsEnote = rootBrowser.document("bob's enote")
+      bobsEnote.shouldExist!()
 
-      bobsReport.click!()
+      bobsEnote.click!()
       shouldHaveQuery 'One'!
-      reportBrowser.query().response('A').shouldBeChecked()!
-      reportBrowser.query().response('C').shouldBeChecked()!
+      enoteBrowser.query().response('A').shouldBeChecked()!
+      enoteBrowser.query().response('C').shouldBeChecked()!
       selectResponse 'No More'!
       shouldBeFinished()!
 
@@ -706,7 +706,7 @@ describe 'report'
       shouldHaveQuery 'query 1, level 1'!
       selectResponse 'response 1'!
       shouldHaveQuery 'query 2, level 1'!
-      reportBrowser.query().omitButton().click!()
+      enoteBrowser.query().omitButton().click!()
       shouldHaveQuery 'query 3, level 2'!
       selectResponse 'response 1'!
       shouldHaveQuery 'query 5, level 1'!
@@ -717,12 +717,12 @@ describe 'report'
       shouldHaveQuery 'query 1, level 1'!
       selectResponse 'response 1'!
       shouldHaveQuery 'query 2, level 1'!
-      reportBrowser.query().omitButton().click!()
+      enoteBrowser.query().omitButton().click!()
       shouldHaveQuery 'query 3, level 2'!
-      reportBrowser.undoButton().click!()
+      enoteBrowser.undoButton().click!()
       shouldHaveQuery 'query 2, level 1'!
-      reportBrowser.query().omitButton().shouldHave!(css: '.selected')
-      reportBrowser.acceptButton().click!()
+      enoteBrowser.query().omitButton().shouldHave!(css: '.selected')
+      enoteBrowser.acceptButton().click!()
       shouldHaveQuery 'query 3, level 2'!
       selectResponse 'response 1'!
       shouldHaveQuery 'query 5, level 1'!
@@ -733,7 +733,7 @@ describe 'report'
       shouldHaveQuery 'query 1, level 1'!
       selectResponse 'response 1'!
       shouldHaveQuery 'query 2, level 1'!
-      reportBrowser.query().skipButton().click!()
+      enoteBrowser.query().skipButton().click!()
       shouldHaveQuery 'query 5, level 1'!
       selectResponse 'response 1'!
       shouldBeFinished()!
@@ -742,12 +742,12 @@ describe 'report'
       shouldHaveQuery 'query 1, level 1'!
       selectResponse 'response 1'!
       shouldHaveQuery 'query 2, level 1'!
-      reportBrowser.query().skipButton().click!()
+      enoteBrowser.query().skipButton().click!()
       shouldHaveQuery 'query 5, level 1'!
-      reportBrowser.undoButton().click!()
+      enoteBrowser.undoButton().click!()
       shouldHaveQuery 'query 2, level 1'!
-      reportBrowser.query().skipButton().shouldHave!(css: '.selected')
-      reportBrowser.acceptButton().click!()
+      enoteBrowser.query().skipButton().shouldHave!(css: '.selected')
+      enoteBrowser.acceptButton().click!()
       shouldHaveQuery 'query 5, level 1'!
       selectResponse 'response 1'!
       shouldBeFinished()!

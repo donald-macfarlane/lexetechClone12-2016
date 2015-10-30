@@ -7,6 +7,8 @@ var _ = require('underscore');
 var promisify = require('./server/promisify');
 var Promise = require('bluebird');
 var pathUtils = require('path');
+var less = require('./tools/less');
+var browserify = require('./tools/browserify');
 
 var glob = Promise.promisify(require('glob'));
 
@@ -290,4 +292,44 @@ task('test-data', function () {
   }).then(function () {
     return putLexeme('lexicon.json', options);
   });
+});
+
+var lessFiles = [
+  'browser/style/app.less',
+  'browser/style/app.ie.less',
+  'browser/style/print/enote.less'
+];
+
+var lessOptions = {sourceMap: {outputSourceFiles: true}};
+var outputDir = 'server/generated';
+
+task('watch-css', function () {
+  lessFiles.forEach(function (file) {
+    less.watch(file, outputDir, lessOptions);
+  });
+});
+
+function buildCss() {
+  return Promise.all(lessFiles.map(function (file) {
+    return less.compile(file, outputDir, lessOptions);
+  }));
+}
+
+task('build-css', function () {
+  return buildCss();
+});
+
+function buildJs() {
+  return browserify('browser/app.js', 'server/generated');
+}
+
+task('build-js', function () {
+  return buildJs();
+});
+
+task('build', function () {
+  return Promise.all([
+    buildJs(),
+    buildCss()
+  ]);
 });
