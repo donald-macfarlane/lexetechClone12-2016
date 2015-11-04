@@ -125,5 +125,8 @@
     "winston": "0.9.0",
     "yamljs": "0.2.3",
     "zeroclipboard": "2.2.0"
+  },
+  "engines": {
+    "node": "0.12"
   }
 }
