@@ -2,6 +2,18 @@ var h = require('plastiq').html;
 var removeFromArray = require('../../../../removeFromArray');
 var _ = require('underscore');
 
+function elementHasParent(element, parent) {
+  var e = element;
+
+  while (e.parentNode) {
+    if (e.parentNode === parent) {
+      return true;
+    }
+
+    e = e.parentNode;
+  }
+}
+
 module.exports = function(options) {
   var items = options.items;
   var selectedItems = options.selectedItems;
@@ -13,33 +25,48 @@ module.exports = function(options) {
   return h.component(
     {
       key: options && options.key,
-      onadd: function () {
+
+      onadd: function (element) {
+        var self = this;
+
         this.search = '';
-      }
-    },
-    function (component) {
-      var state = component.state;
 
-      state.search = state.search || '';
+        this.outsideClick = h.refreshify(function (ev) {
+          if (!elementHasParent(ev.target, element)) {
+            self.blur();
+          }
+        });
 
-      function focus() {
-        state.show = true;
-      }
+        document.addEventListener('click', this.outsideClick, true)
+      },
 
-      function blur(ev) {
-        if (!state.activated) {
-          state.show = false;
+      onremove: function () {
+        document.removeEventListener('click', this.outsideClick);
+      },
+
+      blur: function (ev) {
+        if (!this.activated) {
+          this.show = false;
+          this.search = '';
         } else {
           ev.target.focus();
         }
       }
+    },
+    function (component) {
+      var self = this;
+      this.search = this.search || '';
+
+      function focus() {
+        self.show = true;
+      }
 
       function activate() {
-        state.activated = true;
+        self.activated = true;
       }
 
       function disactivate() {
-        state.activated = false;
+        self.activated = false;
       }
 
       function searchKeyDown(ev) {
@@ -95,7 +122,7 @@ module.exports = function(options) {
       var matchingItems = Object.keys(items).map(function (k) {
         return items[k];
       }).filter(function (p) {
-        return matchesSearch(p, state.search);
+        return matchesSearch(p, self.search);
       });
 
       return h("div.item-select",
@@ -107,14 +134,13 @@ module.exports = function(options) {
           {
             type: "text",
             placeholder: placeholder,
-            binding: [state, 'search'],
+            binding: [self, 'search'],
             onkeydown: searchKeyDown,
-            onblur: blur,
             onfocus: focus
           }
         ),
         h("div.select-list",
-          h(".ui.menu.vertical", {class: {hidden: !state.show}}, matchingItems.map(renderMatchingItem))
+          h(".ui.menu.vertical", {class: {hidden: !self.show}}, matchingItems.map(renderMatchingItem))
         )
       );
     }

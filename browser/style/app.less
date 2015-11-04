@@ -1010,6 +1010,12 @@ hr {
       align-items: flex-start;
       margin-top: 10px;
 
+      > .ui.vertical.menu {
+        width: 140px;
+        min-width: 140px;
+        max-width: 140px;
+      }
+
       > *:first-child {
         margin-left: 0;
       }
@@ -1060,6 +1066,12 @@ hr {
         -webkit-flex: 1;
         flex: 1;
       }
+    }
+  }
+
+  .field {
+    .ui.vertical.menu {
+      width: auto;
     }
   }
 }

@@ -45,6 +45,10 @@ function addAuthor(username, options) {
   }, options);
 }
 
+function addUser(user, options) {
+  return createApi(options.env).post('/api/users', user).then(logResponse);
+}
+
 function addAdmin(username, options) {
   return findAndModifyUser(createApi(options.env), username, function (user) {
     user.admin = true;
@@ -83,13 +87,15 @@ task('clear-lexicon ' + envArg, function (args, options) {
   });
 });
 
+function logResponse(response) {
+  console.log(response.statusCode + ' => ' + JSON.stringify(response.body, null, 2));
+}
+
 function putLexeme(file, options) {
   return fs.readFile(file, 'utf-8').then(function (content) {
     var lexicon = JSON.parse(content);
     var api = createApi(options.env);
-    return api.post('lexicon', lexicon).then(function (response) {
-      console.log(response.statusCode + ' => ' + JSON.stringify(response.body, null, 2));
-    });
+    return api.post('lexicon', lexicon).then(logResponse);
   });
 }
 
@@ -285,12 +291,13 @@ task("remove-none-actions # at one point we had 'none' actions, which weren't th
   });
 });
 
-task('test-data', function () {
-  var options = {};
-
-  return addAuthor('author@surgery.com', options).then(function () {
-    return addAdmin('author@surgery.com', options);
-  }).then(function () {
+task('test-data', function (args, options) {
+  return addUser({
+    email: 'author@surgery.com',
+    password: 'omgomgomg',
+    author: true,
+    admin: true
+  }, options).then(function () {
     return putLexeme('lexicon.json', options);
   });
 });

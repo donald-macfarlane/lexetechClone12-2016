@@ -77,15 +77,17 @@ QueryComponent.prototype.renderResponse = function (response) {
           )
         : undefined,
       h(".form",
-        h(".field.selector",
-          h("label", "Selector"),
-          h('.ui.input',
-            h("input", {type: 'text', binding: self.dirtyBinding(response, 'text'), onfocus: select})
+        h('.two.fields',
+          h(".field.selector",
+            h("label", "Selector"),
+            h('.ui.input',
+              h("input", {type: 'text', binding: self.dirtyBinding(response, 'text'), onfocus: select})
+            )
+          ),
+          h(".field.set-level",
+            h("label", "Set Level"),
+            self.numberInput(response, "setLevel")
           )
-        ),
-        h(".field.set-level",
-          h("label", "Set Level"),
-          self.numberInput(response, "setLevel")
         ),
         h(".field.style1",
           h("label", "Style 1"),
@@ -95,13 +97,15 @@ QueryComponent.prototype.renderResponse = function (response) {
           h("label", "Style 2"),
           renderStyle('style2')
         ),
+        h(".field.predicants",
+          h("label", "Predicants Issued"),
+          h(".two.fields.predicants",
+            self.renderPredicants(response.predicants)
+          )
+        ),
         h(".field.actions",
           h("label", "Actions"),
           self.renderActions(response.actions)
-        ),
-        h(".field.predicants",
-          h("label", "Predicants Issued"),
-          self.renderPredicants(response.predicants)
         )
       )
     ]
@@ -486,8 +490,8 @@ var actionDefinitions = {
     },
 
     render: function(component, action) {
-      return [
-        h(".field",
+      return h(".two.fields",
+        h('.field',
           h("label", "Name"),
           h(".ui.input input",
             {
@@ -505,7 +509,7 @@ var actionDefinitions = {
             }
           )
         )
-      ];
+      )
     }
   },
 
