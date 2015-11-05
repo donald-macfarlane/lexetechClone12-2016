@@ -12,6 +12,7 @@ var routes = require('../../../../routes');
 var removeFromArray = require('../../../../removeFromArray');
 var dirtyBinding = require('../dirtyBinding');
 var sortable = require('plastiq-sortable');
+var stripNbsp = require('../../../../stripNbspBinding');
 
 function QueryComponent(options) {
   var self = this;
@@ -41,6 +42,14 @@ QueryComponent.prototype.pasteQueryFromClipboard = function (query) {
 QueryComponent.prototype.refresh = function () {
 };
 
+function chompEnd(string, ending) {
+  if (string.substring(string.length - ending.length) == ending) {
+    return string.substring(0, string.length - ending.length);
+  } else {
+    return string;
+  }
+}
+
 QueryComponent.prototype.renderResponse = function (response) {
   var self = this;
 
@@ -62,7 +71,7 @@ QueryComponent.prototype.renderResponse = function (response) {
 
   function renderStyle(style) {
     if (editing) {
-      return responseHtmlEditor({ class: 'editor', binding: self.dirtyBinding(response.styles, style)});
+      return responseHtmlEditor({ class: 'editor', binding: self.dirtyBinding(response.styles, style, stripNbsp)});
     } else {
       return h.rawHtml('div.editor', response.styles[style] || '&nbsp;');
     }
@@ -183,14 +192,14 @@ QueryComponent.prototype.render = function () {
           )
         ]
         : [
-          h("button.create",
+          h("button.ui.button.create",
             {
               class: activeWhen(dirty && !created),
               onclick: self.create.bind(self)
             },
             "Create"
           ),
-          h("button.cancel",
+          h("button.ui.button.cancel",
             {
               class: activeWhen(dirty),
               onclick: self.cancel.bind(self)

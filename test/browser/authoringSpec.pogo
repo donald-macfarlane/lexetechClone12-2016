@@ -108,6 +108,7 @@ editQueryComponent = {
   predicants() = self.find('.predicants').component(predicantsMonkey)
   addToClipboardButton() = self.find('button', text = 'ADD TO CLIPBOARD')
   overwriteButton() = self.find('button', text = 'OVERWRITE')
+  createButton() = self.find('button', text = 'CREATE')
   deleteButton() = self.find('button', text = 'DELETE')
 }
 
@@ -230,7 +231,7 @@ describe 'authoring'
         actions.action('Set Blocks').click!()
         actions.find('.menu .item.action-set-blocks .select-list .menu .item', text = 'abcd').click!()
 
-        page.find('.edit-query button', text = 'Create').click!()
+        page.editQuery().createButton().click!()
 
         retry!
           expect(api.lexicon().blocks.1.queries).to.eql [
@@ -287,7 +288,7 @@ describe 'authoring'
         newResponse.predicantSearch().typeIn!('Joe')
         newResponse.predicant('Joe Bloggs').click!()
 
-        page.find('.edit-query button', text = 'Create').click!()
+        page.editQuery().createButton().click!()
 
         retry!
           expect(api.lexicon().blocks.0.queries).to.eql [
@@ -349,6 +350,15 @@ describe 'authoring'
 
       describe 'set blocks'
         'Set Blocks' isNotCompatibleWith ['Set Blocks', 'Add Blocks']
+
+      it 'trims nbsps from styles'
+        responses = page.responses()
+        newResponse = responses.selectedResponse()
+        newResponse.style1().typeInCkEditorHtml!('one two<br>&nbsp;')
+        page.editQuery().createButton().click!()
+
+        retry!
+          expect(api.lexicon().blocks.0.queries.0.responses.0.styles.style1).to.eql "one two<br />\n"
 
     describe 'selecting blocks and queries'
       beforeEach

@@ -3,6 +3,7 @@ var h = plastiq.html;
 var prototype = require('prote');
 var semanticUi = require('plastiq-semantic-ui');
 var responseHtmlEditor = require('./responseHtmlEditor');
+var stripNbsp = require('./stripNbspBinding');
 
 module.exports = prototype({
   stopEditingResponse: function () {
@@ -49,7 +50,7 @@ module.exports = prototype({
         options.editing
         ? responseHtmlEditor({
             class: 'response-text-editor',
-            binding: [response.styles, id]
+            binding: [response.styles, id, stripNbsp]
           })
         : h.rawHtml('.response-text', response? response.styles[id]: ''),
         h('div', 'response: ', response? response.styles[id]: '')
