@@ -22,13 +22,9 @@ var printEnote = require('./printEnote');
 var httpsRedirect = require('./httpsRedirect');
 var sendEmail = require('./sendEmail');
 var baseUrl = require('./baseUrl');
-
-var release;
-try {
-  release = require('./release.json');
-} catch(e) {
-  release = {};
-}
+var release = require('./release');
+var browserify = require('browserify-middleware');
+var less = require('less-middleware');
 
 var mongoDb = require("./mongoDb")
 mongoDb.connect();
@@ -188,6 +184,18 @@ app.post("/logout", function(req, res) {
   res.redirect("/");
 });
 
+if (app.get('env') != 'production') {
+  app.use(less(__dirname + '/../browser/style', {
+    dest: __dirname + '/generated',
+    render: {
+      sourceMap: {
+        sourceMapFileInline: true,
+        outputSourceFiles: true
+      }
+    }
+  }));
+}
+
 app.use(express.static(__dirname + "/generated"));
 app.use(express.static(__dirname + "/public"));
 app.use("/source", express.static(__dirname + "/../browser/style"));
@@ -200,6 +208,11 @@ app.use("/static/ckeditor", express.static(__dirname + "/../bower_components/cke
 app.use("/static", function (req, res) {
   res.status(404).send('no such page');
 });
+
+app.use('/app.js', browserify(__dirname + '/../browser/app.js', {
+  transform: ['babelify'],
+  extensions: ['.jsx']
+}));
 
 function page(req, res) {
   var flash = res.locals.flash;

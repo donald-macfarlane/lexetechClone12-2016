@@ -12,6 +12,7 @@ var browserify = require('./tools/browserify');
 
 var glob = Promise.promisify(require('glob'));
 var mkdirp = Promise.promisify(require('mkdirp'));
+var rimraf = Promise.promisify(require('rimraf'));
 
 function runIndySpecs() {
   return glob('test/server-indy/*Spec.*').then(function (files) {
@@ -348,4 +349,12 @@ task('build', function () {
     buildJs(),
     buildCss()
   ]);
+});
+
+task('clean', function () {
+  return rimraf(outputDir);
+});
+
+task('serve', function () {
+  return shell('node server/server.js');
 });
