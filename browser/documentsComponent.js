@@ -129,7 +129,7 @@ module.exports = prototype({
       h('h1', 'Your documents'),
       h('p', 'You have not yet created any documents.'),
       h('p', 
-        h('a', {href: '#tutorial'}, 'Read the tutorial'),
+        routes.contentPage({page: 'tutorial'}).link('Read the tutorial'),
         ' or start a new document when you are ready:'
       ),
       h('.ui.button.new-document', {onclick: self.createDocument.bind(self)}, 'New Document')

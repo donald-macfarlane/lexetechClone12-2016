@@ -25,6 +25,7 @@ var baseUrl = require('./baseUrl');
 var release = require('./release');
 var browserify = require('browserify-middleware');
 var less = require('less-middleware');
+var markdown = require('express-markdown');
 
 var mongoDb = require("./mongoDb")
 mongoDb.connect();
@@ -212,6 +213,10 @@ app.use("/static", function (req, res) {
 app.use('/app.js', browserify(__dirname + '/../browser/app.js', {
   transform: ['babelify'],
   extensions: ['.jsx']
+}));
+
+app.use('/pages', markdown({
+  directory: __dirname + '/pages'
 }));
 
 function page(req, res) {

@@ -12,6 +12,7 @@ var documentsComponent = require('./documentsComponent');
 var adminComponent = require('./adminComponent');
 var authoringComponent = require('./routes/authoring/blocks/block');
 var http = require('./http');
+var contentPage = require('./contentPage');
 
 var rootComponent = prototype({
   constructor: function (pageData) {
@@ -179,50 +180,59 @@ var rootComponent = prototype({
         }
       },
       function () {
-        return layoutComponent(self, whenLoggedIn(function () {
-          return [
-            routes.enote.under(
-              {
-                documentId: {
-                  set: function (docId) {
-                    return self.openDocumentById(docId);
-                  }
+        return layoutComponent(self,
+          routes.contentPage({
+            onarrival: function (params) {
+              self.contentPage = contentPage(params.page);
+            }
+          }, function (params) {
+            return self.contentPage.render();
+          })
+          || whenLoggedIn(function () {
+            return [
+              routes.enote.under(
+                {
+                  documentId: {
+                    set: function (docId) {
+                      return self.openDocumentById(docId);
+                    }
+                  },
                 },
-              },
-              function () {
-                if (self.documentNotFound) {
-                  return h('h1.center', "Very sorry! We couldn't find this document.");
-                } else if (self.enote) {
-                  return [
-                    routes.enote(function () {
-                      return self.enote.render();
-                    }),
-                    routes.printEnote(function () {
-                      return self.enote.renderPrint();
-                    })
-                  ];
-                } else {
-                  return h('h1.center', 'loading');
+                function () {
+                  if (self.documentNotFound) {
+                    return h('h1.center', "Very sorry! We couldn't find this document.");
+                  } else if (self.enote) {
+                    return [
+                      routes.enote(function () {
+                        return self.enote.render();
+                      }),
+                      routes.printEnote(function () {
+                        return self.enote.renderPrint();
+                      })
+                    ];
+                  } else {
+                    return h('h1.center', 'loading');
+                  }
                 }
-              }
-            ),
-            routes.root({onarrival: refreshDocuments}, function () {
-              return self.documentsComponent.render();
-            }),
-            routes.admin(adminAuth(function () {
-              return self.admin.render();
-            })),
-            routes.adminUser(adminAuth(function (params) {
-              return self.admin.render(params.userId);
-            })),
-            routes.authoring.under(authorAuth(function () {
-              return self.authoringComponent().render();
-            })),
-            routes.resetPassword(function () {
-              return h('h1', 'you have already logged in');
-            })
-          ];
-        }));
+              ),
+              routes.root({onarrival: refreshDocuments}, function () {
+                return self.documentsComponent.render();
+              }),
+              routes.admin(adminAuth(function () {
+                return self.admin.render();
+              })),
+              routes.adminUser(adminAuth(function (params) {
+                return self.admin.render(params.userId);
+              })),
+              routes.authoring.under(authorAuth(function () {
+                return self.authoringComponent().render();
+              })),
+              routes.resetPassword(function () {
+                return h('h1', 'you have already logged in');
+              })
+            ];
+          })
+        );
       }
     );
   }

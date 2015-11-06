@@ -18,5 +18,6 @@ module.exports = {
   authoringQuery:       router.route('/authoring/blocks/:blockId/queries/:queryId'),
   authoringPredicants:  router.route('/authoring/predicants'),
   authoringCreatePredicant:   router.route('/authoring/predicants/create'),
-  authoringPredicant:   router.route('/authoring/predicants/:predicantId')
+  authoringPredicant:   router.route('/authoring/predicants/:predicantId'),
+  contentPage:          router.route('/:page')
 };

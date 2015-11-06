@@ -4,6 +4,7 @@ var routes = require('./routes');
 var http = require('./http');
 var _ = require('underscore');
 var wait = require('./wait');
+var join = require('./join');
 
 module.exports = function (model, contents) {
   if (model.user || model.login || model.signup) {
@@ -64,18 +65,18 @@ function topMenuTabs(model) {
   var document = model.document;
 
   function routeTab(route, title, active) {
-    return route.a({class: {active: active}}, title);
+    return route.a({class: {active: route.active}}, title);
   }
   var root = routes.root();
 
   return h('div.tabs',
     model.user
-      ? [
-        routeTab(routes.root(), 'Home'),
-        routeTab(routes.root(), 'Tutorial'),
-        routeTab(routes.root(), 'FAQ'),
-        routeTab(routes.root(), 'Contact'),
-      ]
+      ? join([
+          routeTab(routes.root(), 'Home'),
+          routeTab(routes.contentPage({page: 'tutorial'}), 'Tutorial'),
+          routeTab(routes.contentPage({page: 'faq'}), 'FAQ'),
+          routeTab(routes.contentPage({page: 'contact'}), 'Contact')
+        ], '|')
       : undefined
   );
 }

@@ -7,7 +7,7 @@ Capybara.register_driver :selenium do |app|
 end
 
 Cappie.start(
-  command: 'gulp server-no-watch',
+  command: 'node server/server.js',
   await: %r{http://localhost:8001/},
   host: 'http://localhost:8001',
   driver: :selenium,

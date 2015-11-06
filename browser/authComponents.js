@@ -1,6 +1,5 @@
 var h = require('plastiq').html;
 var routes = require('./routes');
-var join = require('./join');
 
 module.exports.login = function (params) {
   return h('div.login-page',

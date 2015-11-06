@@ -170,12 +170,19 @@ footer {
       display:inline-block;
       font-weight:bold;
 
-      &:after {
-        content:'|';
-        margin:0 12px;
+      margin:0 12px;
+      padding: 2px 8px;
+      border-radius: 3px;
+
+      &:first-child {
+        margin-left:0
       }
-      &:last-child:after {
-        content:'';
+
+      &.active {
+        background-color: rgba(9, 73, 42, 0.22);
+      }
+
+      &:last-child {
         margin-right:0
       }
     }
