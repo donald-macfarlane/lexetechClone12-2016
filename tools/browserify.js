@@ -5,18 +5,9 @@ var exorcist = require('exorcist');
 var log = require('./log')('browserify');
 var uglify = require('./uglify');
 
-function browserifyBundle(filename, watch) {
-  return browserify(filename, {
-    cache: watch && {},
-    packageCache: watch && {},
-    fullPaths: watch,
-    debug: watch
-  });
-}
-
-module.exports = function (filename, outputDir) {
+module.exports = function (filename, outputDir, options) {
   return new Promise(function (fulfil, reject) {
-    var b = browserify('./' + filename, {debug: true});
+    var b = browserify('./' + filename, options);
     var bundle = b.bundle();
 
     bundle.on('error', reject);

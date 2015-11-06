@@ -336,7 +336,11 @@ function ensureOutputDir() {
 
 function buildJs() {
   return ensureOutputDir().then(function () {
-    return browserify('browser/app.js', outputDir);
+    return browserify('browser/app.js', outputDir, {
+      debug: true,
+      transform: ['babelify'],
+      extensions: ['.jsx']
+    });
   });
 }
 
