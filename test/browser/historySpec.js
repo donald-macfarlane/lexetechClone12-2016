@@ -18,6 +18,7 @@ describe('history', function () {
   var query;
   var lexicon;
   var history;
+  var server;
 
   beforeEach(function () {
     documentApi = createDocumentApi();

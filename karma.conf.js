@@ -34,8 +34,8 @@ module.exports = function(config) {
 
     browserify: {
       debug: true,
-      extensions: ['.pogo'],
-      transform: ['pogoify', 'lessify']
+      extensions: ['.pogo', '.jsx'],
+      transform: ['pogoify', 'lessify', 'babelify']
     },
 
     // list of files to exclude

@@ -185,7 +185,9 @@ app.post("/logout", function(req, res) {
   res.redirect("/");
 });
 
-if (app.get('env') != 'production') {
+var inDevelopment = app.get('env') != 'production';
+
+if (inDevelopment) {
   app.use(less(__dirname + '/../browser/style', {
     dest: __dirname + '/generated',
     render: {
@@ -210,10 +212,14 @@ app.use("/static", function (req, res) {
   res.status(404).send('no such page');
 });
 
-app.use('/app.js', browserify(__dirname + '/../browser/app.js', {
-  transform: ['babelify'],
-  extensions: ['.jsx']
-}));
+browserify.settings.development('precompile', false);
+
+if (inDevelopment) {
+  app.use(browserify(__dirname + '/../browser', {
+    transform: ['babelify'],
+    extensions: ['.jsx']
+  }));
+}
 
 app.use('/pages', markdown({
   directory: __dirname + '/pages'
