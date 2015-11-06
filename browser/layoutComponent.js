@@ -72,7 +72,6 @@ function topMenuTabs(model) {
   return h('div.tabs',
     model.user
       ? join([
-          routeTab(routes.root(), 'Home'),
           routeTab(routes.contentPage({page: 'tutorial'}), 'Tutorial'),
           routeTab(routes.contentPage({page: 'faq'}), 'FAQ'),
           routeTab(routes.contentPage({page: 'contact'}), 'Contact')
